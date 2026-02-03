@@ -64,34 +64,69 @@ export default function BusinessAlerts() {
 
     if (alerts.length === 0) return null;
 
-    return (
-        <div className="flex flex-wrap gap-2">
-            {alerts.slice(0, 2).map((alert, i) => {
-                const content = (
-                    <div
-                        key={i}
-                        className={`
-                            flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium
-                            ${alert.type === 'warning'
-                                ? 'bg-orange-500/10 text-orange-400 border border-orange-500/30'
-                                : alert.type === 'success'
-                                    ? 'bg-green-500/10 text-green-400 border border-green-500/30'
-                                    : 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                            }
-                            ${alert.link ? 'hover:opacity-80 cursor-pointer transition-opacity' : ''}
-                        `}
-                    >
-                        <span>{alert.icon}</span>
-                        <span>{alert.message}</span>
-                    </div>
-                );
+    const AlertChip = ({ alert, index }: { alert: typeof alerts[0]; index: number }) => {
+        const chipContent = (
+            <div
+                className={`
+                    flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
+                    whitespace-nowrap flex-shrink-0 min-w-fit
+                    transition-all duration-200 active:scale-95
+                    ${alert.type === 'warning'
+                        ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-orange-300 border border-orange-500/40 shadow-sm shadow-orange-500/10'
+                        : alert.type === 'success'
+                            ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/10 text-green-300 border border-green-500/40 shadow-sm shadow-green-500/10'
+                            : 'bg-gradient-to-r from-blue-500/20 to-cyan-500/10 text-blue-300 border border-blue-500/40 shadow-sm shadow-blue-500/10'
+                    }
+                    ${alert.link ? 'hover:scale-[1.02] hover:shadow-md cursor-pointer' : ''}
+                `}
+            >
+                <span className="text-base">{alert.icon}</span>
+                <span>{alert.message}</span>
+                {alert.link && (
+                    <span className="text-xs opacity-60 ml-1">→</span>
+                )}
+            </div>
+        );
 
-                return alert.link ? (
-                    <Link key={i} href={alert.link}>{content}</Link>
-                ) : (
-                    content
-                );
-            })}
+        return alert.link ? (
+            <Link key={index} href={alert.link} className="flex-shrink-0">
+                {chipContent}
+            </Link>
+        ) : (
+            <div key={index} className="flex-shrink-0">
+                {chipContent}
+            </div>
+        );
+    };
+
+    return (
+        <div className="relative">
+            {/* Horizontal scrollable container with snap points */}
+            <div
+                className="
+                    flex gap-3 overflow-x-auto pb-1
+                    scrollbar-hide snap-x snap-mandatory
+                    -mx-4 px-4 sm:mx-0 sm:px-0
+                "
+                style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                }}
+            >
+                {alerts.slice(0, 3).map((alert, i) => (
+                    <div key={i} className="snap-start">
+                        <AlertChip alert={alert} index={i} />
+                    </div>
+                ))}
+            </div>
+
+            {/* Fade edge indicators on mobile when there are multiple alerts */}
+            {alerts.length > 1 && (
+                <>
+                    <div className="absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-gray-900/80 to-transparent pointer-events-none sm:hidden" />
+                </>
+            )}
         </div>
     );
 }
+

@@ -471,6 +471,22 @@ export const AVAILABLE_TOOLS: ToolInfo[] = [
     },
 ];
 
+// Mapping of tools to recommended OEM portal access subscriptions
+export const TOOL_OEM_RECOMMENDATIONS: Record<string, string[]> = {
+    'autel_im608': ['gm_tis2web', 'gm_techline_connect', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
+    'lonsdor_k518': ['toyota_tis', 'autoauth_subscription'],
+    'xhorse_keytool_plus': ['gm_tis2web', 'autoauth_subscription'],
+    'obdstar_g3': ['autoauth_subscription', 'toyota_tis'],
+    'autopropad': ['gm_techline_connect', 'ford_fdrs', 'witech_subscription', 'techauthority_subscription'],
+    'smart_pro': ['smartpro_tokens', 'gm_techline_connect', 'ford_fdrs'],
+};
+
+// Helper to get OEM recommendations for a tool
+export function getOemRecommendationsForTool(toolId: string): LicenseItem[] {
+    const recommendedIds = TOOL_OEM_RECOMMENDATIONS[toolId] || [];
+    return LOCKSMITH_REQUIREMENTS.filter(item => recommendedIds.includes(item.id));
+}
+
 // Storage key for business profile (localStorage fallback)
 const STORAGE_KEY = 'eurokeys_business_profile';
 

@@ -1,13 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSubscriptions, Subscription } from '@/contexts/SubscriptionContext';
-import { loadBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
+import { loadBusinessProfile, AVAILABLE_TOOLS, getOemRecommendationsForTool, LOCKSMITH_REQUIREMENTS } from '@/lib/businessTypes';
 import LicensureDashboard from './LicensureDashboard';
 
 export default function SubscriptionDashboard() {
     const { subscriptions, loading, error, getSubscriptionStatus } = useSubscriptions();
     const profile = loadBusinessProfile();
+    const [expandedTool, setExpandedTool] = useState<string | null>(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [prefillSubscriptionId, setPrefillSubscriptionId] = useState<string | null>(null);
 
     if (loading) {
         return (
@@ -23,17 +26,37 @@ export default function SubscriptionDashboard() {
         if (!tool) return null;
 
         const status = getSubscriptionStatus(tool.shortName);
+        const oemRecommendations = getOemRecommendationsForTool(toolId);
+
+        // Check if user has added any of the OEM recommendations
+        const addedOemItems = oemRecommendations.filter(oem =>
+            subscriptions.some(sub => sub.name?.toLowerCase().includes(oem.name.toLowerCase()))
+        );
 
         return {
             tool,
+            oemRecommendations,
+            addedOemItems,
             ...status,
         };
     }).filter(Boolean);
 
+    // Handle adding a subscription from tool card
+    const handleAddFromTool = (subscriptionId: string) => {
+        setPrefillSubscriptionId(subscriptionId);
+        setShowAddModal(true);
+    };
+
     return (
         <div className="space-y-10">
             {/* Licenses & Certifications Section */}
-            <LicensureDashboard />
+            <LicensureDashboard
+                prefillSubscriptionId={showAddModal ? prefillSubscriptionId : undefined}
+                onModalClose={() => {
+                    setShowAddModal(false);
+                    setPrefillSubscriptionId(null);
+                }}
+            />
 
             {/* Divider */}
             <div className="border-t border-gray-800" />
@@ -42,8 +65,8 @@ export default function SubscriptionDashboard() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h3 className="text-xl font-bold">Tool Subscriptions</h3>
-                        <p className="text-sm text-gray-500">Track your programming tool renewals</p>
+                        <h3 className="text-xl font-bold">Your Tools & Subscriptions</h3>
+                        <p className="text-sm text-gray-500">Track renewals and recommended OEM portal access</p>
                     </div>
                     <a
                         href="/business/tools"
@@ -60,18 +83,25 @@ export default function SubscriptionDashboard() {
                         <p className="text-gray-500 mb-4">
                             Add your tools to track subscription status
                         </p>
+                        <a
+                            href="/business/tools"
+                            className="inline-block px-6 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg font-semibold transition-colors"
+                        >
+                            + Add Your First Tool
+                        </a>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         {toolSubscriptions.map((item) => {
                             if (!item) return null;
-                            const { tool, status, daysLeft, text } = item;
+                            const { tool, status, daysLeft, text, oemRecommendations, addedOemItems } = item;
+                            const isExpanded = expandedTool === tool.id;
 
                             const statusColors = {
-                                active: { bg: 'bg-green-900/30', border: 'border-green-700/30', text: 'text-green-400' },
-                                warning: { bg: 'bg-yellow-900/30', border: 'border-yellow-700/30', text: 'text-yellow-400' },
-                                expired: { bg: 'bg-red-900/30', border: 'border-red-700/30', text: 'text-red-400' },
-                                none: { bg: 'bg-gray-900/50', border: 'border-gray-800', text: 'text-gray-500' },
+                                active: { bg: 'bg-green-900/30', border: 'border-green-700/30', text: 'text-green-400', badge: 'bg-green-500/20 text-green-400' },
+                                warning: { bg: 'bg-yellow-900/30', border: 'border-yellow-700/30', text: 'text-yellow-400', badge: 'bg-yellow-500/20 text-yellow-400' },
+                                expired: { bg: 'bg-red-900/30', border: 'border-red-700/30', text: 'text-red-400', badge: 'bg-red-500/20 text-red-400' },
+                                none: { bg: 'bg-gray-900/50', border: 'border-gray-800', text: 'text-gray-500', badge: 'bg-gray-500/20 text-gray-400' },
                             };
 
                             const colors = statusColors[status as keyof typeof statusColors] || statusColors.none;
@@ -79,42 +109,95 @@ export default function SubscriptionDashboard() {
                             return (
                                 <div
                                     key={tool.id}
-                                    className={`p-5 rounded-xl border ${colors.border} ${colors.bg}`}
+                                    className={`rounded-xl border ${colors.border} overflow-hidden`}
                                 >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <span className="text-2xl">{tool.icon}</span>
-                                        <div>
-                                            <div className="font-bold text-white">{tool.shortName}</div>
-                                            <div className="text-xs text-gray-500">{tool.badge}</div>
+                                    {/* Tool Header */}
+                                    <div className={`p-5 ${colors.bg}`}>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-3xl">{tool.icon}</span>
+                                                <div>
+                                                    <div className="font-bold text-white text-lg">{tool.name}</div>
+                                                    <div className="text-xs text-gray-400">{tool.badge}</div>
+                                                </div>
+                                            </div>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colors.badge}`}>
+                                                {status === 'none' ? 'Not Added' : status === 'active' ? '✓ Active' : status === 'warning' ? '⚠ Renew Soon' : '✗ Expired'}
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between">
-                                        <div className={`text-lg font-bold ${colors.text}`}>
-                                            {status === 'none' ? 'Not Added' : text}
+                                    {/* Subscription Status */}
+                                    <div className="p-4 border-t border-gray-800/50 bg-gray-900/30">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm text-gray-400">📅 Annual Subscription</span>
+                                            {status !== 'none' && daysLeft > 0 && (
+                                                <span className="text-xs text-gray-500">{daysLeft} days left</span>
+                                            )}
                                         </div>
-                                        {status !== 'none' && daysLeft > 0 && (
-                                            <div className="text-xs text-gray-500">
-                                                {daysLeft} days
-                                            </div>
+                                        <div className={`text-sm font-medium ${colors.text}`}>
+                                            {status === 'none' ? (
+                                                <button
+                                                    onClick={() => tool.subscriptionId && handleAddFromTool(tool.subscriptionId)}
+                                                    className="text-yellow-500 hover:text-yellow-400"
+                                                >
+                                                    + Add Subscription
+                                                </button>
+                                            ) : (
+                                                text
+                                            )}
+                                        </div>
+                                        {tool.subscriptionNote && (
+                                            <div className="text-xs text-gray-500 mt-1">{tool.subscriptionNote}</div>
                                         )}
                                     </div>
 
-                                    {status === 'none' && (
-                                        <button className="mt-3 w-full py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-semibold transition-colors">
-                                            + Add Subscription
-                                        </button>
-                                    )}
+                                    {/* OEM Recommendations */}
+                                    {oemRecommendations.length > 0 && (
+                                        <div className="p-4 border-t border-gray-800/50 bg-gray-900/20">
+                                            <button
+                                                onClick={() => setExpandedTool(isExpanded ? null : tool.id)}
+                                                className="flex items-center justify-between w-full text-left"
+                                            >
+                                                <span className="text-sm text-gray-400">
+                                                    🚙 OEM Portal Access ({addedOemItems.length}/{oemRecommendations.length})
+                                                </span>
+                                                <span className="text-gray-500 text-xs">
+                                                    {isExpanded ? '▲ Collapse' : '▼ Expand'}
+                                                </span>
+                                            </button>
 
-                                    {status === 'warning' && (
-                                        <div className="mt-3 text-xs text-yellow-500 flex items-center gap-1">
-                                            ⚠️ Renewal coming up
-                                        </div>
-                                    )}
-
-                                    {status === 'expired' && (
-                                        <div className="mt-3 text-xs text-red-500 flex items-center gap-1">
-                                            ❌ Subscription expired
+                                            {isExpanded && (
+                                                <div className="mt-3 space-y-2">
+                                                    {oemRecommendations.map(oem => {
+                                                        const isAdded = addedOemItems.some(a => a.id === oem.id);
+                                                        return (
+                                                            <div
+                                                                key={oem.id}
+                                                                className={`flex items-center justify-between p-2 rounded-lg ${isAdded ? 'bg-green-900/20' : 'bg-gray-800/50'}`}
+                                                            >
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className={`w-2 h-2 rounded-full ${isAdded ? 'bg-green-500' : 'bg-gray-600'}`} />
+                                                                    <span className="text-sm text-white">{oem.name}</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-xs text-gray-400">
+                                                                        ${oem.typicalPrice}{oem.typicalDuration === 1 ? '/VIN' : oem.typicalDuration === 0 ? '' : '/yr'}
+                                                                    </span>
+                                                                    {!isAdded && (
+                                                                        <button
+                                                                            onClick={() => handleAddFromTool(oem.id)}
+                                                                            className="text-xs text-yellow-500 hover:text-yellow-400"
+                                                                        >
+                                                                            + Add
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

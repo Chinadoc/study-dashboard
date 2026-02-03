@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LOCKSMITH_REQUIREMENTS, LicenseItem, LicenseCategory, LICENSE_CATEGORIES } from '@/lib/businessTypes';
+import { API_BASE } from '@/lib/config';
 
 export interface UserLicense {
     id: string;
@@ -19,6 +20,8 @@ export interface UserLicense {
 
 interface LicensureDashboardProps {
     onAddLicense?: () => void;
+    prefillSubscriptionId?: string | null;  // Pre-select a subscription template when opened externally
+    onModalClose?: () => void;              // Callback when modal is closed
 }
 
 const STORAGE_KEY = 'eurokeys_user_licenses';
@@ -53,7 +56,7 @@ function calculateDaysInfo(license: UserLicense) {
     return { daysObtained, daysRemaining, status };
 }
 
-export default function LicensureDashboard({ onAddLicense }: LicensureDashboardProps) {
+export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId, onModalClose }: LicensureDashboardProps) {
     const [licenses, setLicenses] = useState<UserLicense[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -69,6 +72,81 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
         notes: '',
     });
 
+    // Upload and AI extraction state
+    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+    const [isExtracting, setIsExtracting] = useState(false);
+    const [extractionError, setExtractionError] = useState<string | null>(null);
+    const [confidence, setConfidence] = useState<Record<string, number>>({});
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // AI extraction handler
+    const handleExtractFromImage = async () => {
+        if (!uploadedFile) return;
+
+        setIsExtracting(true);
+        setExtractionError(null);
+
+        try {
+            // Convert file to base64
+            const reader = new FileReader();
+            const base64Promise = new Promise<string>((resolve, reject) => {
+                reader.onload = () => {
+                    const result = reader.result as string;
+                    // Remove data URL prefix (e.g., "data:image/jpeg;base64,")
+                    const base64 = result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+            });
+            reader.readAsDataURL(uploadedFile);
+            const imageData = await base64Promise;
+
+            const response = await fetch(`${API_BASE}/api/ai/extract-license`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    imageData,
+                    mimeType: uploadedFile.type
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Extraction failed');
+            }
+
+            // Populate form with extracted fields
+            const { fields, confidence: conf } = data;
+            setFormData(prev => ({
+                ...prev,
+                name: fields.name || prev.name,
+                type: fields.type || prev.type,
+                obtainedDate: fields.obtainedDate || prev.obtainedDate,
+                expirationDate: fields.expirationDate || prev.expirationDate,
+                price: fields.price || prev.price,
+                notes: fields.notes || prev.notes,
+            }));
+            setConfidence(conf || {});
+
+        } catch (err: any) {
+            setExtractionError(err.message || 'Failed to extract license info');
+        } finally {
+            setIsExtracting(false);
+        }
+    };
+
+    // Handle file selection
+    const handleFileSelect = (file: File) => {
+        if (!file.type.startsWith('image/')) {
+            setExtractionError('Please upload an image file (JPEG, PNG, etc.)');
+            return;
+        }
+        setUploadedFile(file);
+        setExtractionError(null);
+        setConfidence({});
+    };
+
     // Load from localStorage
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -78,6 +156,14 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
             }
         }
     }, []);
+
+    // Handle external prefill request (from SubscriptionDashboard)
+    useEffect(() => {
+        if (prefillSubscriptionId) {
+            handleTemplateSelect(prefillSubscriptionId);
+            setShowAddModal(true);
+        }
+    }, [prefillSubscriptionId]);
 
     // Save to localStorage
     const saveLicenses = (updated: UserLicense[]) => {
@@ -128,6 +214,7 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
         setShowAddModal(false);
         setSelectedTemplate('');
         resetFormData();
+        onModalClose?.();  // Notify parent component
     };
 
     // Edit existing license
@@ -177,6 +264,10 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
             price: '',
             notes: '',
         });
+        // Also reset upload state
+        setUploadedFile(null);
+        setExtractionError(null);
+        setConfidence({});
     };
 
     // Delete license
@@ -349,6 +440,122 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                         </div>
 
                         <div className="p-6 space-y-4">
+                            {/* Upload Zone for AI Extraction */}
+                            <div className="mb-4">
+                                <label className="block text-sm text-gray-500 mb-2">
+                                    📷 Upload Document (Optional)
+                                </label>
+                                <div
+                                    className={`relative border-2 border-dashed rounded-xl p-4 transition-all ${uploadedFile
+                                        ? 'border-blue-500 bg-blue-900/20'
+                                        : 'border-gray-700 hover:border-gray-600 bg-gray-800/50'
+                                        }`}
+                                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const file = e.dataTransfer.files?.[0];
+                                        if (file) handleFileSelect(file);
+                                    }}
+                                >
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) handleFileSelect(file);
+                                        }}
+                                    />
+
+                                    {uploadedFile ? (
+                                        <div className="flex items-center gap-3">
+                                            {/* Image Preview */}
+                                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
+                                                <img
+                                                    src={URL.createObjectURL(uploadedFile)}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="text-sm font-medium text-white truncate">
+                                                    {uploadedFile.name}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {(uploadedFile.size / 1024).toFixed(1)} KB
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setUploadedFile(null);
+                                                    setConfidence({});
+                                                    setExtractionError(null);
+                                                }}
+                                                className="text-gray-500 hover:text-red-400 p-1"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="w-full text-center py-2"
+                                        >
+                                            <div className="text-2xl mb-1">📄</div>
+                                            <div className="text-sm text-gray-400">
+                                                Drop image here or <span className="text-blue-400">browse</span>
+                                            </div>
+                                            <div className="text-xs text-gray-600 mt-1">
+                                                AI will extract license info automatically
+                                            </div>
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Extract Button */}
+                                {uploadedFile && (
+                                    <button
+                                        type="button"
+                                        onClick={handleExtractFromImage}
+                                        disabled={isExtracting}
+                                        className="mt-2 w-full py-2 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2"
+                                    >
+                                        {isExtracting ? (
+                                            <>
+                                                <span className="animate-spin">⚙️</span>
+                                                Extracting...
+                                            </>
+                                        ) : (
+                                            <>✨ Extract with AI</>
+                                        )}
+                                    </button>
+                                )}
+
+                                {/* Extraction Error */}
+                                {extractionError && (
+                                    <div className="mt-2 text-sm text-red-400 bg-red-900/20 rounded-lg p-2">
+                                        ⚠️ {extractionError}
+                                    </div>
+                                )}
+
+                                {/* Confidence Summary */}
+                                {Object.keys(confidence).length > 0 && (
+                                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-2">
+                                        <span className="text-green-400">✓</span>
+                                        Extracted! Review fields below.
+                                        {Object.values(confidence).some(c => c < 0.7) && (
+                                            <span className="text-amber-400 ml-1">
+                                                ⚠️ Some fields may need review
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Template Selection - grouped by category */}
                             <div>
                                 <label className="block text-sm text-gray-500 mb-2">Quick Add (Optional)</label>
@@ -475,7 +682,11 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
 
                         <div className="p-6 border-t border-gray-800 flex gap-3">
                             <button
-                                onClick={() => setShowAddModal(false)}
+                                onClick={() => {
+                                    setShowAddModal(false);
+                                    resetFormData();
+                                    onModalClose?.();
+                                }}
                                 className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors"
                             >
                                 Cancel
