@@ -35,7 +35,7 @@ export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageS
                     🔧 Tool Coverage
                 </h3>
                 <Link
-                    href={`/business/coverage-heatmap?make=${encodeURIComponent(make)}`}
+                    href={`/business/tools?tab=coverage`}
                     className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
                 >
                     View Map →

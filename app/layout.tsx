@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 import { Providers } from '@/components/Providers';
+import { ModeProvider } from '@/contexts/ModeContext';
 import { GoogleSignInButton } from '@/components/shared/GoogleSignInButton';
-import MobileNavBar from '@/components/layout/MobileNavBar';
+import ModeToggle from '@/components/layout/ModeToggle';
+import BottomNav from '@/components/layout/BottomNav';
 import ChatWidget from '@/components/ChatWidget';
 
 export const metadata: Metadata = {
@@ -35,64 +37,68 @@ export default function RootLayout({
             </head>
             <body>
                 <Providers>
-                    {/* Navigation */}
-                    <nav className="sticky top-0 z-50 border-b border-eurokeys-border bg-eurokeys-dark/90 backdrop-blur-md">
-                        <div className="mx-auto max-w-7xl px-4">
-                            <div className="flex h-14 items-center justify-between">
-                                {/* Logo */}
-                                <a href="/" className="flex items-center gap-2 text-xl font-bold text-eurokeys-purple-light">
-                                    <span>🔑</span>
-                                    <span className="hidden sm:inline">EURO KEYS</span>
-                                    <span className="sm:hidden">EK</span>
-                                </a>
+                    <ModeProvider>
+                        {/* Navigation */}
+                        <nav className="sticky top-0 z-50 border-b border-eurokeys-border bg-eurokeys-dark/90 backdrop-blur-md">
+                            <div className="mx-auto max-w-7xl px-4">
+                                <div className="flex h-14 items-center justify-between">
+                                    {/* Logo */}
+                                    <a href="/" className="flex items-center gap-2 text-xl font-bold text-eurokeys-purple-light">
+                                        <span>🔑</span>
+                                        <span className="hidden sm:inline">EURO KEYS</span>
+                                        <span className="sm:hidden">EK</span>
+                                    </a>
 
-                                {/* Center Navigation - Hidden on mobile */}
-                                <div className="hidden lg:flex gap-6">
-                                    <a href="/browse" className="text-sm text-slate-400 hover:text-white">
-                                        📁 Browse Database
-                                    </a>
-                                    <a href="/fcc" className="text-sm text-slate-400 hover:text-white">
-                                        📡 FCC Database
-                                    </a>
-                                    <a href="/dossiers" className="text-sm text-slate-400 hover:text-white">
-                                        📚 Dossiers
-                                    </a>
-                                    <a href="/gallery" className="text-sm text-slate-400 hover:text-white">
-                                        📷 Gallery
-                                    </a>
-                                    <a href="/inventory" className="text-sm text-slate-400 hover:text-white">
-                                        📦 Business
-                                    </a>
-                                </div>
+                                    {/* Center Navigation - Hidden on mobile */}
+                                    <div className="hidden lg:flex gap-6">
+                                        <a href="/browse" className="text-sm text-slate-400 hover:text-white">
+                                            📁 Browse Database
+                                        </a>
+                                        <a href="/fcc" className="text-sm text-slate-400 hover:text-white">
+                                            📡 FCC Database
+                                        </a>
+                                        <a href="/dossiers" className="text-sm text-slate-400 hover:text-white">
+                                            📚 Dossiers
+                                        </a>
+                                        <a href="/gallery" className="text-sm text-slate-400 hover:text-white">
+                                            📷 Gallery
+                                        </a>
+                                        <a href="/inventory" className="text-sm text-slate-400 hover:text-white">
+                                            📦 Business
+                                        </a>
+                                    </div>
 
-                                {/* Right - Search & Auth */}
-                                <div className="flex items-center gap-3">
-                                    {/* Search Icon - Links to browse page */}
-                                    <a href="/browse" className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white">
-                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </a>
-                                    {/* Google Sign-In Button */}
-                                    <GoogleSignInButton />
+                                    {/* Right - Search, Mode Toggle & Auth */}
+                                    <div className="flex items-center gap-2">
+                                        {/* Search Icon - Links to browse page */}
+                                        <a href="/browse" className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white">
+                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </a>
+                                        {/* Mode Toggle */}
+                                        <ModeToggle />
+                                        {/* Google Sign-In Button */}
+                                        <GoogleSignInButton />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </nav>
+                        </nav>
 
-                    {/* Main Content - Add bottom padding on mobile for nav bar */}
-                    <main className="min-h-screen pb-20 lg:pb-0">{children}</main>
+                        {/* Main Content - Add bottom padding on mobile for nav bar */}
+                        <main className="min-h-screen pb-20 lg:pb-0">{children}</main>
 
-                    {/* Mobile Bottom Nav Bar */}
-                    <MobileNavBar />
+                        {/* Mobile Bottom Nav Bar */}
+                        <BottomNav />
 
-                    {/* AI Chat Widget */}
-                    <ChatWidget />
+                        {/* AI Chat Widget */}
+                        <ChatWidget />
 
-                    {/* Footer - Hidden on mobile */}
-                    <footer className="hidden lg:block border-t border-eurokeys-border py-6 text-center text-sm text-slate-500">
-                        © 2026 Euro Keys - Professional Automotive Locksmith
-                    </footer>
+                        {/* Footer - Hidden on mobile */}
+                        <footer className="hidden lg:block border-t border-eurokeys-border py-6 text-center text-sm text-slate-500">
+                            © 2026 Euro Keys - Professional Automotive Locksmith
+                        </footer>
+                    </ModeProvider>
                 </Providers>
             </body>
         </html>

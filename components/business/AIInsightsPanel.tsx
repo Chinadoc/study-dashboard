@@ -150,13 +150,40 @@ export default function AIInsightsPanel() {
         setInsight(null);
         try {
             const token = localStorage.getItem('session_token');
+
+            // Gather subscription context for AI
+            const licensesData = localStorage.getItem('eurokeys_user_licenses');
+            const licenses = licensesData ? JSON.parse(licensesData) : [];
+            const subscriptionContext = {
+                totalLicenses: licenses.length,
+                upcomingRenewals: licenses.filter((l: any) => {
+                    if (!l.expirationDate) return false;
+                    const daysLeft = Math.ceil((new Date(l.expirationDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                    return daysLeft > 0 && daysLeft <= 30;
+                }).map((l: any) => ({
+                    name: l.name,
+                    daysLeft: Math.ceil((new Date(l.expirationDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+                    price: l.price
+                })),
+                lowTokenItems: licenses.filter((l: any) =>
+                    l.tokensRemaining !== undefined && l.tokensRemaining < 10
+                ).map((l: any) => ({
+                    name: l.name,
+                    tokensRemaining: l.tokensRemaining
+                })),
+                totalAnnualCost: licenses.reduce((sum: number, l: any) => sum + (l.price || 0), 0)
+            };
+
             const res = await fetch(`${API_BASE}/api/ai/business-insights`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ insightType: selectedType })
+                body: JSON.stringify({
+                    insightType: selectedType,
+                    subscriptionContext: subscriptionContext
+                })
             });
             const data = await res.json();
 

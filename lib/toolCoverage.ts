@@ -40,8 +40,12 @@ interface VehicleCoverageRecord {
 const COVERAGE_DATA = (vehicleCoverageData as { vehicles: VehicleCoverageRecord[] }).vehicles || [];
 
 // Map tool IDs from businessTypes to coverage categories
+// Autel models all use 'autel' baseline data (derived coverage handled by autelModelCoverage.ts)
 const TOOL_ID_TO_COVERAGE: Record<string, keyof Pick<VehicleCoverageRecord, 'autel' | 'smartPro' | 'lonsdor' | 'vvdi'>> = {
+    'autel_im508s': 'autel',
     'autel_im608': 'autel',
+    'autel_im608_pro': 'autel',
+    'autel_im608_pro2': 'autel',
     'obdstar_g3': 'autel',      // Similar to Autel
     'autopropad': 'smartPro',    // Smart Pro category
     'smart_pro': 'smartPro',
@@ -50,8 +54,9 @@ const TOOL_ID_TO_COVERAGE: Record<string, keyof Pick<VehicleCoverageRecord, 'aut
 };
 
 // Coverage categories with display info
+// Note: When filtering by specific Autel model, use AUTEL_MODEL_TIERS from autelModelCoverage.ts
 const COVERAGE_TOOLS = [
-    { key: 'autel' as const, name: 'Autel IM608', icon: '🔴', color: 'red' },
+    { key: 'autel' as const, name: 'Autel (All)', icon: '🔴', color: 'red' },
     { key: 'smartPro' as const, name: 'Smart Pro', icon: '⚪', color: 'gray' },
     { key: 'lonsdor' as const, name: 'Lonsdor K518', icon: '🟣', color: 'purple' },
     { key: 'vvdi' as const, name: 'VVDI/Xhorse', icon: '🟠', color: 'orange' },

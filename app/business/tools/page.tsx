@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { loadBusinessProfile, saveBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
+import CoverageTimeline from '@/components/business/CoverageTimeline';
+import ToolCoveragePreview from '@/components/business/ToolCoveragePreview';
 
-type ToolsSubTab = 'mytools' | 'add';
+type ToolsSubTab = 'mytools' | 'coverage' | 'add';
 
 export default function ToolsPage() {
     const [activeSubTab, setActiveSubTab] = useState<ToolsSubTab>('mytools');
@@ -31,6 +33,7 @@ export default function ToolsPage() {
 
     const subtabs = [
         { id: 'mytools', label: 'My Tools', icon: '🛠️', count: userTools.length },
+        { id: 'coverage', label: 'Coverage Map', icon: '📊' },
         { id: 'add', label: 'Add Tool', icon: '➕' },
     ];
 
@@ -87,18 +90,18 @@ export default function ToolsPage() {
                                 })}
                             </div>
 
-                            {/* View Coverage Map Link */}
-                            <Link
-                                href="/business/coverage-heatmap?myCoverage=true"
-                                className="flex items-center gap-3 p-4 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all group active:scale-[0.98]"
+                            {/* View Coverage Tab Link */}
+                            <button
+                                onClick={() => setActiveSubTab('coverage')}
+                                className="flex items-center gap-3 p-4 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all group active:scale-[0.98] w-full text-left"
                             >
-                                <span className="text-2xl">🗺️</span>
+                                <span className="text-2xl">📊</span>
                                 <div className="flex-1">
                                     <div className="font-bold text-purple-300 group-hover:text-purple-200">View Coverage Map</div>
                                     <div className="text-xs text-gray-400">See which vehicles your {userTools.length} tools can service</div>
                                 </div>
                                 <span className="text-purple-400 group-hover:translate-x-1 transition-transform">→</span>
-                            </Link>
+                            </button>
                         </>
                     ) : (
                         <div className="text-center py-12 text-gray-500">
@@ -114,6 +117,11 @@ export default function ToolsPage() {
                         </div>
                     )}
                 </div>
+            )}
+
+            {/* Coverage Map View */}
+            {activeSubTab === 'coverage' && (
+                <CoverageTimeline initialMyCoverage={true} />
             )}
 
 
@@ -179,18 +187,12 @@ function ToolCard({
                     {owned ? '✓' : '+'}
                 </div>
             </div>
-            <div className="text-xs text-gray-500">{tool.badge}</div>
+            <div className="text-xs text-gray-500 mb-3">{tool.badge}</div>
 
-            {/* Coverage link for owned tools */}
-            {owned && (
-                <Link
-                    href={`/business/coverage-heatmap?myCoverage=true`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="mt-3 flex items-center justify-center gap-1 py-1.5 px-3 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs hover:bg-purple-500/20 transition-all"
-                >
-                    🗺️ View Coverage
-                </Link>
-            )}
+            {/* Mini Coverage Map */}
+            <div className="mt-2 pt-2 border-t border-zinc-700/50">
+                <ToolCoveragePreview toolId={tool.id} />
+            </div>
         </div>
     );
 }

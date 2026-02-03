@@ -1,6 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+    getDeviceId,
+    getSyncState,
+    updateSyncState,
+    addToQueue,
+    removeFromQueue,
+    getQueue,
+    isOnline,
+    setupConnectivityListeners,
+    SyncStatus,
+    getSyncStatus as getQueueSyncStatus
+} from './syncQueue';
 
 // API base URL - use environment variable or default to production
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
@@ -43,6 +55,12 @@ export interface JobLog {
 
     // Additional details
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
+
+    // Sync metadata
+    updatedAt?: number;       // Timestamp of last modification
+    syncedAt?: number;        // When it was last synced to cloud
+    syncStatus?: 'pending' | 'synced' | 'conflict';  // Current sync state
+    deviceId?: string;        // Origin device for conflict resolution
 }
 
 export interface JobStats {
@@ -115,92 +133,272 @@ async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<
 export function useJobLogs() {
     const [jobLogs, setJobLogs] = useState<JobLog[]>([]);
     const [loading, setLoading] = useState(true);
+    const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced');
     const hasSyncedRef = useRef(false);
+    const isSyncingRef = useRef(false);
 
-    // Load jobs - prioritize cloud, fallback to localStorage
+    // Merge local and cloud jobs using timestamps
+    const mergeJobs = useCallback((local: JobLog[], cloud: JobLog[]): JobLog[] => {
+        const merged = new Map<string, JobLog>();
+
+        // Start with cloud jobs
+        cloud.forEach(job => {
+            merged.set(job.id, { ...job, syncStatus: 'synced' as const });
+        });
+
+        // Merge in local jobs, using updatedAt for conflict resolution
+        local.forEach(localJob => {
+            const cloudJob = merged.get(localJob.id);
+            if (!cloudJob) {
+                // Local-only job, needs to sync
+                merged.set(localJob.id, { ...localJob, syncStatus: 'pending' as const });
+            } else {
+                // Both exist - compare timestamps
+                const localTime = localJob.updatedAt || localJob.createdAt || 0;
+                const cloudTime = cloudJob.updatedAt || cloudJob.createdAt || 0;
+
+                if (localTime > cloudTime) {
+                    // Local is newer
+                    merged.set(localJob.id, { ...localJob, syncStatus: 'pending' as const });
+                }
+                // else cloud wins (already in merged)
+            }
+        });
+
+        // Sort by createdAt descending
+        return Array.from(merged.values()).sort((a, b) =>
+            (b.createdAt || 0) - (a.createdAt || 0)
+        );
+    }, []);
+
+    // Process pending sync queue
+    const processSyncQueue = useCallback(async () => {
+        if (isSyncingRef.current || !isOnline()) return;
+
+        const queue = getQueue();
+        const jobOps = queue.filter(op => op.entityType === 'job');
+
+        if (jobOps.length === 0) return;
+
+        isSyncingRef.current = true;
+        setSyncStatus('syncing');
+
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                isSyncingRef.current = false;
+                setSyncStatus('pending');
+                return;
+            }
+
+            // Batch sync all pending jobs
+            const pendingJobs = jobOps
+                .filter(op => op.type !== 'delete')
+                .map(op => op.data as unknown as JobLog);
+
+            if (pendingJobs.length > 0) {
+                await apiRequest('/api/jobs/sync', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        jobs: pendingJobs,
+                        deviceId: getDeviceId()
+                    }),
+                });
+            }
+
+            // Process deletes
+            const deleteOps = jobOps.filter(op => op.type === 'delete');
+            for (const op of deleteOps) {
+                await apiRequest(`/api/jobs/${op.id}`, { method: 'DELETE' });
+                removeFromQueue(op.id, 'job');
+            }
+
+            // Clear synced items from queue
+            pendingJobs.forEach(job => removeFromQueue(job.id, 'job'));
+
+            // Update sync state
+            updateSyncState({
+                lastCloudSync: Date.now(),
+                pendingCount: 0
+            });
+
+            setSyncStatus('synced');
+        } catch (e) {
+            console.error('Failed to process sync queue:', e);
+            updateSyncState({
+                lastError: e instanceof Error ? e.message : 'Sync failed',
+                lastErrorTime: Date.now()
+            });
+            setSyncStatus('error');
+        } finally {
+            isSyncingRef.current = false;
+        }
+    }, []);
+
+    // Bidirectional sync: load from both local and cloud, merge, then push local-only to cloud
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
         const loadJobs = async () => {
-            const token = getAuthToken();
+            setSyncStatus('syncing');
 
-            if (token) {
-                // Try to load from cloud
-                try {
-                    const data = await apiRequest('/api/jobs');
-                    if (data?.jobs) {
-                        setJobLogs(data.jobs);
-                        // Cache in localStorage for offline access
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.jobs));
-                        setLoading(false);
-
-                        // Check if we need to sync localStorage jobs to cloud
-                        // IMPROVED: Merge any local jobs not yet in cloud
-                        if (!hasSyncedRef.current) {
-                            const localJobs = getJobLogsFromStorage();
-                            const cloudJobIds = new Set(data.jobs.map((j: JobLog) => j.id));
-                            const localOnlyJobs = localJobs.filter(j => !cloudJobIds.has(j.id));
-
-                            if (localOnlyJobs.length > 0) {
-                                console.log(`Syncing ${localOnlyJobs.length} local-only jobs to cloud...`);
-                                await apiRequest('/api/jobs/sync', {
-                                    method: 'POST',
-                                    body: JSON.stringify({ jobs: localOnlyJobs }),
-                                });
-                                // Reload to get merged data
-                                const refreshed = await apiRequest('/api/jobs');
-                                if (refreshed?.jobs) {
-                                    setJobLogs(refreshed.jobs);
-                                    localStorage.setItem(STORAGE_KEY, JSON.stringify(refreshed.jobs));
-                                }
-                            }
-                            hasSyncedRef.current = true;
-                        }
-                        return;
-                    }
-                } catch (e) {
-                    console.error('Failed to load jobs from cloud:', e);
-                }
-            }
-
-            // Fallback to localStorage
+            // 1. Load local jobs first (instant UI)
+            let localJobs: JobLog[] = [];
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
-                    setJobLogs(JSON.parse(saved));
+                    localJobs = JSON.parse(saved);
+                    setJobLogs(localJobs);
                 }
             } catch (e) {
-                console.error('Failed to load job logs from localStorage:', e);
+                console.error('Failed to load local jobs:', e);
             }
+
+            const token = getAuthToken();
+
+            if (!token) {
+                // Not authenticated - just use local
+                setLoading(false);
+                setSyncStatus(localJobs.length > 0 ? 'pending' : 'synced');
+                return;
+            }
+
+            // 2. Fetch from cloud
+            try {
+                const syncState = getSyncState();
+                const data = await apiRequest('/api/jobs');
+
+                if (data?.jobs) {
+                    // 3. Merge local and cloud
+                    const cloudJobs: JobLog[] = data.jobs;
+                    const merged = mergeJobs(localJobs, cloudJobs);
+
+                    setJobLogs(merged);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+
+                    // 4. Find local-only jobs that need to sync
+                    const cloudIds = new Set(cloudJobs.map(j => j.id));
+                    const localOnlyJobs = merged.filter(j =>
+                        !cloudIds.has(j.id) || j.syncStatus === 'pending'
+                    );
+
+                    if (localOnlyJobs.length > 0 && !hasSyncedRef.current) {
+                        console.log(`Syncing ${localOnlyJobs.length} local-only jobs to cloud...`);
+                        await apiRequest('/api/jobs/sync', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                jobs: localOnlyJobs,
+                                deviceId: getDeviceId()
+                            }),
+                        });
+
+                        // Mark as synced
+                        const synced = merged.map(j => ({
+                            ...j,
+                            syncStatus: 'synced' as const,
+                            syncedAt: Date.now()
+                        }));
+                        setJobLogs(synced);
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+                    }
+
+                    hasSyncedRef.current = true;
+                    updateSyncState({
+                        lastCloudSync: Date.now(),
+                        pendingCount: 0
+                    });
+                    setSyncStatus('synced');
+                } else {
+                    // Cloud returned nothing, use local
+                    setSyncStatus(localJobs.length > 0 ? 'pending' : 'synced');
+                }
+            } catch (e) {
+                console.error('Failed to sync with cloud:', e);
+                setSyncStatus(isOnline() ? 'error' : 'offline');
+            }
+
             setLoading(false);
         };
 
         loadJobs();
-    }, []);
+
+        // Process any queued operations
+        processSyncQueue();
+
+        // Set up connectivity listener
+        const cleanup = setupConnectivityListeners(
+            () => {
+                // Online - process queue
+                setSyncStatus('syncing');
+                processSyncQueue();
+            },
+            () => {
+                // Offline
+                setSyncStatus('offline');
+            }
+        );
+
+        return cleanup;
+    }, [mergeJobs, processSyncQueue]);
 
     // Save to localStorage (for cache) and cloud (for sync)
-    const saveJob = useCallback(async (job: JobLog): Promise<boolean> => {
+    const saveJob = useCallback(async (job: JobLog, isNew: boolean = false): Promise<boolean> => {
+        // Add sync metadata
+        const jobWithMeta: JobLog = {
+            ...job,
+            updatedAt: Date.now(),
+            deviceId: getDeviceId(),
+            syncStatus: 'pending',
+        };
+
         // Always save to localStorage as cache
         const current = getJobLogsFromStorage();
         const exists = current.findIndex(j => j.id === job.id);
         if (exists >= 0) {
-            current[exists] = job;
+            current[exists] = jobWithMeta;
         } else {
-            current.unshift(job);
+            current.unshift(jobWithMeta);
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+        updateSyncState({ lastLocalModified: Date.now() });
 
-        // Save to cloud if authenticated
+        // Save to cloud if authenticated and online
         const token = getAuthToken();
-        if (token) {
+        if (token && isOnline()) {
             try {
                 await apiRequest('/api/jobs', {
                     method: 'POST',
-                    body: JSON.stringify(job),
+                    body: JSON.stringify(jobWithMeta),
                 });
+                // Mark as synced
+                const synced = current.map(j =>
+                    j.id === job.id ? { ...j, syncStatus: 'synced' as const, syncedAt: Date.now() } : j
+                );
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+                updateSyncState({ lastCloudSync: Date.now() });
+                setSyncStatus('synced');
             } catch (e) {
-                console.error('Failed to sync job to cloud:', e);
+                console.error('Failed to sync job to cloud, queuing for retry:', e);
+                // Queue for later sync
+                addToQueue({
+                    id: job.id,
+                    type: isNew ? 'create' : 'update',
+                    entityType: 'job',
+                    data: jobWithMeta as unknown as Record<string, unknown>,
+                    timestamp: Date.now(),
+                });
+                setSyncStatus('pending');
             }
+        } else if (token) {
+            // Offline - queue for later
+            addToQueue({
+                id: job.id,
+                type: isNew ? 'create' : 'update',
+                entityType: 'job',
+                data: jobWithMeta as unknown as Record<string, unknown>,
+                timestamp: Date.now(),
+            });
+            setSyncStatus('offline');
         }
 
         return true;
@@ -211,10 +409,13 @@ export function useJobLogs() {
             ...log,
             id: generateId(),
             createdAt: Date.now(),
+            updatedAt: Date.now(),
+            deviceId: getDeviceId(),
+            syncStatus: 'pending',
         };
 
         setJobLogs(prev => [newLog, ...prev]);
-        saveJob(newLog);
+        saveJob(newLog, true);
 
         return newLog;
     }, [saveJob]);
@@ -226,28 +427,54 @@ export function useJobLogs() {
         const current = getJobLogsFromStorage();
         const updated = current.filter(j => j.id !== id);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        updateSyncState({ lastLocalModified: Date.now() });
 
         // Delete from cloud
         const token = getAuthToken();
-        if (token) {
+        if (token && isOnline()) {
             try {
                 await apiRequest(`/api/jobs/${id}`, { method: 'DELETE' });
             } catch (e) {
-                console.error('Failed to delete job from cloud:', e);
+                console.error('Failed to delete job from cloud, queuing for retry:', e);
+                addToQueue({
+                    id,
+                    type: 'delete',
+                    entityType: 'job',
+                    data: { id },
+                    timestamp: Date.now(),
+                });
+                setSyncStatus('pending');
             }
+        } else if (token) {
+            // Offline - queue for later
+            addToQueue({
+                id,
+                type: 'delete',
+                entityType: 'job',
+                data: { id },
+                timestamp: Date.now(),
+            });
+            setSyncStatus('offline');
         }
     }, []);
 
     const updateJobLog = useCallback((id: string, updates: Partial<Omit<JobLog, 'id' | 'createdAt'>>) => {
         setJobLogs(prev => {
             const updated = prev.map(log =>
-                log.id === id ? { ...log, ...updates } : log
+                log.id === id
+                    ? {
+                        ...log,
+                        ...updates,
+                        updatedAt: Date.now(),
+                        syncStatus: 'pending' as const
+                    }
+                    : log
             );
 
             // Find the updated job and save it
             const updatedJob = updated.find(j => j.id === id);
             if (updatedJob) {
-                saveJob(updatedJob);
+                saveJob(updatedJob, false);
             }
 
             return updated;
@@ -407,6 +634,7 @@ export function useJobLogs() {
     return {
         jobLogs,
         loading,
+        syncStatus,
         addJobLog,
         updateJobLog,
         deleteJobLog,
