@@ -22,6 +22,8 @@ export default function JobsPage() {
     const [prefillData, setPrefillData] = useState<{ vehicle?: string; customerName?: string; customerPhone?: string } | null>(null);
     // Selected date from calendar for job creation
     const [prefillDate, setPrefillDate] = useState<string | undefined>(undefined);
+    // Success feedback for pipeline conversion
+    const [pipelineSuccess, setPipelineSuccess] = useState<string | null>(null);
 
     const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
     const { getStats: getPipelineStats } = usePipelineLeads();
@@ -67,6 +69,12 @@ export default function JobsPage() {
             ? lead.jobType as typeof validJobTypes[number]
             : 'other';
 
+        // Map lead source to valid referralSource
+        const validSources = ['google', 'yelp', 'referral', 'repeat', 'other'] as const;
+        const referralSource = lead.source && validSources.includes(lead.source as typeof validSources[number])
+            ? lead.source as typeof validSources[number]
+            : lead.source ? 'other' : undefined;
+
         addJobLog({
             vehicle: lead.vehicle || 'Vehicle TBD',
             jobType,
@@ -74,9 +82,16 @@ export default function JobsPage() {
             date: lead.followUpDate || new Date().toISOString().split('T')[0],
             customerName: lead.customerName,
             customerPhone: lead.customerPhone,
-            notes: lead.notes ? `[From Pipeline] ${lead.notes}` : '[From Pipeline Lead]',
+            notes: lead.notes
+                ? `[Pipeline Lead #${lead.id.slice(-6)}] ${lead.notes}`
+                : `[Pipeline Lead #${lead.id.slice(-6)}]`,
+            referralSource,
             status: 'pending',
         });
+
+        // Show success feedback
+        setPipelineSuccess(lead.customerName || 'Lead');
+        setTimeout(() => setPipelineSuccess(null), 3000);
     };
 
     const subtabs = [
@@ -143,7 +158,19 @@ export default function JobsPage() {
             )}
 
             {activeSubTab === 'pipeline' && (
-                <PipelineView onConvertToJob={handleConvertLead} />
+                <div className="space-y-4">
+                    {/* Success notification - AlertChip pattern from BusinessAlerts */}
+                    {pipelineSuccess && (
+                        <div className="animate-in fade-in slide-in-from-top-2 duration-200
+                            bg-gradient-to-r from-green-500/20 to-emerald-500/10 
+                            text-green-300 border border-green-500/40 shadow-sm shadow-green-500/10
+                            px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
+                            <span>✅</span>
+                            <span>Job created for <strong>{pipelineSuccess}</strong> → moved to Pending</span>
+                        </div>
+                    )}
+                    <PipelineView onConvertToJob={handleConvertLead} />
+                </div>
             )}
 
             {activeSubTab === 'pending' && (
