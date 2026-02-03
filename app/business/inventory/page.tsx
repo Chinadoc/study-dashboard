@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInventory } from '@/contexts/InventoryContext';
+import { useJobLogs } from '@/lib/useJobLogs';
 import { getLowStockItems, TOOL_CATEGORIES, ToolType, KEY_CATEGORIES, detectKeyCategory, KeyCategory } from '@/lib/inventoryTypes';
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
@@ -194,6 +195,38 @@ export default function InventoryPage() {
     const [importError, setImportError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fccDataMap, setFccDataMap] = useState<Map<string, { imageUrl?: string; productType?: string }>>(new Map());
+    const { jobLogs } = useJobLogs();
+
+    // Calculate job usage count per inventory item (this month)
+    const jobUsageMap = useMemo(() => {
+        const usage = new Map<string, number>();
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        jobLogs.forEach(job => {
+            const jobDate = new Date(job.date);
+            if (jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear) {
+                // Try to match job to inventory item by key/fcc
+                // Jobs might have vehicle info that matches inventory vehicle field
+                const jobKey = job.keyUsed?.toUpperCase() || '';
+                const jobVehicle = `${job.year} ${job.make} ${job.model}`.toLowerCase();
+
+                inventory.forEach(item => {
+                    const itemKey = item.itemKey.toUpperCase();
+                    const itemVehicle = item.vehicle?.toLowerCase() || '';
+
+                    // Match by key/FCC ID or by vehicle
+                    if (jobKey && itemKey.includes(jobKey) || itemKey === jobKey) {
+                        usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
+                    } else if (itemVehicle && itemVehicle.includes(jobVehicle)) {
+                        usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
+                    }
+                });
+            }
+        });
+        return usage;
+    }, [jobLogs, inventory]);
 
     // Fetch FCC data for key images and product types
     useEffect(() => {
@@ -537,6 +570,12 @@ export default function InventoryPage() {
                                         )}
                                         {item.vehicle && (
                                             <VehiclesPopover vehicles={item.vehicle} maxVisible={2} />
+                                        )}
+                                        {/* Job Usage Count */}
+                                        {jobUsageMap.get(item.itemKey) && jobUsageMap.get(item.itemKey)! > 0 && (
+                                            <div className="text-[10px] sm:text-xs text-blue-400 mt-0.5">
+                                                📝 Used in {jobUsageMap.get(item.itemKey)} job{jobUsageMap.get(item.itemKey)! > 1 ? 's' : ''} this month
+                                            </div>
                                         )}
                                     </div>
 

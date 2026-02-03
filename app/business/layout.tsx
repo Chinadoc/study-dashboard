@@ -121,32 +121,38 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                     </div>
 
                     {/* Main Tab Navigation - Icon only on mobile, icon+text on larger screens */}
-                    <div
-                        className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide"
+                    <nav
+                        className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide relative z-10"
                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        role="tablist"
                     >
                         {BUSINESS_TABS.map((tab) => (
                             <Link
                                 key={tab.id}
                                 href={tab.href}
+                                prefetch={true}
+                                role="tab"
+                                aria-selected={activeTab === tab.id}
                                 className={`
                                     flex items-center justify-center gap-1.5 sm:gap-2 
-                                    px-3 sm:px-5 py-2.5 sm:py-2.5 
+                                    px-4 sm:px-5 py-3 sm:py-2.5 
+                                    min-w-[48px] min-h-[48px]
                                     rounded-xl font-bold text-sm 
                                     transition-all whitespace-nowrap flex-shrink-0
-                                    active:scale-95
+                                    active:scale-95 cursor-pointer
+                                    select-none
                                     ${activeTab === tab.id
                                         ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20'
                                         : 'bg-zinc-800 text-gray-400 hover:text-white hover:bg-zinc-700'
                                     }
                                 `}
                             >
-                                <span className="text-base sm:text-sm">{tab.icon}</span>
+                                <span className="text-base sm:text-sm pointer-events-none">{tab.icon}</span>
                                 {/* Label hidden on mobile (< 640px), visible on sm+ */}
-                                <span className="hidden sm:inline">{tab.label}</span>
+                                <span className="hidden sm:inline pointer-events-none">{tab.label}</span>
                             </Link>
                         ))}
-                    </div>
+                    </nav>
 
                     {/* Active indicator bar */}
                     <div className="mt-2 h-1 rounded-full bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-600 opacity-60" />
