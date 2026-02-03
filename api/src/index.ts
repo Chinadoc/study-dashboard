@@ -1747,7 +1747,7 @@ Respond with ONLY the title, nothing else.`;
           }
 
           const body: any = await request.json();
-          const { insightType } = body; // 'tax', 'revenue', 'general'
+          const { insightType } = body; // 'tax', 'revenue', 'general', 'team', 'customers', 'pipeline', 'coverage'
 
           // Fetch user preferences
           const prefs = await env.LOCKSMITH_DB.prepare(`
@@ -1757,20 +1757,77 @@ Respond with ONLY the title, nothing else.`;
           // Fetch recent job logs (last 30 days)
           const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
           const jobs = await env.LOCKSMITH_DB.prepare(`
-            SELECT data FROM job_logs WHERE user_id = ? AND created_at > ? ORDER BY created_at DESC LIMIT 50
+            SELECT data FROM job_logs WHERE user_id = ? AND created_at > ? ORDER BY created_at DESC LIMIT 100
           `).bind(userId, thirtyDaysAgo).all();
 
           const jobData = (jobs.results || []).map((r: any) => {
             try { return JSON.parse(r.data); } catch { return null; }
           }).filter(Boolean);
 
-          // Calculate stats
+          // ========== EXPANDED DATA FETCHING ==========
+
+          // Fetch technicians
+          const techResult = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data FROM technicians WHERE user_id = ?
+          `).bind(userId).all();
+          const technicians = (techResult.results || []).map((r: any) => {
+            try { return { id: r.id, ...JSON.parse(r.data || '{}') }; } catch { return null; }
+          }).filter(Boolean);
+
+          // Fetch fleet customers
+          const fleetResult = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data FROM fleet_customers WHERE user_id = ?
+          `).bind(userId).all();
+          const fleetCustomers = (fleetResult.results || []).map((r: any) => {
+            try { return { id: r.id, ...JSON.parse(r.data || '{}') }; } catch { return null; }
+          }).filter(Boolean);
+
+          // Fetch pipeline leads
+          const leadsResult = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data FROM pipeline_leads WHERE user_id = ?
+          `).bind(userId).all();
+          const pipelineLeads = (leadsResult.results || []).map((r: any) => {
+            try { return { id: r.id, ...JSON.parse(r.data || '{}') }; } catch { return null; }
+          }).filter(Boolean);
+
+          // Calculate job stats
           const totalRevenue = jobData.reduce((sum: number, j: any) => sum + (j.price || 0), 0);
           const totalKeyCost = jobData.reduce((sum: number, j: any) => sum + (j.keyCost || 0), 0);
           const totalGasCost = jobData.reduce((sum: number, j: any) => sum + (j.gasCost || 0), 0);
           const totalPartsCost = jobData.reduce((sum: number, j: any) => sum + (j.partsCost || 0), 0);
           const netProfit = totalRevenue - totalKeyCost - totalGasCost - totalPartsCost;
           const avgJobValue = jobData.length > 0 ? totalRevenue / jobData.length : 0;
+
+          // Calculate technician stats
+          const techStats = technicians.map((tech: any) => {
+            const techJobs = jobData.filter((j: any) => j.technicianId === tech.id);
+            const techRevenue = techJobs.reduce((sum: number, j: any) => sum + (j.price || 0), 0);
+            const commissionRate = tech.commissionRate || 0.10; // Default 10%
+            return {
+              name: tech.name || 'Unknown',
+              jobCount: techJobs.length,
+              revenue: techRevenue,
+              commission: techRevenue * commissionRate,
+              commissionRate: commissionRate * 100
+            };
+          });
+
+          // Calculate fleet customer stats
+          const fleetRevenue = jobData
+            .filter((j: any) => j.fleetCustomerId || j.isFleet)
+            .reduce((sum: number, j: any) => sum + (j.price || 0), 0);
+          const fleetJobCount = jobData.filter((j: any) => j.fleetCustomerId || j.isFleet).length;
+
+          // Calculate pipeline stats
+          const leadsByStage: Record<string, number> = {};
+          pipelineLeads.forEach((lead: any) => {
+            const stage = lead.stage || 'new';
+            leadsByStage[stage] = (leadsByStage[stage] || 0) + 1;
+          });
+          const totalLeadValue = pipelineLeads.reduce((sum: number, l: any) => sum + (l.estimatedValue || 0), 0);
+
+          // Collect vehicle makes from jobs for coverage analysis
+          const vehicleMakes = [...new Set(jobData.map((j: any) => j.make || j.vehicle?.make).filter(Boolean))];
 
           // Build context for AI
           const userState = prefs?.state || 'unknown';
@@ -1793,6 +1850,25 @@ FINANCIAL STATS:
 - Parts/Supplies: $${totalPartsCost.toFixed(2)}
 - Net Profit: $${netProfit.toFixed(2)}
 - Average Job Value: $${avgJobValue.toFixed(2)}
+- Profit Margin: ${totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0}%
+
+TEAM DATA:
+- Technicians: ${technicians.length}
+${techStats.map((t: any) => `  • ${t.name}: ${t.jobCount} jobs, $${t.revenue.toFixed(2)} revenue, $${t.commission.toFixed(2)} commission (${t.commissionRate}%)`).join('\n')}
+
+CUSTOMER DATA:
+- Fleet Customers: ${fleetCustomers.length}
+- Fleet Jobs (30d): ${fleetJobCount}
+- Fleet Revenue (30d): $${fleetRevenue.toFixed(2)}
+- B2B Revenue %: ${totalRevenue > 0 ? ((fleetRevenue / totalRevenue) * 100).toFixed(1) : 0}%
+
+PIPELINE DATA:
+- Total Leads: ${pipelineLeads.length}
+- Lead Stages: ${Object.entries(leadsByStage).map(([k, v]) => `${k}: ${v}`).join(', ') || 'none'}
+- Total Pipeline Value: $${totalLeadValue.toFixed(2)}
+
+VEHICLE COVERAGE:
+- Makes Serviced: ${vehicleMakes.join(', ') || 'none recorded'}
 
 `;
 
@@ -1810,6 +1886,38 @@ Keep response under 300 words, practical and actionable.`;
 2. Job type mix recommendations
 3. Pricing strategy suggestions
 4. Cost reduction opportunities
+
+Keep response under 300 words, practical and actionable.`;
+          } else if (insightType === 'team') {
+            prompt += `Analyze the team performance data:
+1. Technician workload balance - is work distributed evenly?
+2. Top performer recognition and what makes them successful
+3. Commission structure analysis - is it incentivizing the right behavior?
+4. Recommendations for improving team productivity
+
+Keep response under 300 words, practical and actionable.`;
+          } else if (insightType === 'customers') {
+            prompt += `Analyze the customer mix:
+1. B2B vs D2C balance (${((fleetRevenue / totalRevenue) * 100 || 0).toFixed(1)}% fleet)
+2. Fleet customer relationship health
+3. Customer retention and repeat business opportunities
+4. Recommendations for growing the most profitable segments
+
+Keep response under 300 words, practical and actionable.`;
+          } else if (insightType === 'pipeline') {
+            prompt += `Analyze the sales pipeline:
+1. Lead volume and stage distribution
+2. Conversion rate analysis (leads to jobs)
+3. Pipeline value vs actual revenue benchmark
+4. Recommendations for improving lead conversion
+
+Keep response under 300 words, practical and actionable.`;
+          } else if (insightType === 'coverage') {
+            prompt += `Analyze technical coverage based on vehicles serviced:
+1. Most common makes in your service area: ${vehicleMakes.slice(0, 5).join(', ') || 'not enough data'}
+2. Coverage gaps - what popular vehicles might you be missing?
+3. Tool/key inventory recommendations based on job patterns
+4. Emerging vehicle platforms to prepare for (EVs, new security systems)
 
 Keep response under 300 words, practical and actionable.`;
           } else {
@@ -1905,7 +2013,17 @@ Keep response under 300 words, practical and actionable.`;
               profit: netProfit,
               avgJobValue,
               state: userState,
-              taxRate
+              taxRate,
+              // Extended stats
+              technicianCount: technicians.length,
+              topTechnician: techStats.sort((a: any, b: any) => b.revenue - a.revenue)[0]?.name || null,
+              fleetCustomerCount: fleetCustomers.length,
+              fleetRevenue,
+              fleetRevenuePercent: totalRevenue > 0 ? ((fleetRevenue / totalRevenue) * 100) : 0,
+              leadCount: pipelineLeads.length,
+              pipelineValue: totalLeadValue,
+              leadsByStage,
+              vehicleMakes: vehicleMakes.slice(0, 10)
             }
           }));
 

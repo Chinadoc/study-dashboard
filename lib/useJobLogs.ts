@@ -135,17 +135,26 @@ export function useJobLogs() {
                         setLoading(false);
 
                         // Check if we need to sync localStorage jobs to cloud
-                        if (!hasSyncedRef.current && !localStorage.getItem(SYNCED_KEY)) {
+                        // IMPROVED: Merge any local jobs not yet in cloud
+                        if (!hasSyncedRef.current) {
                             const localJobs = getJobLogsFromStorage();
-                            if (localJobs.length > 0 && data.jobs.length === 0) {
-                                // User has local jobs but no cloud jobs - migrate them
+                            const cloudJobIds = new Set(data.jobs.map((j: JobLog) => j.id));
+                            const localOnlyJobs = localJobs.filter(j => !cloudJobIds.has(j.id));
+
+                            if (localOnlyJobs.length > 0) {
+                                console.log(`Syncing ${localOnlyJobs.length} local-only jobs to cloud...`);
                                 await apiRequest('/api/jobs/sync', {
                                     method: 'POST',
-                                    body: JSON.stringify({ jobs: localJobs }),
+                                    body: JSON.stringify({ jobs: localOnlyJobs }),
                                 });
-                                localStorage.setItem(SYNCED_KEY, 'true');
-                                hasSyncedRef.current = true;
+                                // Reload to get merged data
+                                const refreshed = await apiRequest('/api/jobs');
+                                if (refreshed?.jobs) {
+                                    setJobLogs(refreshed.jobs);
+                                    localStorage.setItem(STORAGE_KEY, JSON.stringify(refreshed.jobs));
+                                }
                             }
+                            hasSyncedRef.current = true;
                         }
                         return;
                     }

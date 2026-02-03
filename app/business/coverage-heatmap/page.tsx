@@ -103,7 +103,7 @@ const LEVEL_LABELS = {
 
 export default function CoverageHeatMap() {
     const [selectedMake, setSelectedMake] = useState<string>('all');
-    const [activeTab, setActiveTab] = useState<'heatmap' | 'warnings' | 'pearls' | 'rankings' | 'relationships'>('heatmap');
+    const [activeTab, setActiveTab] = useState<'coverage' | 'intelligence'>('coverage');
     const [viewMode, setViewMode] = useState<'vehicle' | 'tool' | 'timeline'>('vehicle');
     const [selectedTool, setSelectedTool] = useState<typeof TOOLS[number] | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -317,54 +317,50 @@ export default function CoverageHeatMap() {
                     </p>
                 </div>
 
-                {/* Tab Navigation */}
-                <div className="flex gap-1 mb-8 border-b border-gray-800 pb-4">
-                    {[
-                        { id: 'heatmap', label: '🗺️ Heat Map', count: COVERAGE_DATA.length },
-                        { id: 'warnings', label: '🚨 Warnings', count: 22 },
-                        { id: 'pearls', label: '💎 Pearls', count: 12 },
-                        { id: 'rankings', label: '🏆 Tool Rankings', count: 9 },
-                        { id: 'relationships', label: '🔗 Platform Groups', count: 13 },
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === tab.id
-                                ? 'bg-gradient-to-r from-cyan-600 to-purple-600 text-white shadow-lg'
-                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                                }`}
-                        >
-                            {tab.label}
-                            <span className={`px-1.5 py-0.5 rounded text-xs ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-700'
-                                }`}>
-                                {tab.count}
-                            </span>
-                        </button>
-                    ))}
+                {/* Tab Navigation - Simplified to 2 tabs */}
+                <div className="flex gap-2 mb-8 border-b border-gray-800 pb-4">
+                    <button
+                        onClick={() => setActiveTab('coverage')}
+                        className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-3 ${activeTab === 'coverage'
+                            ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/20'
+                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                            }`}
+                    >
+                        <span className="text-lg">🗺️</span>
+                        <span>Coverage</span>
+                        <span className={`px-2 py-0.5 rounded text-xs ${activeTab === 'coverage' ? 'bg-white/20' : 'bg-gray-700'}`}>
+                            {COVERAGE_DATA.length}
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('intelligence')}
+                        className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-3 ${activeTab === 'intelligence'
+                            ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-lg shadow-amber-500/20'
+                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                            }`}
+                    >
+                        <span className="text-lg">🧠</span>
+                        <span>Intelligence</span>
+                        <span className={`px-2 py-0.5 rounded text-xs ${activeTab === 'intelligence' ? 'bg-white/20' : 'bg-gray-700'}`}>
+                            Warnings • Pearls • Groups
+                        </span>
+                    </button>
                 </div>
 
-                {/* Warnings Tab */}
-                {activeTab === 'warnings' && (
-                    <CriticalWarnings />
+                {/* Intelligence Tab - Combined warnings, pearls, and relationships */}
+                {activeTab === 'intelligence' && (
+                    <div className="space-y-8">
+                        <CriticalWarnings />
+                        <PearlProcedures />
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <ToolRankings />
+                            <CrossVehicleRelationships />
+                        </div>
+                    </div>
                 )}
 
-                {/* Pearls Tab */}
-                {activeTab === 'pearls' && (
-                    <PearlProcedures />
-                )}
-
-                {/* Tool Rankings Tab */}
-                {activeTab === 'rankings' && (
-                    <ToolRankings />
-                )}
-
-                {/* Relationships Tab */}
-                {activeTab === 'relationships' && (
-                    <CrossVehicleRelationships />
-                )}
-
-                {/* Heat Map Tab */}
-                {activeTab === 'heatmap' && (
+                {/* Coverage Tab - Heat map with view modes */}
+                {activeTab === 'coverage' && (
                     <>
 
                         {/* View Mode Toggle */}
