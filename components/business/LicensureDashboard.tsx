@@ -1,19 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LOCKSMITH_REQUIREMENTS, LicenseItem } from '@/lib/businessTypes';
+import { LOCKSMITH_REQUIREMENTS, LicenseItem, LicenseCategory, LICENSE_CATEGORIES } from '@/lib/businessTypes';
 
 export interface UserLicense {
     id: string;
     licenseId: string;  // References LOCKSMITH_REQUIREMENTS
     name: string;
-    type: 'license' | 'certification' | 'insurance' | 'bond' | 'subscription';
+    type: LicenseCategory;
     icon: string;
     obtainedDate: string;
     expirationDate: string;
     price?: number;  // Cost of the license/certification
     notes?: string;
     renewalUrl?: string;
+    linkedToolId?: string;  // For tool subscriptions
 }
 
 interface LicensureDashboardProps {
@@ -60,7 +61,7 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
     const [selectedTemplate, setSelectedTemplate] = useState<string>('');
     const [formData, setFormData] = useState({
         name: '',
-        type: 'license' as UserLicense['type'],
+        type: 'state_license' as LicenseCategory,
         icon: '📜',
         obtainedDate: '',
         expirationDate: '',
@@ -169,7 +170,7 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
     const resetFormData = () => {
         setFormData({
             name: '',
-            type: 'license',
+            type: 'state_license' as LicenseCategory,
             icon: '📜',
             obtainedDate: '',
             expirationDate: '',
@@ -288,7 +289,7 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                     <span className="text-3xl">{license.icon}</span>
                                     <div className="flex-1 min-w-0">
                                         <div className="font-bold text-white truncate">{license.name}</div>
-                                        <div className="text-xs text-gray-500 capitalize">{license.type}</div>
+                                        <div className="text-xs text-gray-500">{LICENSE_CATEGORIES[license.type]?.label || license.type}</div>
                                     </div>
                                     <div className={`px-2 py-1 rounded text-xs font-bold ${colors.text} ${colors.bg} border ${colors.border}`}>
                                         {colors.label}
@@ -348,7 +349,7 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                         </div>
 
                         <div className="p-6 space-y-4">
-                            {/* Template Selection */}
+                            {/* Template Selection - grouped by category */}
                             <div>
                                 <label className="block text-sm text-gray-500 mb-2">Quick Add (Optional)</label>
                                 <select
@@ -357,23 +358,33 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                     className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
                                 >
                                     <option value="">-- Select a template --</option>
-                                    <optgroup label="Licenses">
-                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'license').map(r => (
+                                    <optgroup label="📜 State & Business Licenses">
+                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'state_license' || r.type === 'business_license').map(r => (
                                             <option key={r.id} value={r.id}>{r.icon} {r.name}</option>
                                         ))}
                                     </optgroup>
-                                    <optgroup label="Certifications">
+                                    <optgroup label="🎓 Professional Certifications">
                                         {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'certification').map(r => (
                                             <option key={r.id} value={r.id}>{r.icon} {r.name}</option>
                                         ))}
                                     </optgroup>
-                                    <optgroup label="Insurance & Bonds">
-                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'insurance' || r.type === 'bond').map(r => (
+                                    <optgroup label="🔑 Vehicle Access Programs">
+                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'vehicle_access').map(r => (
                                             <option key={r.id} value={r.id}>{r.icon} {r.name}</option>
                                         ))}
                                     </optgroup>
-                                    <optgroup label="Subscriptions">
-                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'subscription').map(r => (
+                                    <optgroup label="🔧 Tool Subscriptions">
+                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'tool_subscription').map(r => (
+                                            <option key={r.id} value={r.id}>{r.icon} {r.name}</option>
+                                        ))}
+                                    </optgroup>
+                                    <optgroup label="🚙 OEM Portal Access">
+                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'oem_access').map(r => (
+                                            <option key={r.id} value={r.id}>{r.icon} {r.name}</option>
+                                        ))}
+                                    </optgroup>
+                                    <optgroup label="🛡️ Insurance">
+                                        {LOCKSMITH_REQUIREMENTS.filter(r => r.type === 'insurance').map(r => (
                                             <option key={r.id} value={r.id}>{r.icon} {r.name}</option>
                                         ))}
                                     </optgroup>
@@ -397,14 +408,16 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                 <label className="block text-sm text-gray-500 mb-2">Type</label>
                                 <select
                                     value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value as UserLicense['type'] })}
+                                    onChange={(e) => setFormData({ ...formData, type: e.target.value as LicenseCategory })}
                                     className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
                                 >
-                                    <option value="license">License</option>
-                                    <option value="certification">Certification</option>
-                                    <option value="insurance">Insurance</option>
-                                    <option value="bond">Bond</option>
-                                    <option value="subscription">Subscription</option>
+                                    <option value="state_license">📜 State License</option>
+                                    <option value="business_license">🏪 Business Permit</option>
+                                    <option value="certification">🎓 Certification</option>
+                                    <option value="vehicle_access">🔑 Vehicle Access</option>
+                                    <option value="tool_subscription">🔧 Tool Subscription</option>
+                                    <option value="oem_access">🚙 OEM Portal Access</option>
+                                    <option value="insurance">🛡️ Insurance</option>
                                 </select>
                             </div>
 
@@ -505,14 +518,16 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                 <label className="block text-sm text-gray-500 mb-2">Type</label>
                                 <select
                                     value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value as UserLicense['type'] })}
+                                    onChange={(e) => setFormData({ ...formData, type: e.target.value as LicenseCategory })}
                                     className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
                                 >
-                                    <option value="license">📜 License</option>
+                                    <option value="state_license">📜 State License</option>
+                                    <option value="business_license">🏪 Business Permit</option>
                                     <option value="certification">🎓 Certification</option>
+                                    <option value="vehicle_access">🔑 Vehicle Access</option>
+                                    <option value="tool_subscription">🔧 Tool Subscription</option>
+                                    <option value="oem_access">🚙 OEM Portal Access</option>
                                     <option value="insurance">🛡️ Insurance</option>
-                                    <option value="bond">📋 Bond</option>
-                                    <option value="subscription">🔔 Subscription</option>
                                 </select>
                             </div>
 

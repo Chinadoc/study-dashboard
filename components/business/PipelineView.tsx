@@ -156,7 +156,14 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
                                         onToggleExpand={() => setExpandedLeadId(
                                             expandedLeadId === lead.id ? null : lead.id
                                         )}
-                                        onUpdateStatus={(status) => updateLead(lead.id, { status })}
+                                        onUpdateStatus={(status) => {
+                                            if (status === 'scheduled' && onConvertToJob) {
+                                                // Auto-convert to pending job when scheduled
+                                                handleConvertToJob(lead);
+                                            } else {
+                                                updateLead(lead.id, { status });
+                                            }
+                                        }}
                                         onMarkLost={() => setLostModalLead(lead)}
                                         onConvertToJob={() => handleConvertToJob(lead)}
                                         onDelete={() => deleteLead(lead.id)}

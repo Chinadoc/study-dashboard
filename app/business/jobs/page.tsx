@@ -59,14 +59,24 @@ export default function JobsPage() {
     const pipelineStats = getPipelineStats();
     const activeLeadsCount = pipelineStats.newLeads + pipelineStats.contactedLeads + pipelineStats.scheduledLeads;
 
-    // Handle lead-to-job conversion
+    // Handle lead-to-job conversion - auto-create pending job
     const handleConvertLead = (lead: PipelineLead) => {
-        setPrefillData({
-            vehicle: lead.vehicle,
+        // Map lead jobType to valid JobLog jobType, default to 'other'
+        const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'safe', 'other'] as const;
+        const jobType = lead.jobType && validJobTypes.includes(lead.jobType as typeof validJobTypes[number])
+            ? lead.jobType as typeof validJobTypes[number]
+            : 'other';
+
+        addJobLog({
+            vehicle: lead.vehicle || 'Vehicle TBD',
+            jobType,
+            price: lead.estimatedValue || 0,
+            date: lead.followUpDate || new Date().toISOString().split('T')[0],
             customerName: lead.customerName,
             customerPhone: lead.customerPhone,
+            notes: lead.notes ? `[From Pipeline] ${lead.notes}` : '[From Pipeline Lead]',
+            status: 'pending',
         });
-        setJobModalOpen(true);
     };
 
     const subtabs = [

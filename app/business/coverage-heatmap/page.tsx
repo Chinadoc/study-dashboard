@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CriticalWarnings from '@/components/business/CriticalWarnings';
 import PearlProcedures from '@/components/business/PearlProcedures';
@@ -102,8 +102,8 @@ const LEVEL_LABELS = {
     unknown: '? Unknown',
 };
 
-export default function CoverageHeatMap() {
-    const searchParams = useSearchParams();
+// Wrapper component to handle Suspense for useSearchParams
+function CoverageHeatMapContent({ initialMyCoverage }: { initialMyCoverage: boolean }) {
     const [selectedMake, setSelectedMake] = useState<string>('all');
     const [activeTab, setActiveTab] = useState<'coverage' | 'intelligence'>('coverage');
     const [viewMode, setViewMode] = useState<'vehicle' | 'tool' | 'timeline'>('vehicle');
@@ -112,17 +112,10 @@ export default function CoverageHeatMap() {
     const [showAllVehicles, setShowAllVehicles] = useState(false);
     const MAX_VISIBLE_VEHICLES = 50;
 
-    // My Coverage overlay state
-    const [showMyCoverage, setShowMyCoverage] = useState(false);
+    // My Coverage overlay state - initialized from URL param
+    const [showMyCoverage, setShowMyCoverage] = useState(initialMyCoverage);
     const [ownedToolIds, setOwnedToolIds] = useState<string[]>([]);
     const [keyInventoryVehicles, setKeyInventoryVehicles] = useState<Set<string>>(new Set());
-
-    // Check URL params to enable My Coverage overlay
-    useEffect(() => {
-        if (searchParams?.get('myCoverage') === 'true') {
-            setShowMyCoverage(true);
-        }
-    }, [searchParams]);
 
     // Load user's owned tools and key inventory
     useEffect(() => {
@@ -860,5 +853,25 @@ export default function CoverageHeatMap() {
                 )}
             </div>
         </div>
+    );
+}
+
+// Inner component that reads search params with Suspense support
+function CoverageHeatMapWithParams() {
+    const searchParams = useSearchParams();
+    const myCoverage = searchParams?.get('myCoverage') === 'true';
+    return <CoverageHeatMapContent initialMyCoverage={myCoverage} />;
+}
+
+// Default export with Suspense boundary
+export default function CoverageHeatMap() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-950 text-white p-6 flex items-center justify-center">
+                <div className="text-gray-400">Loading coverage data...</div>
+            </div>
+        }>
+            <CoverageHeatMapWithParams />
+        </Suspense>
     );
 }
