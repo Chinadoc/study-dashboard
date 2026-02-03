@@ -52,6 +52,7 @@ export default function BusinessAlerts() {
             type: 'success',
             icon: '🔑',
             message: `${totalKeys} key types covering ${makes.size} makes`,
+            link: '/business/coverage-heatmap?myCoverage=true'
         });
     } else if (inventory.length > 0 && totalUnits > 0) {
         alerts.push({

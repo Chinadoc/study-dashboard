@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import CriticalWarnings from '@/components/business/CriticalWarnings';
 import PearlProcedures from '@/components/business/PearlProcedures';
 import ToolRankings from '@/components/business/ToolRankings';
@@ -102,6 +103,7 @@ const LEVEL_LABELS = {
 };
 
 export default function CoverageHeatMap() {
+    const searchParams = useSearchParams();
     const [selectedMake, setSelectedMake] = useState<string>('all');
     const [activeTab, setActiveTab] = useState<'coverage' | 'intelligence'>('coverage');
     const [viewMode, setViewMode] = useState<'vehicle' | 'tool' | 'timeline'>('vehicle');
@@ -114,6 +116,13 @@ export default function CoverageHeatMap() {
     const [showMyCoverage, setShowMyCoverage] = useState(false);
     const [ownedToolIds, setOwnedToolIds] = useState<string[]>([]);
     const [keyInventoryVehicles, setKeyInventoryVehicles] = useState<Set<string>>(new Set());
+
+    // Check URL params to enable My Coverage overlay
+    useEffect(() => {
+        if (searchParams?.get('myCoverage') === 'true') {
+            setShowMyCoverage(true);
+        }
+    }, [searchParams]);
 
     // Load user's owned tools and key inventory
     useEffect(() => {
