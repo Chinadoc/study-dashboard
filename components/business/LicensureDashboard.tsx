@@ -4,6 +4,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LOCKSMITH_REQUIREMENTS, LicenseItem, LicenseCategory, LICENSE_CATEGORIES } from '@/lib/businessTypes';
 import { API_BASE } from '@/lib/config';
 
+export interface TokenHistoryEntry {
+    date: string;
+    type: 'purchase' | 'usage';
+    amount: number;
+    note?: string;  // "100 tokens @ $0.50/ea" or "2025 Mustang AKL"
+}
+
 export interface UserLicense {
     id: string;
     licenseId: string;  // References LOCKSMITH_REQUIREMENTS
@@ -18,6 +25,7 @@ export interface UserLicense {
     linkedToolId?: string;  // For tool subscriptions
     tokensRemaining?: number;  // For token-based subscriptions (Smart Pro, etc.)
     isPerUse?: boolean;  // Flag for per-VIN/per-use items
+    tokenHistory?: TokenHistoryEntry[];  // Purchase and usage log
 }
 
 interface LicensureDashboardProps {

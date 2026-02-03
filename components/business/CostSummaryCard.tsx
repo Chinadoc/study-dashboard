@@ -65,6 +65,33 @@ export default function CostSummaryCard({ licenses }: CostSummaryCardProps) {
         return null;
     }
 
+    // CSV Export function
+    const exportToCsv = () => {
+        const headers = ['Name', 'Category', 'Obtained Date', 'Expiration Date', 'Annual Cost', 'Renewal URL', 'Notes'];
+        const rows = licenses.map(l => [
+            l.name,
+            l.type,
+            l.obtainedDate,
+            l.expirationDate,
+            l.price?.toString() || '0',
+            l.renewalUrl || '',
+            l.notes || ''
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `eurokeys-costs-${new Date().toISOString().split('T')[0]}.csv`);
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
@@ -74,11 +101,20 @@ export default function CostSummaryCard({ licenses }: CostSummaryCardProps) {
                     </h3>
                     <p className="text-sm text-gray-400">Track your business licensing & subscription spend</p>
                 </div>
-                <div className="text-right">
-                    <div className="text-3xl font-black text-white">
-                        ${costBreakdown.grandTotal.toLocaleString()}
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={exportToCsv}
+                        className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors flex items-center gap-1.5"
+                        title="Export to CSV"
+                    >
+                        📊 Export
+                    </button>
+                    <div className="text-right">
+                        <div className="text-3xl font-black text-white">
+                            ${costBreakdown.grandTotal.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-gray-500 uppercase">Per Year</div>
                     </div>
-                    <div className="text-xs text-gray-500 uppercase">Per Year</div>
                 </div>
             </div>
 

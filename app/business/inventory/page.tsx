@@ -207,19 +207,18 @@ export default function InventoryPage() {
         jobLogs.forEach(job => {
             const jobDate = new Date(job.date);
             if (jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear) {
-                // Try to match job to inventory item by key/fcc
-                // Jobs might have vehicle info that matches inventory vehicle field
-                const jobKey = job.keyUsed?.toUpperCase() || '';
-                const jobVehicle = `${job.year} ${job.make} ${job.model}`.toLowerCase();
+                // Match job to inventory item by FCC ID or vehicle string
+                const jobFcc = job.fccId?.toUpperCase() || '';
+                const jobVehicle = job.vehicle?.toLowerCase() || '';
 
                 inventory.forEach(item => {
                     const itemKey = item.itemKey.toUpperCase();
                     const itemVehicle = item.vehicle?.toLowerCase() || '';
 
-                    // Match by key/FCC ID or by vehicle
-                    if (jobKey && itemKey.includes(jobKey) || itemKey === jobKey) {
+                    // Match by FCC ID or by vehicle overlap
+                    if (jobFcc && (itemKey.includes(jobFcc) || itemKey === jobFcc)) {
                         usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
-                    } else if (itemVehicle && itemVehicle.includes(jobVehicle)) {
+                    } else if (itemVehicle && jobVehicle && (itemVehicle.includes(jobVehicle) || jobVehicle.includes(itemVehicle))) {
                         usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
                     }
                 });
