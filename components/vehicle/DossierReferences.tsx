@@ -144,30 +144,119 @@ export default function DossierReferences({ make, year, sourceDocs = [] }: Dossi
         return applicablePlatforms;
     };
 
+    // Map make to parent brand/group for title matching
+    const getMakeFamily = (targetMake: string): string[] => {
+        const makeLower = targetMake.toLowerCase();
+
+        // GM brands
+        if (['chevrolet', 'gmc', 'cadillac', 'buick'].includes(makeLower)) {
+            return ['gm', 'general motors', 'chevrolet', 'gmc', 'cadillac', 'buick'];
+        }
+        // Stellantis brands
+        if (['chrysler', 'dodge', 'jeep', 'ram', 'fiat', 'alfa romeo'].includes(makeLower)) {
+            return ['stellantis', 'fca', 'chrysler', 'dodge', 'jeep', 'ram', 'fiat', 'alfa romeo'];
+        }
+        // Toyota/Lexus
+        if (['toyota', 'lexus'].includes(makeLower)) {
+            return ['toyota', 'lexus'];
+        }
+        // Honda/Acura
+        if (['honda', 'acura'].includes(makeLower)) {
+            return ['honda', 'acura'];
+        }
+        // Nissan/Infiniti
+        if (['nissan', 'infiniti'].includes(makeLower)) {
+            return ['nissan', 'infiniti'];
+        }
+        // Ford/Lincoln
+        if (['ford', 'lincoln'].includes(makeLower)) {
+            return ['ford', 'lincoln'];
+        }
+        // VW Group
+        if (['volkswagen', 'vw', 'audi', 'porsche'].includes(makeLower)) {
+            return ['volkswagen', 'vw', 'audi', 'porsche', 'vag'];
+        }
+        // Hyundai/Kia/Genesis
+        if (['hyundai', 'kia', 'genesis'].includes(makeLower)) {
+            return ['hyundai', 'kia', 'genesis'];
+        }
+        // BMW/Mini
+        if (['bmw', 'mini'].includes(makeLower)) {
+            return ['bmw', 'mini'];
+        }
+        // Mercedes
+        if (['mercedes-benz', 'mercedes'].includes(makeLower)) {
+            return ['mercedes-benz', 'mercedes'];
+        }
+
+        return [makeLower];
+    };
+
     // Filter dossiers relevant to this vehicle
     const relevantDossiers = useMemo(() => {
         const dossiers = dossierManifest as Dossier[];
+        const makeFamily = getMakeFamily(make);
+        const applicablePlatforms = getApplicablePlatforms(make, year);
 
         return dossiers.filter(dossier => {
-            // Match by make (case-insensitive)
-            const makeMatch = dossier.makes?.some(m =>
-                m.toLowerCase() === make.toLowerCase()
+            const titleLower = dossier.title.toLowerCase();
+
+            // 1. TITLE-BASED MATCH: Dossier title contains make or make family
+            //    e.g., "GM Key Programming" matches Buick, "Toyota/Lexus" matches Lexus
+            const titleMatch = makeFamily.some(m => titleLower.includes(m));
+
+            // 2. PLATFORM-BASED MATCH: Dossier covers applicable platforms
+            //    e.g., "Global A" dossier sections match 2018 Buick Cascada
+            const platformMatch = applicablePlatforms.length > 0 && dossier.platforms?.some(p =>
+                applicablePlatforms.some(ap =>
+                    ap.toLowerCase() === p.toLowerCase() ||
+                    p.toLowerCase().includes(ap.toLowerCase())
+                )
             );
 
-            // Match by year (within ±2 years for relevance)
+            // 3. SECTION-LEVEL PLATFORM MATCH: Check if any section discusses applicable platforms + year
+            const sectionPlatformMatch = applicablePlatforms.length > 0 && dossier.sections?.some(section => {
+                // Section must mention an applicable platform
+                const sectionHasPlatform = section.platforms?.some(p =>
+                    applicablePlatforms.some(ap => ap.toLowerCase() === p.toLowerCase())
+                ) || applicablePlatforms.some(ap =>
+                    section.preview.toLowerCase().includes(ap.toLowerCase())
+                );
+
+                // Section should also be year-relevant (within ±3 years)
+                const sectionYearRelevant = section.years?.some(y =>
+                    Math.abs(y - year) <= 3
+                ) || section.preview.includes(String(year));
+
+                return sectionHasPlatform && sectionYearRelevant;
+            });
+
+            // 4. YEAR MATCH (dossier level, within ±2 years)
             const yearMatch = dossier.years?.some(y =>
                 Math.abs(y - year) <= 2
             );
 
-            // Match by source_doc from pearls (check if title contains the source doc name)
+            // 5. SOURCE DOC MATCH (from pearls)
             const sourceDocMatch = sourceDocs.some(src => {
                 const normalizedSrc = src.toLowerCase().replace(/[_-]/g, ' ').replace('.html', '');
                 const normalizedTitle = dossier.title.toLowerCase().replace(/[_-]/g, ' ');
                 return normalizedTitle.includes(normalizedSrc) || normalizedSrc.includes(normalizedTitle.substring(0, 20));
             });
 
-            // Require make match AND (year match OR source doc match)
-            return makeMatch && (yearMatch || sourceDocMatch);
+            // RELEVANCE LOGIC:
+            // - Title match + (year OR platform OR sourceDoc) = RELEVANT
+            // - Platform match at section level with year proximity = RELEVANT
+            // - Source doc match = RELEVANT (legacy behavior)
+
+            if (titleMatch && (yearMatch || platformMatch || sourceDocMatch)) {
+                return true;
+            }
+
+            if (sectionPlatformMatch && titleMatch) {
+                return true;
+            }
+
+            return sourceDocMatch;
         });
     }, [make, year, sourceDocs]);
 

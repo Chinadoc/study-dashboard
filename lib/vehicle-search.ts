@@ -12,22 +12,34 @@ export const MODEL_ALIASES: Record<string, string> = {
     'f250': 'F-250', 'f-250': 'F-250', 'f 250': 'F-250',
     'f350': 'F-350', 'f-350': 'F-350', 'f 350': 'F-350',
     'stang': 'Mustang', 'gt': 'Mustang GT',
+    'expidition': 'Expedition', 'expedtion': 'Expedition', // Typos
+    'exploror': 'Explorer', 'expolorer': 'Explorer', // Typos
 
     // Chevrolet
     'vette': 'Corvette', 'chevy': 'Chevrolet', // Make alias
-    'siverado': 'Silverado', // Common typo
+    'siverado': 'Silverado', 'silveraldo': 'Silverado', 'sivlerado': 'Silverado', // Typos
+    'colorodo': 'Colorado', 'colardo': 'Colorado', 'coloradao': 'Colorado', // Typos
+    'tahoee': 'Tahoe', 'taho': 'Tahoe', // Typos
+    'escalad': 'Escalade', 'escallade': 'Escalade', // Typos
 
     // Toyota
-    'rav': 'RAV4', 'rav 4': 'RAV4',
+    'rav': 'RAV4', 'rav 4': 'RAV4', 'rav4': 'RAV4',
     '4runner': '4Runner', '4 runner': '4Runner',
+    'camery': 'Camry', 'camrey': 'Camry', // Typos
+    'corrola': 'Corolla', 'corola': 'Corolla', // Typos
+    'highlader': 'Highlander', 'highlnader': 'Highlander', // Typos
 
     // Honda
     'crv': 'CR-V', 'cr v': 'CR-V',
     'hrv': 'HR-V', 'hr v': 'HR-V',
+    'accrod': 'Accord', 'acord': 'Accord', // Typos
+    'civc': 'Civic', 'civiv': 'Civic', // Typos
 
     // Jeep
     'jk': 'Wrangler JK', 'jl': 'Wrangler JL', 'jt': 'Gladiator',
     'gc': 'Grand Cherokee', 'wk2': 'Grand Cherokee WK2',
+    'wranler': 'Wrangler', 'wrnagler': 'Wrangler', // Typos
+    'cherokke': 'Cherokee', 'cherokeee': 'Cherokee', // Typos
 
     // RAM
     '1500': 'Ram 1500', '2500': 'Ram 2500', '3500': 'Ram 3500',
@@ -40,6 +52,11 @@ export const MODEL_ALIASES: Record<string, string> = {
     'c class': 'C-Class', 'cclass': 'C-Class',
     'e class': 'E-Class', 'eclass': 'E-Class',
     's class': 'S-Class', 'sclass': 'S-Class',
+
+    // Nissan typos
+    'altma': 'Altima', 'altimia': 'Altima', // Typos
+    'roague': 'Rogue', 'rouge': 'Rogue', // Typos
+    'pathfiner': 'Pathfinder', // Typos
 };
 
 // ============================================================================
@@ -346,4 +363,64 @@ export function normalizeModelName(model: string): string {
     return model.split(/[\s-]+/)
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
+}
+
+// ============================================================================
+// FCC ID DETECTION
+// ============================================================================
+// FCC ID patterns: Typically 2-5 letter prefix + 5-10 alphanumeric suffix
+// Examples: M3N-40821302, CWTWB1U840, HYQ14ACX, KR5V2X
+const FCC_PATTERN = /^[A-Z0-9]{2,5}[-]?[A-Z0-9]{5,10}$/i;
+
+/**
+ * Detect if a search query is an FCC ID
+ * Returns normalized FCC ID or null
+ */
+export function detectFccId(query: string): string | null {
+    const clean = query.trim().toUpperCase().replace(/\s+/g, '');
+    // Must have at least one letter and one number (to avoid false positives)
+    const hasLetter = /[A-Z]/.test(clean);
+    const hasNumber = /[0-9]/.test(clean);
+
+    if (hasLetter && hasNumber && FCC_PATTERN.test(clean)) {
+        return clean;
+    }
+    return null;
+}
+
+// ============================================================================
+// OEM PART NUMBER DETECTION
+// ============================================================================
+// OEM part numbers are typically 5-12 digit numbers
+// Examples: 23434728, 13577770, 84209237
+const OEM_PART_PATTERN = /^\d{5,12}$/;
+
+/**
+ * Detect if a search query is an OEM part number
+ * Returns the part number or null
+ */
+export function detectOemPart(query: string): string | null {
+    const clean = query.trim().replace(/\s+/g, '');
+    if (OEM_PART_PATTERN.test(clean)) {
+        return clean;
+    }
+    return null;
+}
+
+// ============================================================================
+// VIN DETECTION (17-character VINs)
+// ============================================================================
+// VINs are exactly 17 alphanumeric characters (no I, O, Q)
+const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{17}$/i;
+
+/**
+ * Detect if a search query is a VIN
+ * Returns normalized VIN or null
+ */
+export function detectVin(query: string): string | null {
+    const clean = query.trim().toUpperCase().replace(/\s+/g, '');
+    if (VIN_PATTERN.test(clean)) {
+        return clean;
+    }
+    return null;
 }

@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './LocksmithVerificationForm.module.css';
 
+// API base URL - use environment variable or default to production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
+
 interface ProofStatus {
     proof_type: string;
     status: 'pending' | 'approved' | 'rejected';
@@ -43,7 +46,7 @@ export default function LocksmithVerificationForm() {
 
         const fetchStatus = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/verification/status`, {
+                const response = await fetch(`${API_URL}/api/verification/status`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
                     }
@@ -85,7 +88,7 @@ export default function LocksmithVerificationForm() {
             formData.append('file', file);
             formData.append('proof_type', proofType);
 
-            const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/verification/upload-proof`, {
+            const uploadResponse = await fetch(`${API_URL}/api/verification/upload-proof`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
@@ -101,7 +104,7 @@ export default function LocksmithVerificationForm() {
             setSuccess(`${PROOF_TYPES.find(p => p.id === proofType)?.name} submitted for review!`);
 
             // Refresh status
-            const statusResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/verification/status`, {
+            const statusResponse = await fetch(`${API_URL}/api/verification/status`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
                 }

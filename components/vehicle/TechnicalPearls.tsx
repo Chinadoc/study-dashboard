@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import PearlRenderer from '@/components/shared/PearlRenderer';
 
+// API base URL - use environment variable or default to production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
+
 interface Pearl {
     id?: number;
     content?: string;
@@ -53,7 +56,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
             for (const pearl of pearls) {
                 if (pearl.id) {
                     try {
-                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pearls/${pearl.id}/votes`, {
+                        const res = await fetch(`${API_URL}/api/pearls/${pearl.id}/votes`, {
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
                             }
@@ -84,7 +87,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         }
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pearls/vote`, {
+            const res = await fetch(`${API_URL}/api/pearls/vote`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -113,7 +116,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         setSubmitting(true);
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pearls/${pearlId}/reply`, {
+            const res = await fetch(`${API_URL}/api/pearls/${pearlId}/reply`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,7 +148,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         setSubmitting(true);
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pearls/suggest-edit`, {
+            const res = await fetch(`${API_URL}/api/pearls/suggest-edit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

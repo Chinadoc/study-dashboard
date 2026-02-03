@@ -7,6 +7,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import styles from './community.module.css';
 
+// API base URL - use environment variable or default to production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
+
 interface RecentComment {
     id: string;
     vehicle_key: string;
@@ -56,7 +59,7 @@ export default function CommunityPage() {
             setLoading(true);
             try {
                 // Fetch recent comments across all vehicles
-                const recentRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/community/recent`);
+                const recentRes = await fetch(`${API_URL}/api/community/recent`);
                 if (recentRes.ok) {
                     const data = await recentRes.json();
                     setRecentComments(data.comments || []);
@@ -64,7 +67,7 @@ export default function CommunityPage() {
                 }
 
                 // Fetch leaderboard
-                const leaderboardRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/community/leaderboard`);
+                const leaderboardRes = await fetch(`${API_URL}/api/community/leaderboard`);
                 if (leaderboardRes.ok) {
                     const data = await leaderboardRes.json();
                     setLeaderboard(data.leaderboard || []);
@@ -72,7 +75,7 @@ export default function CommunityPage() {
 
                 // Fetch mentions if authenticated
                 if (isAuthenticated) {
-                    const mentionsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/mentions`, {
+                    const mentionsRes = await fetch(`${API_URL}/api/user/mentions`, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
                         }
@@ -125,7 +128,7 @@ export default function CommunityPage() {
 
     const markMentionsRead = async () => {
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/mentions/read`, {
+            await fetch(`${API_URL}/api/user/mentions/read`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

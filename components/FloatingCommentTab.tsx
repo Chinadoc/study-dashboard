@@ -5,6 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import CommentSection from './CommentSection';
 import styles from './FloatingCommentTab.module.css';
 
+// API base URL - use environment variable or default to production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
+
 interface FloatingCommentTabProps {
     make: string;
     model: string;
@@ -23,7 +26,7 @@ export default function FloatingCommentTab({ make, model }: FloatingCommentTabPr
         const fetchCount = async () => {
             try {
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`
+                    `${API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`
                 );
                 if (response.ok) {
                     const data = await response.json();

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { parseVehicleQuery, generateSuggestions } from '@/lib/vehicle-search';
+import { parseVehicleQuery, generateSuggestions, detectFccId, detectVin } from '@/lib/vehicle-search';
 import { trackSearch } from '@/lib/analytics';
 import { searchGlossaryTerms, GlossaryTerm } from '@/lib/glossaryUtils';
 
@@ -20,7 +20,7 @@ const getVehicleImageUrl = (make: string, model?: string): string | null => {
 
 
 interface SearchResult {
-    type: 'make' | 'model' | 'vehicle' | 'glossary';
+    type: 'make' | 'model' | 'vehicle' | 'glossary' | 'fcc' | 'vin';
     make: string;
     model?: string;
     year?: number;
@@ -74,7 +74,44 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
             const lowerQuery = query.toLowerCase().trim();
 
             try {
-                // NEW: Try smart parsing first (handles "f150 2018", "camry 2020", etc.)
+                // PRIORITY 1: Check for FCC ID patterns (e.g., M3N-40821302, CWTWB1U840)
+                const fccMatch = detectFccId(query);
+                if (fccMatch) {
+                    try {
+                        const fccRes = await fetch(`${API_BASE}/api/fcc/${encodeURIComponent(fccMatch)}`);
+                        if (fccRes.ok) {
+                            const fccData = await fccRes.json();
+                            const vehicleCount = fccData.vehicles?.length || 0;
+                            suggestions.push({
+                                type: 'fcc',
+                                make: fccData.make || 'Multiple',
+                                display: `FCC: ${fccMatch}`,
+                                subtitle: vehicleCount > 0 ? `${vehicleCount} compatible vehicles` : 'View FCC details'
+                            });
+                        }
+                    } catch {
+                        // FCC lookup failed - still show the suggestion to navigate to FCC page
+                        suggestions.push({
+                            type: 'fcc',
+                            make: 'Unknown',
+                            display: `FCC: ${fccMatch}`,
+                            subtitle: 'Search FCC database'
+                        });
+                    }
+                }
+
+                // PRIORITY 2: Check for VIN patterns (17 alphanumeric, no I/O/Q)
+                const vinMatch = detectVin(query);
+                if (vinMatch) {
+                    suggestions.push({
+                        type: 'vin',
+                        make: 'VIN Decode',
+                        display: `VIN: ${vinMatch.slice(0, 8)}...${vinMatch.slice(-4)}`,
+                        subtitle: 'Decode VIN for vehicle details'
+                    });
+                }
+
+                // PRIORITY 3: Smart vehicle parsing (handles "f150 2018", "camry 2020", etc.)
                 const parsed = parseVehicleQuery(query);
                 const smartSuggestions = generateSuggestions(parsed);
 
@@ -188,7 +225,38 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                     const modelsData = await modelsRes.json();
                     const models = (modelsData.models || []) as string[];
 
-                    models.slice(0, 5).forEach(model => {
+                    // Prioritize models based on parsed query
+                    let prioritizedModels: string[];
+                    if (parsed.model) {
+                        const parsedModelLower = parsed.model.toLowerCase();
+                        // Find exact match, startsWith matches, and contains matches
+                        const exactMatch = models.find(m => m.toLowerCase() === parsedModelLower);
+                        const startsWithMatches = models.filter(m =>
+                            m.toLowerCase().startsWith(parsedModelLower) && m.toLowerCase() !== parsedModelLower
+                        );
+                        const containsMatches = models.filter(m =>
+                            m.toLowerCase().includes(parsedModelLower) &&
+                            !m.toLowerCase().startsWith(parsedModelLower)
+                        );
+                        // Combine: exact first, then startsWith, then contains, then fill with alphabetical
+                        const prioritized = [
+                            exactMatch,
+                            ...startsWithMatches,
+                            ...containsMatches
+                        ].filter((m): m is string => Boolean(m));
+
+                        // If we have matches, use them; otherwise fall back to alphabetical
+                        if (prioritized.length > 0) {
+                            prioritizedModels = prioritized.slice(0, 5);
+                        } else {
+                            prioritizedModels = models.slice(0, 5);
+                        }
+                    } else {
+                        // No parsed model - show first 5 alphabetically
+                        prioritizedModels = models.slice(0, 5);
+                    }
+
+                    prioritizedModels.forEach(model => {
                         suggestions.push({
                             type: 'model',
                             make: targetMake,
@@ -263,7 +331,16 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
         // Track the search selection
         trackSearch(result.display, results.length);
 
-        if (result.type === 'make') {
+        if (result.type === 'fcc') {
+            // Extract FCC ID from display (format: "FCC: M3N-40821302")
+            const fccId = result.display.replace('FCC: ', '');
+            window.location.href = `/fcc?search=${encodeURIComponent(fccId)}`;
+        } else if (result.type === 'vin') {
+            // Extract VIN and navigate to VIN decoder
+            const vin = result.display.replace('VIN: ', '').replace('...', '');
+            // The actual VIN is stored - reconstruct or pass full query
+            window.location.href = `/browse?vin=${encodeURIComponent(query.trim().toUpperCase())}`;
+        } else if (result.type === 'make') {
             // Navigate to browse with make pre-selected (and year if present)
             const yearParam = result.year ? `&year=${result.year}` : '';
             window.location.href = `/browse?make=${encodeURIComponent(result.make)}${yearParam}`;

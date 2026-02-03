@@ -180,7 +180,7 @@ function VehiclesPopover({
     );
 }
 
-type InventorySubTab = 'all' | 'keys' | 'blanks' | 'tools' | 'consumables' | 'low' | 'coverage';
+type InventorySubTab = 'all' | 'keys' | 'blanks' | 'tools' | 'consumables' | 'low';
 
 export default function InventoryPage() {
     const { isAuthenticated, login, loading: authLoading } = useAuth();
@@ -313,7 +313,6 @@ export default function InventoryPage() {
         { id: 'tools', label: 'Tools', icon: '💻', count: tools.length },
         { id: 'consumables', label: 'Supplies', icon: '📦', count: consumables.length },
         { id: 'low', label: 'Low Stock', icon: '⚠️', count: lowStock.length },
-        { id: 'coverage', label: 'Coverage', icon: '🗺️' },
     ];
 
     const handleDelete = (itemKey: string) => {
@@ -441,58 +440,38 @@ export default function InventoryPage() {
                 </div>
             )}
 
-            {/* Coverage Heatmap View */}
-            {activeSubTab === 'coverage' ? (
-                <div className="space-y-3">
-                    <a
-                        href="/business/coverage-heatmap"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/80 rounded-lg border border-zinc-700 hover:border-amber-500/40 hover:bg-zinc-800 transition-all group"
-                    >
-                        <span>🔑</span>
-                        <span className="font-medium text-white group-hover:text-amber-400 transition-colors">Key Coverage</span>
-                        <span className="text-amber-500 text-sm">View Map →</span>
-                    </a>
-                    <a
-                        href="/business/coverage-heatmap"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/80 rounded-lg border border-zinc-700 hover:border-purple-500/40 hover:bg-zinc-800 transition-all group ml-2"
-                    >
-                        <span>🔧</span>
-                        <span className="font-medium text-white group-hover:text-purple-400 transition-colors">Tool Coverage</span>
-                        <span className="text-purple-500 text-sm">View Map →</span>
-                    </a>
+
+            {/* Inventory List */}
+            {loading ? (
+                <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin h-8 w-8 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
                 </div>
-            ) : (
-                /* Inventory List */
-                loading ? (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="animate-spin h-8 w-8 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
-                    </div>
-                ) : displayItems.length > 0 ? (
-                    <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-                        <div className="divide-y divide-gray-800">
-                            {displayItems.map((item) => {
-                                const fccData = item.type === 'key' ? getFccData(item.itemKey) : undefined;
-                                const keyImage = fccData?.imageUrl;
-                                // Detect key category for smart/prox/remote head distinction
-                                const keyCategory = item.type === 'key'
-                                    ? detectKeyCategory({ itemKey: item.itemKey, keyType: fccData?.productType })
-                                    : undefined;
-                                const categoryInfo = keyCategory ? KEY_CATEGORIES[keyCategory] : undefined;
-                                return (
-                                    <div
-                                        key={item.itemKey}
-                                        className="p-2.5 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-gray-800/30 transition-colors relative"
-                                    >
-                                        {/* Key Image - Left Side */}
-                                        {item.type === 'key' && (
-                                            <div className="flex-shrink-0">
-                                                {keyImage ? (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            // Open expanded view
-                                                            const modal = document.createElement('div');
-                                                            modal.innerHTML = `
+            ) : displayItems.length > 0 ? (
+                <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                    <div className="divide-y divide-gray-800">
+                        {displayItems.map((item) => {
+                            const fccData = item.type === 'key' ? getFccData(item.itemKey) : undefined;
+                            const keyImage = fccData?.imageUrl;
+                            // Detect key category for smart/prox/remote head distinction
+                            const keyCategory = item.type === 'key'
+                                ? detectKeyCategory({ itemKey: item.itemKey, keyType: fccData?.productType })
+                                : undefined;
+                            const categoryInfo = keyCategory ? KEY_CATEGORIES[keyCategory] : undefined;
+                            return (
+                                <div
+                                    key={item.itemKey}
+                                    className="p-2.5 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-gray-800/30 transition-colors relative"
+                                >
+                                    {/* Key Image - Left Side */}
+                                    {item.type === 'key' && (
+                                        <div className="flex-shrink-0">
+                                            {keyImage ? (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // Open expanded view
+                                                        const modal = document.createElement('div');
+                                                        modal.innerHTML = `
                                                                 <div class="fixed inset-0 z-50 flex items-center justify-center" onclick="this.remove()">
                                                                     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
                                                                     <div class="relative bg-zinc-900 border border-zinc-700 rounded-xl p-4 shadow-2xl">
@@ -504,119 +483,118 @@ export default function InventoryPage() {
                                                                     </div>
                                                                 </div>
                                                             `;
-                                                            document.body.appendChild(modal.firstElementChild!);
-                                                        }}
-                                                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-800 overflow-hidden hover:ring-2 hover:ring-yellow-500/50 transition-all cursor-pointer"
-                                                    >
-                                                        <img
-                                                            src={keyImage}
-                                                            alt={item.itemKey}
-                                                            className="w-full h-full object-contain p-1"
-                                                        />
-                                                    </button>
-                                                ) : (
-                                                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-800 flex items-center justify-center">
-                                                        <span className="text-2xl">{categoryInfo?.icon || '🔑'}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Content */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
-                                                <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key'
-                                                    ? (keyCategory === 'smart_key' ? 'bg-purple-500/20 text-purple-400' :
-                                                        keyCategory === 'remote_head' ? 'bg-blue-500/20 text-blue-400' :
-                                                            keyCategory === 'transponder' ? 'bg-green-500/20 text-green-400' :
-                                                                keyCategory === 'remote_only' ? 'bg-cyan-500/20 text-cyan-400' :
-                                                                    'bg-yellow-500/20 text-yellow-400') :
-                                                    item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
-                                                        item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
-                                                            'bg-green-500/20 text-green-400'
-                                                    }`}>
-                                                    {item.type === 'key'
-                                                        ? `${categoryInfo?.icon || '🔑'} ${categoryInfo?.label || 'Key'}`
-                                                        : item.type === 'blank' ? '🔧 Blank' :
-                                                            item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
-                                                                '📦 Supply'}
-                                                </span>
-                                                {item.qty <= 2 && (
-                                                    <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low</span>
-                                                )}
-                                                {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
-                                                    <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">Warranty</span>
-                                                )}
-                                            </div>
-                                            <div className="font-bold text-sm sm:text-base text-white truncate">{item.itemKey}</div>
-                                            {item.serialNumber && (
-                                                <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
-                                            )}
-                                            {item.vehicle && (
-                                                <VehiclesPopover vehicles={item.vehicle} maxVisible={2} />
-                                            )}
-                                        </div>
-
-                                        {/* Quantity controls - Compact on mobile */}
-                                        <div className="flex items-center gap-1 flex-shrink-0">
-                                            <button
-                                                onClick={() => updateQuantity(item.itemKey, -1)}
-                                                className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
-                                            >−</button>
-                                            <span className={`w-6 sm:w-10 text-center font-bold text-xs sm:text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
-                                                {item.qty}
-                                            </span>
-                                            <button
-                                                onClick={() => updateQuantity(item.itemKey, 1)}
-                                                className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
-                                            >+</button>
-                                        </div>
-
-                                        {/* Delete button - Desktop only */}
-                                        <div className="hidden sm:flex items-center gap-2">
-                                            {deleteConfirm === item.itemKey ? (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleDelete(item.itemKey)}
-                                                        className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold"
-                                                    >Delete</button>
-                                                    <button
-                                                        onClick={() => setDeleteConfirm(null)}
-                                                        className="px-3 py-1.5 bg-zinc-700 text-gray-300 rounded-lg text-sm"
-                                                    >Cancel</button>
-                                                </>
+                                                        document.body.appendChild(modal.firstElementChild!);
+                                                    }}
+                                                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-800 overflow-hidden hover:ring-2 hover:ring-yellow-500/50 transition-all cursor-pointer"
+                                                >
+                                                    <img
+                                                        src={keyImage}
+                                                        alt={item.itemKey}
+                                                        className="w-full h-full object-contain p-1"
+                                                    />
+                                                </button>
                                             ) : (
-                                                <button
-                                                    onClick={() => setDeleteConfirm(item.itemKey)}
-                                                    className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
-                                                    title="Delete item"
-                                                >🗑️</button>
+                                                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-800 flex items-center justify-center">
+                                                    <span className="text-2xl">{categoryInfo?.icon || '🔑'}</span>
+                                                </div>
                                             )}
                                         </div>
+                                    )}
 
-                                        {/* Buy Link for Low Stock */}
-                                        {item.qty <= 2 && (
-                                            <a
-                                                href={generateAmazonSearchUrl(item.itemKey)}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/20 text-green-400 rounded-lg text-[10px] sm:text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap flex-shrink-0"
-                                            >
-                                                🛒 <span className="hidden sm:inline">Buy</span>
-                                            </a>
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
+                                            <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key'
+                                                ? (keyCategory === 'smart_key' ? 'bg-purple-500/20 text-purple-400' :
+                                                    keyCategory === 'remote_head' ? 'bg-blue-500/20 text-blue-400' :
+                                                        keyCategory === 'transponder' ? 'bg-green-500/20 text-green-400' :
+                                                            keyCategory === 'remote_only' ? 'bg-cyan-500/20 text-cyan-400' :
+                                                                'bg-yellow-500/20 text-yellow-400') :
+                                                item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
+                                                    item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
+                                                        'bg-green-500/20 text-green-400'
+                                                }`}>
+                                                {item.type === 'key'
+                                                    ? `${categoryInfo?.icon || '🔑'} ${categoryInfo?.label || 'Key'}`
+                                                    : item.type === 'blank' ? '🔧 Blank' :
+                                                        item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
+                                                            '📦 Supply'}
+                                            </span>
+                                            {item.qty <= 2 && (
+                                                <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low</span>
+                                            )}
+                                            {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
+                                                <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">Warranty</span>
+                                            )}
+                                        </div>
+                                        <div className="font-bold text-sm sm:text-base text-white truncate">{item.itemKey}</div>
+                                        {item.serialNumber && (
+                                            <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
+                                        )}
+                                        {item.vehicle && (
+                                            <VehiclesPopover vehicles={item.vehicle} maxVisible={2} />
                                         )}
                                     </div>
-                                );
-                            })}
-                        </div>
+
+                                    {/* Quantity controls - Compact on mobile */}
+                                    <div className="flex items-center gap-1 flex-shrink-0">
+                                        <button
+                                            onClick={() => updateQuantity(item.itemKey, -1)}
+                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
+                                        >−</button>
+                                        <span className={`w-6 sm:w-10 text-center font-bold text-xs sm:text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
+                                            {item.qty}
+                                        </span>
+                                        <button
+                                            onClick={() => updateQuantity(item.itemKey, 1)}
+                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
+                                        >+</button>
+                                    </div>
+
+                                    {/* Delete button - Desktop only */}
+                                    <div className="hidden sm:flex items-center gap-2">
+                                        {deleteConfirm === item.itemKey ? (
+                                            <>
+                                                <button
+                                                    onClick={() => handleDelete(item.itemKey)}
+                                                    className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold"
+                                                >Delete</button>
+                                                <button
+                                                    onClick={() => setDeleteConfirm(null)}
+                                                    className="px-3 py-1.5 bg-zinc-700 text-gray-300 rounded-lg text-sm"
+                                                >Cancel</button>
+                                            </>
+                                        ) : (
+                                            <button
+                                                onClick={() => setDeleteConfirm(item.itemKey)}
+                                                className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
+                                                title="Delete item"
+                                            >🗑️</button>
+                                        )}
+                                    </div>
+
+                                    {/* Buy Link for Low Stock */}
+                                    {item.qty <= 2 && (
+                                        <a
+                                            href={generateAmazonSearchUrl(item.itemKey)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/20 text-green-400 rounded-lg text-[10px] sm:text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap flex-shrink-0"
+                                        >
+                                            🛒 <span className="hidden sm:inline">Buy</span>
+                                        </a>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
-                ) : (
-                    <div className="text-center py-12 text-gray-500">
-                        <div className="text-4xl mb-3">📦</div>
-                        <p className="font-medium">{searchQuery ? 'No matching items' : 'No items in this view'}</p>
-                        <p className="text-sm mt-1">{searchQuery ? 'Try a different search term' : 'Add inventory items to track your stock'}</p>
-                    </div>
-                )
+                </div>
+            ) : (
+                <div className="text-center py-12 text-gray-500">
+                    <div className="text-4xl mb-3">📦</div>
+                    <p className="font-medium">{searchQuery ? 'No matching items' : 'No items in this view'}</p>
+                    <p className="text-sm mt-1">{searchQuery ? 'Try a different search term' : 'Add inventory items to track your stock'}</p>
+                </div>
             )}
         </div>
     );

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { FleetAccount, getFleetAccountsFromStorage } from '@/lib/fleetTypes';
+import { Technician, getTechniciansFromStorage, getActiveTechnicians } from '@/lib/technicianTypes';
 
 interface RecentCustomer {
     name: string;
@@ -15,6 +17,7 @@ interface JobLogModalProps {
     prefillFccId?: string;
     prefillVehicle?: string;
     recentCustomers?: RecentCustomer[];
+    fleetAccounts?: FleetAccount[];  // Optional fleet accounts for linking
 }
 
 export interface JobFormData {
@@ -25,10 +28,11 @@ export interface JobFormData {
     price: number;
     date: string;
     notes: string;
-    // New fields
     customerName?: string;
     customerPhone?: string;
     customerAddress?: string;
+    fleetId?: string;          // Link to fleet account
+    technicianId?: string;     // Assigned technician
     partsCost?: number;
     keyCost?: number;     // Cost of key/fob from AKS pricing
     serviceCost?: number; // Labor/service charge
@@ -56,12 +60,28 @@ const REFERRAL_SOURCES = [
     { value: 'other', label: 'Other' },
 ];
 
-export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', recentCustomers = [] }: JobLogModalProps) {
+export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', recentCustomers = [], fleetAccounts }: JobLogModalProps) {
     const [showCustomerInfo, setShowCustomerInfo] = useState(false);
     const [showCostTracking, setShowCostTracking] = useState(false);
     const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: number; button_count?: number; image_url?: string }>>([]);
     const [loadingFcc, setLoadingFcc] = useState(false);
     const [showFccPicker, setShowFccPicker] = useState(false);
+
+    // Load fleet accounts if not provided
+    const [loadedFleets, setLoadedFleets] = useState<FleetAccount[]>([]);
+    useEffect(() => {
+        if (!fleetAccounts) {
+            setLoadedFleets(getFleetAccountsFromStorage());
+        }
+    }, [fleetAccounts]);
+
+    const availableFleets = fleetAccounts || loadedFleets;
+
+    // Load technicians for assignment
+    const [technicians, setTechnicians] = useState<Technician[]>([]);
+    useEffect(() => {
+        setTechnicians(getActiveTechnicians());
+    }, []);
 
     const [formData, setFormData] = useState<JobFormData>({
         vehicle: prefillVehicle,
@@ -74,6 +94,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         customerName: '',
         customerPhone: '',
         customerAddress: '',
+        fleetId: '',
         partsCost: 0,
         keyCost: 0,
         serviceCost: 0,
@@ -82,6 +103,24 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         referralSource: undefined,
         status: 'completed',
     });
+
+    // Handle fleet selection - auto-fill customer info from fleet
+    const handleFleetSelect = (fleetId: string) => {
+        const fleet = availableFleets.find(f => f.id === fleetId);
+        if (fleet) {
+            setFormData(prev => ({
+                ...prev,
+                fleetId: fleet.id,
+                customerName: fleet.name,
+                customerPhone: fleet.phone || prev.customerPhone,
+                customerAddress: fleet.address || prev.customerAddress,
+                referralSource: 'repeat'
+            }));
+            setShowCustomerInfo(true);  // Auto-show customer section
+        } else {
+            setFormData(prev => ({ ...prev, fleetId: '' }));
+        }
+    };
 
     // Keep track of last looked-up FCC ID to avoid duplicate lookups
     const lastLookedUpFcc = useRef<string>('');
@@ -160,6 +199,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             customerName: '',
             customerPhone: '',
             customerAddress: '',
+            fleetId: '',
             partsCost: 0,
             keyCost: 0,
             gasCost: 0,
@@ -521,6 +561,86 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                             💰 Cost Tracking
                         </button>
                     </div>
+
+                    {/* Fleet Account Selector */}
+                    {availableFleets.length > 0 && (
+                        <div className="p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                🚗 Fleet Account (optional)
+                            </label>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                {availableFleets.slice(0, 4).map(fleet => (
+                                    <button
+                                        key={fleet.id}
+                                        type="button"
+                                        onClick={() => handleFleetSelect(fleet.id)}
+                                        className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${formData.fleetId === fleet.id
+                                            ? 'bg-blue-500/30 border-blue-500/60 text-blue-300'
+                                            : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                                            }`}
+                                    >
+                                        🚗 {fleet.name}
+                                        {fleet.vehicles.length > 0 && (
+                                            <span className="ml-1 text-zinc-500">({fleet.vehicles.length})</span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                            {availableFleets.length > 4 && (
+                                <select
+                                    value={formData.fleetId || ''}
+                                    onChange={(e) => handleFleetSelect(e.target.value)}
+                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                >
+                                    <option value="">Select fleet account...</option>
+                                    {availableFleets.map(fleet => (
+                                        <option key={fleet.id} value={fleet.id}>
+                                            {fleet.name} ({fleet.vehicles.length} vehicles)
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                            {formData.fleetId && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setFormData(prev => ({ ...prev, fleetId: '' }));
+                                    }}
+                                    className="mt-2 text-xs text-zinc-500 hover:text-zinc-400"
+                                >
+                                    ✕ Clear fleet selection
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Technician Assignment */}
+                    {technicians.length > 0 && (
+                        <div className="p-4 bg-green-950/30 rounded-xl border border-green-900/30">
+                            <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
+                                👷 Assign Technician (optional)
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {technicians.map(tech => (
+                                    <button
+                                        key={tech.id}
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({
+                                            ...prev,
+                                            technicianId: prev.technicianId === tech.id ? '' : tech.id
+                                        }))}
+                                        className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${formData.technicianId === tech.id
+                                            ? 'bg-green-500/30 border-green-500/60 text-green-300'
+                                            : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                                            }`}
+                                    >
+                                        👷 {tech.name}
+                                        {tech.role && <span className="ml-1 text-zinc-500">({tech.role})</span>}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Customer Info Section */}
                     {showCustomerInfo && (

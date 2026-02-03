@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadBusinessProfile, saveBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
 
-type ToolsSubTab = 'mytools' | 'coverage' | 'add';
+type ToolsSubTab = 'mytools' | 'add';
 
 export default function ToolsPage() {
     const [activeSubTab, setActiveSubTab] = useState<ToolsSubTab>('mytools');
@@ -29,7 +29,6 @@ export default function ToolsPage() {
 
     const subtabs = [
         { id: 'mytools', label: 'My Tools', icon: '🛠️', count: userTools.length },
-        { id: 'coverage', label: 'Coverage', icon: '📊' },
         { id: 'add', label: 'Add Tool', icon: '➕' },
     ];
 
@@ -97,17 +96,6 @@ export default function ToolsPage() {
                 </div>
             )}
 
-            {/* Coverage View */}
-            {activeSubTab === 'coverage' && (
-                <a
-                    href="/business/coverage-heatmap"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/80 rounded-lg border border-zinc-700 hover:border-amber-500/40 hover:bg-zinc-800 transition-all group"
-                >
-                    <span>🔧</span>
-                    <span className="font-medium text-white group-hover:text-amber-400 transition-colors">Tool Coverage</span>
-                    <span className="text-amber-500 text-sm">View Map →</span>
-                </a>
-            )}
 
             {/* Add Tool View */}
             {activeSubTab === 'add' && (

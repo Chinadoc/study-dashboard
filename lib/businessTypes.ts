@@ -1,7 +1,10 @@
 'use client';
 
+import { API_BASE } from './config';
+
 /**
  * Business Platform Types and Tool Definitions
+ * Now with cloud sync support!
  */
 
 export interface BusinessProfile {
@@ -103,11 +106,11 @@ export const AVAILABLE_TOOLS: ToolInfo[] = [
     },
 ];
 
-// Storage key for business profile
+// Storage key for business profile (localStorage fallback)
 const STORAGE_KEY = 'eurokeys_business_profile';
 
 /**
- * Load business profile from localStorage
+ * Load business profile - tries cloud first, falls back to localStorage
  */
 export function loadBusinessProfile(): BusinessProfile {
     if (typeof window === 'undefined') {
@@ -127,11 +130,90 @@ export function loadBusinessProfile(): BusinessProfile {
 }
 
 /**
- * Save business profile to localStorage
+ * Load business profile from cloud (async)
+ */
+export async function loadBusinessProfileFromCloud(): Promise<BusinessProfile | null> {
+    try {
+        const response = await fetch(`${API_BASE}/api/user/business-profile`, {
+            credentials: 'include',
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        if (data.profile) {
+            // Cache in localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data.profile));
+            }
+            return data.profile as BusinessProfile;
+        }
+        return null;
+    } catch (e) {
+        console.warn('Cloud profile load failed, using localStorage:', e);
+        return null;
+    }
+}
+
+/**
+ * Save business profile to localStorage (immediate) and cloud (async)
  */
 export function saveBusinessProfile(profile: BusinessProfile): void {
     if (typeof window === 'undefined') return;
+
+    // Immediate localStorage save
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+
+    // Async cloud sync
+    syncBusinessProfileToCloud(profile).catch(e => {
+        console.warn('Cloud sync failed (profile saved locally):', e);
+    });
+}
+
+/**
+ * Sync business profile to cloud
+ */
+export async function syncBusinessProfileToCloud(profile: BusinessProfile): Promise<boolean> {
+    try {
+        const response = await fetch(`${API_BASE}/api/user/business-profile`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profile),
+        });
+        return response.ok;
+    } catch (e) {
+        console.error('Cloud sync error:', e);
+        return false;
+    }
+}
+
+/**
+ * Initialize business profile - load from cloud if available, merge with localStorage
+ */
+export async function initBusinessProfile(): Promise<BusinessProfile> {
+    const localProfile = loadBusinessProfile();
+    const cloudProfile = await loadBusinessProfileFromCloud();
+
+    if (cloudProfile) {
+        // Cloud takes precedence, but merge tools arrays
+        const mergedTools = [...new Set([...cloudProfile.tools, ...localProfile.tools])];
+        const merged: BusinessProfile = {
+            ...localProfile,
+            ...cloudProfile,
+            tools: mergedTools,
+        };
+        // Save merged back to localStorage
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        }
+        return merged;
+    }
+
+    // If we have local data but no cloud data, push to cloud
+    if (localProfile.tools.length > 0 || localProfile.setupComplete) {
+        syncBusinessProfileToCloud(localProfile).catch(() => { });
+    }
+
+    return localProfile;
 }
 
 /**

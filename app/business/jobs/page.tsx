@@ -3,12 +3,14 @@
 import React, { useState, useMemo } from 'react';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
+import { usePipelineLeads, PipelineLead } from '@/lib/usePipelineLeads';
 import JobsDashboard from '@/components/business/JobsDashboard';
 import CalendarView from '@/components/business/CalendarView';
 import GoalProgress from '@/components/business/GoalProgress';
 import InvoiceBuilder from '@/components/business/InvoiceBuilder';
+import PipelineView from '@/components/business/PipelineView';
 
-type JobsSubTab = 'all' | 'calendar' | 'pending' | 'analytics';
+type JobsSubTab = 'all' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
 
 export default function JobsPage() {
     const [activeSubTab, setActiveSubTab] = useState<JobsSubTab>('all');
@@ -16,7 +18,11 @@ export default function JobsPage() {
     const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
     const [invoiceJob, setInvoiceJob] = useState<JobLog | undefined>(undefined);
 
+    // Prefill data for lead-to-job conversion
+    const [prefillData, setPrefillData] = useState<{ vehicle?: string; customerName?: string; customerPhone?: string } | null>(null);
+
     const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
+    const { getStats: getPipelineStats } = usePipelineLeads();
     const stats = getJobStats();
 
     // Filter jobs based on subtab
@@ -48,8 +54,22 @@ export default function JobsPage() {
         setJobModalOpen(false);
     };
 
+    const pipelineStats = getPipelineStats();
+    const activeLeadsCount = pipelineStats.newLeads + pipelineStats.contactedLeads + pipelineStats.scheduledLeads;
+
+    // Handle lead-to-job conversion
+    const handleConvertLead = (lead: PipelineLead) => {
+        setPrefillData({
+            vehicle: lead.vehicle,
+            customerName: lead.customerName,
+            customerPhone: lead.customerPhone,
+        });
+        setJobModalOpen(true);
+    };
+
     const subtabs = [
         { id: 'all', label: 'All Jobs', icon: '📝', count: jobLogs.length },
+        { id: 'pipeline', label: 'Pipeline', icon: '📥', count: activeLeadsCount > 0 ? activeLeadsCount : undefined },
         { id: 'calendar', label: 'Calendar', icon: '📅' },
         { id: 'pending', label: 'Pending', icon: '⏳', count: pendingJobs.length },
         { id: 'analytics', label: 'Analytics', icon: '📊' },
@@ -107,6 +127,10 @@ export default function JobsPage() {
                 />
             )}
 
+            {activeSubTab === 'pipeline' && (
+                <PipelineView onConvertToJob={handleConvertLead} />
+            )}
+
             {activeSubTab === 'pending' && (
                 <div className="space-y-4">
                     <button
@@ -145,9 +169,13 @@ export default function JobsPage() {
             {jobModalOpen && (
                 <JobLogModal
                     isOpen={jobModalOpen}
-                    onClose={() => setJobModalOpen(false)}
+                    onClose={() => {
+                        setJobModalOpen(false);
+                        setPrefillData(null);
+                    }}
                     onSubmit={handleJobSubmit}
                     recentCustomers={getRecentCustomers()}
+                    prefillVehicle={prefillData?.vehicle}
                 />
             )}
 

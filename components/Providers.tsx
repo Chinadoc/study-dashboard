@@ -9,9 +9,11 @@ import { GoalProvider } from '@/contexts/GoalContext';
 import { AdminModeProvider } from '@/contexts/AdminModeContext';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { FleetPanelProvider } from '@/contexts/FleetPanelContext';
+import { TeamPanelProvider } from '@/contexts/TeamPanelContext';
 import InventoryLoginPrompt from '@/components/shared/InventoryLoginPrompt';
 import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 import FleetPanelWrapper from '@/components/business/FleetPanelWrapper';
+import TeamPanelWrapper from '@/components/business/TeamPanelWrapper';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -23,10 +25,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
                             <AdminModeProvider>
                                 <OnboardingProvider>
                                     <FleetPanelProvider>
-                                        {children}
-                                        <InventoryLoginPrompt />
-                                        <OnboardingWizard />
-                                        <FleetPanelWrapper />
+                                        <TeamPanelProvider>
+                                            {children}
+                                            <InventoryLoginPrompt />
+                                            <OnboardingWizard />
+                                            <FleetPanelWrapper />
+                                            <TeamPanelWrapper />
+                                        </TeamPanelProvider>
                                     </FleetPanelProvider>
                                 </OnboardingProvider>
                             </AdminModeProvider>

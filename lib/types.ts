@@ -1,5 +1,8 @@
 // Core types for EuroKeys automotive locksmith platform
 
+// Adapter types for diagnostic tool requirements
+export type AdapterType = 'None' | 'CAN FD' | 'FCA 12+8' | '30-Pin' | 'Gateway Bypass' | 'DoIP';
+
 export interface Vehicle {
     make: string;
     model: string;
@@ -8,12 +11,14 @@ export interface Vehicle {
     platform: string;
     architecture?: string;
     immobilizer_system?: string;
-    can_fd_required?: boolean;
+    can_fd_required?: boolean;  // Deprecated: use adapter_type
+    adapter_type?: AdapterType;
 }
 
 export interface VehicleSpecs {
     architecture: string;
-    canFd: boolean;
+    canFd: boolean;  // Deprecated: use adapterType
+    adapterType?: AdapterType;
     chipType: string;
     fccId: string;
     battery: string;

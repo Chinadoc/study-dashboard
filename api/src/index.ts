@@ -20,6 +20,8 @@ export interface Env {
   DEV_EMAILS: string;  // Comma-separated developer email addresses
   AI: any;
   OPENROUTER_API_KEY: string;
+  GEMINI_API_KEY?: string;  // Gemini API key for direct Google AI calls
+  CHAT_AI_PROVIDER?: string;  // 'gemini' or 'openrouter' (default: openrouter)
   CF_ANALYTICS_TOKEN?: string;  // Cloudflare Global API Key
   CF_ZONE_ID?: string;          // Cloudflare Zone ID for eurokeys.app
   CF_AUTH_EMAIL?: string;       // Cloudflare account email for API auth
@@ -1137,6 +1139,451 @@ export default {
       // USER PREFERENCES ENDPOINTS (AI Insights Memory)
       // ==============================================
 
+      // ==============================================
+      // BUSINESS PROFILE ENDPOINTS (Cloud Sync for Tools)
+      // ==============================================
+
+      // GET /api/user/business-profile - Fetch user's business profile
+      if (path === "/api/user/business-profile" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM user_business_profile WHERE user_id = ?
+          `).bind(userId).first();
+
+          if (!result) {
+            return corsResponse(request, JSON.stringify({ profile: null }));
+          }
+
+          return corsResponse(request, JSON.stringify({
+            profile: {
+              businessName: result.business_name,
+              phone: result.phone,
+              email: result.email,
+              address: result.address,
+              logo: result.logo,
+              tools: result.tools ? JSON.parse(result.tools as string) : [],
+              setupComplete: !!result.setup_complete,
+              setupStep: result.setup_step,
+              updatedAt: result.updated_at
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/business-profile - Save user's business profile
+      if (path === "/api/user/business-profile" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { businessName, phone, email, address, logo, tools, setupComplete, setupStep } = body;
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO user_business_profile (user_id, business_name, phone, email, address, logo, tools, setup_complete, setup_step, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+              business_name = COALESCE(excluded.business_name, user_business_profile.business_name),
+              phone = COALESCE(excluded.phone, user_business_profile.phone),
+              email = COALESCE(excluded.email, user_business_profile.email),
+              address = COALESCE(excluded.address, user_business_profile.address),
+              logo = COALESCE(excluded.logo, user_business_profile.logo),
+              tools = COALESCE(excluded.tools, user_business_profile.tools),
+              setup_complete = COALESCE(excluded.setup_complete, user_business_profile.setup_complete),
+              setup_step = COALESCE(excluded.setup_step, user_business_profile.setup_step),
+              updated_at = excluded.updated_at
+          `).bind(
+            userId,
+            businessName || null,
+            phone || null,
+            email || null,
+            address || null,
+            logo || null,
+            tools ? JSON.stringify(tools) : null,
+            setupComplete ? 1 : 0,
+            setupStep || null,
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({ success: true }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PIPELINE LEADS ENDPOINTS (Cloud Sync)
+      // ==============================================
+
+      // GET /api/user/pipeline-leads - Fetch user's pipeline leads
+      if (path === "/api/user/pipeline-leads" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data, created_at, updated_at FROM pipeline_leads WHERE user_id = ? ORDER BY updated_at DESC
+          `).bind(userId).all();
+
+          const leads = (result.results || []).map((row: any) => ({
+            id: row.id,
+            ...JSON.parse(row.data || '{}'),
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+          }));
+
+          return corsResponse(request, JSON.stringify({ leads }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/pipeline-leads - Add/Update a pipeline lead
+      if (path === "/api/user/pipeline-leads" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { lead } = body;
+
+          if (!lead || !lead.id) return corsResponse(request, JSON.stringify({ error: "Missing lead data or ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pipeline_leads (id, user_id, data, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              data = excluded.data,
+              updated_at = excluded.updated_at
+          `).bind(
+            lead.id,
+            userId,
+            JSON.stringify(lead),
+            lead.createdAt || Date.now(),
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id: lead.id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/user/pipeline-leads - Delete a pipeline lead
+      if (path === "/api/user/pipeline-leads" && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { id } = body;
+
+          if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`
+            DELETE FROM pipeline_leads WHERE id = ? AND user_id = ?
+          `).bind(id, userId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // INVOICES ENDPOINTS (Cloud Sync)
+      // ==============================================
+
+      // GET /api/user/invoices - Fetch user's invoices
+      if (path === "/api/user/invoices" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data, created_at FROM invoices WHERE user_id = ? ORDER BY created_at DESC
+          `).bind(userId).all();
+
+          const invoices = (result.results || []).map((row: any) => ({
+            id: row.id,
+            ...JSON.parse(row.data || '{}'),
+            createdAt: row.created_at
+          }));
+
+          return corsResponse(request, JSON.stringify({ invoices }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/invoices - Add an invoice
+      if (path === "/api/user/invoices" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { invoice } = body;
+
+          if (!invoice || !invoice.id) return corsResponse(request, JSON.stringify({ error: "Missing invoice data or ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO invoices (id, user_id, data, created_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET data = excluded.data
+          `).bind(
+            invoice.id,
+            userId,
+            JSON.stringify(invoice),
+            invoice.createdAt || Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id: invoice.id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/user/invoices - Delete an invoice
+      if (path === "/api/user/invoices" && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { id } = body;
+
+          if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`DELETE FROM invoices WHERE id = ? AND user_id = ?`).bind(id, userId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // FLEET CUSTOMERS ENDPOINTS (Cloud Sync)
+      // ==============================================
+
+      // GET /api/user/fleet-customers - Fetch user's fleet customers
+      if (path === "/api/user/fleet-customers" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data, created_at, updated_at FROM fleet_customers WHERE user_id = ? ORDER BY updated_at DESC
+          `).bind(userId).all();
+
+          const customers = (result.results || []).map((row: any) => ({
+            id: row.id,
+            ...JSON.parse(row.data || '{}'),
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+          }));
+
+          return corsResponse(request, JSON.stringify({ customers }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/fleet-customers - Add/Update a fleet customer
+      if (path === "/api/user/fleet-customers" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { customer } = body;
+
+          if (!customer || !customer.id) return corsResponse(request, JSON.stringify({ error: "Missing customer data or ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO fleet_customers (id, user_id, data, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              data = excluded.data,
+              updated_at = excluded.updated_at
+          `).bind(
+            customer.id,
+            userId,
+            JSON.stringify(customer),
+            customer.createdAt || Date.now(),
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id: customer.id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/user/fleet-customers - Delete a fleet customer
+      if (path === "/api/user/fleet-customers" && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { id } = body;
+
+          if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`DELETE FROM fleet_customers WHERE id = ? AND user_id = ?`).bind(id, userId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // TECHNICIANS ENDPOINTS (Cloud Sync)
+      // ==============================================
+
+      // GET /api/user/technicians - Fetch user's technicians
+      if (path === "/api/user/technicians" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data, created_at, updated_at FROM technicians WHERE user_id = ? ORDER BY updated_at DESC
+          `).bind(userId).all();
+
+          const technicians = (result.results || []).map((row: any) => ({
+            id: row.id,
+            ...JSON.parse(row.data || '{}'),
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+          }));
+
+          return corsResponse(request, JSON.stringify({ technicians }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/technicians - Add/Update a technician
+      if (path === "/api/user/technicians" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { technician } = body;
+
+          if (!technician || !technician.id) return corsResponse(request, JSON.stringify({ error: "Missing technician data or ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO technicians (id, user_id, data, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              data = excluded.data,
+              updated_at = excluded.updated_at
+          `).bind(
+            technician.id,
+            userId,
+            JSON.stringify(technician),
+            technician.createdAt || Date.now(),
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id: technician.id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/user/technicians - Delete a technician
+      if (path === "/api/user/technicians" && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { id } = body;
+
+          if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`DELETE FROM technicians WHERE id = ? AND user_id = ?`).bind(id, userId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+
       // GET /api/user/preferences - Fetch user preferences
       if (path === "/api/user/preferences" && request.method === "GET") {
         try {
@@ -1213,6 +1660,58 @@ export default {
       // ==============================================
       // AI INSIGHTS ENDPOINTS
       // ==============================================
+
+      // POST /api/ai/generate-title - Generate a descriptive title for a pearl
+      if (path === "/api/ai/generate-title" && request.method === "POST") {
+        try {
+          const body: any = await request.json();
+          const { content, category, make, model } = body;
+
+          if (!content) {
+            return corsResponse(request, JSON.stringify({ error: "Content required" }), 400);
+          }
+
+          const prompt = `Generate a short, descriptive title (max 60 chars) for this automotive locksmith technical insight.
+
+Content: ${(content || "").slice(0, 500)}
+Category: ${category || "reference"}
+Vehicle: ${make || "General"} ${model || ""}
+
+Requirements:
+- Title should summarize the KEY ACTIONABLE insight
+- Be specific (e.g., "Autel IM608 PIN Read for 2019+ RAM" not "RAM Key Programming")
+- Include tool names, procedures, or warnings if relevant
+- Max 60 characters
+
+Respond with ONLY the title, nothing else.`;
+
+          const aiResponse = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
+            prompt,
+            max_tokens: 100
+          });
+
+          let title = (aiResponse as any).response?.trim() || "";
+          // Clean up - remove quotes but DO NOT truncate
+          title = title.replace(/^["']|["']$/g, "").trim();
+          // Remove trailing ellipsis if AI added one
+          if (title.endsWith("...")) {
+            title = title.slice(0, -3).trim();
+          }
+
+          // Fallback if empty
+          if (!title || title.length < 5) {
+            title = `${make || "General"} - ${model || "All"} - ${(category || "reference").slice(0, 20)}`;
+          }
+
+          return corsResponse(request, JSON.stringify({ title }));
+        } catch (err: any) {
+          console.error("AI title generation error:", err);
+          return corsResponse(request, JSON.stringify({
+            error: err.message,
+            title: "General - Reference"
+          }), 200); // Return fallback title even on error
+        }
+      }
 
       // POST /api/ai/business-insights - Generate AI insights about business stats
       if (path === "/api/ai/business-insights" && request.method === "POST") {
@@ -1323,31 +1822,68 @@ Keep response under 300 words, practical and actionable.`;
 Keep response under 300 words, practical and actionable.`;
           }
 
-          // Call OpenRouter with DeepSeek
-          const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer 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`,
-              "HTTP-Referer": "https://eurokeys.app",
-              "X-Title": "EuroKeys AI Insights",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              "model": "deepseek/deepseek-v3.2",
-              "messages": [
-                { "role": "system", "content": "You are a professional business consultant specializing in mobile automotive locksmith businesses. Provide concise, actionable advice." },
-                { "role": "user", "content": prompt }
-              ],
-              "max_tokens": 800
-            })
-          });
+          // Call AI provider (Gemini or OpenRouter/DeepSeek)
+          let insight: string;
+          const aiProvider = env.CHAT_AI_PROVIDER || 'openrouter';
 
-          if (!aiResponse.ok) {
-            throw new Error(`AI API error: ${aiResponse.status}`);
+          if (aiProvider === 'gemini' && env.GEMINI_API_KEY) {
+            // Use Gemini API
+            const geminiResponse = await fetch(
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+              {
+                method: "POST",
+                headers: {
+                  "x-goog-api-key": env.GEMINI_API_KEY,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  system_instruction: {
+                    parts: [{ text: "You are a professional business consultant specializing in mobile automotive locksmith businesses. Provide concise, actionable advice." }]
+                  },
+                  contents: [
+                    { parts: [{ text: prompt }] }
+                  ],
+                  generationConfig: {
+                    maxOutputTokens: 800,
+                    temperature: 0.7
+                  }
+                })
+              }
+            );
+
+            if (!geminiResponse.ok) {
+              throw new Error(`AI API error: ${geminiResponse.status}`);
+            }
+
+            const geminiData: any = await geminiResponse.json();
+            insight = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to generate insight.";
+          } else {
+            // Use OpenRouter / DeepSeek (default)
+            const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer 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`,
+                "HTTP-Referer": "https://eurokeys.app",
+                "X-Title": "EuroKeys AI Insights",
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                "model": "deepseek/deepseek-chat",
+                "messages": [
+                  { "role": "system", "content": "You are a professional business consultant specializing in mobile automotive locksmith businesses. Provide concise, actionable advice." },
+                  { "role": "user", "content": prompt }
+                ],
+                "max_tokens": 800
+              })
+            });
+
+            if (!aiResponse.ok) {
+              throw new Error(`AI API error: ${aiResponse.status}`);
+            }
+
+            const aiData: any = await aiResponse.json();
+            insight = aiData.choices?.[0]?.message?.content || "Unable to generate insight.";
           }
-
-          const aiData: any = await aiResponse.json();
-          const insight = aiData.choices?.[0]?.message?.content;
 
           // Save to history
           await env.LOCKSMITH_DB.prepare(`
@@ -1408,6 +1944,218 @@ Keep response under 300 words, practical and actionable.`;
           return corsResponse(request, JSON.stringify({ insights }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // CHATBOT ENDPOINT (Knowledge-based Vehicle Q&A)
+      // ==============================================
+
+      // POST /api/chat - Knowledge-based vehicle chatbot
+      if (path === "/api/chat" && request.method === "POST") {
+        try {
+          const body: any = await request.json();
+          const { message, vehicleContext } = body;
+
+          if (!message || typeof message !== 'string' || message.trim().length === 0) {
+            return corsResponse(request, JSON.stringify({ error: "Message is required" }), 400);
+          }
+
+          const userMessage = message.trim();
+
+          // 1. Extract vehicle info from message or use provided context
+          let make = vehicleContext?.make?.toLowerCase() || null;
+          let model = vehicleContext?.model?.toLowerCase() || null;
+          let year: number | null = vehicleContext?.year ? parseInt(vehicleContext.year, 10) : null;
+
+          // Try to parse vehicle from message if not provided (e.g., "2014 BMW 5 series")
+          if (!make || !model) {
+            const vehicleMatch = userMessage.match(/(\d{4})\s+(\w+)\s+(.+?)(?:\s+series|\s+sport|\?|$)/i);
+            if (vehicleMatch) {
+              year = year || parseInt(vehicleMatch[1], 10);
+              make = make || vehicleMatch[2].toLowerCase();
+              model = model || vehicleMatch[3].toLowerCase().replace(/\s+series$/i, '').trim();
+            }
+          }
+
+          // 2. Query locksmith_data for vehicle information
+          let vehicleData: any[] = [];
+          if (make) {
+            let query = `SELECT DISTINCT make, model, year, immobilizer_system, key_type, chip, 
+                         transponder_family, prog_method, prog_tools, akl_supported, fcc_id
+                         FROM locksmith_data WHERE LOWER(make) = ?`;
+            const params: any[] = [make];
+
+            if (model) {
+              query += ` AND LOWER(model) LIKE ?`;
+              params.push(`%${model}%`);
+            }
+            if (year) {
+              query += ` AND year = ?`;
+              params.push(year);
+            }
+            query += ` LIMIT 10`;
+
+            const result = await env.LOCKSMITH_DB.prepare(query).bind(...params).all();
+            vehicleData = result.results || [];
+          }
+
+          // 3. Query pearls for relevant tips (by make/model or general)
+          let relevantPearls: any[] = [];
+          if (make) {
+            const pearlQuery = `SELECT snippet, section, tags FROM locksmith_pearls 
+                               WHERE (LOWER(make) = ? OR make IS NULL)
+                               ${model ? `AND (LOWER(model) LIKE ? OR model IS NULL OR model = 'General')` : ''}
+                               ORDER BY quality_score DESC LIMIT 5`;
+            const pearlParams = model ? [make, `%${model}%`] : [make];
+
+            try {
+              const pearlResult = await env.LOCKSMITH_DB.prepare(pearlQuery).bind(...pearlParams).all();
+              relevantPearls = pearlResult.results || [];
+            } catch {
+              // Pearls table might not exist in all environments, continue without
+            }
+          }
+
+          // 4. Build context prompt with retrieved knowledge
+          let contextBlock = "";
+
+          if (vehicleData.length > 0) {
+            const v = vehicleData[0];
+            contextBlock += `\n## Vehicle Information Found:\n`;
+            contextBlock += `- Make: ${v.make}\n`;
+            contextBlock += `- Model: ${v.model}\n`;
+            if (v.year) contextBlock += `- Year: ${v.year}\n`;
+            if (v.immobilizer_system) contextBlock += `- Immobilizer System: ${v.immobilizer_system}\n`;
+            if (v.key_type) contextBlock += `- Key Type: ${v.key_type}\n`;
+            if (v.chip) contextBlock += `- Chip: ${v.chip}\n`;
+            if (v.transponder_family) contextBlock += `- Transponder Family: ${v.transponder_family}\n`;
+            if (v.prog_method) contextBlock += `- Programming Method: ${v.prog_method}\n`;
+            if (v.prog_tools) contextBlock += `- Programming Tools: ${v.prog_tools}\n`;
+            if (v.akl_supported) contextBlock += `- AKL Supported: ${v.akl_supported}\n`;
+            if (v.fcc_id) contextBlock += `- FCC ID: ${v.fcc_id}\n`;
+
+            // Add additional years if different models found
+            if (vehicleData.length > 1) {
+              const years = [...new Set(vehicleData.map(d => d.year).filter(Boolean))].sort();
+              if (years.length > 1) {
+                contextBlock += `- Available Years in Database: ${years.join(', ')}\n`;
+              }
+            }
+          }
+
+          if (relevantPearls.length > 0) {
+            contextBlock += `\n## Expert Tips (Pearls):\n`;
+            for (const pearl of relevantPearls) {
+              contextBlock += `- ${pearl.snippet}\n`;
+            }
+          }
+
+          // 5. Call AI provider (Gemini or OpenRouter/DeepSeek)
+          const systemPrompt = `You are EuroKeys AI, an expert automotive locksmith assistant. You help locksmiths with vehicle key programming, immobilizer systems, and related technical questions.
+
+Your knowledge includes:
+- Immobilizer systems and their programming requirements
+- Key types, chips, and transponders for various vehicles
+- Programming tools (Autel IM608, Smart Pro, Lonsdor K518, etc.)
+- All Keys Lost (AKL) procedures
+- FCC IDs and key fob specifications
+
+Guidelines:
+- Be concise and practical - locksmiths are working in the field
+- If you have specific data from the knowledge base, cite it clearly
+- If you're uncertain, say so rather than guessing
+- Focus on actionable information`;
+
+          const userPrompt = contextBlock
+            ? `Based on the following knowledge base data:\n${contextBlock}\n\nUser Question: ${userMessage}`
+            : userMessage;
+
+          let responseContent: string;
+          const aiProvider = env.CHAT_AI_PROVIDER || 'openrouter';
+
+          if (aiProvider === 'gemini' && env.GEMINI_API_KEY) {
+            // Use Gemini API (gemini-2.0-flash for speed)
+            const geminiResponse = await fetch(
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+              {
+                method: "POST",
+                headers: {
+                  "x-goog-api-key": env.GEMINI_API_KEY,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  system_instruction: {
+                    parts: [{ text: systemPrompt }]
+                  },
+                  contents: [
+                    { parts: [{ text: userPrompt }] }
+                  ],
+                  generationConfig: {
+                    maxOutputTokens: 800,
+                    temperature: 0.7
+                  }
+                })
+              }
+            );
+
+            if (!geminiResponse.ok) {
+              const errorText = await geminiResponse.text();
+              console.error("Gemini API error:", geminiResponse.status, errorText);
+              throw new Error(`AI service error: ${geminiResponse.status}`);
+            }
+
+            const geminiData: any = await geminiResponse.json();
+            responseContent = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
+          } else {
+            // Use OpenRouter / DeepSeek (default)
+            const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer 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`,
+                "HTTP-Referer": "https://eurokeys.app",
+                "X-Title": "EuroKeys Chat",
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                "model": "deepseek/deepseek-chat",
+                "messages": [
+                  { "role": "system", "content": systemPrompt },
+                  { "role": "user", "content": userPrompt }
+                ],
+                "max_tokens": 800,
+                "temperature": 0.7
+              })
+            });
+
+            if (!aiResponse.ok) {
+              const errorText = await aiResponse.text();
+              console.error("OpenRouter error:", aiResponse.status, errorText);
+              throw new Error(`AI service error: ${aiResponse.status}`);
+            }
+
+            const aiData: any = await aiResponse.json();
+            responseContent = aiData.choices?.[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+          }
+
+          // 6. Return response with sources
+          return corsResponse(request, JSON.stringify({
+            response: responseContent,
+            vehicleContext: vehicleData.length > 0 ? {
+              make: vehicleData[0].make,
+              model: vehicleData[0].model,
+              year: vehicleData[0].year,
+              system: vehicleData[0].immobilizer_system
+            } : null,
+            sourcesUsed: {
+              vehicleRecords: vehicleData.length,
+              pearls: relevantPearls.length
+            }
+          }));
+
+        } catch (err: any) {
+          console.error("Chat endpoint error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message || "Chat service error" }), 500);
         }
       }
 
@@ -1606,38 +2354,15 @@ Keep response under 300 words, practical and actionable.`;
       // POST /api/vehicle-comments - Add a new comment or reply (requires auth)
       if (path === "/api/vehicle-comments" && request.method === "POST") {
         try {
-          // TEST MODE: Allow unauthenticated posting for debugging
-          // Send header X-Test-Mode: true to bypass auth
-          // Optionally send X-Test-User: <user_id> to use a specific test user
-          const testMode = request.headers.get('X-Test-Mode') === 'true';
-          let userId = 'test_user_001';
-          let userName = 'Test User';
-          let userPicture: string | null = null;
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to leave a comment" }), 401);
 
-          if (!testMode) {
-            const sessionToken = getSessionToken(request);
-            if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to leave a comment" }), 401);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Please sign in to leave a comment" }), 401);
 
-            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-            if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Please sign in to leave a comment" }), 401);
-
-            userId = payload.sub as string;
-            userName = (payload.name as string) || 'Anonymous';
-            userPicture = (payload.picture as string) || null;
-          } else {
-            // In test mode, allow specifying a test user
-            const testUserId = request.headers.get('X-Test-User');
-            if (testUserId) {
-              const testUser = await env.LOCKSMITH_DB.prepare(
-                'SELECT id, name, picture FROM users WHERE id = ?'
-              ).bind(testUserId).first<any>();
-              if (testUser) {
-                userId = testUser.id;
-                userName = testUser.name || 'Test User';
-                userPicture = testUser.picture || null;
-              }
-            }
-          }
+          const userId = payload.sub as string;
+          const userName = (payload.name as string) || 'Anonymous';
+          const userPicture = (payload.picture as string) || null;
 
           const body: any = await request.json();
           const { vehicle_key, make, model, content, parent_id, job_type, tool_used } = body;
@@ -1671,8 +2396,7 @@ Keep response under 300 words, practical and actionable.`;
           return corsResponse(request, JSON.stringify({
             success: true,
             message: parent_id ? "Reply added!" : "Comment added!",
-            comment_id: commentId,
-            test_mode: testMode
+            comment_id: commentId
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -1682,19 +2406,13 @@ Keep response under 300 words, practical and actionable.`;
       // POST /api/vehicle-comments/vote - Vote on a comment (requires auth)
       if (path === "/api/vehicle-comments/vote" && request.method === "POST") {
         try {
-          // TEST MODE: Allow unauthenticated voting for debugging
-          const testMode = request.headers.get('X-Test-Mode') === 'true';
-          let userId = 'test_user_001';
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to vote" }), 401);
 
-          if (!testMode) {
-            const sessionToken = getSessionToken(request);
-            if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to vote" }), 401);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Please sign in to vote" }), 401);
 
-            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-            if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Please sign in to vote" }), 401);
-
-            userId = payload.sub as string;
-          }
+          const userId = payload.sub as string;
 
           const body: any = await request.json();
           const { comment_id, vote } = body;  // vote: 1 (upvote), -1 (downvote), 0 (remove vote)
@@ -4015,7 +4733,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-              "Authorization": `Bearer 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`,
+              "Authorization": `Bearer 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`,
               "HTTP-Referer": "https://eurokeys.app",
               "X-Title": "Euro Keys Subscription Analyzer",
               "Content-Type": "application/json"
@@ -4165,6 +4883,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let alerts: any[] = [];
           let guide: any = null;
           let pearls: any[] = [];
+          let vehicleTables: any[] = [];
 
           // Only fetch extras if we are narrowing down to a specific vehicle context
           // Check if make/model/year match a single context
@@ -4189,7 +4908,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 SELECT * FROM programming_guides
                 WHERE LOWER(make) = ? AND LOWER(model) = ?
                 AND ? BETWEEN year_start AND year_end
-                ORDER BY created_at DESC LIMIT 1
+                LIMIT 1
               `).bind(make, model, y).first();
 
               // 3. Fetch Programming Pearls (New Research Automation)
@@ -4226,6 +4945,25 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   display_order ASC
               `).bind(make.toLowerCase(), modelPattern, y).all();
               pearls = pearlsResult.results || [];
+
+              // 4. Fetch Reference Tables from vehicle_tables
+              const tablesResult = await env.LOCKSMITH_DB.prepare(`
+                SELECT id, table_key, make, model, year_start, year_end, 
+                       table_title, site_section, headers, rows, row_count, source_doc
+                FROM vehicle_tables
+                WHERE (LOWER(make) = ? OR make = 'General')
+                AND (LOWER(model) LIKE ? OR model = 'All Models' OR model = 'General')
+                AND (year_start IS NULL OR (year_start <= ? AND year_end >= ?))
+                ORDER BY table_title
+                LIMIT 20
+              `).bind(make.toLowerCase(), modelPattern, y, y).all();
+
+              // Parse JSON columns for tables
+              vehicleTables = (tablesResult.results || []).map((t: any) => ({
+                ...t,
+                headers: JSON.parse(t.headers || '[]'),
+                rows: JSON.parse(t.rows || '[]')
+              }));
             }
           }
 
@@ -4235,7 +4973,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             rows: dataResult.results || [],
             alerts,
             guide,
-            pearls: pearls || [] // Include pearls in the response
+            pearls: pearls || [],
+            tables: vehicleTables // Include tables in the response
           }), {
             headers: {
               "content-type": "application/json",
@@ -4670,6 +5409,67 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             comment_id: result.meta.last_row_id,
             message: "Comment added"
           }), 201);
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // VEHICLE TABLES API - Reference tables extracted from dossiers
+      // ==============================================
+      if (path === "/api/tables" && request.method === "GET") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase();
+          const model = url.searchParams.get("model")?.toLowerCase();
+          const year = url.searchParams.get("year");
+          const section = url.searchParams.get("section");
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10) || 20, 100);
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          if (make) {
+            conditions.push("(LOWER(make) = ? OR make = 'General' OR make = 'Stellantis')");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("(LOWER(model) LIKE ? OR model = 'All Models' OR model = 'General')");
+            params.push(`%${model}%`);
+          }
+          if (year) {
+            const y = parseInt(year, 10);
+            if (!Number.isNaN(y)) {
+              conditions.push("(year_start IS NULL OR (year_start <= ? AND year_end >= ?))");
+              params.push(y, y);
+            }
+          }
+          if (section) {
+            conditions.push("site_section = ?");
+            params.push(section);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, table_key, make, model, year_start, year_end, 
+                   table_title, site_section, headers, rows, row_count, source_doc
+            FROM vehicle_tables
+            ${whereClause}
+            ORDER BY table_title
+            LIMIT ?
+          `).bind(...params, limit).all();
+
+          // Parse JSON columns
+          const tables = (result.results || []).map((t: any) => ({
+            ...t,
+            headers: JSON.parse(t.headers || '[]'),
+            rows: JSON.parse(t.rows || '[]')
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            count: tables.length,
+            tables
+          }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
@@ -5425,79 +6225,96 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       // ==============================================
       // REFINED PEARLS (Technical Intelligence)
       // ==============================================
-      // Query refined_pearls for technical insights by vehicle
+      // Query vehicle_pearls for technical insights by vehicle
+      // These are the LLM-extracted pearls from dossier research
       if (path === "/api/pearls") {
         try {
           const make = url.searchParams.get("make")?.toLowerCase() || "";
           const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const year = url.searchParams.get("year") || "";
           const category = url.searchParams.get("category") || "";
-          const risk = url.searchParams.get("risk") || "";
-          const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10), 100);
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 100);
 
           const conditions: string[] = [];
-          const params: string[] = [];
+          const params: (string | number)[] = [];
 
           if (make) {
             conditions.push("LOWER(make) = ?");
             params.push(make);
           }
           if (model) {
-            conditions.push("LOWER(model) LIKE ?");
-            params.push(`%${model}%`);
-          }
-          if (category) {
-            conditions.push("category = ?");
-            params.push(category);
-          }
-          if (risk) {
-            conditions.push("risk = ?");
-            params.push(risk);
+            // Exact model match only - General is handled by make filter
+            // Exclude garbage titles in model field
+            conditions.push("(LOWER(model) = ? OR model = 'General') AND model NOT LIKE '%Analysis%' AND model NOT LIKE '%Architecture%' AND model NOT LIKE '%Evolution%' AND model NOT LIKE '%Technical%'");
+            params.push(model.toLowerCase());
+          } else {
+            // No model specified - still exclude garbage
+            conditions.push("model NOT LIKE '%Analysis%' AND model NOT LIKE '%Architecture%' AND model NOT LIKE '%Evolution%' AND model NOT LIKE '%Technical%'");
           }
 
-          // Always filter out duplicates
-          conditions.push("duplicate_of IS NULL");
+
+          if (year) {
+            const y = parseInt(year, 10);
+            if (!Number.isNaN(y)) {
+              conditions.push("? BETWEEN year_start AND year_end");
+              params.push(y);
+            }
+          }
+          if (category) {
+            conditions.push("pearl_type = ?");
+            params.push(category);
+          }
+
+          // Quality filters - exclude garbage
+          conditions.push("LENGTH(pearl_content) > 80");
+          conditions.push("pearl_title NOT LIKE 'http%'");
+          conditions.push("pearl_content NOT LIKE '%accessed December%'");
+          conditions.push("pearl_content NOT LIKE '%accessed January%'");
+          // Exclude garbage titles - short FCC fragments, generic fragments
+          conditions.push("LENGTH(pearl_title) > 20");
+          conditions.push("(pearl_title NOT LIKE 'FCC ID: %' OR LENGTH(pearl_title) > 25)");
 
           const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
           const sql = `
             SELECT 
-              id, content, category, make, model,
-              year_start, year_end, risk, tags, display_tags,
-              source_doc, action
-            FROM refined_pearls
+              id, vehicle_key, pearl_title as title, pearl_content as content, 
+              pearl_type as category, make, model,
+              year_start, year_end, is_critical, target_section, target_step,
+              reference_url, image_url, dev_flag, display_order, source_doc,
+              created_at,
+              CASE is_critical WHEN 1 THEN 'critical' ELSE 'info' END as risk,
+              COALESCE((SELECT SUM(vote) FROM pearl_votes pv WHERE pv.pearl_id = vehicle_pearls.id), 0) as score,
+              COALESCE((SELECT COUNT(*) FROM pearl_comments pc WHERE pc.pearl_id = vehicle_pearls.id), 0) as comment_count
+            FROM vehicle_pearls
             ${whereClause}
-            GROUP BY SUBSTR(content, 1, 100)
+            GROUP BY make, model, SUBSTR(pearl_content, 1, 100)
             ORDER BY 
-              CASE risk WHEN 'critical' THEN 1 WHEN 'important' THEN 2 ELSE 3 END,
-              make, model
+              is_critical DESC,
+              CASE target_section
+                WHEN 'voltage' THEN 1
+                WHEN 'fcc' THEN 2
+                WHEN 'akl_procedure' THEN 3
+                WHEN 'add_key_procedure' THEN 4
+                WHEN 'mechanical' THEN 5
+                WHEN 'troubleshooting' THEN 6
+                ELSE 10 
+              END,
+              display_order ASC
             LIMIT ?
           `;
 
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit).all();
 
-          // Helper to safely parse tags - handles both JSON arrays and comma-separated strings
-          const parseTags = (tags: any): string[] => {
-            if (!tags) return [];
-            if (Array.isArray(tags)) return tags;
-            if (typeof tags === 'string') {
-              // Try JSON parse first
-              if (tags.startsWith('[')) {
-                try { return JSON.parse(tags); } catch { /* fallback */ }
-              }
-              // Fallback: comma-separated string
-              return tags.split(',').map((t: string) => t.trim()).filter(Boolean);
-            }
-            return [];
-          };
-
+          // Map to expected frontend format
           const pearls = (result.results || []).map((p: any) => ({
             ...p,
-            tags: parseTags(p.tags),
-            display_tags: p.display_tags ? (typeof p.display_tags === 'string' ? p.display_tags : JSON.stringify(p.display_tags)) : '[]'
+            tags: p.target_section ? [p.target_section] : [],
+            display_tags: p.target_section ? JSON.stringify([p.target_section]) : '[]'
           }));
 
           return corsResponse(request, JSON.stringify({
-            source: "refined_pearls",
+            source: "vehicle_pearls",
             count: pearls.length,
             pearls
           }));
@@ -5680,6 +6497,55 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             message: "Pearl reordered",
             pearl_id: pearlId,
             display_order
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL RELATED: Get Related Pearls (GET /api/pearls/:id/related)
+      // ==============================================
+      // Returns related pearls based on pearl_relationships table
+      if (path.match(/^\/api\/pearls\/[^/]+\/related$/) && request.method === "GET") {
+        try {
+          const pearlId = path.split('/')[3];
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "10", 10), 50);
+
+          // Fetch related pearls with their content preview
+          const related = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              pr.related_pearl_id as id,
+              pr.relationship_type,
+              pr.strength,
+              rp.content,
+              rp.make,
+              rp.model,
+              rp.category,
+              rp.risk
+            FROM pearl_relationships pr
+            JOIN refined_pearls rp ON pr.related_pearl_id = rp.id
+            WHERE pr.pearl_id = ?
+              AND rp.duplicate_of IS NULL
+            ORDER BY pr.strength DESC, pr.relationship_type
+            LIMIT ?
+          `).bind(pearlId, limit).all();
+
+          const results = (related.results || []).map((r: any) => ({
+            id: r.id,
+            relationship: r.relationship_type,
+            strength: r.strength,
+            preview: r.content ? r.content.substring(0, 150) + '...' : '',
+            make: r.make,
+            model: r.model,
+            category: r.category,
+            risk: r.risk
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            pearl_id: pearlId,
+            count: results.length,
+            related: results
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -7075,6 +7941,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               security_gateway: enrichmentData?.security_gateway || null,
               key_type: vehicleData?.key_type || null,
               can_fd_required: enrichmentData?.can_fd_required ?? vehicleData?.can_fd_required ?? false,
+              adapter_type: enrichmentData?.adapter_type ?? vehicleData?.adapter_type ??
+                (enrichmentData?.can_fd_required || vehicleData?.can_fd_required ? 'CAN FD' : 'None'),
               online_required: enrichmentData?.online_required ?? false,
               architecture_tags: vehicleData?.architecture_tags_json ? JSON.parse(vehicleData.architecture_tags_json) : []
             },
@@ -9082,7 +9950,7 @@ async function runAIAnalysis(env: Env) {
     const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer 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`,
+        "Authorization": `Bearer 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`,
         "HTTP-Referer": "https://eurokeys.app",
         "X-Title": "Euro Keys Business Analyst",
         "Content-Type": "application/json"

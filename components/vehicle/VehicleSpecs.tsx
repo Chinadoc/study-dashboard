@@ -28,7 +28,8 @@ interface VehicleSpecsProps {
         architecture?: string;
         platform?: string;
         immobilizerSystem?: string;
-        canFdRequired?: boolean;
+        canFdRequired?: boolean;  // Deprecated: use adapterType
+        adapterType?: string;     // 'None' | 'CAN FD' | 'FCA 12+8' | '30-Pin' | 'Gateway Bypass' | 'DoIP'
         chipType?: string;
         allChips?: ChipEntry[];
         fccId?: string;
@@ -76,23 +77,33 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                     />
                 )}
 
-                {/* CAN-FD Required - only show for 2016+ vehicles where it's relevant */}
-                {specs.canFdRequired !== undefined && year && year >= 2016 && (
-                    <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
-                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
-                            CAN FD
-                        </div>
-                        <div className={`font-semibold ${specs.canFdRequired ? 'text-red-400' : 'text-green-400'}`}>
-                            {specs.canFdRequired ? 'REQUIRED' : 'Not Required'}
-                        </div>
-                        {/* CAN-FD contextual pearl */}
-                        {pearls?.canFd?.[0] && (
-                            <div className="mt-2 text-[11px] text-orange-300 bg-orange-900/20 p-2 rounded border border-orange-800/30">
-                                🔌 {pearls.canFd[0].content}
+                {/* Adapter Type - show for 2016+ vehicles where adapters may be relevant */}
+                {(specs.adapterType || specs.canFdRequired !== undefined) && year && year >= 2016 && (() => {
+                    // Support both new adapterType and legacy canFdRequired
+                    const adapterType = specs.adapterType || (specs.canFdRequired ? 'CAN FD' : 'None');
+                    const needsAdapter = adapterType !== 'None';
+
+                    // Color coding by adapter type
+                    const colorClass = needsAdapter ? 'text-red-400' : 'text-green-400';
+                    const bgClass = needsAdapter ? 'border-red-700/30' : 'border-zinc-700/50';
+
+                    return (
+                        <div className={`bg-zinc-800/60 p-4 rounded-xl border ${bgClass}`}>
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                                Adapter
                             </div>
-                        )}
-                    </div>
-                )}
+                            <div className={`font-semibold ${colorClass}`}>
+                                {needsAdapter ? `🔌 ${adapterType}` : 'None Required'}
+                            </div>
+                            {/* Adapter contextual pearl */}
+                            {pearls?.canFd?.[0] && (
+                                <div className="mt-2 text-[11px] text-orange-300 bg-orange-900/20 p-2 rounded border border-orange-800/30">
+                                    🔌 {pearls.canFd[0].content}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })()}
 
                 {/* Chip Type - with glossary linkage and contextual pearls */}
                 {specs.chipType && (
@@ -211,8 +222,8 @@ function LishiToolWithPearl({
                     <button
                         onClick={() => setShowPearl(!showPearl)}
                         className={`text-[10px] px-1.5 py-0.5 rounded-full transition-all ${showPearl
-                                ? 'bg-amber-500 text-black'
-                                : 'bg-amber-600/80 text-white hover:bg-amber-500'
+                            ? 'bg-amber-500 text-black'
+                            : 'bg-amber-600/80 text-white hover:bg-amber-500'
                             }`}
                     >
                         {showPearl ? '×' : '💡 Tip'}
@@ -221,8 +232,8 @@ function LishiToolWithPearl({
             </div>
             {lishiSource && (
                 <div className={`text-[9px] mt-1 px-2 py-0.5 rounded-full inline-block ${lishiSource === 'enrichments' ? 'bg-green-900/40 text-green-400' :
-                        lishiSource === 'vyp' ? 'bg-purple-900/40 text-purple-400' :
-                            'bg-zinc-800 text-zinc-500'
+                    lishiSource === 'vyp' ? 'bg-purple-900/40 text-purple-400' :
+                        'bg-zinc-800 text-zinc-500'
                     }`}>
                     {lishiSource === 'vyp' ? 'VYP' : lishiSource}
                 </div>

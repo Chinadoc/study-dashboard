@@ -167,7 +167,9 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
             architecture: architecture,
             canFd: !!walkthrough.is_can_fd || architecture.includes("Global B") || architecture.includes("CAN-FD"),
             chipType: config.chip_type || walkthrough.chip_type || "Proximity",
-            fccId: config.fcc_id || walkthrough.fcc_id || "N/A",
+            // fccIds will be populated after keys are mapped - start with primary
+            fccIds: [],
+            fccId: config.fcc_id || walkthrough.fcc_id || "N/A", // Keep for backwards compat
             battery: config.battery_type || walkthrough.battery || "CR2032",
             keyway: config.lishi_tool || config.keyway || walkthrough.keyway || "N/A",
             emergencyKey: {
@@ -262,6 +264,17 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
     const derivedBattery = deriveBatteryFromKeys(detail.keys);
     if (derivedBattery) {
         detail.specs.battery = derivedBattery;
+    }
+
+    // DERIVE FCC IDs FROM KEYS: Collect all unique FCC IDs from key configurations
+    // This ensures Vehicle Specs shows all FCC IDs with "+N" format like key cards do
+    const allFccIds = detail.keys
+        .map(k => k.fcc)
+        .filter(fcc => fcc && fcc !== 'N/A' && fcc !== 'Unknown');
+    const uniqueFccIds = [...new Set(allFccIds)];
+    if (uniqueFccIds.length > 0) {
+        detail.specs.fccIds = uniqueFccIds;
+        detail.specs.fccId = uniqueFccIds[0]; // Primary FCC ID for backwards compat
     }
 
     // --- Complex Mapping Logic ---

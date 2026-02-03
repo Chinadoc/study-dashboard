@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { JobLog, JobStats } from '@/lib/useJobLogs';
+import { FleetAccount, getFleetAccountsFromStorage } from '@/lib/fleetTypes';
+import { Technician, getTechniciansFromStorage } from '@/lib/technicianTypes';
 
 interface JobsDashboardProps {
     jobLogs: JobLog[];
@@ -35,6 +37,18 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
     const [filterJobType, setFilterJobType] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
+
+    // Load fleet accounts for badge display
+    const [fleetAccounts, setFleetAccounts] = useState<FleetAccount[]>([]);
+    useEffect(() => {
+        setFleetAccounts(getFleetAccountsFromStorage());
+    }, []);
+
+    // Load technicians for badge display
+    const [technicians, setTechnicians] = useState<Technician[]>([]);
+    useEffect(() => {
+        setTechnicians(getTechniciansFromStorage());
+    }, []);
 
     // Filter jobs
     const filteredJobs = useMemo(() => {
@@ -274,17 +288,23 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
 
                 {filteredJobs.length > 0 ? (
                     <div className="divide-y divide-gray-800">
-                        {filteredJobs.slice(0, 50).map((job) => (
-                            <JobCard
-                                key={job.id}
-                                job={job}
-                                expanded={expandedJobId === job.id}
-                                onToggle={() => toggleJobExpand(job.id)}
-                                onDelete={() => onDeleteJob(job.id)}
-                                onMarkComplete={() => markComplete(job)}
-                                onGenerateInvoice={onGenerateInvoice ? () => onGenerateInvoice(job) : undefined}
-                            />
-                        ))}
+                        {filteredJobs.slice(0, 50).map((job) => {
+                            const fleet = job.fleetId ? fleetAccounts.find(f => f.id === job.fleetId) : undefined;
+                            const tech = job.technicianId ? technicians.find(t => t.id === job.technicianId) : undefined;
+                            return (
+                                <JobCard
+                                    key={job.id}
+                                    job={job}
+                                    fleetName={fleet?.name}
+                                    technicianName={tech?.name}
+                                    expanded={expandedJobId === job.id}
+                                    onToggle={() => toggleJobExpand(job.id)}
+                                    onDelete={() => onDeleteJob(job.id)}
+                                    onMarkComplete={() => markComplete(job)}
+                                    onGenerateInvoice={onGenerateInvoice ? () => onGenerateInvoice(job) : undefined}
+                                />
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="p-8 text-center text-gray-600">
@@ -304,6 +324,8 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
 // Individual Job Card Component
 function JobCard({
     job,
+    fleetName,
+    technicianName,
     expanded,
     onToggle,
     onDelete,
@@ -311,6 +333,8 @@ function JobCard({
     onGenerateInvoice
 }: {
     job: JobLog;
+    fleetName?: string;
+    technicianName?: string;
     expanded: boolean;
     onToggle: () => void;
     onDelete: () => void;
@@ -343,6 +367,16 @@ function JobCard({
                         )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-sm">
+                        {fleetName && (
+                            <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full border border-purple-500/30 flex items-center gap-1">
+                                🏢 {fleetName}
+                            </span>
+                        )}
+                        {technicianName && (
+                            <span className="px-2 py-0.5 bg-green-500/20 text-green-300 text-xs rounded-full border border-green-500/30 flex items-center gap-1">
+                                👷 {technicianName}
+                            </span>
+                        )}
                         {job.fccId && <span className="text-yellow-500 font-mono text-xs">{job.fccId}</span>}
                         {job.customerName && (
                             <>

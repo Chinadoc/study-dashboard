@@ -123,8 +123,8 @@ class VehicleDetailRenderer {
                         <div class="vd-spec-value highlight">${v.architecture || v.generation || v.platform || 'N/A'}</div>
                     </div>
                     <div class="vd-spec-item">
-                        <div class="vd-spec-label">CAN FD</div>
-                        <div class="vd-spec-value ${canFd ? 'highlight critical' : ''}">${canFd ? 'REQUIRED' : 'Not Required'}</div>
+                        <div class="vd-spec-label">Adapter Type</div>
+                        <div class="vd-spec-value ${(this.data.adapter_type && this.data.adapter_type !== 'None') || canFd ? 'highlight critical' : ''}">${this.data.adapter_type || (canFd ? 'CAN FD' : 'None Required')}</div>
                     </div>
                     <div class="vd-spec-item">
                         <div class="vd-spec-label">Chip Type ${this.renderInlinePearl('chip')}</div>

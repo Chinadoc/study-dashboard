@@ -51,11 +51,16 @@ export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps
         );
     }, [fleets, searchTerm]);
 
-    // Get jobs for fleet accounts
+    // Get jobs for fleet accounts (prioritize fleetId link, then fall back to name matching)
     const getFleetJobs = (fleet: FleetAccount) => {
         return jobLogs.filter(job =>
-            job.customerName?.toLowerCase().includes(fleet.name.toLowerCase()) ||
-            fleet.name.toLowerCase().includes(job.customerName?.toLowerCase() || '')
+            // First priority: explicit fleetId link
+            job.fleetId === fleet.id ||
+            // Fallback: name-based matching for legacy jobs
+            (!job.fleetId && (
+                job.customerName?.toLowerCase().includes(fleet.name.toLowerCase()) ||
+                fleet.name.toLowerCase().includes(job.customerName?.toLowerCase() || '')
+            ))
         );
     };
 
@@ -137,8 +142,8 @@ export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex-1 px-3 py-3 text-sm font-medium transition-colors ${activeTab === tab.id
-                                    ? 'text-yellow-400 border-b-2 border-yellow-400 bg-zinc-800/50'
-                                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/30'
+                                ? 'text-yellow-400 border-b-2 border-yellow-400 bg-zinc-800/50'
+                                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/30'
                                 }`}
                         >
                             <span className="mr-1">{tab.icon}</span>
@@ -362,8 +367,8 @@ function JobsTab({
                                     <div className="text-xs text-zinc-500">{fleet.name}</div>
                                 </div>
                                 <span className={`px-2 py-0.5 text-xs rounded-full ${job.status === 'in_progress'
-                                        ? 'bg-blue-500/20 text-blue-400'
-                                        : 'bg-orange-500/20 text-orange-400'
+                                    ? 'bg-blue-500/20 text-blue-400'
+                                    : 'bg-orange-500/20 text-orange-400'
                                     }`}>
                                     {job.status === 'in_progress' ? 'In Progress' : 'Pending'}
                                 </span>

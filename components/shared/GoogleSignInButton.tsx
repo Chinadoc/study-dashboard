@@ -4,7 +4,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useFleetPanel } from '@/contexts/FleetPanelContext';
+import { useTeamPanel } from '@/contexts/TeamPanelContext';
 import Link from 'next/link';
+
+// API base URL - use environment variable or default to production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
 
 interface ReputationData {
     reputation_score: number;
@@ -18,6 +22,7 @@ export const GoogleSignInButton = () => {
     const { user, loading, login, logout, isDeveloper } = useAuth();
     const { openWizard } = useOnboarding();
     const { openFleetPanel } = useFleetPanel();
+    const { openTeamPanel } = useTeamPanel();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [reputation, setReputation] = useState<ReputationData | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +43,7 @@ export const GoogleSignInButton = () => {
         const fetchReputation = async () => {
             if (!user) return;
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/reputation`, {
+                const res = await fetch(`${API_URL}/api/user/reputation`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
                     }
@@ -224,8 +229,18 @@ export const GoogleSignInButton = () => {
                             }}
                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-blue-500/20 hover:text-white"
                         >
-                            <span>🚗</span>
-                            Fleet Manager
+                            <span>🏢</span>
+                            Fleet Customers
+                        </button>
+                        <button
+                            onClick={() => {
+                                setDropdownOpen(false);
+                                openTeamPanel();
+                            }}
+                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-green-500/20 hover:text-white"
+                        >
+                            <span>👥</span>
+                            Team Manager
                         </button>
                         <button
                             onClick={() => {

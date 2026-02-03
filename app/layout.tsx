@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from '@/components/Providers';
 import { GoogleSignInButton } from '@/components/shared/GoogleSignInButton';
 import MobileNavBar from '@/components/layout/MobileNavBar';
+import ChatWidget from '@/components/ChatWidget';
 
 export const metadata: Metadata = {
     title: 'EuroKeys - Locksmith Database',
@@ -84,6 +85,9 @@ export default function RootLayout({
 
                     {/* Mobile Bottom Nav Bar */}
                     <MobileNavBar />
+
+                    {/* AI Chat Widget */}
+                    <ChatWidget />
 
                     {/* Footer - Hidden on mobile */}
                     <footer className="hidden lg:block border-t border-eurokeys-border py-6 text-center text-sm text-slate-500">

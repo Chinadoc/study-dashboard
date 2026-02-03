@@ -7,6 +7,9 @@ import remarkGfm from 'remark-gfm';
 import NASTFBadge from './NASTFBadge';
 import styles from './CommentSection.module.css';
 
+// API base URL - use environment variable or default to production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
+
 interface Comment {
     id: string;
     user_id: string;
@@ -52,7 +55,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                let url = `${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+                let url = `${API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
                 if (nastfOnly) {
                     url += '&nastf_only=true';
                 }
@@ -84,7 +87,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         setError(null);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments`, {
+            const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,7 +138,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         setError(null);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments`, {
+            const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -195,7 +198,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments/vote`, {
+            const response = await fetch(`${API_URL}/api/vehicle-comments/vote`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -263,7 +266,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments/flag`, {
+            const response = await fetch(`${API_URL}/api/vehicle-comments/flag`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

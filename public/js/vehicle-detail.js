@@ -130,11 +130,22 @@ class VehicleDetailRenderer {
     renderSpecs(specs) {
         if (!specs) return '';
 
+        // Build FCC ID display value with "+N" format for multiple IDs
+        let fccDisplay = specs.fccId || 'N/A';
+        let fccTooltip = '';
+        const fccIds = specs.fccIds || [];
+        if (fccIds.length > 1) {
+            fccDisplay = `${fccIds[0]} <span class="vd-fcc-extra" title="${fccIds.join(', ')}">+${fccIds.length - 1}</span>`;
+            fccTooltip = fccIds.join(', ');
+        } else if (fccIds.length === 1) {
+            fccDisplay = fccIds[0];
+        }
+
         const specItems = [
             { label: 'Architecture', value: specs.architecture, highlight: true },
             { label: 'CAN FD', value: specs.canFd ? 'REQUIRED' : 'Not Required', highlight: specs.canFd },
             { label: 'Chip Type', value: specs.chipType },
-            { label: 'FCC ID', value: specs.fccId, link: `https://fccid.io/${specs.fccId}` },
+            { label: 'FCC ID', value: fccDisplay, link: fccIds.length === 1 ? `https://fccid.io/${fccIds[0]}` : null, rawHtml: fccIds.length > 1 },
             { label: 'Battery', value: specs.battery },
             { label: 'Keyway / Lishi', value: specs.keyway, highlight: true }
         ].filter(s => s.value);
@@ -174,7 +185,7 @@ class VehicleDetailRenderer {
                             <div class="vd-spec-value ${item.highlight ? 'highlight' : ''}">
                                 ${item.link
                 ? `<a href="${item.link}" target="_blank" style="color: inherit; text-decoration: none;">${item.value}</a>`
-                : item.value}
+                : item.rawHtml ? item.value : item.value}
                             </div>
                         </div>
                     `).join('')}

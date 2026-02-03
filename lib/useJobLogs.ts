@@ -22,6 +22,12 @@ export interface JobLog {
     customerEmail?: string;
     customerAddress?: string;
 
+    // Fleet linking
+    fleetId?: string;       // ID of the associated fleet account
+
+    // Technician assignment
+    technicianId?: string;  // ID of the technician who handled this job
+
     // Job tracking
     status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
     startTime?: string;
