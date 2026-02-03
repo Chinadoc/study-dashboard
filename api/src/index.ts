@@ -1829,6 +1829,17 @@ Respond with ONLY the title, nothing else.`;
           // Collect vehicle makes from jobs for coverage analysis
           const vehicleMakes = [...new Set(jobData.map((j: any) => j.make || j.vehicle?.make).filter(Boolean))];
 
+          // Pre-computed knowledge base statistics (from dossier_capability_index.json and image_gallery_details.json)
+          const knowledgeStats = {
+            dossiers: 312,
+            procedures: 1714,
+            pearls: 18921,
+            classifiedImages: 1535,
+            topMakes: ['RAM', 'Audi', 'Ford', 'Volkswagen', 'Toyota', 'FCA', 'Chrysler', 'Mercedes-Benz', 'Nissan', 'BMW'],
+            topTools: { autel: 296, xhorse: 216, smartpro: 179, lishi: 127, lonsdor: 108 },
+            imageMakes: ['Toyota', 'Ford', 'BMW', 'Chevrolet', 'Audi', 'Honda', 'Mazda', 'Nissan', 'Acura']
+          };
+
           // Build context for AI
           const userState = prefs?.state || 'unknown';
           const taxRate = prefs?.sales_tax_rate || 0;
@@ -1913,11 +1924,24 @@ Keep response under 300 words, practical and actionable.`;
 
 Keep response under 300 words, practical and actionable.`;
           } else if (insightType === 'coverage') {
-            prompt += `Analyze technical coverage based on vehicles serviced:
-1. Most common makes in your service area: ${vehicleMakes.slice(0, 5).join(', ') || 'not enough data'}
-2. Coverage gaps - what popular vehicles might you be missing?
-3. Tool/key inventory recommendations based on job patterns
-4. Emerging vehicle platforms to prepare for (EVs, new security systems)
+            prompt += `Analyze technical coverage based on vehicles serviced and our knowledge base:
+
+YOUR JOB HISTORY:
+- Makes you've serviced: ${vehicleMakes.slice(0, 5).join(', ') || 'not enough data'}
+
+KNOWLEDGE BASE STATS:
+- ${knowledgeStats.dossiers} technical dossiers available
+- ${knowledgeStats.procedures} documented procedures
+- ${knowledgeStats.pearls} expert tips/pearls
+- ${knowledgeStats.classifiedImages} reference images
+- Best documented makes: ${knowledgeStats.topMakes.slice(0, 5).join(', ')}
+- Tool documentation: Autel (${knowledgeStats.topTools.autel}), Xhorse (${knowledgeStats.topTools.xhorse}), SmartPro (${knowledgeStats.topTools.smartpro})
+
+Analyze:
+1. How well does your job history align with our best-documented vehicles?
+2. Coverage gaps - what popular vehicles should you expand into?
+3. Which tools have the best documentation for vehicles you service?
+4. Training priorities based on market demand vs your current coverage
 
 Keep response under 300 words, practical and actionable.`;
           } else {
@@ -2023,7 +2047,15 @@ Keep response under 300 words, practical and actionable.`;
               leadCount: pipelineLeads.length,
               pipelineValue: totalLeadValue,
               leadsByStage,
-              vehicleMakes: vehicleMakes.slice(0, 10)
+              vehicleMakes: vehicleMakes.slice(0, 10),
+              // Knowledge base stats
+              knowledgeBase: {
+                dossiers: knowledgeStats.dossiers,
+                procedures: knowledgeStats.procedures,
+                pearls: knowledgeStats.pearls,
+                images: knowledgeStats.classifiedImages,
+                topMakes: knowledgeStats.topMakes.slice(0, 5)
+              }
             }
           }));
 

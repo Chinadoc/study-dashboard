@@ -29,6 +29,14 @@ interface InsightStats {
     pipelineValue?: number;
     leadsByStage?: Record<string, number>;
     vehicleMakes?: string[];
+    // Knowledge base stats
+    knowledgeBase?: {
+        dossiers: number;
+        procedures: number;
+        pearls: number;
+        images: number;
+        topMakes: string[];
+    };
 }
 
 interface HistoricalInsight {

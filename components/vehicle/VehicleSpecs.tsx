@@ -108,10 +108,29 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                                     </button>
                                 )}
                             </div>
-                            {/* Expandable adapter pearl */}
+                            {/* Centered modal popup for adapter pearl - matches Lishi Tool Tip style */}
                             {showAdapterPearl && pearls?.canFd?.[0] && (
-                                <div className="mt-2 text-[11px] text-orange-300 bg-orange-900/20 p-2 rounded border border-orange-800/30">
-                                    🔌 {pearls.canFd[0].content}
+                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowAdapterPearl(false)}>
+                                    <div className="absolute inset-0 bg-black/60" />
+                                    <div
+                                        className="relative bg-zinc-900 border border-orange-700/50 rounded-xl p-4 max-w-lg shadow-2xl"
+                                        onClick={e => e.stopPropagation()}
+                                    >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="font-bold text-orange-400 flex items-center gap-2">
+                                                🔌 Adapter Tip: {adapterType}
+                                            </h4>
+                                            <button
+                                                onClick={() => setShowAdapterPearl(false)}
+                                                className="text-zinc-400 hover:text-white text-xl leading-none"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                        <div className="text-orange-200 text-sm leading-relaxed">
+                                            {pearls.canFd[0].content}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -428,10 +447,29 @@ function FccIdWithPopup({
                 </button>
             )}
 
-            {/* Expandable pearl content */}
+            {/* Centered modal popup for FCC ID pearl - matches Lishi Tool Tip style */}
             {showPearl && pearl && (
-                <div className="mt-2 text-[11px] text-blue-300 bg-blue-900/20 p-2 rounded border border-blue-800/30">
-                    📡 {pearl.content}
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowPearl(false)}>
+                    <div className="absolute inset-0 bg-black/60" />
+                    <div
+                        className="relative bg-zinc-900 border border-blue-700/50 rounded-xl p-4 max-w-lg shadow-2xl"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-bold text-blue-400 flex items-center gap-2">
+                                📡 FCC ID Tip: {displayFcc}
+                            </h4>
+                            <button
+                                onClick={() => setShowPearl(false)}
+                                className="text-zinc-400 hover:text-white text-xl leading-none"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="text-blue-200 text-sm leading-relaxed">
+                            {pearl.content}
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -542,8 +580,27 @@ function ChipTypeWithPopup({
                     </button>
                 )}
                 {showPearl && pearl && (
-                    <div className="mt-2 text-[11px] text-amber-300 bg-amber-900/20 p-2 rounded border border-amber-800/30">
-                        💡 {pearl.content}
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowPearl(false)}>
+                        <div className="absolute inset-0 bg-black/60" />
+                        <div
+                            className="relative bg-zinc-900 border border-amber-700/50 rounded-xl p-4 max-w-lg shadow-2xl"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-bold text-amber-400 flex items-center gap-2">
+                                    🔐 VATS Chip Tip
+                                </h4>
+                                <button
+                                    onClick={() => setShowPearl(false)}
+                                    className="text-zinc-400 hover:text-white text-xl leading-none"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            <div className="text-amber-200 text-sm leading-relaxed">
+                                {pearl.content}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -601,10 +658,29 @@ function ChipTypeWithPopup({
                 </button>
             )}
 
-            {/* Expandable pearl content */}
+            {/* Centered modal popup for Chip Type pearl - matches Lishi Tool Tip style */}
             {showPearl && pearl && (
-                <div className="mt-2 text-[11px] text-purple-300 bg-purple-900/20 p-2 rounded border border-purple-800/30">
-                    💡 {pearl.content}
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowPearl(false)}>
+                    <div className="absolute inset-0 bg-black/60" />
+                    <div
+                        className="relative bg-zinc-900 border border-purple-700/50 rounded-xl p-4 max-w-lg shadow-2xl"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-bold text-purple-400 flex items-center gap-2">
+                                🔒 Chip Type Tip: {primaryChip}
+                            </h4>
+                            <button
+                                onClick={() => setShowPearl(false)}
+                                className="text-zinc-400 hover:text-white text-xl leading-none"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="text-purple-200 text-sm leading-relaxed">
+                            {pearl.content}
+                        </div>
+                    </div>
                 </div>
             )}
 
