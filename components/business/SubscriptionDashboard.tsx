@@ -1,9 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSubscriptions, Subscription } from '@/contexts/SubscriptionContext';
 import { loadBusinessProfile, AVAILABLE_TOOLS, getOemRecommendationsForTool, LOCKSMITH_REQUIREMENTS } from '@/lib/businessTypes';
-import LicensureDashboard from './LicensureDashboard';
+import LicensureDashboard, { UserLicense } from './LicensureDashboard';
+import CostSummaryCard from './CostSummaryCard';
+import RenewalCalendar from './RenewalCalendar';
+import SubscriptionTimelineBar from './SubscriptionTimelineBar';
+
+const LICENSE_STORAGE_KEY = 'eurokeys_user_licenses';
 
 export default function SubscriptionDashboard() {
     const { subscriptions, loading, error, getSubscriptionStatus } = useSubscriptions();
@@ -11,6 +16,17 @@ export default function SubscriptionDashboard() {
     const [expandedTool, setExpandedTool] = useState<string | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [prefillSubscriptionId, setPrefillSubscriptionId] = useState<string | null>(null);
+    const [licenses, setLicenses] = useState<UserLicense[]>([]);
+
+    // Load licenses from localStorage
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(LICENSE_STORAGE_KEY);
+            if (saved) {
+                setLicenses(JSON.parse(saved));
+            }
+        }
+    }, []);
 
     if (loading) {
         return (
@@ -33,10 +49,14 @@ export default function SubscriptionDashboard() {
             subscriptions.some(sub => sub.name?.toLowerCase().includes(oem.name.toLowerCase()))
         );
 
+        // Find the actual license for this tool
+        const toolLicense = licenses.find(l => l.linkedToolId === tool.id || l.name.toLowerCase().includes(tool.shortName.toLowerCase()));
+
         return {
             tool,
             oemRecommendations,
             addedOemItems,
+            toolLicense,
             ...status,
         };
     }).filter(Boolean);
@@ -47,16 +67,50 @@ export default function SubscriptionDashboard() {
         setShowAddModal(true);
     };
 
+    // Get renewal link for a license
+    const getRenewalLink = (license: UserLicense) => {
+        if (license.renewalUrl) return license.renewalUrl;
+        // Try to find in LOCKSMITH_REQUIREMENTS
+        const req = LOCKSMITH_REQUIREMENTS.find(r => r.id === license.licenseId);
+        return req?.renewalUrl || null;
+    };
+
     return (
-        <div className="space-y-10">
-            {/* Licenses & Certifications Section */}
-            <LicensureDashboard
-                prefillSubscriptionId={showAddModal ? prefillSubscriptionId : undefined}
-                onModalClose={() => {
-                    setShowAddModal(false);
-                    setPrefillSubscriptionId(null);
-                }}
-            />
+        <div className="space-y-8">
+            {/* Cost Summary Card - Top of page */}
+            {licenses.length > 0 && (
+                <CostSummaryCard licenses={licenses} />
+            )}
+
+            {/* Two-column layout: Licenses + Renewal Calendar */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Licenses & Certifications - Takes 2/3 */}
+                <div className="lg:col-span-2">
+                    <LicensureDashboard
+                        prefillSubscriptionId={showAddModal ? prefillSubscriptionId : undefined}
+                        onModalClose={() => {
+                            setShowAddModal(false);
+                            setPrefillSubscriptionId(null);
+                            // Refresh licenses
+                            if (typeof window !== 'undefined') {
+                                const saved = localStorage.getItem(LICENSE_STORAGE_KEY);
+                                if (saved) setLicenses(JSON.parse(saved));
+                            }
+                        }}
+                    />
+                </div>
+
+                {/* Renewal Calendar - Takes 1/3 */}
+                <div className="lg:col-span-1">
+                    <RenewalCalendar
+                        licenses={licenses}
+                        onSelectRenewal={(license) => {
+                            // Could open edit modal or scroll to license
+                            console.log('Selected renewal:', license);
+                        }}
+                    />
+                </div>
+            </div>
 
             {/* Divider */}
             <div className="border-t border-gray-800" />
@@ -94,13 +148,13 @@ export default function SubscriptionDashboard() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         {toolSubscriptions.map((item) => {
                             if (!item) return null;
-                            const { tool, status, daysLeft, text, oemRecommendations, addedOemItems } = item;
+                            const { tool, status, daysLeft, text, oemRecommendations, addedOemItems, toolLicense } = item;
                             const isExpanded = expandedTool === tool.id;
 
                             const statusColors = {
                                 active: { bg: 'bg-green-900/30', border: 'border-green-700/30', text: 'text-green-400', badge: 'bg-green-500/20 text-green-400' },
-                                warning: { bg: 'bg-yellow-900/30', border: 'border-yellow-700/30', text: 'text-yellow-400', badge: 'bg-yellow-500/20 text-yellow-400' },
-                                expired: { bg: 'bg-red-900/30', border: 'border-red-700/30', text: 'text-red-400', badge: 'bg-red-500/20 text-red-400' },
+                                warning: { bg: 'bg-yellow-900/30', border: 'border-yellow-700/30', text: 'text-yellow-400', badge: 'bg-yellow-500/20 text-yellow-400 animate-pulse' },
+                                expired: { bg: 'bg-red-900/30', border: 'border-red-700/30', text: 'text-red-400', badge: 'bg-red-500/20 text-red-400 animate-pulse' },
                                 none: { bg: 'bg-gray-900/50', border: 'border-gray-800', text: 'text-gray-500', badge: 'bg-gray-500/20 text-gray-400' },
                             };
 
@@ -127,7 +181,7 @@ export default function SubscriptionDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Subscription Status */}
+                                    {/* Subscription Status with Timeline */}
                                     <div className="p-4 border-t border-gray-800/50 bg-gray-900/30">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="text-sm text-gray-400">📅 Annual Subscription</span>
@@ -135,22 +189,63 @@ export default function SubscriptionDashboard() {
                                                 <span className="text-xs text-gray-500">{daysLeft} days left</span>
                                             )}
                                         </div>
-                                        <div className={`text-sm font-medium ${colors.text}`}>
-                                            {status === 'none' ? (
-                                                <button
-                                                    onClick={() => tool.subscriptionId && handleAddFromTool(tool.subscriptionId)}
-                                                    className="text-yellow-500 hover:text-yellow-400"
+
+                                        {/* Timeline Bar */}
+                                        {toolLicense && (
+                                            <div className="mb-3">
+                                                <SubscriptionTimelineBar
+                                                    obtainedDate={toolLicense.obtainedDate}
+                                                    expirationDate={toolLicense.expirationDate}
+                                                    showLabels={false}
+                                                    compact={true}
+                                                />
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center justify-between">
+                                            <div className={`text-sm font-medium ${colors.text}`}>
+                                                {status === 'none' ? (
+                                                    <button
+                                                        onClick={() => tool.subscriptionId && handleAddFromTool(tool.subscriptionId)}
+                                                        className="text-yellow-500 hover:text-yellow-400"
+                                                    >
+                                                        + Add Subscription
+                                                    </button>
+                                                ) : (
+                                                    text
+                                                )}
+                                            </div>
+
+                                            {/* Renew Button */}
+                                            {toolLicense && getRenewalLink(toolLicense) && (
+                                                <a
+                                                    href={getRenewalLink(toolLicense)!}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 transition-colors"
                                                 >
-                                                    + Add Subscription
-                                                </button>
-                                            ) : (
-                                                text
+                                                    ↗ Renew
+                                                </a>
                                             )}
                                         </div>
+
                                         {tool.subscriptionNote && (
                                             <div className="text-xs text-gray-500 mt-1">{tool.subscriptionNote}</div>
                                         )}
                                     </div>
+
+                                    {/* Token Tracking for per-use items */}
+                                    {toolLicense?.tokensRemaining !== undefined && (
+                                        <div className="p-3 border-t border-gray-800/50 bg-gray-900/10 flex items-center justify-between">
+                                            <span className="text-sm text-gray-400">🎟️ Tokens Remaining</span>
+                                            <span className={`font-bold ${toolLicense.tokensRemaining < 10 ? 'text-orange-400' : 'text-green-400'}`}>
+                                                {toolLicense.tokensRemaining}
+                                                {toolLicense.tokensRemaining < 10 && (
+                                                    <span className="text-xs ml-2 text-orange-400">Low!</span>
+                                                )}
+                                            </span>
+                                        </div>
+                                    )}
 
                                     {/* OEM Recommendations */}
                                     {oemRecommendations.length > 0 && (
@@ -184,13 +279,22 @@ export default function SubscriptionDashboard() {
                                                                     <span className="text-xs text-gray-400">
                                                                         ${oem.typicalPrice}{oem.typicalDuration === 1 ? '/VIN' : oem.typicalDuration === 0 ? '' : '/yr'}
                                                                     </span>
-                                                                    {!isAdded && (
+                                                                    {!isAdded ? (
                                                                         <button
                                                                             onClick={() => handleAddFromTool(oem.id)}
                                                                             className="text-xs text-yellow-500 hover:text-yellow-400"
                                                                         >
                                                                             + Add
                                                                         </button>
+                                                                    ) : oem.renewalUrl && (
+                                                                        <a
+                                                                            href={oem.renewalUrl}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            className="text-xs text-blue-400 hover:text-blue-300"
+                                                                        >
+                                                                            ↗
+                                                                        </a>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -222,7 +326,6 @@ export default function SubscriptionDashboard() {
                                     none: 'text-gray-500',
                                 };
 
-                                // Defensive check - ensure text is a string
                                 const displayText = typeof status.text === 'string' ? status.text : 'Unknown';
                                 const displayName = typeof sub.name === 'string' ? sub.name : 'Unknown';
 
@@ -238,7 +341,6 @@ export default function SubscriptionDashboard() {
                                     </div>
                                 );
                             })}
-
                         </div>
                     </div>
                 )}

@@ -7,6 +7,7 @@ import { getLowStockItems, TOOL_CATEGORIES, ToolType, KEY_CATEGORIES, detectKeyC
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
+import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import { API_BASE } from '@/lib/config';
 
 // FCC data for image lookups and key type detection
@@ -352,6 +353,9 @@ export default function InventoryPage() {
                     <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wide">Low Stock</div>
                 </div>
             </div>
+
+            {/* AI Insight Card */}
+            <AIInsightCard category="inventory" className="mt-4" />
 
             {/* Search and Subtabs */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">

@@ -1713,6 +1713,122 @@ Respond with ONLY the title, nothing else.`;
         }
       }
 
+      // GET /api/ai/insights - Fetch cached AI insights by category
+      if (path === "/api/ai/insights" && request.method === "GET") {
+        try {
+          const category = url.searchParams.get("category") || "overview";
+          const refresh = url.searchParams.get("refresh") === "true";
+          const vehicleId = url.searchParams.get("vehicleId");
+          const userId = "global"; // TODO: Get from session when auth is required
+
+          // Check cache first (unless refresh requested)
+          if (!refresh) {
+            const cached = await env.LOCKSMITH_DB.prepare(
+              "SELECT insight FROM ai_insights_cache WHERE category = ? AND user_id = ? AND expires_at > ?"
+            ).bind(category, userId, Date.now()).first<{ insight: string }>();
+
+            if (cached) {
+              return corsResponse(request, JSON.stringify({ insight: cached.insight, cached: true }));
+            }
+          }
+
+          // Generate new insight based on category
+          let contextData = "";
+          let prompt = "";
+
+          if (category === "inventory") {
+            const lowStock = await env.LOCKSMITH_DB.prepare(
+              "SELECT item_key, type, qty FROM inventory WHERE qty <= 2 LIMIT 10"
+            ).all();
+            const items = (lowStock.results || []) as any[];
+            contextData = JSON.stringify(items);
+            prompt = `Analyze this inventory data and provide a brief, actionable insight (2-3 sentences max):
+            Low stock items: ${contextData}
+            Focus on: restocking priorities, which items are critical, and any patterns.`;
+          } else if (category === "jobs") {
+            const recentJobs = await env.LOCKSMITH_DB.prepare(
+              "SELECT data FROM job_logs ORDER BY created_at DESC LIMIT 20"
+            ).all();
+            const jobs = (recentJobs.results || []) as any[];
+            const revenues = jobs.map(j => {
+              try { return JSON.parse(j.data)?.revenue || 0; } catch { return 0; }
+            });
+            const totalRev = revenues.reduce((a, b) => a + b, 0);
+            contextData = JSON.stringify({ jobCount: jobs.length, totalRevenue: totalRev });
+            prompt = `Analyze this job data and provide a brief insight (2-3 sentences max):
+            Recent jobs: ${jobs.length}, Total revenue: $${totalRev}
+            Focus on: performance trends, revenue optimization opportunities.`;
+          } else if (category === "tools") {
+            const tools = await env.LOCKSMITH_DB.prepare(
+              "SELECT name, license_type, expiry_date FROM tools WHERE expiry_date IS NOT NULL ORDER BY expiry_date ASC LIMIT 5"
+            ).all();
+            contextData = JSON.stringify(tools.results || []);
+            prompt = `Analyze this tool subscription data and provide a brief insight (2-3 sentences max):
+            Tools with expiry dates: ${contextData}
+            Focus on: upcoming renewals, cost optimization, ROI considerations.`;
+          } else if (category === "subscriptions") {
+            const subs = await env.LOCKSMITH_DB.prepare(
+              "SELECT name, type, expiration_date, price FROM licenses ORDER BY expiration_date ASC LIMIT 10"
+            ).all();
+            contextData = JSON.stringify(subs.results || []);
+            prompt = `Analyze this subscription/license data and provide a brief insight (2-3 sentences max):
+            Subscriptions: ${contextData}
+            Focus on: renewal priorities, cost management, compliance reminders.`;
+          } else {
+            // Overview - combine multiple data sources
+            const lowStock = await env.LOCKSMITH_DB.prepare(
+              "SELECT COUNT(*) as count FROM inventory WHERE qty <= 2"
+            ).first<{ count: number }>();
+            const jobCount = await env.LOCKSMITH_DB.prepare(
+              "SELECT COUNT(*) as count FROM job_logs"
+            ).first<{ count: number }>();
+            contextData = JSON.stringify({ lowStockCount: lowStock?.count || 0, totalJobs: jobCount?.count || 0 });
+            prompt = `Provide a brief business overview insight (2-3 sentences max):
+            Low stock items: ${lowStock?.count || 0}, Total jobs logged: ${jobCount?.count || 0}
+            Focus on: overall business health, key actions to take today.`;
+          }
+
+          // Call AI to generate insight
+          const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${env.OPENROUTER_API_KEY}`,
+              "HTTP-Referer": "https://eurokeys.app",
+              "X-Title": "EuroKeys AI Insights",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              "model": "deepseek/deepseek-v3.2",
+              "messages": [
+                { "role": "system", "content": "You are a business analyst for an automotive locksmith company. Provide concise, actionable insights. No fluff." },
+                { "role": "user", "content": prompt }
+              ],
+              "max_tokens": 150
+            })
+          });
+
+          if (!aiResponse.ok) {
+            throw new Error(`AI service error: ${aiResponse.status}`);
+          }
+
+          const aiData: any = await aiResponse.json();
+          const insight = aiData.choices?.[0]?.message?.content || "No insight available.";
+
+          // Cache the insight (expires in 6 hours)
+          const id = crypto.randomUUID();
+          const expiresAt = Date.now() + (6 * 60 * 60 * 1000);
+
+          await env.LOCKSMITH_DB.prepare(
+            "INSERT OR REPLACE INTO ai_insights_cache (id, user_id, category, insight, context_data, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+          ).bind(id, userId, category, insight, contextData, Date.now(), expiresAt).run();
+
+          return corsResponse(request, JSON.stringify({ insight, cached: false }));
+        } catch (err: any) {
+          console.error("AI Insights error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // POST /api/ai/business-insights - Generate AI insights about business stats
       if (path === "/api/ai/business-insights" && request.method === "POST") {
         try {
@@ -2000,7 +2116,7 @@ Keep response under 300 words, practical and actionable.`;
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                "model": "deepseek/deepseek-chat",
+                "model": "deepseek/deepseek-v3.2",
                 "messages": [
                   { "role": "system", "content": "You are a professional business consultant specializing in mobile automotive locksmith businesses. Provide concise, actionable advice." },
                   { "role": "user", "content": prompt }
@@ -2268,7 +2384,7 @@ Guidelines:
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                "model": "deepseek/deepseek-chat",
+                "model": "deepseek/deepseek-v3.2",
                 "messages": [
                   { "role": "system", "content": systemPrompt },
                   { "role": "user", "content": userPrompt }

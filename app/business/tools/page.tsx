@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { loadBusinessProfile, saveBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
+import { AIInsightCard } from '@/components/ai/AIInsightCard';
 
 type ToolsSubTab = 'mytools' | 'add';
 
@@ -61,6 +62,9 @@ export default function ToolsPage() {
                     </button>
                 ))}
             </div>
+
+            {/* AI Insight Card */}
+            <AIInsightCard category="tools" className="mb-2" />
 
             {/* My Tools View */}
             {activeSubTab === 'mytools' && (

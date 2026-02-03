@@ -9,6 +9,7 @@ import CalendarView from '@/components/business/CalendarView';
 import GoalProgress from '@/components/business/GoalProgress';
 import InvoiceBuilder from '@/components/business/InvoiceBuilder';
 import PipelineView from '@/components/business/PipelineView';
+import { AIInsightCard } from '@/components/ai/AIInsightCard';
 
 type JobsSubTab = 'all' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
 
@@ -131,6 +132,9 @@ export default function JobsPage() {
                     </button>
                 ))}
             </div>
+
+            {/* AI Insight Card */}
+            <AIInsightCard category="jobs" className="mb-2" />
 
             {/* Content based on subtab */}
             {activeSubTab === 'all' && (

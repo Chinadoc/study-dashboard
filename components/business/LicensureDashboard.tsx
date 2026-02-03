@@ -16,6 +16,8 @@ export interface UserLicense {
     notes?: string;
     renewalUrl?: string;
     linkedToolId?: string;  // For tool subscriptions
+    tokensRemaining?: number;  // For token-based subscriptions (Smart Pro, etc.)
+    isPerUse?: boolean;  // Flag for per-VIN/per-use items
 }
 
 interface LicensureDashboardProps {

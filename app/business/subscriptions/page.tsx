@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import SubscriptionDashboard from '@/components/business/SubscriptionDashboard';
+import { AIInsightCard } from '@/components/ai/AIInsightCard';
 
 type SubscriptionSubTab = 'all' | 'licenses' | 'expiring';
 
@@ -35,6 +36,9 @@ export default function SubscriptionsPage() {
                     </button>
                 ))}
             </div>
+
+            {/* AI Insight Card */}
+            <AIInsightCard category="subscriptions" className="mb-2" />
 
             {/* Content */}
             <SubscriptionDashboard />
