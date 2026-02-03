@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { loadBusinessProfile, saveBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 
@@ -84,18 +85,31 @@ export default function ToolsPage() {
                                 );
                             })}
                         </div>
-                    ) : (
-                        <div className="text-center py-12 text-gray-500">
-                            <div className="text-4xl mb-3">🛠️</div>
-                            <p className="font-medium">No tools added yet</p>
-                            <p className="text-sm mt-1">Add your programming tools to see vehicle coverage</p>
-                            <button
-                                onClick={() => setActiveSubTab('add')}
-                                className="mt-4 px-6 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400"
-                            >
-                                Add Tools
-                            </button>
+                        
+                        {/* View Coverage Map Link */}
+                    <Link
+                        href="/business/coverage-heatmap?myCoverage=true"
+                        className="flex items-center gap-3 p-4 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all group active:scale-[0.98]"
+                    >
+                        <span className="text-2xl">🗺️</span>
+                        <div className="flex-1">
+                            <div className="font-bold text-purple-300 group-hover:text-purple-200">View Coverage Map</div>
+                            <div className="text-xs text-gray-400">See which vehicles your {userTools.length} tools can service</div>
                         </div>
+                        <span className="text-purple-400 group-hover:translate-x-1 transition-transform">→</span>
+                    </Link>
+                    ) : (
+                    <div className="text-center py-12 text-gray-500">
+                        <div className="text-4xl mb-3">🛠️</div>
+                        <p className="font-medium">No tools added yet</p>
+                        <p className="text-sm mt-1">Add your programming tools to see vehicle coverage</p>
+                        <button
+                            onClick={() => setActiveSubTab('add')}
+                            className="mt-4 px-6 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400"
+                        >
+                            Add Tools
+                        </button>
+                    </div>
                     )}
                 </div>
             )}
@@ -164,6 +178,17 @@ function ToolCard({
                 </div>
             </div>
             <div className="text-xs text-gray-500">{tool.badge}</div>
+
+            {/* Coverage link for owned tools */}
+            {owned && (
+                <Link
+                    href={`/business/coverage-heatmap?myCoverage=true`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-3 flex items-center justify-center gap-1 py-1.5 px-3 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs hover:bg-purple-500/20 transition-all"
+                >
+                    🗺️ View Coverage
+                </Link>
+            )}
         </div>
     );
 }

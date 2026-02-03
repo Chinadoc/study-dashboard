@@ -478,8 +478,21 @@ export default function ChatWidget() {
           }
 
           .chat-toggle-btn {
-            bottom: 16px;
+            bottom: 80px; /* Above mobile nav bar */
             right: 16px;
+            width: 48px;
+            height: 48px;
+          }
+        }
+
+        /* Also handle medium screens with nav bars */
+        @media (max-width: 768px) {
+          .chat-toggle-btn {
+            bottom: 80px; /* Clear the bottom tab bar */
+          }
+          
+          .chat-panel {
+            bottom: 140px;
           }
         }
       `}</style>

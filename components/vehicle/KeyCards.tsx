@@ -232,8 +232,12 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                             return typeLabel.toUpperCase();
                         })()}
                     </span>
-                    {/* Owned Badge */}
-                    <OwnedBadge fcc={config.fcc} compact />
+                    {/* Owned Badge - shows stock count or Add button */}
+                    <OwnedBadge
+                        fcc={config.fcc}
+                        compact
+                        vehicleInfo={vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined}
+                    />
                 </div>
             </div>
 
