@@ -4769,7 +4769,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                           <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Freq</div><div class="spec-value">${freq}</div></div>
                           <div class="spec-item"><div class="spec-icon" style="color: #38bdf8;">🔋</div><div class="spec-label">Battery</div><div class="spec-value">${battery}</div></div>
                           ${v.architecture ? `<div class="spec-item"><div class="spec-icon" style="color: #8b5cf6;">🏗️</div><div class="spec-label">Arch</div><div class="spec-value">${v.architecture}</div></div>` : ''}
-                          ${v.can_fd_required ? `<div class="spec-item" style="border-color: #ef4444;"><div class="spec-icon" style="color: #ef4444;">📡</div><div class="spec-label">CAN FD</div><div class="spec-value" style="color: #ef4444; font-weight: 800;">REQUIRED</div></div>` : ''}
+                          ${(v.adapter_type && v.adapter_type !== 'None') || v.can_fd_required ? `<div class="spec-item" style="border-color: #ef4444;"><div class="spec-icon" style="color: #ef4444;">🔌</div><div class="spec-label">Adapter</div><div class="spec-value" style="color: #ef4444; font-weight: 800;">${v.adapter_type || 'CAN FD'}</div></div>` : ''}
                           <div class="spec-item"><div class="spec-icon" style="color: #22c55e;">🔧</div><div class="spec-label">System</div><div class="spec-value">${immoSystem}</div></div>
                        </div>
                     </div>

@@ -56,6 +56,8 @@ interface VehicleSpecsProps {
 }
 
 export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecsProps) {
+    const [showAdapterPearl, setShowAdapterPearl] = React.useState(false);
+
     if (!specs || Object.keys(specs).length === 0) {
         return null;
     }
@@ -94,9 +96,20 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                             </div>
                             <div className={`font-semibold ${colorClass}`}>
                                 {needsAdapter ? `🔌 ${adapterType}` : 'None Required'}
+                                {pearls?.canFd?.[0] && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setShowAdapterPearl(!showAdapterPearl); }}
+                                        className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full transition-all ${showAdapterPearl
+                                            ? 'bg-amber-500 text-black'
+                                            : 'bg-amber-600/80 text-white hover:bg-amber-500'
+                                            }`}
+                                    >
+                                        {showAdapterPearl ? '×' : '💡 Tip'}
+                                    </button>
+                                )}
                             </div>
-                            {/* Adapter contextual pearl */}
-                            {pearls?.canFd?.[0] && (
+                            {/* Expandable adapter pearl */}
+                            {showAdapterPearl && pearls?.canFd?.[0] && (
                                 <div className="mt-2 text-[11px] text-orange-300 bg-orange-900/20 p-2 rounded border border-orange-800/30">
                                     🔌 {pearls.canFd[0].content}
                                 </div>
@@ -362,6 +375,7 @@ function FccIdWithPopup({
     pearl?: Pearl;
 }) {
     const [showPopup, setShowPopup] = useState(false);
+    const [showPearl, setShowPearl] = useState(false);
 
     // Parse primaryFcc - it may contain multiple FCC IDs separated by commas/spaces
     const parsedFccs = primaryFcc.split(/[,\s]+/).filter(Boolean).map(f => f.trim());
@@ -401,10 +415,23 @@ function FccIdWithPopup({
                 )}
             </button>
 
-            {/* Pearl display */}
+            {/* Pearl toggle button */}
             {pearl && (
+                <button
+                    onClick={() => setShowPearl(!showPearl)}
+                    className={`mt-2 text-[10px] px-1.5 py-0.5 rounded-full transition-all ${showPearl
+                        ? 'bg-blue-500 text-black'
+                        : 'bg-blue-600/80 text-white hover:bg-blue-500'
+                        }`}
+                >
+                    {showPearl ? '×' : '💡 Tip'}
+                </button>
+            )}
+
+            {/* Expandable pearl content */}
+            {showPearl && pearl && (
                 <div className="mt-2 text-[11px] text-blue-300 bg-blue-900/20 p-2 rounded border border-blue-800/30">
-                    📶 {pearl.content}
+                    📡 {pearl.content}
                 </div>
             )}
 
@@ -467,6 +494,7 @@ function ChipTypeWithPopup({
 }) {
     const [showPopup, setShowPopup] = useState(false);
     const [showVatsDetails, setShowVatsDetails] = useState(false);
+    const [showPearl, setShowPearl] = useState(false);
 
     // Detect VATS (Vehicle Anti-Theft System) - uses resistor pellets, not transponder chips
     // VATS chip fields often contain resistor value tables which stretch the layout
@@ -503,6 +531,17 @@ function ChipTypeWithPopup({
                     </div>
                 )}
                 {pearl && (
+                    <button
+                        onClick={() => setShowPearl(!showPearl)}
+                        className={`mt-2 text-[10px] px-1.5 py-0.5 rounded-full transition-all ${showPearl
+                            ? 'bg-amber-500 text-black'
+                            : 'bg-amber-600/80 text-white hover:bg-amber-500'
+                            }`}
+                    >
+                        {showPearl ? '×' : '💡 Tip'}
+                    </button>
+                )}
+                {showPearl && pearl && (
                     <div className="mt-2 text-[11px] text-amber-300 bg-amber-900/20 p-2 rounded border border-amber-800/30">
                         💡 {pearl.content}
                     </div>
@@ -549,8 +588,21 @@ function ChipTypeWithPopup({
                 )}
             </button>
 
-            {/* Pearl display */}
+            {/* Pearl toggle button */}
             {pearl && (
+                <button
+                    onClick={() => setShowPearl(!showPearl)}
+                    className={`mt-2 text-[10px] px-1.5 py-0.5 rounded-full transition-all ${showPearl
+                        ? 'bg-purple-500 text-black'
+                        : 'bg-purple-600/80 text-white hover:bg-purple-500'
+                        }`}
+                >
+                    {showPearl ? '×' : '💡 Tip'}
+                </button>
+            )}
+
+            {/* Expandable pearl content */}
+            {showPearl && pearl && (
                 <div className="mt-2 text-[11px] text-purple-300 bg-purple-900/20 p-2 rounded border border-purple-800/30">
                     💡 {pearl.content}
                 </div>

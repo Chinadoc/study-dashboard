@@ -27,7 +27,7 @@ const GLOSSARY_CHIPS = {
 
     "4c": {
         term: "4C (Fixed Code)",
-        aliases: ["4C", "Texas 4C", "TI 4C"],
+        aliases: ["4C", "Texas 4C", "TI 4C", "Tex 4C Wedge", "4C Wedge"],
         architecture: "toyota_fixed_code",
         category: "chip",
         encryption: "None (Fixed Code)",
@@ -41,7 +41,8 @@ const GLOSSARY_CHIPS = {
 
     "4d_67": {
         term: "4D-67 (Dot Chip)",
-        aliases: ["4D-67", "4D67", "TEX 4D 67", "TEX 4D-67", "Texas 4D-67", "Dot Chip", "Dot"],
+        aliases: ["4D-67", "4D67", "TEX 4D 67", "TEX 4D-67", "Texas 4D-67", "Dot Chip", "Dot",
+            "Tex 4D-67 (Dot)", "4D-67 (Dot)"],
         architecture: "toyota_dot_system",
         category: "chip",
         encryption: "Texas Crypto 40-bit",
@@ -55,7 +56,7 @@ const GLOSSARY_CHIPS = {
 
     "4d_68": {
         term: "4D-68",
-        aliases: ["4D-68", "4D68", "TEX 4D 68"],
+        aliases: ["4D-68", "4D68", "TEX 4D 68", "Tex 4D-68"],
         architecture: "toyota_dot_system",
         category: "chip",
         encryption: "Texas Crypto 40-bit",
@@ -69,7 +70,8 @@ const GLOSSARY_CHIPS = {
 
     "4d_72": {
         term: "4D-72 (G-Chip)",
-        aliases: ["4D-72", "4D72", "G-Chip", "G Chip", "TEX 4D 72", "DST-80"],
+        aliases: ["4D-72", "4D72", "G-Chip", "G Chip", "TEX 4D 72", "DST-80",
+            "Tex 4D-72 (G)", "4D-72 (G)"],
         architecture: "toyota_g_system",
         category: "chip",
         encryption: "Texas DST-80",
@@ -83,7 +85,8 @@ const GLOSSARY_CHIPS = {
 
     "8a_h": {
         term: "8A-H (H-Chip)",
-        aliases: ["8A-H", "8AH", "H-Chip", "H Chip", "Texas 8A-H", "DST-AES 128"],
+        aliases: ["8A-H", "8AH", "H-Chip", "H Chip", "Texas 8A-H", "DST-AES 128",
+            "Tex 4D-74 (Toyota H)", "8A-AES (H-Chip)"],
         architecture: "toyota_h_system",
         category: "chip",
         encryption: "Texas DST-AES 128-bit",
@@ -97,7 +100,8 @@ const GLOSSARY_CHIPS = {
 
     "8a_ba": {
         term: "8A-BA (Smart)",
-        aliases: ["8A-BA", "8ABA", "BA Chip", "Toyota Smart", "DST-AES BA"],
+        aliases: ["8A-BA", "8ABA", "BA Chip", "Toyota Smart", "DST-AES BA",
+            "Denso AES", "8A-AES"],
         architecture: "toyota_smart_dst_aes",
         category: "chip",
         encryption: "Texas DST-AES 128-bit",
@@ -130,8 +134,9 @@ const GLOSSARY_CHIPS = {
 
     "4d_63_40": {
         term: "4D-63 (40-bit)",
-        aliases: ["4D-63-40", "4D63-40", "4D-63 40", "Ford 40-bit", "PATS 2"],
-        architecture: null,
+        aliases: ["4D-63-40", "4D63-40", "4D-63 40", "Ford 40-bit", "PATS 2",
+            "4D-63-40"],
+        architecture: "ford_pats_2",
         category: "chip",
         encryption: "Texas Crypto 40-bit",
         bits: 40,
@@ -144,8 +149,9 @@ const GLOSSARY_CHIPS = {
 
     "4d_63_80": {
         term: "4D-63 (80-bit)",
-        aliases: ["4D-63-80", "4D63-80", "4D-63 80", "Ford 80-bit", "PATS 3"],
-        architecture: null,
+        aliases: ["4D-63-80", "4D63-80", "4D-63 80", "Ford 80-bit", "PATS 3",
+            "Tex 4D-63 (80-Bit)", "Tex 4D-63 (128-Bit)"],
+        architecture: "ford_pats_3",
         category: "chip",
         encryption: "Texas DST-80",
         bits: 80,
@@ -159,8 +165,9 @@ const GLOSSARY_CHIPS = {
 
     "id49": {
         term: "ID49 (Hitag Pro)",
-        aliases: ["ID49", "Hitag Pro", "Ford ID49"],
-        architecture: null,
+        aliases: ["ID49", "Hitag Pro", "Ford ID49",
+            "Hitag Pro (ID49)"],
+        architecture: "ford_pats_4",
         category: "chip",
         encryption: "NXP Hitag Pro 128-bit",
         bits: 128,
@@ -178,21 +185,24 @@ const GLOSSARY_CHIPS = {
 
     "id46": {
         term: "ID46 (Hitag2)",
-        aliases: ["ID46", "Hitag2", "Hitag 2", "Circle Plus", "PCF7936"],
-        architecture: null, // Could link to "global_a" for GM
+        aliases: ["ID46", "Hitag2", "Hitag 2", "Circle Plus", "PCF7936",
+            "Philips 46 (Blank)", "Philips 46 (Circle-Plus)", "Philips 46",
+            "Philips 46 (Mits-A)", "Philips 46 Mits"],
+        architecture: "global_a",
         category: "chip",
         encryption: "Philips Hitag2 48-bit",
         bits: 48,
         clonable: true,
         substrates: ["CN3", "TPX3", "TPX4", "XT27"],
-        makes: ["Chevrolet", "GMC", "Buick", "Cadillac", "Honda", "Nissan", "Chrysler", "Hyundai", "Kia"],
+        makes: ["Chevrolet", "GMC", "Buick", "Cadillac", "Honda", "Nissan", "Chrysler", "Hyundai", "Kia", "Mitsubishi"],
         yearRange: [2004, 2019],
         definition: "Most common automotive transponder 2004-2019. 48-bit Hitag2 encryption. Fully clonable via sniffing."
     },
 
     "id46e": {
         term: "ID46E (Extended)",
-        aliases: ["ID46E", "ID46-E", "Hitag2 Extended", "Extended Crypto 2"],
+        aliases: ["ID46E", "ID46-E", "Hitag2 Extended", "Extended Crypto 2",
+            "Philips 46E (New GM)", "46E", "ID46E (New GM)"],
         architecture: "global_b",
         category: "chip",
         encryption: "Extended Crypto 2",
@@ -211,8 +221,9 @@ const GLOSSARY_CHIPS = {
 
     "id47": {
         term: "ID47 (Hitag3)",
-        aliases: ["ID47", "Hitag3", "Hitag 3", "PCF7938"],
-        architecture: null,
+        aliases: ["ID47", "Hitag3", "Hitag 3", "PCF7938",
+            "Hitag3 (ID47)", "ID47/49 (HITAG 3/AES)"],
+        architecture: "honda_smart",
         category: "chip",
         encryption: "NXP Hitag3 96-bit",
         bits: 96,

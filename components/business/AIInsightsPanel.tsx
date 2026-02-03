@@ -19,6 +19,16 @@ interface InsightStats {
     avgJobValue: number;
     state: string;
     taxRate: number;
+    // Extended stats
+    technicianCount?: number;
+    topTechnician?: string | null;
+    fleetCustomerCount?: number;
+    fleetRevenue?: number;
+    fleetRevenuePercent?: number;
+    leadCount?: number;
+    pipelineValue?: number;
+    leadsByStage?: Record<string, number>;
+    vehicleMakes?: string[];
 }
 
 interface HistoricalInsight {
@@ -70,7 +80,7 @@ export default function AIInsightsPanel() {
     const [history, setHistory] = useState<HistoricalInsight[]>([]);
     const [loading, setLoading] = useState(false);
     const [savingPrefs, setSavingPrefs] = useState(false);
-    const [selectedType, setSelectedType] = useState<'general' | 'tax' | 'revenue'>('general');
+    const [selectedType, setSelectedType] = useState<'general' | 'tax' | 'revenue' | 'team' | 'customers' | 'pipeline' | 'coverage'>('general');
     const [showHistory, setShowHistory] = useState(false);
 
     const fetchPreferences = useCallback(async () => {
@@ -277,20 +287,25 @@ export default function AIInsightsPanel() {
             <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
                 <h3 className="text-lg font-bold mb-4">🧠 Generate AI Insight</h3>
                 <div className="flex flex-wrap gap-2 mb-4">
-                    {(['general', 'tax', 'revenue'] as const).map((type) => (
+                    {[
+                        { type: 'general' as const, icon: '📊', label: 'Overview' },
+                        { type: 'tax' as const, icon: '💰', label: 'Tax' },
+                        { type: 'revenue' as const, icon: '💵', label: 'Revenue' },
+                        { type: 'team' as const, icon: '👥', label: 'Team' },
+                        { type: 'customers' as const, icon: '🏢', label: 'Customers' },
+                        { type: 'pipeline' as const, icon: '📈', label: 'Pipeline' },
+                        { type: 'coverage' as const, icon: '🔧', label: 'Coverage' },
+                    ].map(({ type, icon, label }) => (
                         <button
                             key={type}
                             onClick={() => setSelectedType(type)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all
                                 ${selectedType === type
                                     ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                                     : 'bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700'
                                 }`}
                         >
-                            {type === 'general' && '📊 '}
-                            {type === 'tax' && '💰 '}
-                            {type === 'revenue' && '📈 '}
-                            {type} Analysis
+                            {icon} {label}
                         </button>
                     ))}
                 </div>
@@ -312,25 +327,69 @@ export default function AIInsightsPanel() {
                 {insight && (
                     <div className="mt-4 p-4 bg-zinc-800/50 rounded-lg border border-zinc-700">
                         {stats && (
-                            <div className="flex flex-wrap gap-3 mb-4 pb-4 border-b border-zinc-700">
-                                <div className="text-sm">
-                                    <span className="text-zinc-500">Jobs: </span>
-                                    <span className="font-bold text-white">{stats.jobCount}</span>
-                                </div>
-                                <div className="text-sm">
-                                    <span className="text-zinc-500">Revenue: </span>
-                                    <span className="font-bold text-green-400">${stats.revenue.toFixed(0)}</span>
-                                </div>
-                                <div className="text-sm">
-                                    <span className="text-zinc-500">Profit: </span>
-                                    <span className={`font-bold ${stats.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                        ${stats.profit.toFixed(0)}
-                                    </span>
-                                </div>
-                                {stats.state !== 'unknown' && (
+                            <div className="mb-4 pb-4 border-b border-zinc-700">
+                                {/* Core Financial Stats */}
+                                <div className="flex flex-wrap gap-3 mb-3">
                                     <div className="text-sm">
-                                        <span className="text-zinc-500">State: </span>
-                                        <span className="font-bold text-white">{stats.state}</span>
+                                        <span className="text-zinc-500">Jobs: </span>
+                                        <span className="font-bold text-white">{stats.jobCount}</span>
+                                    </div>
+                                    <div className="text-sm">
+                                        <span className="text-zinc-500">Revenue: </span>
+                                        <span className="font-bold text-green-400">${stats.revenue.toFixed(0)}</span>
+                                    </div>
+                                    <div className="text-sm">
+                                        <span className="text-zinc-500">Profit: </span>
+                                        <span className={`font-bold ${stats.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                            ${stats.profit.toFixed(0)}
+                                        </span>
+                                    </div>
+                                    {stats.state !== 'unknown' && (
+                                        <div className="text-sm">
+                                            <span className="text-zinc-500">State: </span>
+                                            <span className="font-bold text-white">{stats.state}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                {/* Extended Stats Row */}
+                                {(stats.technicianCount !== undefined || stats.fleetCustomerCount !== undefined || stats.leadCount !== undefined) && (
+                                    <div className="flex flex-wrap gap-3 pt-2 border-t border-zinc-700/50">
+                                        {stats.technicianCount !== undefined && stats.technicianCount > 0 && (
+                                            <div className="text-sm">
+                                                <span className="text-zinc-500">👥 Team: </span>
+                                                <span className="font-bold text-purple-400">{stats.technicianCount}</span>
+                                                {stats.topTechnician && (
+                                                    <span className="text-zinc-500 text-xs ml-1">(top: {stats.topTechnician})</span>
+                                                )}
+                                            </div>
+                                        )}
+                                        {stats.fleetCustomerCount !== undefined && stats.fleetCustomerCount > 0 && (
+                                            <div className="text-sm">
+                                                <span className="text-zinc-500">🏢 Fleet: </span>
+                                                <span className="font-bold text-amber-400">{stats.fleetCustomerCount}</span>
+                                                {stats.fleetRevenuePercent !== undefined && stats.fleetRevenuePercent > 0 && (
+                                                    <span className="text-zinc-500 text-xs ml-1">({stats.fleetRevenuePercent.toFixed(0)}% rev)</span>
+                                                )}
+                                            </div>
+                                        )}
+                                        {stats.leadCount !== undefined && stats.leadCount > 0 && (
+                                            <div className="text-sm">
+                                                <span className="text-zinc-500">📈 Leads: </span>
+                                                <span className="font-bold text-cyan-400">{stats.leadCount}</span>
+                                                {stats.pipelineValue !== undefined && stats.pipelineValue > 0 && (
+                                                    <span className="text-zinc-500 text-xs ml-1">(${stats.pipelineValue.toFixed(0)} value)</span>
+                                                )}
+                                            </div>
+                                        )}
+                                        {stats.vehicleMakes && stats.vehicleMakes.length > 0 && (
+                                            <div className="text-sm">
+                                                <span className="text-zinc-500">🚗 Makes: </span>
+                                                <span className="font-bold text-zinc-300">{stats.vehicleMakes.slice(0, 5).join(', ')}</span>
+                                                {stats.vehicleMakes.length > 5 && (
+                                                    <span className="text-zinc-500 text-xs ml-1">+{stats.vehicleMakes.length - 5} more</span>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

@@ -68,6 +68,33 @@ class VehicleDetailRenderer {
     }
 
     /**
+     * Render inline pearl icon for a spec item
+     * Matches pearls by target_section (supports comma-separated tags)
+     */
+    renderInlinePearl(sectionKey) {
+        const pearls = this.data.pearls || [];
+        const matchingPearls = pearls.filter(p => {
+            const sections = (p.category || p.target_section || '').split(',').map(s => s.trim().toLowerCase());
+            return sections.some(s => s.includes(sectionKey.toLowerCase()));
+        });
+
+        if (matchingPearls.length === 0) return '';
+
+        const encodedPearls = btoa(encodeURIComponent(JSON.stringify(matchingPearls)));
+        const firstTitle = (matchingPearls[0].title || 'Insight').substring(0, 40);
+
+        return `
+            <span class="vd-inline-pearl" 
+                  data-pearls="${encodedPearls}"
+                  onclick="window.showVdPearlPopover(this, event)"
+                  title="${matchingPearls.length} insight${matchingPearls.length > 1 ? 's' : ''}: ${firstTitle}">
+                <span class="vd-pearl-icon">💡</span>
+                ${matchingPearls.length > 1 ? `<span class="vd-pearl-count">${matchingPearls.length}</span>` : ''}
+            </span>
+        `;
+    }
+
+    /**
      * Render quick specs grid
      */
     renderQuickSpecs() {
@@ -96,15 +123,15 @@ class VehicleDetailRenderer {
                         <div class="vd-spec-value highlight">${v.architecture || v.generation || v.platform || 'N/A'}</div>
                     </div>
                     <div class="vd-spec-item">
-                        <div class="vd-spec-label">CAN FD</div>
-                        <div class="vd-spec-value ${canFd ? 'highlight critical' : ''}">${canFd ? 'REQUIRED' : 'Not Required'}</div>
+                        <div class="vd-spec-label">Adapter Type</div>
+                        <div class="vd-spec-value ${(this.data.adapter_type && this.data.adapter_type !== 'None') || canFd ? 'highlight critical' : ''}">${this.data.adapter_type || (canFd ? 'CAN FD' : 'None Required')}</div>
                     </div>
                     <div class="vd-spec-item">
-                        <div class="vd-spec-label">Chip Type</div>
+                        <div class="vd-spec-label">Chip Type ${this.renderInlinePearl('chip')}</div>
                         <div class="vd-spec-value highlight">${chipType}</div>
                     </div>
                     <div class="vd-spec-item">
-                        <div class="vd-spec-label">FCC ID</div>
+                        <div class="vd-spec-label">FCC ID ${this.renderInlinePearl('fcc')}</div>
                         <div class="vd-spec-value" style="font-family: monospace; font-size: 0.95rem;">
                             <a href="https://fccid.io/${fccId}" target="_blank" style="color: var(--vd-purple); text-decoration: none;">
                                 ${fccId}
@@ -112,7 +139,7 @@ class VehicleDetailRenderer {
                         </div>
                     </div>
                     <div class="vd-spec-item">
-                        <div class="vd-spec-label">Battery</div>
+                        <div class="vd-spec-label">Battery ${this.renderInlinePearl('battery')}</div>
                         <div class="vd-spec-value">${battery}</div>
                     </div>
                     <div class="vd-spec-item">
@@ -586,3 +613,84 @@ class VehicleDetailRenderer {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = VehicleDetailRenderer;
 }
+
+// Global pearl popover function
+window.showVdPearlPopover = function (element, event) {
+    event.stopPropagation();
+
+    // Close any existing popover
+    const existing = document.querySelector('.vd-pearl-popover');
+    if (existing) existing.remove();
+
+    try {
+        const pearlsJson = decodeURIComponent(atob(element.dataset.pearls));
+        const pearls = JSON.parse(pearlsJson);
+
+        const popover = document.createElement('div');
+        popover.className = 'vd-pearl-popover';
+        popover.innerHTML = `
+            <div class="vd-popover-header">
+                <span>💡 ${pearls.length} Insight${pearls.length > 1 ? 's' : ''}</span>
+                <button class="vd-popover-close" onclick="this.closest('.vd-pearl-popover').remove()">×</button>
+            </div>
+            <div class="vd-popover-body">
+                ${pearls.map(p => `
+                    <div class="vd-popover-item ${p.severity === 'critical' ? 'critical' : ''}">
+                        <div class="vd-popover-title">${p.title || 'Insight'}</div>
+                        <div class="vd-popover-content">${p.content || ''}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        // Position popover near the clicked element
+        const rect = element.getBoundingClientRect();
+        popover.style.cssText = `
+            position: fixed;
+            top: ${rect.bottom + 8}px;
+            left: ${Math.max(10, Math.min(rect.left - 100, window.innerWidth - 360))}px;
+            width: 340px;
+            max-height: 400px;
+            background: var(--bg-secondary, #1e1e2e);
+            border: 1px solid var(--vd-purple, #8b5cf6);
+            border-radius: 12px;
+            z-index: 10000;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        `;
+
+        document.body.appendChild(popover);
+
+        // Add styles if not already present
+        if (!document.getElementById('vd-pearl-popover-styles')) {
+            const style = document.createElement('style');
+            style.id = 'vd-pearl-popover-styles';
+            style.textContent = `
+                .vd-inline-pearl { cursor: pointer; margin-left: 6px; display: inline-flex; align-items: center; gap: 2px; }
+                .vd-pearl-icon { font-size: 0.9rem; filter: drop-shadow(0 0 4px rgba(234,179,8,0.5)); }
+                .vd-pearl-count { font-size: 0.65rem; background: var(--vd-purple, #8b5cf6); color: white; border-radius: 8px; padding: 1px 5px; font-weight: 700; }
+                .vd-popover-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(139, 92, 246, 0.2); border-bottom: 1px solid rgba(139, 92, 246, 0.3); font-weight: 700; color: var(--vd-purple, #8b5cf6); }
+                .vd-popover-close { background: none; border: none; color: var(--text-secondary, #999); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+                .vd-popover-body { padding: 12px; max-height: 320px; overflow-y: auto; }
+                .vd-popover-item { padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; border-left: 3px solid var(--vd-purple, #8b5cf6); }
+                .vd-popover-item.critical { border-left-color: var(--vd-red, #ef4444); background: rgba(239, 68, 68, 0.1); }
+                .vd-popover-title { font-weight: 600; color: var(--text-primary, #fff); font-size: 0.9rem; margin-bottom: 6px; }
+                .vd-popover-content { color: var(--text-secondary, #aaa); font-size: 0.85rem; line-height: 1.5; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Close when clicking outside
+        setTimeout(() => {
+            document.addEventListener('click', function closePopover(e) {
+                if (!popover.contains(e.target) && e.target !== element) {
+                    popover.remove();
+                    document.removeEventListener('click', closePopover);
+                }
+            });
+        }, 100);
+
+    } catch (e) {
+        console.error('Error showing pearl popover:', e);
+    }
+};

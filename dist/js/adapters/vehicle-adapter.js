@@ -92,16 +92,20 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
         'DST-AES': 'Toyota Smart (DST-AES)'
     };
 
-    let architecture = config.architecture || walkthrough.platform;
+    let architecture = null; // Start with null - let glossary determine if possible
     const chipType = config.chip_type || walkthrough.chip_type || config.chip || walkthrough.chip;
 
-    // GLOSSARY-DRIVEN LOOKUP: Query curated chip database first
-    // This allows architecture to be derived from the glossary for ALL makes
+    // GLOSSARY-DRIVEN LOOKUP: Query curated chip database FIRST (source of truth)
     if (chipType && typeof getArchitectureForChip === 'function') {
         const glossaryArch = getArchitectureForChip(chipType);
         if (glossaryArch) {
             architecture = glossaryArch;
         }
+    }
+
+    // Fallback to database-stored architecture only if glossary didn't provide one
+    if (!architecture) {
+        architecture = config.architecture || walkthrough.platform;
     }
 
     // FALLBACK for Toyota/Lexus when glossary not available
@@ -155,6 +159,36 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
 
 
 
+    // Determine adapter type based on architecture and make
+    // Supports: 'None', 'CAN FD', 'FCA 12+8', '30-Pin', 'Gateway Bypass', 'DoIP'
+    function deriveAdapterType() {
+        // If explicitly set in database, use that
+        if (walkthrough.adapter_type) return walkthrough.adapter_type;
+        if (config.adapter_type) return config.adapter_type;
+
+        // Legacy can_fd_required support
+        if (walkthrough.is_can_fd) return 'CAN FD';
+
+        // Derive from architecture
+        if (architecture.includes('Global B') || architecture.includes('CAN-FD')) {
+            return 'CAN FD';
+        }
+
+        // FCA/Stellantis vehicles 2018+ need 12+8 adapter
+        if ((make === 'Jeep' || make === 'Dodge' || make === 'Chrysler' || make === 'RAM') && year >= 2018) {
+            return 'FCA 12+8';
+        }
+
+        // Ford 2021+ with Gateway Module
+        if (make === 'Ford' && year >= 2021 && architecture.includes('Power-Up')) {
+            return 'CAN FD';
+        }
+
+        return 'None';
+    }
+
+    const adapterType = deriveAdapterType();
+
     // Specification Resiliency
     const detail = {
         make,
@@ -165,11 +199,10 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
 
         specs: {
             architecture: architecture,
-            canFd: !!walkthrough.is_can_fd || architecture.includes("Global B") || architecture.includes("CAN-FD"),
+            adapterType: adapterType,  // New: 'None' | 'CAN FD' | 'FCA 12+8' | etc.
+            canFd: adapterType === 'CAN FD',  // Deprecated: kept for backward compatibility
             chipType: config.chip_type || walkthrough.chip_type || "Proximity",
-            // fccIds will be populated after keys are mapped - start with primary
-            fccIds: [],
-            fccId: config.fcc_id || walkthrough.fcc_id || "N/A", // Keep for backwards compat
+            fccId: config.fcc_id || walkthrough.fcc_id || "N/A",
             battery: config.battery_type || walkthrough.battery || "CR2032",
             keyway: config.lishi_tool || config.keyway || walkthrough.keyway || "N/A",
             emergencyKey: {
@@ -266,25 +299,25 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
         detail.specs.battery = derivedBattery;
     }
 
-    // DERIVE FCC IDs FROM KEYS: Collect all unique FCC IDs from key configurations
-    // This ensures Vehicle Specs shows all FCC IDs with "+N" format like key cards do
-    const allFccIds = detail.keys
-        .map(k => k.fcc)
-        .filter(fcc => fcc && fcc !== 'N/A' && fcc !== 'Unknown');
-    const uniqueFccIds = [...new Set(allFccIds)];
-    if (uniqueFccIds.length > 0) {
-        detail.specs.fccIds = uniqueFccIds;
-        detail.specs.fccId = uniqueFccIds[0]; // Primary FCC ID for backwards compat
-    }
-
     // --- Complex Mapping Logic ---
 
     // Map Requirements
     if (walkthrough.requirements && walkthrough.requirements.length > 0) {
         detail.procedures.requirements = walkthrough.requirements;
     } else {
-        // Dynamic requirements based on architecture
-        if (detail.specs.canFd) detail.procedures.requirements.push("CAN-FD Adapter");
+        // Dynamic requirements based on adapter type and architecture
+        if (adapterType !== 'None') {
+            // Map adapter type to specific requirement text
+            const adapterRequirements = {
+                'CAN FD': 'CAN-FD Adapter',
+                'FCA 12+8': 'FCA 12+8 SGW Bypass Adapter',
+                '30-Pin': 'Toyota 30-Pin Direct Cable',
+                'Gateway Bypass': 'Gateway Bypass Cable',
+                'DoIP': 'DoIP/Ethernet Adapter'
+            };
+            const adapterReq = adapterRequirements[adapterType];
+            if (adapterReq) detail.procedures.requirements.push(adapterReq);
+        }
         if (architecture.includes("Global B") || architecture.includes("SGW")) {
             detail.procedures.requirements.push("Active Internet Connection");
         }
