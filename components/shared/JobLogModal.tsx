@@ -16,6 +16,7 @@ interface JobLogModalProps {
     onSubmit: (job: JobFormData) => void;
     prefillFccId?: string;
     prefillVehicle?: string;
+    prefillDate?: string;  // YYYY-MM-DD format for calendar date selection
     recentCustomers?: RecentCustomer[];
     fleetAccounts?: FleetAccount[];  // Optional fleet accounts for linking
 }
@@ -60,7 +61,7 @@ const REFERRAL_SOURCES = [
     { value: 'other', label: 'Other' },
 ];
 
-export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', recentCustomers = [], fleetAccounts }: JobLogModalProps) {
+export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', prefillDate, recentCustomers = [], fleetAccounts }: JobLogModalProps) {
     const [showCustomerInfo, setShowCustomerInfo] = useState(false);
     const [showCostTracking, setShowCostTracking] = useState(false);
     const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: number; button_count?: number; image_url?: string }>>([]);
@@ -89,7 +90,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         keyType: '',
         jobType: 'add_key',
         price: 0,
-        date: new Date().toISOString().split('T')[0],
+        date: prefillDate || new Date().toISOString().split('T')[0],
         notes: '',
         customerName: '',
         customerPhone: '',
@@ -103,6 +104,13 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         referralSource: undefined,
         status: 'completed',
     });
+
+    // Update date when prefillDate changes (e.g., from calendar selection)
+    useEffect(() => {
+        if (prefillDate) {
+            setFormData(prev => ({ ...prev, date: prefillDate }));
+        }
+    }, [prefillDate]);
 
     // Handle fleet selection - auto-fill customer info from fleet
     const handleFleetSelect = (fleetId: string) => {

@@ -20,6 +20,8 @@ export default function JobsPage() {
 
     // Prefill data for lead-to-job conversion
     const [prefillData, setPrefillData] = useState<{ vehicle?: string; customerName?: string; customerPhone?: string } | null>(null);
+    // Selected date from calendar for job creation
+    const [prefillDate, setPrefillDate] = useState<string | undefined>(undefined);
 
     const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
     const { getStats: getPipelineStats } = usePipelineLeads();
@@ -123,7 +125,10 @@ export default function JobsPage() {
             {activeSubTab === 'calendar' && (
                 <CalendarView
                     jobLogs={jobLogs}
-                    onAddJob={() => setJobModalOpen(true)}
+                    onAddJob={(date) => {
+                        setPrefillDate(date);
+                        setJobModalOpen(true);
+                    }}
                 />
             )}
 
@@ -172,10 +177,12 @@ export default function JobsPage() {
                     onClose={() => {
                         setJobModalOpen(false);
                         setPrefillData(null);
+                        setPrefillDate(undefined);
                     }}
                     onSubmit={handleJobSubmit}
                     recentCustomers={getRecentCustomers()}
                     prefillVehicle={prefillData?.vehicle}
+                    prefillDate={prefillDate}
                 />
             )}
 

@@ -11,6 +11,7 @@ export interface UserLicense {
     icon: string;
     obtainedDate: string;
     expirationDate: string;
+    price?: number;  // Cost of the license/certification
     notes?: string;
     renewalUrl?: string;
 }
@@ -54,6 +55,8 @@ function calculateDaysInfo(license: UserLicense) {
 export default function LicensureDashboard({ onAddLicense }: LicensureDashboardProps) {
     const [licenses, setLicenses] = useState<UserLicense[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingLicense, setEditingLicense] = useState<UserLicense | null>(null);
     const [selectedTemplate, setSelectedTemplate] = useState<string>('');
     const [formData, setFormData] = useState({
         name: '',
@@ -61,6 +64,7 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
         icon: '📜',
         obtainedDate: '',
         expirationDate: '',
+        price: '' as string | number,
         notes: '',
     });
 
@@ -97,6 +101,7 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                 icon: template.icon,
                 obtainedDate: today,
                 expirationDate: expiryDate.toISOString().split('T')[0],
+                price: '',
                 notes: '',
             });
         }
@@ -114,18 +119,61 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
             icon: formData.icon,
             obtainedDate: formData.obtainedDate,
             expirationDate: formData.expirationDate,
+            price: formData.price ? Number(formData.price) : undefined,
             notes: formData.notes,
         };
 
         saveLicenses([...licenses, newLicense]);
         setShowAddModal(false);
         setSelectedTemplate('');
+        resetFormData();
+    };
+
+    // Edit existing license
+    const handleEditLicense = (license: UserLicense) => {
+        setEditingLicense(license);
+        setFormData({
+            name: license.name,
+            type: license.type,
+            icon: license.icon,
+            obtainedDate: license.obtainedDate,
+            expirationDate: license.expirationDate,
+            price: license.price ?? '',
+            notes: license.notes || '',
+        });
+        setShowEditModal(true);
+    };
+
+    // Save edited license
+    const handleSaveEdit = () => {
+        if (!editingLicense || !formData.name || !formData.obtainedDate || !formData.expirationDate) return;
+
+        const updatedLicense: UserLicense = {
+            ...editingLicense,
+            name: formData.name,
+            type: formData.type,
+            icon: formData.icon,
+            obtainedDate: formData.obtainedDate,
+            expirationDate: formData.expirationDate,
+            price: formData.price ? Number(formData.price) : undefined,
+            notes: formData.notes,
+        };
+
+        saveLicenses(licenses.map(l => l.id === editingLicense.id ? updatedLicense : l));
+        setShowEditModal(false);
+        setEditingLicense(null);
+        resetFormData();
+    };
+
+    // Reset form data
+    const resetFormData = () => {
         setFormData({
             name: '',
             type: 'license',
             icon: '📜',
             obtainedDate: '',
             expirationDate: '',
+            price: '',
             notes: '',
         });
     };
@@ -217,14 +265,23 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                 key={license.id}
                                 className={`p-5 rounded-xl border ${colors.border} ${colors.bg} relative group`}
                             >
-                                {/* Delete button */}
-                                <button
-                                    onClick={() => handleDelete(license.id)}
-                                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-all"
-                                    title="Remove"
-                                >
-                                    ✕
-                                </button>
+                                {/* Edit & Delete buttons */}
+                                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 flex gap-2 transition-all">
+                                    <button
+                                        onClick={() => handleEditLicense(license)}
+                                        className="text-gray-500 hover:text-blue-400"
+                                        title="Edit"
+                                    >
+                                        ✏️
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(license.id)}
+                                        className="text-gray-500 hover:text-red-400"
+                                        title="Remove"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
 
                                 {/* Header */}
                                 <div className="flex items-center gap-3 mb-4">
@@ -262,9 +319,17 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                     />
                                 </div>
 
+                                {/* Price */}
+                                {license.price && (
+                                    <div className="mt-3 flex items-center gap-2 text-sm">
+                                        <span className="text-gray-500">Cost:</span>
+                                        <span className="text-green-400 font-bold">${license.price.toLocaleString()}</span>
+                                    </div>
+                                )}
+
                                 {/* Notes */}
                                 {license.notes && (
-                                    <div className="mt-3 text-xs text-gray-500 italic">
+                                    <div className="mt-2 text-xs text-gray-500 italic">
                                         {license.notes}
                                     </div>
                                 )}
@@ -365,6 +430,23 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                 </div>
                             </div>
 
+                            {/* Price */}
+                            <div>
+                                <label className="block text-sm text-gray-500 mb-2">Price/Cost (Optional)</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                    <input
+                                        type="number"
+                                        value={formData.price}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full p-3 pl-7 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                    />
+                                </div>
+                            </div>
+
                             {/* Notes */}
                             <div>
                                 <label className="block text-sm text-gray-500 mb-2">Notes (Optional)</label>
@@ -391,6 +473,114 @@ export default function LicensureDashboard({ onAddLicense }: LicensureDashboardP
                                 className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg font-semibold transition-colors"
                             >
                                 Add License
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit License Modal */}
+            {showEditModal && editingLicense && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-900 rounded-2xl border border-gray-800 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b border-gray-800">
+                            <h3 className="text-xl font-bold">Edit License/Certification</h3>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            {/* Name */}
+                            <div>
+                                <label className="block text-sm text-gray-500 mb-2">Name *</label>
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    placeholder="e.g., Texas Locksmith License"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                />
+                            </div>
+
+                            {/* Type Dropdown */}
+                            <div>
+                                <label className="block text-sm text-gray-500 mb-2">Type</label>
+                                <select
+                                    value={formData.type}
+                                    onChange={(e) => setFormData({ ...formData, type: e.target.value as UserLicense['type'] })}
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                >
+                                    <option value="license">📜 License</option>
+                                    <option value="certification">🎓 Certification</option>
+                                    <option value="insurance">🛡️ Insurance</option>
+                                    <option value="bond">📋 Bond</option>
+                                    <option value="subscription">🔔 Subscription</option>
+                                </select>
+                            </div>
+
+                            {/* Dates */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm text-gray-500 mb-2">Obtained Date *</label>
+                                    <input
+                                        type="date"
+                                        value={formData.obtainedDate}
+                                        onChange={(e) => setFormData({ ...formData, obtainedDate: e.target.value })}
+                                        className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-500 mb-2">Expiration Date *</label>
+                                    <input
+                                        type="date"
+                                        value={formData.expirationDate}
+                                        onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
+                                        className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Price */}
+                            <div>
+                                <label className="block text-sm text-gray-500 mb-2">Price/Cost (Optional)</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                    <input
+                                        type="number"
+                                        value={formData.price}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full p-3 pl-7 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Notes */}
+                            <div>
+                                <label className="block text-sm text-gray-500 mb-2">Notes (Optional)</label>
+                                <textarea
+                                    value={formData.notes}
+                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                    placeholder="License number, renewal reminders, etc."
+                                    rows={2}
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white resize-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="p-6 border-t border-gray-800 flex gap-3">
+                            <button
+                                onClick={() => { setShowEditModal(false); setEditingLicense(null); resetFormData(); }}
+                                className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveEdit}
+                                disabled={!formData.name || !formData.obtainedDate || !formData.expirationDate}
+                                className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg font-semibold transition-colors"
+                            >
+                                Save Changes
                             </button>
                         </div>
                     </div>

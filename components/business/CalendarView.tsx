@@ -5,7 +5,7 @@ import { JobLog } from '@/lib/useJobLogs';
 
 interface CalendarViewProps {
     jobLogs: JobLog[];
-    onAddJob: () => void;
+    onAddJob: (date?: string) => void;
     monthlyProfit?: number;
 }
 
@@ -217,7 +217,7 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
                             {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                         </h3>
                         <button
-                            onClick={onAddJob}
+                            onClick={() => onAddJob(selectedDate || undefined)}
                             className="px-3 py-1.5 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm font-bold hover:bg-yellow-500/30"
                         >
                             + Add Job
@@ -256,7 +256,7 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
 
             {/* Add Job Button */}
             <button
-                onClick={onAddJob}
+                onClick={() => onAddJob(selectedDate || undefined)}
                 className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black text-lg rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all"
             >
                 📝 Log New Job
