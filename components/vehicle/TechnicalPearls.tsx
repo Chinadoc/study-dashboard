@@ -239,7 +239,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
 
                         <div className="flex flex-wrap gap-2">
                             {typePearls.slice(0, 6).map((pearl, index) => {
-                                const pearlId = pearl.id || index;
+                                const pearlId = pearl.id ?? index;
                                 const isExpanded = expandedId === pearlId;
                                 const riskClass = getRiskClass(pearl);
                                 const voteState = voteStates[pearlId] || { score: pearl.score || 0, userVote: 0 };

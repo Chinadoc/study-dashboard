@@ -888,11 +888,11 @@ export default function VehicleDetailClient() {
             <VehicleSidebar
                 activeSection="specs"
                 availableSections={{
+                    specs: true,
                     procedures: !!(addKeyProcedure || aklProcedure || addKeyWalkthrough || aklWalkthrough),
                     keyConfigs: mergedKeys.length > 0,
                     images: imagesList.length > 0,
                     comments: true,
-                    fccIds: !!specs.fcc_id || allFccs.length > 0,
                     pearls: pearlsList.length > 0,
                 }}
             />
@@ -906,28 +906,32 @@ export default function VehicleDetailClient() {
                     <CommunityHighlight make={make} model={model} year={year} />
 
                     {/* Vehicle Specifications Grid */}
-                    <VehicleSpecs
-                        specs={fullSpecs}
-                        make={make}
-                        year={year}
-                        pearls={{
-                            lishi: routedPearls.lishi,
-                            canFd: routedPearls.canFd,
-                            chip: routedPearls.chip,
-                            fcc: routedPearls.fcc,
-                        }}
-                    />
+                    <div id="section-specs">
+                        <VehicleSpecs
+                            specs={fullSpecs}
+                            make={make}
+                            year={year}
+                            pearls={{
+                                lishi: routedPearls.lishi,
+                                canFd: routedPearls.canFd,
+                                chip: routedPearls.chip,
+                                fcc: routedPearls.fcc,
+                            }}
+                        />
+                    </div>
 
                     {/* Key Configuration Cards with R2 images */}
-                    <KeyCards
-                        keys={mergedKeys}
-                        vehicleInfo={{ make, model, year }}
-                        pearls={{
-                            keyConfig: routedPearls.keyConfig,
-                            frequency: routedPearls.frequency,
-                            access: routedPearls.access,
-                        }}
-                    />
+                    <div id="section-keyConfigs">
+                        <KeyCards
+                            keys={mergedKeys}
+                            vehicleInfo={{ make, model, year }}
+                            pearls={{
+                                keyConfig: routedPearls.keyConfig,
+                                frequency: routedPearls.frequency,
+                                access: routedPearls.access,
+                            }}
+                        />
+                    </div>
 
                     {/* Tools Section - Lishi picks matched by keyway */}
                     {aksTools.length > 0 && (
@@ -1014,10 +1018,14 @@ export default function VehicleDetailClient() {
                     }} />
 
                     {/* Visual References Gallery */}
-                    <VisualReferences images={imagesList} />
+                    <div id="section-images">
+                        <VisualReferences images={imagesList} />
+                    </div>
 
                     {/* Technical Pearls / Insights (General only) */}
-                    <TechnicalPearls pearls={generalPearls} make={make} model={model} />
+                    <div id="section-pearls">
+                        <TechnicalPearls pearls={generalPearls} make={make} model={model} />
+                    </div>
 
                     {/* Research Dossier References */}
                     <DossierReferences
@@ -1027,7 +1035,9 @@ export default function VehicleDetailClient() {
                     />
 
                     {/* Community Discussion Section */}
-                    <CommentSection make={make} model={model} />
+                    <div id="section-comments">
+                        <CommentSection make={make} model={model} />
+                    </div>
                 </div>
 
                 {/* Right Column: Locksmith Sidebar (4/12) */}

@@ -6,22 +6,22 @@ interface VehicleSidebarProps {
     activeSection?: string;
     onSectionChange?: (section: string) => void;
     availableSections?: {
+        specs?: boolean;
         procedures?: boolean;
         keyConfigs?: boolean;
         images?: boolean;
         comments?: boolean;
-        fccIds?: boolean;
         pearls?: boolean;
     };
 }
 
 const SECTIONS = [
-    { id: 'procedures', label: 'Procedures', icon: '📋', shortLabel: 'Proc' },
+    { id: 'specs', label: 'Specs', icon: '🔧', shortLabel: 'Specs' },
     { id: 'keyConfigs', label: 'Key Configs', icon: '🔑', shortLabel: 'Keys' },
     { id: 'images', label: 'Images', icon: '📷', shortLabel: 'Imgs' },
-    { id: 'comments', label: 'Comments', icon: '💬', shortLabel: 'Chat' },
-    { id: 'fccIds', label: 'FCC IDs', icon: '📡', shortLabel: 'FCC' },
+    { id: 'procedures', label: 'Procedures', icon: '📋', shortLabel: 'Proc' },
     { id: 'pearls', label: 'Pearls', icon: '💎', shortLabel: 'Tips' },
+    { id: 'comments', label: 'Comments', icon: '💬', shortLabel: 'Chat' },
 ];
 
 export default function VehicleSidebar({
@@ -56,8 +56,8 @@ export default function VehicleSidebar({
                             key={section.id}
                             onClick={() => handleSectionClick(section.id)}
                             className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${activeSection === section.id
-                                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                                    : 'bg-zinc-800 text-gray-400 hover:bg-zinc-700'
+                                ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                                : 'bg-zinc-800 text-gray-400 hover:bg-zinc-700'
                                 }`}
                         >
                             <span>{section.icon}</span>
@@ -81,8 +81,8 @@ export default function VehicleSidebar({
                             key={section.id}
                             onClick={() => handleSectionClick(section.id)}
                             className={`flex items-center gap-2 px-2 py-2 rounded-lg transition-all ${activeSection === section.id
-                                    ? 'bg-purple-500/20 text-purple-400'
-                                    : 'text-gray-400 hover:bg-zinc-800 hover:text-white'
+                                ? 'bg-purple-500/20 text-purple-400'
+                                : 'text-gray-400 hover:bg-zinc-800 hover:text-white'
                                 }`}
                             title={section.label}
                         >
