@@ -66,11 +66,11 @@ export default function RootLayout({
                             </div>
                         </nav>
 
+                        {/* Unified Navigation - Desktop: shows at top, Mobile: shows at bottom */}
+                        <BottomNav />
+
                         {/* Main Content - Add bottom padding on mobile for nav bar */}
                         <main className="min-h-screen pb-20 lg:pb-0">{children}</main>
-
-                        {/* Mobile Bottom Nav Bar */}
-                        <BottomNav />
 
                         {/* AI Chat Widget */}
                         <ChatWidget />
