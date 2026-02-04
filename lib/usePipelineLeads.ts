@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { API_BASE } from './config';
 
 export interface PipelineLead {
     id: string;
@@ -32,35 +33,147 @@ export interface PipelineStats {
 
 const STORAGE_KEY = 'eurokeys_pipeline_leads';
 
+function getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('session_token') || localStorage.getItem('auth_token');
+}
+
 function generateId(): string {
     return `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const token = getAuthToken();
+    if (!token) return null;
+
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers,
+            },
+        });
+
+        if (!res.ok) {
+            console.error(`API error ${res.status}:`, await res.text());
+            return null;
+        }
+
+        return res.json();
+    } catch (e) {
+        console.error('API request failed:', e);
+        return null;
+    }
 }
 
 export function usePipelineLeads() {
     const [leads, setLeads] = useState<PipelineLead[]>([]);
     const [loading, setLoading] = useState(true);
+    const hasSyncedRef = useRef(false);
 
-    // Load leads from localStorage
+    // Load leads - prioritize cloud, fallback to localStorage
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                setLeads(JSON.parse(saved));
+        const loadLeads = async () => {
+            const token = getAuthToken();
+
+            if (token && !hasSyncedRef.current) {
+                try {
+                    const data = await apiRequest('/api/user/pipeline-leads');
+                    if (data?.leads) {
+                        setLeads(data.leads);
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.leads));
+                        hasSyncedRef.current = true;
+
+                        // Merge any local leads not in cloud
+                        const localLeads = getLeadsFromStorage();
+                        const cloudIds = new Set(data.leads.map((l: PipelineLead) => l.id));
+                        const localOnly = localLeads.filter(l => !cloudIds.has(l.id));
+
+                        if (localOnly.length > 0) {
+                            console.log(`[Sync] Syncing ${localOnly.length} local-only leads to cloud...`);
+                            for (const lead of localOnly) {
+                                await apiRequest('/api/user/pipeline-leads', {
+                                    method: 'POST',
+                                    body: JSON.stringify(lead),
+                                });
+                            }
+                            // Reload merged data
+                            const refreshed = await apiRequest('/api/user/pipeline-leads');
+                            if (refreshed?.leads) {
+                                setLeads(refreshed.leads);
+                                localStorage.setItem(STORAGE_KEY, JSON.stringify(refreshed.leads));
+                            }
+                        }
+                        setLoading(false);
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Failed to load leads from cloud:', e);
+                }
             }
-        } catch (e) {
-            console.error('Failed to load pipeline leads:', e);
-        }
-        setLoading(false);
+
+            // Fallback to localStorage
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    setLeads(JSON.parse(saved));
+                }
+            } catch (e) {
+                console.error('Failed to load pipeline leads:', e);
+            }
+            setLoading(false);
+        };
+
+        loadLeads();
     }, []);
 
-    // Save leads to localStorage
+    // Visibility/focus handlers - sync when returning to tab
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && getAuthToken()) {
+                console.log('[Sync] Leads: Tab became visible - checking for updates...');
+                hasSyncedRef.current = false;
+                reloadFromCloud();
+            }
+        };
+
+        const handleFocus = () => {
+            if (getAuthToken()) {
+                console.log('[Sync] Leads: Window focused - checking for updates...');
+                hasSyncedRef.current = false;
+                reloadFromCloud();
+            }
+        };
+
+        const reloadFromCloud = async () => {
+            const data = await apiRequest('/api/user/pipeline-leads');
+            if (data?.leads) {
+                setLeads(data.leads);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data.leads));
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, []);
+
+    // Save leads to localStorage and cloud
     const saveLeads = useCallback((updatedLeads: PipelineLead[]) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLeads));
     }, []);
 
-    const addLead = useCallback((lead: Omit<PipelineLead, 'id' | 'createdAt' | 'updatedAt'>): PipelineLead => {
+    const addLead = useCallback(async (lead: Omit<PipelineLead, 'id' | 'createdAt' | 'updatedAt'>): Promise<PipelineLead> => {
         const newLead: PipelineLead = {
             ...lead,
             id: generateId(),
@@ -74,27 +187,54 @@ export function usePipelineLeads() {
             return updated;
         });
 
+        // Sync to cloud
+        if (getAuthToken()) {
+            apiRequest('/api/user/pipeline-leads', {
+                method: 'POST',
+                body: JSON.stringify(newLead),
+            });
+        }
+
         return newLead;
     }, [saveLeads]);
 
-    const updateLead = useCallback((id: string, updates: Partial<Omit<PipelineLead, 'id' | 'createdAt'>>) => {
+    const updateLead = useCallback(async (id: string, updates: Partial<Omit<PipelineLead, 'id' | 'createdAt'>>) => {
+        let updatedLead: PipelineLead | null = null;
+
         setLeads(prev => {
-            const updated = prev.map(lead =>
-                lead.id === id
-                    ? { ...lead, ...updates, updatedAt: Date.now() }
-                    : lead
-            );
+            const updated = prev.map(lead => {
+                if (lead.id === id) {
+                    updatedLead = { ...lead, ...updates, updatedAt: Date.now() };
+                    return updatedLead;
+                }
+                return lead;
+            });
             saveLeads(updated);
             return updated;
         });
+
+        // Sync to cloud
+        if (getAuthToken() && updatedLead) {
+            apiRequest('/api/user/pipeline-leads', {
+                method: 'POST',
+                body: JSON.stringify(updatedLead),
+            });
+        }
     }, [saveLeads]);
 
-    const deleteLead = useCallback((id: string) => {
+    const deleteLead = useCallback(async (id: string) => {
         setLeads(prev => {
             const updated = prev.filter(lead => lead.id !== id);
             saveLeads(updated);
             return updated;
         });
+
+        // Sync to cloud
+        if (getAuthToken()) {
+            apiRequest(`/api/user/pipeline-leads?id=${id}`, {
+                method: 'DELETE',
+            });
+        }
     }, [saveLeads]);
 
     // Get stats for the pipeline
@@ -155,8 +295,8 @@ export function usePipelineLeads() {
     };
 }
 
-// Standalone function for use outside React components
-export function getPipelineLeadsFromStorage(): PipelineLead[] {
+// Helper to get leads from localStorage
+function getLeadsFromStorage(): PipelineLead[] {
     if (typeof window === 'undefined') return [];
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -164,4 +304,9 @@ export function getPipelineLeadsFromStorage(): PipelineLead[] {
     } catch {
         return [];
     }
+}
+
+// Standalone function for use outside React components
+export function getPipelineLeadsFromStorage(): PipelineLead[] {
+    return getLeadsFromStorage();
 }

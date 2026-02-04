@@ -553,68 +553,82 @@ function BrowsePageContent() {
                                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Preview</span>
                             </div>
                             <div className="overflow-y-auto flex flex-col p-4" style={{ maxHeight: 'calc(500px - 40px)' }}>
-                                {selectedYear && selectedMake && selectedModel ? (
+                                {selectedMake && selectedModel ? (
                                     <div className="flex flex-col gap-4 h-full">
-                                        {/* Vehicle Image */}
+                                        {/* Vehicle Image - show immediately when model selected */}
                                         <div className="flex-1 flex items-center justify-center">
                                             <img
                                                 src={getModelThumbnailUrl(selectedMake, selectedModel)}
-                                                alt={`${selectedYear} ${selectedMake} ${selectedModel}`}
+                                                alt={`${selectedMake} ${selectedModel}`}
                                                 className="max-w-full max-h-32 object-contain rounded-lg"
                                                 onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-car.png'; }}
                                             />
                                         </div>
                                         {/* Vehicle Info */}
                                         <div className="text-center">
-                                            <div className="text-xl font-bold text-white">{selectedYear}</div>
-                                            <div className="text-sm text-purple-300">{selectedMake} {selectedModel}</div>
+                                            {selectedYear ? (
+                                                <>
+                                                    <div className="text-xl font-bold text-white">{selectedYear}</div>
+                                                    <div className="text-sm text-purple-300">{selectedMake} {selectedModel}</div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="text-lg font-bold text-white">{selectedMake}</div>
+                                                    <div className="text-sm text-purple-300">{selectedModel}</div>
+                                                    <div className="text-xs text-gray-500 mt-2">← Select a year</div>
+                                                </>
+                                            )}
                                         </div>
-                                        {/* Quick Stats from API */}
-                                        {loadingPreview ? (
-                                            <div className="text-center text-purple-400 animate-pulse text-xs py-2">Loading info...</div>
-                                        ) : previewSummary ? (
-                                            <div className="space-y-1.5 text-xs">
-                                                {previewSummary.keyTypes && previewSummary.keyTypes.length > 0 && (
-                                                    <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                        <span className="text-gray-500">🔑</span>
-                                                        <span className="text-gray-300 truncate">{[...new Set(previewSummary.keyTypes)].join(', ')}</span>
+                                        {/* Quick Stats from API - only when year is selected */}
+                                        {selectedYear && (
+                                            <>
+                                                {loadingPreview ? (
+                                                    <div className="text-center text-purple-400 animate-pulse text-xs py-2">Loading info...</div>
+                                                ) : previewSummary ? (
+                                                    <div className="space-y-1.5 text-xs">
+                                                        {previewSummary.keyTypes && previewSummary.keyTypes.length > 0 && (
+                                                            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                                <span className="text-gray-500">🔑</span>
+                                                                <span className="text-gray-300 truncate">{[...new Set(previewSummary.keyTypes)].join(', ')}</span>
+                                                            </div>
+                                                        )}
+                                                        {previewSummary.immoSystem && (
+                                                            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                                <span className="text-gray-500">🛡️</span>
+                                                                <span className="text-gray-300 truncate">{previewSummary.immoSystem}</span>
+                                                            </div>
+                                                        )}
+                                                        {previewSummary.fccIds && previewSummary.fccIds.length > 0 && (
+                                                            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                                <span className="text-gray-500">📡</span>
+                                                                <span className="text-gray-300 truncate">{[...new Set(previewSummary.fccIds)].slice(0, 2).join(', ')}</span>
+                                                            </div>
+                                                        )}
+                                                        <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                            <span className="text-gray-500">📖</span>
+                                                            <span className={previewSummary.hasGuide ? 'text-emerald-400' : 'text-gray-500'}>
+                                                                {previewSummary.hasGuide ? 'Guide Available' : 'No guide yet'}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                )}
-                                                {previewSummary.immoSystem && (
-                                                    <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                        <span className="text-gray-500">🛡️</span>
-                                                        <span className="text-gray-300 truncate">{previewSummary.immoSystem}</span>
-                                                    </div>
-                                                )}
-                                                {previewSummary.fccIds && previewSummary.fccIds.length > 0 && (
-                                                    <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                        <span className="text-gray-500">📡</span>
-                                                        <span className="text-gray-300 truncate">{[...new Set(previewSummary.fccIds)].slice(0, 2).join(', ')}</span>
-                                                    </div>
-                                                )}
-                                                <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                    <span className="text-gray-500">📖</span>
-                                                    <span className={previewSummary.hasGuide ? 'text-emerald-400' : 'text-gray-500'}>
-                                                        {previewSummary.hasGuide ? 'Guide Available' : 'No guide yet'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ) : null}
-                                        {/* Go Button */}
-                                        <button
-                                            onClick={handleNavigate}
-                                            className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5 text-center"
-                                        >
-                                            View Details →
-                                        </button>
+                                                ) : null}
+                                            </>
+                                        )}
+                                        {/* Go Button - only show when year is selected */}
+                                        {selectedYear && (
+                                            <button
+                                                onClick={handleNavigate}
+                                                className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5 text-center"
+                                            >
+                                                View Details →
+                                            </button>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
                                         <div className="text-4xl mb-3 opacity-30">🚗</div>
                                         <div className="text-sm">
-                                            {!selectedMake ? 'Select a make to begin' :
-                                                !selectedModel ? 'Select a model' :
-                                                    'Select a year to preview'}
+                                            {!selectedMake ? 'Select a make to begin' : 'Select a model'}
                                         </div>
                                     </div>
                                 )}

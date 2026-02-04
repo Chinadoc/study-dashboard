@@ -1,8 +1,11 @@
 'use client';
 
+import { API_BASE } from './config';
+
 /**
  * Fleet Management Types for Locksmith Business Platform
  * Tracks fleet accounts, vehicles, and links to jobs
+ * Now with cloud sync support!
  */
 
 export interface FleetVehicle {
@@ -29,10 +32,45 @@ export interface FleetAccount {
 }
 
 // ============================================================================
-// Helper Functions
+// Constants & Auth
 // ============================================================================
 
 const FLEETS_STORAGE_KEY = 'eurokeys_fleets';
+
+function getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('session_token') || localStorage.getItem('auth_token');
+}
+
+async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const token = getAuthToken();
+    if (!token) return null;
+
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers,
+            },
+        });
+
+        if (!res.ok) {
+            console.error(`API error ${res.status}:`, await res.text());
+            return null;
+        }
+
+        return res.json();
+    } catch (e) {
+        console.error('API request failed:', e);
+        return null;
+    }
+}
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
 export function generateFleetId(): string {
     return `fleet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -67,12 +105,19 @@ export function saveFleetAccount(fleet: FleetAccount): FleetAccount {
     }
 
     saveFleetAccountsToStorage(fleets);
+
+    // Sync to cloud
+    syncFleetToCloud(fleet);
+
     return fleet;
 }
 
 export function deleteFleetAccount(id: string) {
     const fleets = getFleetAccountsFromStorage();
     saveFleetAccountsToStorage(fleets.filter(f => f.id !== id));
+
+    // Sync deletion to cloud
+    deleteFleetFromCloud(id);
 }
 
 /**
@@ -132,4 +177,113 @@ export function suggestFleetAccounts(
  */
 export function formatVehicle(vehicle: FleetVehicle): string {
     return `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+}
+
+// ============================================================================
+// Cloud Sync Functions
+// ============================================================================
+
+/**
+ * Sync a fleet account to the cloud
+ */
+async function syncFleetToCloud(fleet: FleetAccount): Promise<void> {
+    if (!getAuthToken()) return;
+
+    await apiRequest('/api/user/fleet-customers', {
+        method: 'POST',
+        body: JSON.stringify(fleet),
+    });
+}
+
+/**
+ * Delete a fleet account from the cloud
+ */
+async function deleteFleetFromCloud(id: string): Promise<void> {
+    if (!getAuthToken()) return;
+
+    await apiRequest(`/api/user/fleet-customers?id=${id}`, {
+        method: 'DELETE',
+    });
+}
+
+/**
+ * Load fleet accounts from cloud (async)
+ */
+export async function loadFleetsFromCloud(): Promise<FleetAccount[] | null> {
+    if (!getAuthToken()) return null;
+
+    const data = await apiRequest('/api/user/fleet-customers');
+    if (data?.fleets) {
+        // Cache in localStorage
+        saveFleetAccountsToStorage(data.fleets);
+        return data.fleets;
+    }
+    return null;
+}
+
+/**
+ * Initialize fleets - load from cloud if available, merge with localStorage
+ */
+export async function initFleets(): Promise<FleetAccount[]> {
+    const localFleets = getFleetAccountsFromStorage();
+
+    if (!getAuthToken()) return localFleets;
+
+    const cloudData = await apiRequest('/api/user/fleet-customers');
+    if (cloudData?.fleets) {
+        const cloudIds = new Set(cloudData.fleets.map((f: FleetAccount) => f.id));
+        const localOnly = localFleets.filter(f => !cloudIds.has(f.id));
+
+        // Sync local-only to cloud
+        if (localOnly.length > 0) {
+            console.log(`[Sync] Syncing ${localOnly.length} local-only fleet accounts to cloud...`);
+            for (const fleet of localOnly) {
+                await apiRequest('/api/user/fleet-customers', {
+                    method: 'POST',
+                    body: JSON.stringify(fleet),
+                });
+            }
+        }
+
+        // Merge and return
+        const merged = [...cloudData.fleets, ...localOnly];
+        saveFleetAccountsToStorage(merged);
+        return merged;
+    }
+
+    return localFleets;
+}
+
+/**
+ * Setup visibility/focus sync handlers
+ */
+export function setupFleetSyncListeners(onUpdate: (fleets: FleetAccount[]) => void): () => void {
+    if (typeof window === 'undefined') return () => { };
+
+    const handleSync = async () => {
+        if (!getAuthToken()) return;
+        console.log('[Sync] Fleets: Checking for updates...');
+        const fleets = await loadFleetsFromCloud();
+        if (fleets) {
+            onUpdate(fleets);
+        }
+    };
+
+    const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+            handleSync();
+        }
+    };
+
+    const handleFocus = () => {
+        handleSync();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('focus', handleFocus);
+    };
 }

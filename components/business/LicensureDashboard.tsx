@@ -192,6 +192,53 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
         loadLicenses();
     }, []);
 
+    // Visibility/focus handlers - sync when returning to tab (cross-device consistency)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const reloadFromCloud = async () => {
+            const token = localStorage.getItem('session_token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/user/licenses`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.licenses) {
+                        setLicenses(data.licenses);
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.licenses));
+                    }
+                }
+            } catch (err) {
+                console.log('[Sync] Licenses: Failed to refresh from cloud:', err);
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && localStorage.getItem('session_token')) {
+                console.log('[Sync] Licenses: Tab became visible - checking for updates...');
+                reloadFromCloud();
+            }
+        };
+
+        const handleFocus = () => {
+            if (localStorage.getItem('session_token')) {
+                console.log('[Sync] Licenses: Window focused - checking for updates...');
+                reloadFromCloud();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, []);
+
     // Handle external prefill request (from SubscriptionDashboard)
     useEffect(() => {
         if (prefillSubscriptionId) {

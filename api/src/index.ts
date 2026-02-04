@@ -6378,7 +6378,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             // Nissan performance
             'NISMO', 'SR', 'SV', 'SL', 'Platinum',
             // Mazda trims
-            'Signature', 'Grand Touring', 'Carbon Edition'
+            'Signature', 'Grand Touring', 'Carbon Edition',
+            // Fleet/Police variants (same key system as civilian)
+            'PPV', 'Police', 'Taxi', 'Fleet'
           ];
 
           // Hyphenated suffixes (like CTS-V, ATS-V) - checked separately
