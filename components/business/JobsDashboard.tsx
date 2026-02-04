@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { JobLog, JobStats } from '@/lib/useJobLogs';
 import { FleetAccount, getFleetAccountsFromStorage } from '@/lib/fleetTypes';
 import { Technician, getTechniciansFromStorage } from '@/lib/technicianTypes';
@@ -12,6 +12,7 @@ interface JobsDashboardProps {
     onDeleteJob: (id: string) => void;
     onUpdateJob?: (id: string, updates: Partial<JobLog>) => void;
     onGenerateInvoice?: (job: JobLog) => void;
+    onImportJobs?: (jobs: Partial<JobLog>[]) => void;
 }
 
 const JOB_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
@@ -32,11 +33,13 @@ const STATUS_COLORS = {
     cancelled: 'bg-red-500/20 text-red-400 border-red-500/30',
 };
 
-export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, onUpdateJob, onGenerateInvoice }: JobsDashboardProps) {
+export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, onUpdateJob, onGenerateInvoice, onImportJobs }: JobsDashboardProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterJobType, setFilterJobType] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
+    const [importStatus, setImportStatus] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Load fleet accounts for badge display
     const [fleetAccounts, setFleetAccounts] = useState<FleetAccount[]>([]);

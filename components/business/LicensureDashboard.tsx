@@ -157,14 +157,39 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
         setConfidence({});
     };
 
-    // Load from localStorage
+    // Load from API (with localStorage fallback)
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        const loadLicenses = async () => {
+            if (typeof window === 'undefined') return;
+
+            // Try API first
+            const token = localStorage.getItem('session_token');
+            if (token) {
+                try {
+                    const res = await fetch(`${API_BASE}/api/user/licenses`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.licenses && data.licenses.length > 0) {
+                            setLicenses(data.licenses);
+                            // Update localStorage as cache
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.licenses));
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.log('API fetch failed, using localStorage fallback');
+                }
+            }
+
+            // Fallback to localStorage
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 setLicenses(JSON.parse(saved));
             }
-        }
+        };
+        loadLicenses();
     }, []);
 
     // Handle external prefill request (from SubscriptionDashboard)
@@ -175,11 +200,26 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
         }
     }, [prefillSubscriptionId]);
 
-    // Save to localStorage
-    const saveLicenses = (updated: UserLicense[]) => {
+    // Save to localStorage AND sync to D1 (silent background)
+    const saveLicenses = async (updated: UserLicense[]) => {
         setLicenses(updated);
         if (typeof window !== 'undefined') {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+            // Silent background sync to D1 for each license
+            const token = localStorage.getItem('session_token');
+            if (token) {
+                updated.forEach(license => {
+                    fetch(`${API_BASE}/api/user/licenses`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ license })
+                    }).catch(err => console.log('Silent sync failed:', err));
+                });
+            }
         }
     };
 

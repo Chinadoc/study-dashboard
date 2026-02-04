@@ -43,6 +43,32 @@ export interface CoverageResult {
     relatedJobs: JobLog[];
 }
 
+export interface RestockRecommendation {
+    item: InventoryItem;
+    reason: 'low_stock' | 'high_demand' | 'out_of_stock';
+    urgency: 'low' | 'medium' | 'high';
+    jobCount: number;
+    message: string;
+}
+
+export interface TrendingVehicle {
+    vehicle: string;
+    make: string;
+    model: string;
+    count: number;
+    recentJob?: JobLog;
+    canService: boolean;
+}
+
+export interface CoverageGap {
+    vehicle: string;
+    make: string;
+    model: string;
+    jobCount: number;
+    missingTools: string[];
+    recommendation: string;
+}
+
 export interface UnifiedData {
     // Raw data
     inventory: InventoryItem[];
@@ -56,6 +82,11 @@ export interface UnifiedData {
     getKeyStock: (fcc: string) => number;
     getJobHistory: (fcc?: string, vehicle?: string) => JobLog[];
     getJobsUsingKey: (fcc: string) => JobLog[];
+
+    // Phase 3: Intelligent Insights
+    getRestockRecommendations: () => RestockRecommendation[];
+    getTrendingVehicles: () => TrendingVehicle[];
+    getCoverageGaps: () => CoverageGap[];
 
     // Aggregated stats
     stats: UnifiedStats;
@@ -156,6 +187,186 @@ export function useUnifiedData(): UnifiedData {
     }, [getKeyStock, getJobHistory]);
 
     // ========================================================================
+    // Phase 3: Restock Recommendations
+    // ========================================================================
+
+    const getRestockRecommendations = useCallback((): RestockRecommendation[] => {
+        const recommendations: RestockRecommendation[] = [];
+
+        // Build job frequency map for inventory items
+        const keyJobCounts = new Map<string, number>();
+        jobLogs.forEach(job => {
+            if (job.fccId) {
+                const normalized = job.fccId.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                keyJobCounts.set(normalized, (keyJobCounts.get(normalized) || 0) + 1);
+            }
+        });
+
+        inventory.forEach(item => {
+            const normalizedKey = item.itemKey.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            const jobCount = keyJobCounts.get(normalizedKey) || 0;
+
+            // Out of stock with job history = highest urgency
+            if (item.qty === 0 && jobCount > 0) {
+                recommendations.push({
+                    item,
+                    reason: 'out_of_stock',
+                    urgency: 'high',
+                    jobCount,
+                    message: `Out of stock! Used in ${jobCount} job${jobCount > 1 ? 's' : ''}`
+                });
+            }
+            // Low stock (1-2) with high demand (3+ jobs)
+            else if (item.qty <= 2 && jobCount >= 3) {
+                recommendations.push({
+                    item,
+                    reason: 'high_demand',
+                    urgency: 'high',
+                    jobCount,
+                    message: `Only ${item.qty} left, used in ${jobCount} jobs`
+                });
+            }
+            // Low stock with some demand
+            else if (item.qty <= 2 && jobCount > 0) {
+                recommendations.push({
+                    item,
+                    reason: 'low_stock',
+                    urgency: 'medium',
+                    jobCount,
+                    message: `Low stock (${item.qty}), used in ${jobCount} job${jobCount > 1 ? 's' : ''}`
+                });
+            }
+            // Low stock but no recent jobs
+            else if (item.qty <= 1) {
+                recommendations.push({
+                    item,
+                    reason: 'low_stock',
+                    urgency: 'low',
+                    jobCount,
+                    message: `Only ${item.qty} in stock`
+                });
+            }
+        });
+
+        // Sort by urgency then job count
+        const urgencyOrder = { high: 0, medium: 1, low: 2 };
+        return recommendations.sort((a, b) =>
+            urgencyOrder[a.urgency] - urgencyOrder[b.urgency] || b.jobCount - a.jobCount
+        );
+    }, [inventory, jobLogs]);
+
+    // ========================================================================
+    // Phase 3: Trending Vehicles  
+    // ========================================================================
+
+    const getTrendingVehicles = useCallback((): TrendingVehicle[] => {
+        // Count vehicles from recent jobs (last 90 days)
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+        const vehicleCounts = new Map<string, { count: number; recentJob: JobLog }>();
+
+        jobLogs
+            .filter(job => new Date(job.date) >= ninetyDaysAgo && job.vehicle)
+            .forEach(job => {
+                const vehicle = job.vehicle!.trim();
+                const existing = vehicleCounts.get(vehicle);
+                if (existing) {
+                    existing.count++;
+                    // Keep most recent job
+                    if (new Date(job.date) > new Date(existing.recentJob.date)) {
+                        existing.recentJob = job;
+                    }
+                } else {
+                    vehicleCounts.set(vehicle, { count: 1, recentJob: job });
+                }
+            });
+
+        // Convert to trending list with coverage info
+        return Array.from(vehicleCounts.entries())
+            .map(([vehicle, data]) => {
+                // Parse vehicle string (e.g., "2020 Toyota Camry")
+                const parts = vehicle.split(' ');
+                const year = parseInt(parts[0]) || new Date().getFullYear();
+                const make = parts[1] || '';
+                const model = parts.slice(2).join(' ') || '';
+
+                // Check if we can service this vehicle
+                const coverage = getVehicleCoverage(make, model, year);
+                const canService = coverage.tools.some(t =>
+                    t.isOwned && t.status && !t.status.toLowerCase().includes('no')
+                );
+
+                return {
+                    vehicle,
+                    make,
+                    model,
+                    count: data.count,
+                    recentJob: data.recentJob,
+                    canService
+                };
+            })
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10);
+    }, [jobLogs]);
+
+    // ========================================================================
+    // Phase 3: Coverage Gaps
+    // ========================================================================
+
+    const getCoverageGaps = useCallback((): CoverageGap[] => {
+        // Find vehicles we worked on but couldn't fully service or had issues
+        const vehicleJobCounts = new Map<string, number>();
+
+        // Count jobs per vehicle type
+        jobLogs.forEach(job => {
+            if (job.vehicle) {
+                const vehicle = job.vehicle.trim();
+                vehicleJobCounts.set(vehicle, (vehicleJobCounts.get(vehicle) || 0) + 1);
+            }
+        });
+
+        const gaps: CoverageGap[] = [];
+
+        vehicleJobCounts.forEach((count, vehicle) => {
+            // Parse vehicle
+            const parts = vehicle.split(' ');
+            const year = parseInt(parts[0]) || new Date().getFullYear();
+            const make = parts[1] || '';
+            const model = parts.slice(2).join(' ') || '';
+
+            // Get coverage
+            const coverage = getVehicleCoverage(make, model, year);
+
+            // Find tools that could cover this but we don't own
+            const missingButAvailable = coverage.tools.filter(t =>
+                !t.isOwned && t.status && !t.status.toLowerCase().includes('no')
+            );
+
+            // Only report as gap if we have multiple jobs and missing coverage  
+            if (count >= 2 && missingButAvailable.length > 0) {
+                const missingNames = missingButAvailable.map(t => t.name);
+
+                // Check if any of our tools can handle this
+                const ourCoverage = coverage.tools.filter(t => t.isOwned && t.status);
+
+                if (ourCoverage.length === 0) {
+                    gaps.push({
+                        vehicle,
+                        make,
+                        model,
+                        jobCount: count,
+                        missingTools: missingNames,
+                        recommendation: `Consider: ${missingNames.slice(0, 2).join(' or ')}`
+                    });
+                }
+            }
+        });
+
+        return gaps.sort((a, b) => b.jobCount - a.jobCount).slice(0, 5);
+    }, [jobLogs]);
+
+    // ========================================================================
     // Stats Computation
     // ========================================================================
 
@@ -218,6 +429,10 @@ export function useUnifiedData(): UnifiedData {
         getKeyStock,
         getJobHistory,
         getJobsUsingKey,
+        // Phase 3: Intelligent Insights
+        getRestockRecommendations,
+        getTrendingVehicles,
+        getCoverageGaps,
         stats,
     };
 }

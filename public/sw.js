@@ -1,11 +1,75 @@
-// v23 - Cache bust for stale phone PWAs
-const CACHE_NAME = 'euro-keys-v23';
+// v24 - Added background sync for offline job operations
+const CACHE_NAME = 'euro-keys-v24';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/assets/icon-192.png',
     '/assets/icon-512.png'
 ];
+
+// Background Sync Constants
+const SYNC_TAG = 'sync-jobs';
+const DB_NAME = 'eurokeys-sync-queue';
+const STORE_NAME = 'pending-operations';
+
+// IndexedDB helpers for sync queue persistence
+function openSyncDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            }
+        };
+    });
+}
+
+async function getQueuedOperations() {
+    const db = await openSyncDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function addToSyncQueue(operation) {
+    const db = await openSyncDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.put(operation);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function removeFromSyncQueue(id) {
+    const db = await openSyncDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function clearSyncQueue() {
+    const db = await openSyncDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.clear();
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
 
 // Helper: Cache assets one by one, tolerating individual failures
 async function cacheAssetsResiliently(cache, assets) {
@@ -68,12 +132,107 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Listen for skip waiting message from main thread
+// Listen for messages from main thread (skip waiting + background sync)
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
+
+    // Background sync: Queue an operation for later sync
+    if (event.data && event.data.type === 'QUEUE_SYNC') {
+        const operation = event.data.operation;
+        if (operation) {
+            addToSyncQueue(operation).then(() => {
+                console.log('Service Worker: Queued operation for sync:', operation.type);
+                // Request background sync if supported
+                if (self.registration.sync) {
+                    self.registration.sync.register(SYNC_TAG).catch(err => {
+                        console.log('Service Worker: Background sync registration failed:', err);
+                    });
+                }
+            });
+        }
+    }
+
+    // Manually trigger sync processing (fallback for browsers without Background Sync API)
+    if (event.data && event.data.type === 'PROCESS_QUEUE') {
+        processQueuedOperations(event.data.authToken);
+    }
 });
+
+// Background Sync event - triggered when connectivity is restored
+self.addEventListener('sync', (event) => {
+    if (event.tag === SYNC_TAG) {
+        console.log('Service Worker: Background sync triggered');
+        event.waitUntil(processQueuedOperations());
+    }
+});
+
+// Process all queued operations
+async function processQueuedOperations(authToken) {
+    try {
+        const operations = await getQueuedOperations();
+
+        if (operations.length === 0) {
+            console.log('Service Worker: No pending operations to sync');
+            return;
+        }
+
+        console.log(`Service Worker: Processing ${operations.length} queued operations`);
+
+        // Get auth token from storage if not provided
+        if (!authToken) {
+            // Try to get from clients
+            const clients = await self.clients.matchAll();
+            for (const client of clients) {
+                client.postMessage({ type: 'GET_AUTH_TOKEN' });
+            }
+            // Wait a bit for response, but proceed anyway
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        for (const op of operations) {
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+
+                // Include auth token if available in operation
+                if (op.authToken) {
+                    headers['Authorization'] = `Bearer ${op.authToken}`;
+                }
+
+                const response = await fetch(op.url, {
+                    method: op.method || 'POST',
+                    headers,
+                    body: op.body ? JSON.stringify(op.body) : undefined
+                });
+
+                if (response.ok) {
+                    console.log(`Service Worker: Successfully synced operation ${op.id}`);
+                    await removeFromSyncQueue(op.id);
+
+                    // Notify clients of successful sync
+                    const clients = await self.clients.matchAll();
+                    clients.forEach(client => {
+                        client.postMessage({
+                            type: 'SYNC_COMPLETE',
+                            operationId: op.id,
+                            success: true
+                        });
+                    });
+                } else {
+                    console.log(`Service Worker: Failed to sync operation ${op.id}:`, response.status);
+                }
+            } catch (error) {
+                console.log(`Service Worker: Error syncing operation ${op.id}:`, error);
+                // Keep in queue for retry
+            }
+        }
+    } catch (error) {
+        console.error('Service Worker: Error processing queue:', error);
+    }
+}
 
 // Fetch: Network-first for main pages, browse, vehicle & API, cache-first for other assets
 self.addEventListener('fetch', (event) => {

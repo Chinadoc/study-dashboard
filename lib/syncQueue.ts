@@ -228,3 +228,111 @@ export function setupConnectivityListeners(
         window.removeEventListener('offline', onOffline);
     };
 }
+
+// ===== BACKGROUND SYNC VIA SERVICE WORKER =====
+
+interface BackgroundSyncOperation {
+    id: string;
+    type: 'create' | 'update' | 'delete';
+    url: string;
+    method: 'POST' | 'PUT' | 'DELETE';
+    body?: Record<string, unknown>;
+    authToken?: string;
+    timestamp: number;
+}
+
+/**
+ * Queue an operation for background sync via Service Worker
+ * This allows syncing even when the app is closed
+ */
+export function queueForBackgroundSync(
+    operation: Omit<BackgroundSyncOperation, 'timestamp'>
+): boolean {
+    if (typeof window === 'undefined') return false;
+
+    // Check if service worker is available
+    if (!navigator.serviceWorker?.controller) {
+        console.log('Service Worker not available for background sync');
+        return false;
+    }
+
+    // Get auth token from localStorage
+    const authToken = localStorage.getItem('auth_token');
+
+    const fullOperation: BackgroundSyncOperation = {
+        ...operation,
+        authToken: authToken || undefined,
+        timestamp: Date.now()
+    };
+
+    // Send to service worker
+    navigator.serviceWorker.controller.postMessage({
+        type: 'QUEUE_SYNC',
+        operation: fullOperation
+    });
+
+    console.log('Queued operation for background sync:', operation.type);
+    return true;
+}
+
+/**
+ * Manually trigger processing of the background sync queue
+ * Useful as fallback for browsers without Background Sync API
+ */
+export function processBackgroundQueue(): void {
+    if (typeof window === 'undefined') return;
+
+    if (!navigator.serviceWorker?.controller) {
+        console.log('Service Worker not available');
+        return;
+    }
+
+    const authToken = localStorage.getItem('auth_token');
+
+    navigator.serviceWorker.controller.postMessage({
+        type: 'PROCESS_QUEUE',
+        authToken
+    });
+}
+
+/**
+ * Listen for messages from service worker (sync completions, token requests)
+ */
+export function setupSWListener(
+    onSyncComplete?: (operationId: string, success: boolean) => void
+): () => void {
+    if (typeof window === 'undefined') return () => { };
+
+    const handler = (event: MessageEvent) => {
+        if (event.data?.type === 'SYNC_COMPLETE' && onSyncComplete) {
+            onSyncComplete(event.data.operationId, event.data.success);
+        }
+
+        // Respond to auth token requests from SW
+        if (event.data?.type === 'GET_AUTH_TOKEN') {
+            const authToken = localStorage.getItem('auth_token');
+            if (authToken && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'AUTH_TOKEN',
+                    token: authToken
+                });
+            }
+        }
+    };
+
+    navigator.serviceWorker.addEventListener('message', handler);
+
+    return () => {
+        navigator.serviceWorker.removeEventListener('message', handler);
+    };
+}
+
+/**
+ * Check if Background Sync API is supported
+ */
+export function isBackgroundSyncSupported(): boolean {
+    if (typeof window === 'undefined') return false;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return 'serviceWorker' in navigator && 'SyncManager' in window;
+}

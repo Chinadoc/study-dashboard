@@ -1620,6 +1620,178 @@ export default {
         }
       }
 
+      // ==============================================
+      // USER LICENSES ENDPOINTS (Cloud Sync for Licenses/Tokens)
+      // ==============================================
+
+      // GET /api/user/licenses - Fetch user's licenses with token history
+      if (path === "/api/user/licenses" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, data, created_at, updated_at FROM user_licenses WHERE user_id = ? ORDER BY updated_at DESC
+          `).bind(userId).all();
+
+          const licenses = (result.results || []).map((row: any) => ({
+            id: row.id,
+            ...JSON.parse(row.data || '{}'),
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+          }));
+
+          return corsResponse(request, JSON.stringify({ licenses }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/licenses - Add/Update a license (includes token history)
+      if (path === "/api/user/licenses" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { license } = body;
+
+          if (!license || !license.id) return corsResponse(request, JSON.stringify({ error: "Missing license data or ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO user_licenses (id, user_id, data, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              data = excluded.data,
+              updated_at = excluded.updated_at
+          `).bind(
+            license.id,
+            userId,
+            JSON.stringify(license),
+            license.createdAt || Date.now(),
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id: license.id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/user/licenses - Delete a license
+      if (path === "/api/user/licenses" && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { id } = body;
+
+          if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
+
+          await env.LOCKSMITH_DB.prepare(`DELETE FROM user_licenses WHERE id = ? AND user_id = ?`).bind(id, userId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // RENEWAL DIGEST ENDPOINTS (Proactive Notifications)
+      // ==============================================
+
+      // GET /api/digest/renewal-summary - Generate weekly renewal digest content
+      if (path === "/api/digest/renewal-summary" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          // Fetch user's licenses
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT data FROM user_licenses WHERE user_id = ?
+          `).bind(userId).all();
+
+          const licenses = (result.results || []).map((row: any) => JSON.parse(row.data || '{}'));
+          const now = Date.now();
+          const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+
+          // Calculate renewals due
+          const upcomingRenewals = licenses.filter((l: any) => {
+            if (!l.expirationDate) return false;
+            const expiry = new Date(l.expirationDate).getTime();
+            const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+            return daysLeft > 0 && daysLeft <= 30;
+          }).map((l: any) => ({
+            name: l.name,
+            daysLeft: Math.ceil((new Date(l.expirationDate).getTime() - now) / (1000 * 60 * 60 * 24)),
+            price: l.price || 0,
+            renewalUrl: l.renewalUrl
+          })).sort((a: any, b: any) => a.daysLeft - b.daysLeft);
+
+          // Calculate low token items
+          const lowTokenItems = licenses.filter((l: any) =>
+            l.tokensRemaining !== undefined && l.tokensRemaining < 10
+          ).map((l: any) => ({
+            name: l.name,
+            tokensRemaining: l.tokensRemaining
+          }));
+
+          // Calculate costs
+          const totalAnnualCost = licenses.reduce((sum: number, l: any) => sum + (l.price || 0), 0);
+          const upcomingRenewalCost = upcomingRenewals.reduce((sum: number, r: any) => sum + (r.price || 0), 0);
+
+          // Generate summary message
+          let summary = '';
+          if (upcomingRenewals.length > 0) {
+            summary += `📅 ${upcomingRenewals.length} renewal(s) due in the next 30 days ($${upcomingRenewalCost} total):\n`;
+            upcomingRenewals.slice(0, 5).forEach((r: any) => {
+              summary += `  • ${r.name} - ${r.daysLeft} days ($${r.price || 0})\n`;
+            });
+          }
+          if (lowTokenItems.length > 0) {
+            summary += `\n🎟️ ${lowTokenItems.length} item(s) low on tokens:\n`;
+            lowTokenItems.slice(0, 3).forEach((t: any) => {
+              summary += `  • ${t.name} - ${t.tokensRemaining} remaining\n`;
+            });
+          }
+          summary += `\n💰 Total annual operating cost: $${totalAnnualCost.toLocaleString()} (~$${Math.round(totalAnnualCost / 12)}/mo)`;
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            digest: {
+              generatedAt: now,
+              upcomingRenewals,
+              lowTokenItems,
+              totalAnnualCost,
+              upcomingRenewalCost,
+              monthlyBurnRate: Math.round(totalAnnualCost / 12),
+              summary
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
 
       // GET /api/user/preferences - Fetch user preferences
       if (path === "/api/user/preferences" && request.method === "GET") {

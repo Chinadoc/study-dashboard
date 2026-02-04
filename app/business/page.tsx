@@ -6,6 +6,7 @@ import { useJobLogs } from '@/lib/useJobLogs';
 import { useInventory } from '@/contexts/InventoryContext';
 import { getLowStockItems } from '@/lib/inventoryTypes';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
+import BusinessInsightsPanel from '@/components/business/BusinessInsightsPanel';
 
 export default function BusinessDashboard() {
     const { jobLogs, getJobStats } = useJobLogs();
@@ -79,7 +80,7 @@ export default function BusinessDashboard() {
 
             {/* Today's Overview */}
             <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
-                <h2 className="text-sm font-medium text-gray-400 mb-3">Today's Overview</h2>
+                <h2 className="text-sm font-medium text-gray-400 mb-3">Today&apos;s Overview</h2>
                 <div className="grid grid-cols-3 gap-3">
                     <div className="text-center">
                         <div className="w-10 h-10 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center mb-1">
@@ -107,6 +108,9 @@ export default function BusinessDashboard() {
 
             {/* AI Insight */}
             <AIInsightCard category="overview" />
+
+            {/* Intelligent Insights Panel - Phase 3 */}
+            <BusinessInsightsPanel />
 
             {/* Upcoming Jobs */}
             {upcomingJobs.length > 0 && (
