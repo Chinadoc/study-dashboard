@@ -363,15 +363,15 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
             {licenses.length > 0 && (
                 <div className="grid grid-cols-3 gap-4">
                     <div className={`p-4 rounded-xl border ${statusColors.active.border} ${statusColors.active.bg}`}>
-                        <div className={`text-3xl font-black ${statusColors.active.text}`}>{stats.active}</div>
+                        <div className={`text-2xl font-black ${statusColors.active.text}`}>{stats.active}</div>
                         <div className="text-xs text-gray-500 uppercase tracking-wider">Active</div>
                     </div>
                     <div className={`p-4 rounded-xl border ${statusColors.warning.border} ${statusColors.warning.bg}`}>
-                        <div className={`text-3xl font-black ${statusColors.warning.text}`}>{stats.warning}</div>
+                        <div className={`text-2xl font-black ${statusColors.warning.text}`}>{stats.warning}</div>
                         <div className="text-xs text-gray-500 uppercase tracking-wider">Expiring Soon</div>
                     </div>
                     <div className={`p-4 rounded-xl border ${statusColors.expired.border} ${statusColors.expired.bg}`}>
-                        <div className={`text-3xl font-black ${statusColors.expired.text}`}>{stats.expired}</div>
+                        <div className={`text-2xl font-black ${statusColors.expired.text}`}>{stats.expired}</div>
                         <div className="text-xs text-gray-500 uppercase tracking-wider">Expired</div>
                     </div>
                 </div>

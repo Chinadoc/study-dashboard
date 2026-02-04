@@ -6268,6 +6268,16 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
           let models = (result.results || []).map((r: any) => r.model);
 
+          // Query to get models with at least one year >= 2000 (modern models)
+          const modernSql = `
+            SELECT DISTINCT model
+            FROM aks_vehicles_by_year
+            WHERE LOWER(make) = LOWER(?)
+            AND year >= 2000
+          `;
+          const modernResult = await env.LOCKSMITH_DB.prepare(modernSql).bind(make).all();
+          const modernModelSet = new Set((modernResult.results || []).map((r: any) => r.model));
+
           // Universal filter: Remove motorcycle/watercraft models for all makes
           models = models.filter((model: string) =>
             !model.startsWith('(Motorcycle/Watercraft)')
@@ -6439,6 +6449,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const evModels = models.filter((m: string) => isEVModel(make, m));
           const mainModels = models.filter((m: string) => !isEVModel(make, m));
 
+          // Categorize by era (models that have at least one year >= 2000)
+          const modernModels = models.filter((m: string) => modernModelSet.has(m));
+          const classicOnlyModels = models.filter((m: string) => !modernModelSet.has(m));
+
           return corsResponse(request, JSON.stringify({
             source: "aks_vehicles_by_year",
             make,
@@ -6447,7 +6461,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             mergedModels,        // Consolidated list with variant indicators (for browse display)
             evModels,
             mainModels,
-            hasEV: evModels.length > 0
+            hasEV: evModels.length > 0,
+            modernModels,        // Models with at least one year >= 2000
+            classicOnlyModels,   // Models with only pre-2000 years
+            hasClassicOnly: classicOnlyModels.length > 0
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);

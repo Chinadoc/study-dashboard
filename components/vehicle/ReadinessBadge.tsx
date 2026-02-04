@@ -26,7 +26,8 @@ export default function ReadinessBadge({
     size = 'sm'
 }: ReadinessBadgeProps) {
     const { calculateReadiness } = useReadiness();
-    const [showDetails, setShowDetails] = useState(false);
+    // Auto-expand details for critical statuses so helpful info is visible by default
+    const [showDetails, setShowDetails] = useState(true);
 
     // Find matching coverage group for this vehicle
     const matchedGroup = useMemo(() => {
@@ -86,23 +87,39 @@ export default function ReadinessBadge({
                 <span>{style.label}</span>
             </button>
 
+            {/* Inline description for critical statuses - visible at first glance */}
+            {(readiness.status === 'CANNOT_SERVICE' || readiness.status === 'NEED_SUBSCRIPTION') && (
+                <div className={`text-sm mt-1 font-medium ${readiness.status === 'CANNOT_SERVICE' ? 'text-white' : 'text-orange-300'}`}>
+                    {style.description}
+                </div>
+            )}
+
             {/* Tooltip/Dropdown */}
-            {showDetails && readiness.blockers.length > 0 && (
+            {showDetails && (
                 <div
-                    className="absolute top-full mt-2 left-0 z-50 w-64 p-3 rounded-lg bg-gray-900 border border-gray-700 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="absolute top-full mt-2 left-0 z-50 w-64 p-3 rounded-lg bg-gray-800 border border-gray-600 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
                 >
                     <div className={`font-bold mb-2 ${style.text}`}>
                         {style.icon} {style.label}
                     </div>
-                    <ul className="text-xs text-gray-400 space-y-1">
-                        {readiness.blockers.map((blocker, i) => (
-                            <li key={i} className="flex items-start gap-2">
-                                <span className="text-gray-600 mt-0.5">•</span>
-                                <span>{blocker}</span>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className="mt-2 pt-2 border-t border-gray-800">
+
+                    {/* Show blockers if any, otherwise show the description */}
+                    {readiness.blockers.length > 0 ? (
+                        <ul className="text-sm text-white space-y-1">
+                            {readiness.blockers.map((blocker, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                    <span className="text-gray-400 mt-0.5">•</span>
+                                    <span>{blocker}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-white">
+                            {style.description}
+                        </p>
+                    )}
+
+                    <div className="mt-2 pt-2 border-t border-gray-700">
                         <a
                             href="/business/coverage-heatmap"
                             className="text-xs text-blue-400 hover:underline"

@@ -79,11 +79,11 @@ const ICONS: Record<string, React.FC> = {
 };
 
 const DATABASE_TABS = [
-    { id: 'search', label: 'Search', href: '/browse' },
+    { id: 'search', label: 'Search', href: '/browse', tourId: 'nav-browse' },
     { id: 'fcc', label: 'FCC', href: '/fcc' },
     { id: 'dossiers', label: 'Dossiers', href: '/dossiers' },
     { id: 'gallery', label: 'Gallery', href: '/gallery' },
-    { id: 'business', label: 'Business', href: '/business', isToggle: true },
+    { id: 'business', label: 'Business', href: '/business', isToggle: true, tourId: 'nav-business' },
 ];
 
 const BUSINESS_TABS = [
@@ -138,6 +138,7 @@ export default function BottomNav({ isInHeader = false }: BottomNavProps) {
                         key={tab.id}
                         href={tab.href}
                         onClick={(e) => handleTabClick(tab, e)}
+                        data-tour={'tourId' in tab ? tab.tourId : undefined}
                         className={`flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-2 flex-1 lg:flex-none py-2 px-2 lg:px-4 rounded-lg transition-all ${isSpecial
                             ? 'isToggle' in tab
                                 ? 'text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20'

@@ -11,7 +11,7 @@ import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { FleetPanelProvider } from '@/contexts/FleetPanelContext';
 import { TeamPanelProvider } from '@/contexts/TeamPanelContext';
 import InventoryLoginPrompt from '@/components/shared/InventoryLoginPrompt';
-import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
+import FeatureTour from '@/components/onboarding/FeatureTour';
 import FleetPanelWrapper from '@/components/business/FleetPanelWrapper';
 import TeamPanelWrapper from '@/components/business/TeamPanelWrapper';
 
@@ -28,7 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                                         <TeamPanelProvider>
                                             {children}
                                             <InventoryLoginPrompt />
-                                            <OnboardingWizard />
+                                            <FeatureTour />
                                             <FleetPanelWrapper />
                                             <TeamPanelWrapper />
                                         </TeamPanelProvider>

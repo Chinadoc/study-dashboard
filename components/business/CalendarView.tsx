@@ -155,18 +155,18 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
             </div>
 
             {/* Calendar Grid */}
-            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-3">
                 {/* Day headers */}
-                <div className="grid grid-cols-7 gap-1 mb-2">
+                <div className="grid grid-cols-7 gap-0.5 mb-1">
                     {DAY_NAMES.map(day => (
-                        <div key={day} className="text-center text-xs font-bold text-zinc-500 py-2">
-                            {day}
+                        <div key={day} className="text-center text-[10px] font-bold text-zinc-500 py-1">
+                            {day.charAt(0)}
                         </div>
                     ))}
                 </div>
 
                 {/* Days */}
-                <div className="grid grid-cols-7 gap-1">
+                <div className="grid grid-cols-7 gap-0.5">
                     {calendarDays.map((day, idx) => {
                         if (day === null) {
                             return <div key={`empty-${idx}`} className="aspect-square" />;
@@ -185,9 +185,9 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
                                 key={day}
                                 onClick={() => setSelectedDate(isSelected ? null : dateKey)}
                                 className={`
-                                    aspect-square rounded-lg flex flex-col items-center justify-center relative transition-all
-                                    ${isSelected ? 'bg-yellow-500/30 border-2 border-yellow-500' : 'hover:bg-zinc-800'}
-                                    ${isToday && !isSelected ? 'ring-2 ring-yellow-500/50' : ''}
+                                    h-10 md:h-12 rounded flex flex-col items-center justify-center relative transition-all text-sm
+                                    ${isSelected ? 'bg-yellow-500/30 ring-1 ring-yellow-500' : 'hover:bg-zinc-800'}
+                                    ${isToday && !isSelected ? 'ring-1 ring-yellow-500/50' : ''}
                                     ${isFuture ? 'text-zinc-400' : 'text-white'}
                                 `}
                             >

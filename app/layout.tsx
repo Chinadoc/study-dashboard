@@ -55,7 +55,9 @@ export default function RootLayout({
 
                                     {/* Right - Auth only (search is in nav tabs now) */}
                                     <div className="flex items-center gap-2 flex-shrink-0">
-                                        <GoogleSignInButton />
+                                        <div data-tour="user-menu">
+                                            <GoogleSignInButton />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

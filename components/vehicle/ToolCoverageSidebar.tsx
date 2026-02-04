@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { getVehicleCoverage, getStatusBadgeClass, VehicleToolCoverage } from '@/lib/toolCoverage';
 
@@ -8,6 +8,39 @@ interface ToolCoverageSidebarProps {
     make: string;
     model: string;
     year: number;
+}
+
+/**
+ * Clean up flag reason text by removing leftover reference numbers
+ * and filtering out garbage/non-helpful flags
+ */
+function cleanFlagReason(reason: string): string | null {
+    if (!reason) return null;
+
+    // Remove leading punctuation and reference numbers (e.g., ".27", ".,", ". ")
+    let cleaned = reason
+        .replace(/^[\.\,\s]+\d*[\.\,\s]*/g, '') // Remove leading ".", ".,", ".27", ". " etc.
+        .replace(/\d+$/g, '')  // Remove trailing reference numbers
+        .trim();
+
+    // Filter out garbage flags that are just sentence fragments about general topics
+    // These came from badly extracted dossier data
+    const garbagePatterns = [
+        /^is widely regarded/i,
+        /^with over thirty/i,
+        /^the aftermarket/i,
+    ];
+
+    for (const pattern of garbagePatterns) {
+        if (pattern.test(cleaned)) {
+            return null;
+        }
+    }
+
+    // Must have meaningful content (at least 10 chars after cleaning)
+    if (cleaned.length < 10) return null;
+
+    return cleaned;
 }
 
 export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageSidebarProps) {
@@ -80,9 +113,15 @@ export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageS
 }
 
 function ToolCard({ tool }: { tool: VehicleToolCoverage }) {
+    const [expanded, setExpanded] = useState(false);
     const hasData = !!tool.status;
-    const hasLimitations = tool.limitations.length > 0;
-    const hasCables = tool.cables.length > 0;
+
+    // Clean and filter flags - remove garbage data
+    const cleanedFlags = tool.flags
+        .map(f => ({ year: f.year, reason: cleanFlagReason(f.reason) }))
+        .filter((f): f is { year: number; reason: string } => f.reason !== null);
+
+    const hasValidFlags = cleanedFlags.length > 0;
 
     return (
         <div className={`p-3 rounded-xl border transition-all ${tool.isOwned
@@ -110,49 +149,24 @@ function ToolCard({ tool }: { tool: VehicleToolCoverage }) {
                 </div>
             </div>
 
-            {/* 
-              TEMPORARILY HIDDEN: Limitations & Cables sections disabled
-              - Currently attached by make only (not vehicle/year/platform specific)
-              - Shows "bench_required" for OBD-programmable vehicles like 2016 CTS
-              - Will re-enable after merge script ties to specific year/platform ranges
-              
-            {hasLimitations && (() => {
-                const seen = new Set<string>();
-                const uniqueLimitations = tool.limitations.filter(lim => {
-                    if (seen.has(lim.category)) return false;
-                    seen.add(lim.category);
-                    return true;
-                });
-
-                return (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                        {uniqueLimitations.slice(0, 3).map((lim, idx) => (
-                            <span
-                                key={idx}
-                                className="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full"
-                                title={lim.category}
-                            >
-                                {lim.label}
-                            </span>
-                        ))}
-                    </div>
-                );
-            })()}
-
-            {hasCables && (
-                <div className="mt-2 text-xs text-gray-500">
-                    📦 Cables: {tool.cables.slice(0, 2).join(', ')}
-                    {tool.cables.length > 2 && ` +${tool.cables.length - 2} more`}
-                </div>
-            )}
-            */}
-
-            {/* Flags/Warnings */}
-            {tool.flags.length > 0 && (
-                <div className="mt-2 text-xs text-red-400">
-                    ⚠️ {tool.flags[0].reason.slice(0, 50)}...
-                </div>
+            {/* Flags/Warnings - clickable to expand */}
+            {hasValidFlags && (
+                <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="mt-2 text-xs text-amber-400 text-left w-full hover:text-amber-300 transition-colors"
+                >
+                    <span className="flex items-start gap-1">
+                        <span>⚠️</span>
+                        <span className={expanded ? '' : 'line-clamp-2'}>
+                            {cleanedFlags[0].reason}
+                        </span>
+                    </span>
+                    {!expanded && cleanedFlags[0].reason.length > 80 && (
+                        <span className="text-gray-500 ml-4 text-[10px]">tap to read more</span>
+                    )}
+                </button>
             )}
         </div>
     );
 }
+

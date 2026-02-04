@@ -64,6 +64,11 @@ function BrowsePageContent() {
     const [hasEV, setHasEV] = useState(false);
     const [showEVOnly, setShowEVOnly] = useState(false);
 
+    // Model era filter (modern = has years >= 2000, classic = pre-2000 only)
+    const [classicOnlyModels, setClassicOnlyModels] = useState<string[]>([]);
+    const [hasClassicOnly, setHasClassicOnly] = useState(false);
+    const [modelEra, setModelEra] = useState<'all' | 'modern'>('modern'); // Default to modern
+
     // Year era filter toggle
     const [yearEra, setYearEra] = useState<'all' | 'modern' | 'classic'>('all');
 
@@ -112,6 +117,7 @@ function BrowsePageContent() {
         async function fetchModels() {
             setLoadingModels(true);
             setShowEVOnly(false);  // Reset filter when changing make
+            setModelEra('modern'); // Default to modern vehicles
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(selectedMake!)}`);
                 const data = await res.json();
@@ -120,6 +126,8 @@ function BrowsePageContent() {
                 setEvModels((data.evModels || []) as string[]);
                 setMainModels((data.mainModels || []) as string[]);
                 setHasEV(data.hasEV || false);
+                setClassicOnlyModels((data.classicOnlyModels || []) as string[]);
+                setHasClassicOnly(data.hasClassicOnly || false);
             } catch (error) {
                 console.error('Failed to fetch models:', error);
             } finally {
@@ -361,6 +369,23 @@ function BrowsePageContent() {
                                         <div className="p-4 text-center text-purple-400 animate-pulse">Loading models...</div>
                                     ) : (
                                         <>
+                                            {/* Era Filter Toggle (Modern vs All) */}
+                                            {hasClassicOnly && (
+                                                <div className="flex gap-1 mb-2 p-1 bg-gray-800/50 rounded-lg">
+                                                    <button
+                                                        onClick={() => setModelEra('modern')}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'modern' ? 'bg-emerald-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                    >
+                                                        2000+ ({models.length - classicOnlyModels.length})
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setModelEra('all')}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'all' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                    >
+                                                        All ({models.length})
+                                                    </button>
+                                                </div>
+                                            )}
                                             {/* EV Toggle */}
                                             {hasEV && (
                                                 <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
@@ -380,19 +405,19 @@ function BrowsePageContent() {
                                                     </button>
                                                 </div>
                                             )}
-                                            {/* Use merged models for cleaner display */}
-                                            {(showEVOnly
-                                                ? mergedModels.filter(m => evModels.includes(m.name))
-                                                : mergedModels
-                                            ).map(model => (
-                                                <WizardStepOption
-                                                    key={model.name}
-                                                    label={model.display}
-                                                    isSelected={selectedModel === model.name}
-                                                    onClick={() => handleModelSelect(model.name)}
-                                                    thumbnailUrl={getModelThumbnailUrl(selectedMake, model.name)}
-                                                />
-                                            ))}
+                                            {/* Use merged models for cleaner display, filtered by era and EV */}
+                                            {mergedModels
+                                                .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m.name))
+                                                .filter(m => !showEVOnly || evModels.includes(m.name))
+                                                .map(model => (
+                                                    <WizardStepOption
+                                                        key={model.name}
+                                                        label={model.display}
+                                                        isSelected={selectedModel === model.name}
+                                                        onClick={() => handleModelSelect(model.name)}
+                                                        thumbnailUrl={getModelThumbnailUrl(selectedMake, model.name)}
+                                                    />
+                                                ))}
                                         </>
                                     )}
                                 </WizardStep>
