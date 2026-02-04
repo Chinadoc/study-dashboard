@@ -6362,7 +6362,30 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             'Sport Sedan', 'Gran Coupe', 'Gran Turismo',
             'Cross Country', 'Sportback', 'Avant', 'Allroad', 'Cabriolet', 'Convertible', 'Roadster', 'Coupe', 'Sedan', 'Wagon',
             // Common trim packages
-            'Laredo', 'Overland', 'Summit', 'Trailhawk', 'High Altitude', 'Limited X'
+            'Laredo', 'Overland', 'Summit', 'Trailhawk', 'High Altitude', 'Limited X',
+            // Toyota performance/package variants (same key system)
+            'TRD', 'TRD Pro', 'TRD Off-Road', 'TRD Sport', 'Trail', 'Nightshade',
+            // Honda performance variants
+            'Type R', 'Type-R', 'Si', 'Type S', 'Type-S',
+            // Acura performance variants
+            'A-Spec', 'Advance', 'Technology',
+            // Volkswagen/Audi performance
+            'R', 'GTI', 'GLI', 'R-Line', 'S-Line',
+            // Hyundai/Kia performance
+            'N', 'N Line', 'GT-Line',
+            // Subaru performance
+            'STI', 'WRX', 'XT',
+            // Nissan performance
+            'NISMO', 'SR', 'SV', 'SL', 'Platinum',
+            // Mazda trims
+            'Signature', 'Grand Touring', 'Carbon Edition'
+          ];
+
+          // Hyphenated suffixes (like CTS-V, ATS-V) - checked separately
+          const hyphenatedSuffixes = [
+            '-V',     // Cadillac (CTS-V, ATS-V, CT5-V)
+            '-S',     // Jaguar (F-Type S, XE-S)
+            '-F',     // Lexus (IS-F, RC-F, GS-F)
           ];
 
           // Build a map of base model → variants
@@ -6373,13 +6396,24 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             let baseModel = model;
             let foundVariant: string | null = null;
 
-            // Check if this model ends with a variant suffix
+            // Check if this model ends with a variant suffix (space-separated)
             for (const suffix of variantSuffixes) {
               const pattern = new RegExp(`\\s+${suffix}$`, 'i');
               if (pattern.test(model)) {
                 baseModel = model.replace(pattern, '').trim();
                 foundVariant = suffix;
                 break;
+              }
+            }
+
+            // Also check hyphenated suffixes (like CTS-V → CTS)
+            if (!foundVariant) {
+              for (const suffix of hyphenatedSuffixes) {
+                if (model.endsWith(suffix)) {
+                  baseModel = model.slice(0, -suffix.length);
+                  foundVariant = suffix;
+                  break;
+                }
               }
             }
 

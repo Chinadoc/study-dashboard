@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useJobLogs } from '@/lib/useJobLogs';
 import BusinessAlerts from '@/components/business/BusinessAlerts';
-import SyncIndicator from '@/components/business/SyncIndicator';
+
 import { ToastProvider } from '@/components/ui/Toast';
 import { SyncToastListener } from '@/components/business/SyncToastListener';
 
@@ -60,7 +60,7 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 
 export default function BusinessLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const { jobLogs, syncStatus, getJobStats } = useJobLogs();
+    const { jobLogs, getJobStats } = useJobLogs();
     const stats = getJobStats();
 
     // Calculate current month's daily activity for mini calendar
@@ -103,8 +103,6 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                                 <h1 className="text-xl sm:text-2xl font-black italic">Business Dashboard</h1>
                                 <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Track inventory, jobs, and tool subscriptions.</p>
                             </div>
-                            {/* Sync Status Indicator - only shows when there's an issue */}
-                            <SyncIndicator syncStatus={syncStatus} />
                         </div>
 
                         {/* Monthly Stats Banner - Swipeable on mobile */}

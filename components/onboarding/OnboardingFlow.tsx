@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE } from '@/lib/config';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 // Sandbox limits
 const SANDBOX_LIMITS = {
@@ -13,36 +13,74 @@ const SANDBOX_LIMITS = {
     demoVehicle: '/vehicle/chevrolet/silverado-1500/2021',
 };
 
-// Tour step targets for the interactive portion
-interface TourTarget {
-    selector: string;
+// Extended tour with page navigation
+interface GuidedStep {
+    id: string;
+    page: string;          // URL to navigate to
+    selector?: string;     // Element to highlight (optional)
     title: string;
     content: string;
-    position: 'top' | 'bottom';
+    position: 'top' | 'bottom' | 'center';
+    emoji: string;
 }
 
-const TOUR_TARGETS: TourTarget[] = [
+const GUIDED_TOUR: GuidedStep[] = [
+    // Browse page - Vehicle Search
     {
-        selector: '[data-tour="nav-browse"]',
-        title: '🔍 Browse & Search',
-        content: 'Search for any vehicle by make, model, or year. Access key programming data, FCC IDs, and procedures.',
-        position: 'top',
+        id: 'browse-intro',
+        page: '/browse',
+        title: 'Browse Vehicles',
+        content: 'This is your main database. Search any make, model, or year to find key programming info.',
+        position: 'center',
+        emoji: '🔍',
     },
     {
-        selector: '[data-tour="nav-business"]',
-        title: '💼 Business Mode',
-        content: 'Switch to Business Mode for job tracking, inventory management, invoicing, and CRM features.',
-        position: 'top',
+        id: 'vehicle-demo',
+        page: '/vehicle/chevrolet/silverado-1500/2021',
+        title: 'Vehicle Detail Page',
+        content: 'Each vehicle shows key types, FCC IDs, transponder chips, and programming notes from the community.',
+        position: 'center',
+        emoji: '🚗',
     },
+    // FCC Database
     {
-        selector: '[data-tour="user-menu"]',
-        title: '👤 Your Account',
-        content: 'Access your inventory, community reputation, fleet customers, team tools, and settings.',
-        position: 'bottom',
+        id: 'fcc-database',
+        page: '/fcc',
+        title: 'FCC ID Lookup',
+        content: 'Look up any remote by FCC ID to find compatible vehicles, frequencies, and replacement parts.',
+        position: 'center',
+        emoji: '📡',
+    },
+    // Business Mode - Jobs
+    {
+        id: 'business-jobs',
+        page: '/business/jobs',
+        title: 'Job Logging',
+        content: 'Track every job you complete. Log customer info, vehicle, parts used, and revenue.',
+        position: 'center',
+        emoji: '📋',
+    },
+    // Business Mode - Inventory
+    {
+        id: 'business-inventory',
+        page: '/business/inventory',
+        title: 'Inventory Management',
+        content: 'Keep track of your key blanks, remotes, and supplies. Know what you have in stock instantly.',
+        position: 'center',
+        emoji: '📦',
+    },
+    // Business Mode - Dashboard/Stats
+    {
+        id: 'business-dashboard',
+        page: '/business',
+        title: 'Business Dashboard',
+        content: 'See your stats at a glance: revenue trends, job counts, AI insights, and upcoming work.',
+        position: 'center',
+        emoji: '📊',
     },
 ];
 
-type OnboardingStep = 'welcome' | 'tour' | 'trial';
+type OnboardingStep = 'welcome' | 'guided-tour' | 'trial';
 
 // Helper to activate sandbox mode
 function activateSandboxMode() {
@@ -60,11 +98,12 @@ export default function OnboardingFlow() {
     const { showWizard, closeWizard, markTourComplete, completeOnboarding } = useOnboarding();
     const { user, isAuthenticated, login, isPro } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
     const [tourIndex, setTourIndex] = useState(0);
-    const [tooltipPosition, setTooltipPosition] = useState({ top: 200, left: 500 });
     const [isLoading, setIsLoading] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     // Detect mobile
@@ -75,77 +114,18 @@ export default function OnboardingFlow() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Position tooltip relative to target element
-    const updateTooltipPosition = useCallback(() => {
-        const target = TOUR_TARGETS[tourIndex];
-        if (!target) return;
-
-        const targetEl = document.querySelector(target.selector);
-        const tooltipEl = tooltipRef.current;
-
-        if (!targetEl) {
-            setTooltipPosition({ top: window.innerHeight / 2, left: window.innerWidth / 2 });
-            return;
-        }
-
-        const rect = targetEl.getBoundingClientRect();
-        const tooltipHeight = tooltipEl?.offsetHeight || 200;
-        const tooltipWidth = tooltipEl?.offsetWidth || (isMobile ? window.innerWidth - 32 : 320);
-        const padding = 16;
-
-        let top = 0;
-        let left = isMobile ? window.innerWidth / 2 : rect.left + rect.width / 2;
-
-        // On mobile, always position below the nav bar
-        if (isMobile) {
-            top = rect.bottom + 12;
-        } else if (target.position === 'bottom') {
-            top = rect.bottom + 12;
-        } else if (target.position === 'top') {
-            top = rect.top - tooltipHeight - 12;
-            if (top < padding) top = rect.bottom + 12;
-        }
-
-        // Clamp to viewport
-        const maxTop = window.innerHeight - tooltipHeight - padding;
-        const maxLeft = window.innerWidth - tooltipWidth / 2 - padding;
-        const minLeft = tooltipWidth / 2 + padding;
-
-        top = Math.max(padding, Math.min(top, maxTop));
-        left = Math.max(minLeft, Math.min(left, maxLeft));
-
-        setTooltipPosition({ top, left });
-
-        // Highlight target
-        document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-        targetEl.classList.add('tour-highlight');
-    }, [tourIndex, isMobile]);
-
-    // Update tooltip position when tour step changes
+    // Navigate to the correct page for current tour step
     useEffect(() => {
-        if (currentStep === 'tour') {
-            const timer1 = setTimeout(updateTooltipPosition, 50);
-            const timer2 = setTimeout(updateTooltipPosition, 200);
-            return () => {
-                clearTimeout(timer1);
-                clearTimeout(timer2);
-            };
+        if (currentStep === 'guided-tour' && GUIDED_TOUR[tourIndex]) {
+            const targetPage = GUIDED_TOUR[tourIndex].page;
+            if (pathname !== targetPage) {
+                setIsNavigating(true);
+                router.push(targetPage);
+                // Give time for navigation
+                setTimeout(() => setIsNavigating(false), 500);
+            }
         }
-    }, [currentStep, tourIndex, updateTooltipPosition]);
-
-    // Handle window resize during tour
-    useEffect(() => {
-        if (currentStep !== 'tour') return;
-        window.addEventListener('resize', updateTooltipPosition);
-        return () => window.removeEventListener('resize', updateTooltipPosition);
-    }, [currentStep, updateTooltipPosition]);
-
-    // Clean up highlights when closing
-    useEffect(() => {
-        if (!showWizard) {
-            document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-        }
-    }, [showWizard]);
+    }, [currentStep, tourIndex, pathname, router]);
 
     // Start trial via Stripe checkout
     const handleStartTrial = async () => {
@@ -181,29 +161,36 @@ export default function OnboardingFlow() {
         markTourComplete('onboarding');
         completeOnboarding();
         closeWizard();
-        // Navigate to demo vehicle page
         router.push(SANDBOX_LIMITS.demoVehicle);
     };
 
     const handleComplete = () => {
-        document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
         markTourComplete('onboarding');
         completeOnboarding();
         closeWizard();
     };
 
     const handleNextTourStep = () => {
-        if (tourIndex < TOUR_TARGETS.length - 1) {
+        if (tourIndex < GUIDED_TOUR.length - 1) {
             setTourIndex(tourIndex + 1);
         } else {
             // Tour complete, move to trial step
-            document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
             setCurrentStep('trial');
         }
     };
 
+    const handlePrevTourStep = () => {
+        if (tourIndex > 0) {
+            setTourIndex(tourIndex - 1);
+        }
+    };
+
+    const handleSkipTour = () => {
+        setCurrentStep('trial');
+    };
+
     const handleContinueToTour = () => {
-        setCurrentStep('tour');
+        setCurrentStep('guided-tour');
         setTourIndex(0);
     };
 
@@ -253,7 +240,7 @@ export default function OnboardingFlow() {
                                     onClick={handleContinueToTour}
                                     className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg transition-colors"
                                 >
-                                    Continue →
+                                    Take the Tour →
                                 </button>
                             </div>
                         </div>
@@ -263,75 +250,68 @@ export default function OnboardingFlow() {
         );
     }
 
-    if (currentStep === 'tour') {
-        const target = TOUR_TARGETS[tourIndex];
+    if (currentStep === 'guided-tour') {
+        const step = GUIDED_TOUR[tourIndex];
 
         return (
             <>
-                {/* Semi-transparent overlay */}
-                <div className="fixed inset-0 bg-black/60 z-[9998]" />
-
-                {/* Tooltip - mobile-responsive */}
+                {/* Floating tour card - bottom of screen */}
                 <div
                     ref={tooltipRef}
-                    className={`fixed z-[10000] bg-zinc-900 border border-amber-500/50 rounded-xl p-4 sm:p-5 shadow-2xl shadow-amber-500/10 transition-all duration-300 ${isMobile ? 'left-4 right-4 mx-auto max-w-none' : 'max-w-sm'
+                    className={`fixed z-[10000] bg-gradient-to-br from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-xl shadow-2xl shadow-amber-500/10 transition-all duration-300 ${isMobile
+                            ? 'left-4 right-4 bottom-20 p-4'
+                            : 'left-1/2 -translate-x-1/2 bottom-24 p-5 max-w-md w-full'
                         }`}
-                    style={isMobile ? {
-                        top: tooltipPosition.top,
-                    } : {
-                        top: tooltipPosition.top,
-                        left: tooltipPosition.left,
-                        transform: 'translateX(-50%)',
-                    }}
                 >
-                    {/* Step indicator */}
-                    <div className="flex justify-center gap-1.5 mb-3">
-                        <div className="w-2 h-2 rounded-full bg-green-500" title="Sign In Complete" />
-                        {TOUR_TARGETS.map((_, i) => (
+                    {/* Step progress bar */}
+                    <div className="flex gap-1 mb-3">
+                        {GUIDED_TOUR.map((_, i) => (
                             <div
                                 key={i}
-                                className={`w-2 h-2 rounded-full transition-colors ${i === tourIndex ? 'bg-amber-500' : i < tourIndex ? 'bg-amber-500/50' : 'bg-zinc-700'
+                                className={`h-1 flex-1 rounded-full transition-colors ${i === tourIndex ? 'bg-amber-500' : i < tourIndex ? 'bg-amber-500/50' : 'bg-zinc-700'
                                     }`}
                             />
                         ))}
-                        <div className="w-2 h-2 rounded-full bg-zinc-700" title="Start Trial" />
                     </div>
 
-                    <h4 className="text-base sm:text-lg font-bold text-white mb-1">{target.title}</h4>
-                    <p className="text-zinc-400 text-sm mb-4">{target.content}</p>
+                    <div className="flex items-start gap-3 mb-4">
+                        <span className="text-3xl">{step.emoji}</span>
+                        <div className="flex-1">
+                            <h4 className="text-lg font-bold text-white mb-1">{step.title}</h4>
+                            <p className="text-zinc-400 text-sm leading-relaxed">{step.content}</p>
+                        </div>
+                    </div>
 
                     <div className="flex items-center justify-between">
                         <span className="text-zinc-500 text-xs">
-                            Step {tourIndex + 2} of {TOUR_TARGETS.length + 2}
+                            {tourIndex + 1} of {GUIDED_TOUR.length}
                         </span>
-                        <button
-                            onClick={handleNextTourStep}
-                            className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold rounded-lg transition-colors"
-                        >
-                            {tourIndex < TOUR_TARGETS.length - 1 ? 'Next' : 'Continue'}
-                        </button>
+                        <div className="flex gap-2">
+                            {tourIndex > 0 && (
+                                <button
+                                    onClick={handlePrevTourStep}
+                                    className="px-3 py-1.5 text-zinc-400 hover:text-white text-sm transition-colors"
+                                    disabled={isNavigating}
+                                >
+                                    ← Back
+                                </button>
+                            )}
+                            <button
+                                onClick={handleSkipTour}
+                                className="px-3 py-1.5 text-zinc-400 hover:text-white text-sm transition-colors"
+                            >
+                                Skip
+                            </button>
+                            <button
+                                onClick={handleNextTourStep}
+                                disabled={isNavigating}
+                                className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                {isNavigating ? '...' : tourIndex < GUIDED_TOUR.length - 1 ? 'Next' : 'Finish'}
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                {/* CSS for highlight effect */}
-                <style jsx global>{`
-                    .tour-highlight {
-                        position: relative;
-                        z-index: 9999 !important;
-                        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.5), 0 0 25px rgba(245, 158, 11, 0.3);
-                        border-radius: 8px;
-                        animation: tour-pulse 2s ease-in-out infinite;
-                    }
-                    
-                    @keyframes tour-pulse {
-                        0%, 100% {
-                            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.5), 0 0 25px rgba(245, 158, 11, 0.3);
-                        }
-                        50% {
-                            box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.4), 0 0 35px rgba(245, 158, 11, 0.4);
-                        }
-                    }
-                `}</style>
             </>
         );
     }

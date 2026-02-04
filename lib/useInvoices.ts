@@ -216,6 +216,48 @@ export function useInvoices() {
         loadInvoices();
     }, []);
 
+    // Visibility/focus handlers - sync when returning to tab (cross-device consistency)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const loadInvoices = async () => {
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                const data = await apiRequest('/api/user/invoices');
+                if (data?.invoices) {
+                    setInvoices(data.invoices);
+                    localStorage.setItem(INVOICES_STORAGE_KEY, JSON.stringify(data.invoices));
+                }
+            } catch (e) {
+                console.error('Failed to reload invoices:', e);
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && getAuthToken()) {
+                console.log('[Sync] Invoices: Tab became visible - checking for updates...');
+                loadInvoices();
+            }
+        };
+
+        const handleFocus = () => {
+            if (getAuthToken()) {
+                console.log('[Sync] Invoices: Window focused - checking for updates...');
+                loadInvoices();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, []);
+
     const saveInvoice = useCallback(async (invoice: Invoice): Promise<boolean> => {
         // Always save to localStorage
         const current = getInvoicesFromStorage();

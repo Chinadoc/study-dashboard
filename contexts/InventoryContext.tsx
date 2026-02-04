@@ -256,6 +256,33 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
+    // Visibility/focus handlers - sync when returning to tab (cross-device consistency)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && isAuthenticated) {
+                console.log('[Sync] Inventory: Tab became visible - checking for updates...');
+                refreshInventory();
+            }
+        };
+
+        const handleFocus = () => {
+            if (isAuthenticated) {
+                console.log('[Sync] Inventory: Window focused - checking for updates...');
+                refreshInventory();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [isAuthenticated, refreshInventory]);
+
     // ========================================================================
     // API Sync Helpers
     // ========================================================================

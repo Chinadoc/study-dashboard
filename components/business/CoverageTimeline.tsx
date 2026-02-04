@@ -211,13 +211,13 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
     }, [makes, years, selectedTool]);
 
     return (
-        <div className="space-y-6">
-            {/* Header Controls */}
-            <div className="flex flex-wrap items-center gap-4">
+        <div className="space-y-4 sm:space-y-6">
+            {/* Header Controls - Stack on mobile, row on desktop */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                 {/* My Coverage Toggle */}
                 <button
                     onClick={() => setShowMyCoverage(!showMyCoverage)}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 border ${showMyCoverage
+                    className={`px-4 py-3 sm:py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 border w-full sm:w-auto ${showMyCoverage
                         ? 'bg-gradient-to-r from-amber-600 to-orange-600 border-amber-500 text-white shadow-lg shadow-amber-500/20'
                         : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white hover:border-gray-600'
                         }`}
@@ -232,28 +232,30 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
                 </button>
 
                 {/* Tool Filter */}
-                <label className="text-sm text-gray-400">Select Tool:</label>
-                <select
-                    value={selectedTool}
-                    onChange={(e) => setSelectedTool(e.target.value as typeof TOOLS[number] | 'all')}
-                    className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white"
-                >
-                    <option value="all">All Tools</option>
-                    {TOOLS.map(tool => (
-                        <option key={tool} value={tool}>
-                            {TOOL_LABELS[tool]}
-                        </option>
-                    ))}
-                </select>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <label className="text-sm text-gray-400 whitespace-nowrap">Select Tool:</label>
+                    <select
+                        value={selectedTool}
+                        onChange={(e) => setSelectedTool(e.target.value as typeof TOOLS[number] | 'all')}
+                        className="flex-1 sm:flex-none bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 sm:py-2 text-white text-sm min-w-0"
+                    >
+                        <option value="all">All Tools</option>
+                        {TOOLS.map(tool => (
+                            <option key={tool} value={tool}>
+                                {TOOL_LABELS[tool]}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
-            {/* Data Coverage Notice */}
-            <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-4">
-                <div className="flex items-start gap-3">
-                    <span className="text-2xl">⚠️</span>
+            {/* Data Coverage Notice - Compact on mobile */}
+            <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-3 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-3">
+                    <span className="text-xl sm:text-2xl">⚠️</span>
                     <div>
-                        <h3 className="font-bold text-amber-400">Partial Coverage Data</h3>
-                        <p className="text-sm text-gray-300">
+                        <h3 className="font-bold text-amber-400 text-sm sm:text-base">Partial Coverage Data</h3>
+                        <p className="text-xs sm:text-sm text-gray-300">
                             This heatmap shows <strong>{COVERAGE_DATA.length} vehicle records</strong> from {makes.length} makes
                             extracted from research documents. Gray cells indicate no data available — not necessarily no tool coverage.
                         </p>
@@ -261,27 +263,27 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
                 </div>
             </div>
 
-            {/* Legend */}
-            <div className="flex flex-wrap gap-4">
+            {/* Legend - Responsive wrap */}
+            <div className="flex flex-wrap gap-2 sm:gap-4">
                 {Object.entries(LEVEL_COLORS).map(([level, color]) => (
-                    <div key={level} className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded ${color}`} />
-                        <span className="text-sm text-gray-400">{LEVEL_LABELS[level as keyof typeof LEVEL_LABELS]}</span>
+                    <div key={level} className="flex items-center gap-1.5 sm:gap-2">
+                        <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded ${color}`} />
+                        <span className="text-xs sm:text-sm text-gray-400">{LEVEL_LABELS[level as keyof typeof LEVEL_LABELS]}</span>
                     </div>
                 ))}
                 {showMyCoverage && (
                     <>
-                        <div className="w-px h-4 bg-gray-700" />
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-gray-600 ring-2 ring-amber-400" />
-                            <span className="text-sm text-amber-400">🔧 Tool owned</span>
+                        <div className="w-px h-4 bg-gray-700 hidden sm:block" />
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-gray-600 ring-2 ring-amber-400" />
+                            <span className="text-xs sm:text-sm text-amber-400">🔧 Tool owned</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className="relative w-4 h-4">
-                                <div className="w-4 h-4 rounded bg-gray-600" />
-                                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                            <div className="relative w-3 h-3 sm:w-4 sm:h-4">
+                                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-gray-600" />
+                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-500 rounded-full" />
                             </div>
-                            <span className="text-sm text-blue-400">🔑 Key in stock</span>
+                            <span className="text-xs sm:text-sm text-blue-400">🔑 Key in stock</span>
                         </div>
                     </>
                 )}
@@ -355,26 +357,26 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-bold text-cyan-400">{COVERAGE_DATA.length}</div>
-                    <div className="text-sm text-gray-400">Vehicle Records</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4 text-center">
+                    <div className="text-xl sm:text-3xl font-bold text-cyan-400">{COVERAGE_DATA.length}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Vehicle Records</div>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-bold text-purple-400">{makes.length}</div>
-                    <div className="text-sm text-gray-400">Makes Covered</div>
+                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4 text-center">
+                    <div className="text-xl sm:text-3xl font-bold text-purple-400">{makes.length}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Makes Covered</div>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-bold text-emerald-400">
+                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4 text-center">
+                    <div className="text-xl sm:text-3xl font-bold text-emerald-400">
                         {Math.min(...COVERAGE_DATA.map(r => r.yearStart))}-{Math.max(...COVERAGE_DATA.map(r => r.yearEnd))}
                     </div>
-                    <div className="text-sm text-gray-400">Year Range</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Year Range</div>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-bold text-amber-400">
+                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4 text-center">
+                    <div className="text-xl sm:text-3xl font-bold text-amber-400">
                         {[...new Set(COVERAGE_DATA.map(r => r.platform))].length}
                     </div>
-                    <div className="text-sm text-gray-400">Platforms</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Platforms</div>
                 </div>
             </div>
         </div>
