@@ -42,32 +42,30 @@ export default function RootLayout({
                             <div className="mx-auto max-w-7xl px-4">
                                 <div className="flex h-14 items-center justify-between">
                                     {/* Logo */}
-                                    <a href="/" className="flex items-center gap-2 text-xl font-bold text-eurokeys-purple-light">
+                                    <a href="/" className="flex items-center gap-2 text-xl font-bold text-eurokeys-purple-light flex-shrink-0">
                                         <span>🔑</span>
                                         <span className="hidden sm:inline">EURO KEYS</span>
                                         <span className="sm:hidden">EK</span>
                                     </a>
 
-                                    {/* Center Navigation - Now handled by BottomNav on all screens */}
-                                    {/* Hidden - using unified nav bar */}
+                                    {/* Center Navigation - Desktop only (inside header) */}
+                                    <div className="hidden lg:flex flex-1 justify-center">
+                                        <BottomNav isInHeader />
+                                    </div>
 
-                                    {/* Right - Search & Auth */}
-                                    <div className="flex items-center gap-2">
-                                        {/* Search Icon - Links to browse page */}
-                                        <a href="/browse" className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white">
-                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
-                                        </a>
-                                        {/* Google Sign-In Button */}
+                                    {/* Right - Auth only (search is in nav tabs now) */}
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                         <GoogleSignInButton />
                                     </div>
                                 </div>
                             </div>
                         </nav>
 
-                        {/* Unified Navigation - Desktop: shows at top, Mobile: shows at bottom */}
-                        <BottomNav />
+                        {/* Mobile Bottom Nav Bar */}
+                        <div className="lg:hidden">
+                            <BottomNav />
+                        </div>
+
 
                         {/* Main Content - Add bottom padding on mobile for nav bar */}
                         <main className="min-h-screen pb-20 lg:pb-0">{children}</main>

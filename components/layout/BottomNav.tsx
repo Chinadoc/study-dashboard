@@ -94,7 +94,11 @@ const BUSINESS_TABS = [
     { id: 'tools', label: 'Tools', href: '/business/tools' },
 ];
 
-export default function BottomNav() {
+interface BottomNavProps {
+    isInHeader?: boolean;
+}
+
+export default function BottomNav({ isInHeader = false }: BottomNavProps) {
     const pathname = usePathname();
     const router = useRouter();
     const { mode, setMode } = useMode();
@@ -135,14 +139,14 @@ export default function BottomNav() {
                         href={tab.href}
                         onClick={(e) => handleTabClick(tab, e)}
                         className={`flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-2 flex-1 lg:flex-none py-2 px-2 lg:px-4 rounded-lg transition-all ${isSpecial
-                                ? 'isToggle' in tab
-                                    ? 'text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20'
-                                    : 'text-purple-400 hover:text-purple-300'
-                                : active
-                                    ? mode === 'business'
-                                        ? 'text-yellow-400 bg-yellow-500/10'
-                                        : 'text-purple-400 bg-purple-500/10'
-                                    : 'text-gray-400 hover:text-white hover:bg-zinc-800'
+                            ? 'isToggle' in tab
+                                ? 'text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20'
+                                : 'text-purple-400 hover:text-purple-300'
+                            : active
+                                ? mode === 'business'
+                                    ? 'text-yellow-400 bg-yellow-500/10'
+                                    : 'text-purple-400 bg-purple-500/10'
+                                : 'text-gray-400 hover:text-white hover:bg-zinc-800'
                             }`}
                     >
                         {Icon && <Icon />}
@@ -155,29 +159,24 @@ export default function BottomNav() {
         </>
     );
 
-    return (
-        <>
-            {/* Mobile: Fixed bottom nav */}
-            <nav
-                className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 ${mode === 'business' ? 'border-t-yellow-500/30' : ''
-                    }`}
-                style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}
-            >
-                <div className={`flex items-center justify-around h-16 max-w-lg mx-auto px-1 ${mode === 'business' ? 'bg-gradient-to-t from-yellow-900/20 to-transparent' : ''
-                    }`}>
-                    <NavContent />
-                </div>
-            </nav>
-
-            {/* Desktop: Top nav bar (secondary header) - positioned after main header */}
-            <div className="hidden lg:block sticky top-14 z-40 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800">
-                <div className={`mx-auto max-w-7xl px-4 ${mode === 'business' ? 'bg-gradient-to-r from-yellow-900/10 via-transparent to-yellow-900/10 border-b border-yellow-500/20' : ''
-                    }`}>
-                    <div className="flex items-center justify-center h-12 gap-1">
-                        <NavContent />
-                    </div>
-                </div>
+    // When in header, render just the nav buttons inline (no wrapper)
+    if (isInHeader) {
+        return (
+            <div className={`flex items-center gap-1 ${mode === 'business' ? 'bg-gradient-to-r from-yellow-900/10 via-transparent to-yellow-900/10 px-3 py-1 rounded-full' : ''}`}>
+                <NavContent />
             </div>
-        </>
+        );
+    }
+
+    // Mobile: Fixed bottom nav bar
+    return (
+        <nav
+            className={`fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 ${mode === 'business' ? 'border-t-yellow-500/30' : ''}`}
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}
+        >
+            <div className={`flex items-center justify-around h-16 max-w-lg mx-auto px-1 ${mode === 'business' ? 'bg-gradient-to-t from-yellow-900/20 to-transparent' : ''}`}>
+                <NavContent />
+            </div>
+        </nav>
     );
 }
