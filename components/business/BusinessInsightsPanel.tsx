@@ -2,15 +2,15 @@
 
 /**
  * Business Insights Panel
- * Displays intelligent insights: restock recommendations, trending vehicles, and coverage gaps
+ * Displays intelligent insights: restock recommendations, trending vehicles, coverage gaps, and dead stock
  */
 
 import React from 'react';
 import Link from 'next/link';
-import { useUnifiedData, RestockRecommendation, TrendingVehicle, CoverageGap } from '@/lib/useUnifiedData';
+import { useUnifiedData, RestockRecommendation, TrendingVehicle, CoverageGap, DeadStock } from '@/lib/useUnifiedData';
 
 export default function BusinessInsightsPanel() {
-    const { getRestockRecommendations, getTrendingVehicles, getCoverageGaps, loading } = useUnifiedData();
+    const { getRestockRecommendations, getTrendingVehicles, getCoverageGaps, getDeadStock, loading } = useUnifiedData();
 
     if (loading) {
         return (
@@ -24,9 +24,10 @@ export default function BusinessInsightsPanel() {
     const restockRecs = getRestockRecommendations().slice(0, 3);
     const trending = getTrendingVehicles().slice(0, 5);
     const gaps = getCoverageGaps();
+    const deadStock = getDeadStock().slice(0, 3);
 
     // Don't render if no insights
-    if (restockRecs.length === 0 && trending.length === 0 && gaps.length === 0) {
+    if (restockRecs.length === 0 && trending.length === 0 && gaps.length === 0 && deadStock.length === 0) {
         return null;
     }
 
@@ -69,6 +70,20 @@ export default function BusinessInsightsPanel() {
                     <div className="space-y-2">
                         {gaps.map((gap, i) => (
                             <GapCard key={i} gap={gap} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Dead Stock */}
+            {deadStock.length > 0 && (
+                <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5">
+                    <h3 className="font-bold text-purple-400 mb-3 flex items-center gap-2">
+                        <span>💤</span> Dead Stock (Unused 6+ months)
+                    </h3>
+                    <div className="space-y-2">
+                        {deadStock.map((item, i) => (
+                            <DeadStockCard key={i} item={item} />
                         ))}
                     </div>
                 </div>
@@ -130,6 +145,20 @@ function GapCard({ gap }: { gap: CoverageGap }) {
                 <span className="text-xs text-gray-500">{gap.jobCount} jobs</span>
             </div>
             <div className="text-xs text-amber-400">{gap.recommendation}</div>
+        </div>
+    );
+}
+
+function DeadStockCard({ item }: { item: DeadStock }) {
+    return (
+        <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-800/30">
+            <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm truncate">{item.item.itemKey}</div>
+                <div className="text-xs text-gray-500">{item.message}</div>
+            </div>
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                {item.daysSinceLastUsed === null ? 'Never Used' : `${Math.floor(item.daysSinceLastUsed / 30)}mo`}
+            </span>
         </div>
     );
 }

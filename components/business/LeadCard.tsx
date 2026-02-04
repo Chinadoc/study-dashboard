@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { PipelineLead } from '@/lib/usePipelineLeads';
+import ReadinessBadge from '@/components/vehicle/ReadinessBadge';
 
 interface LeadCardProps {
     lead: PipelineLead;
@@ -84,10 +85,21 @@ export default function LeadCard({
                 )}
             </div>
 
-            {/* Vehicle & Job Type */}
+            {/* Vehicle & Job Type with Readiness */}
             {(lead.vehicle || lead.jobType) && (
-                <div className="text-sm text-gray-400 mb-2">
+                <div className="text-sm text-gray-400 mb-2 flex items-center gap-2 flex-wrap">
                     {lead.vehicle && <span>🚗 {lead.vehicle}</span>}
+                    {/* Show readiness if we can parse the vehicle */}
+                    {lead.vehicle && (() => {
+                        const parts = lead.vehicle.split(' ');
+                        const year = parseInt(parts[0]);
+                        const make = parts[1] || '';
+                        const model = parts.slice(2).join(' ') || '';
+                        if (year && make) {
+                            return <ReadinessBadge make={make} model={model} year={year} size="sm" showTooltip={false} />;
+                        }
+                        return null;
+                    })()}
                     {lead.vehicle && lead.jobType && <span className="mx-1">•</span>}
                     {lead.jobType && <span>{lead.jobType}</span>}
                 </div>

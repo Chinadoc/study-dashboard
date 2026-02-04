@@ -15,6 +15,110 @@ import { getVehicleCoverage, VehicleCoverageResult, VehicleToolCoverage } from '
 // Types
 // ============================================================================
 
+// ============================================================================
+// Utility Functions: Fuzzy Matching & Normalization
+// ============================================================================
+
+/**
+ * Normalize FCC ID - handles variants like "M3N-A2C31243800-1"
+ * Strips hyphens, spaces, and trailing variant numbers
+ */
+function normalizeFcc(fcc: string): string {
+    // Remove all non-alphanumeric except trailing variant marker
+    let normalized = fcc.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    // Strip common trailing variant patterns (like "1", "2" at end after numbers)
+    normalized = normalized.replace(/(\d)([12])$/, '$1');
+    return normalized;
+}
+
+/**
+ * Parse vehicle string into components
+ * Handles: "2020 Toyota Camry", "Toyota Camry 2020", "Toyota Camry"
+ */
+function parseVehicle(vehicleStr: string): { year?: number; make: string; model: string } {
+    const parts = vehicleStr.trim().split(/\s+/);
+
+    // Find year - could be at start or end
+    let year: number | undefined;
+    let yearIndex = -1;
+
+    for (let i = 0; i < parts.length; i++) {
+        const num = parseInt(parts[i]);
+        if (num >= 1990 && num <= 2030) {
+            year = num;
+            yearIndex = i;
+            break;
+        }
+    }
+
+    // Remove year from parts
+    if (yearIndex !== -1) {
+        parts.splice(yearIndex, 1);
+    }
+
+    // First remaining word is make, rest is model
+    const make = parts[0] || '';
+    const model = parts.slice(1).join(' ') || '';
+
+    return { year, make, model };
+}
+
+/**
+ * Fuzzy vehicle match - handles different formats and partial matches
+ */
+function vehiclesMatch(vehicle1: string, vehicle2: string): boolean {
+    if (!vehicle1 || !vehicle2) return false;
+
+    const v1 = parseVehicle(vehicle1);
+    const v2 = parseVehicle(vehicle2);
+
+    // Normalize for comparison
+    const make1 = v1.make.toLowerCase();
+    const make2 = v2.make.toLowerCase();
+    const model1 = v1.model.toLowerCase();
+    const model2 = v2.model.toLowerCase();
+
+    // Makes must match (or one be substring of other for "Chevy" vs "Chevrolet" type cases)
+    const makeMatch = make1 === make2 ||
+        make1.includes(make2) ||
+        make2.includes(make1) ||
+        areSimilarMakes(make1, make2);
+
+    if (!makeMatch) return false;
+
+    // Models must have overlap
+    const modelMatch = model1 === model2 ||
+        model1.includes(model2) ||
+        model2.includes(model1);
+
+    if (!modelMatch) return false;
+
+    // If both have years, they should match (within 1 year tolerance for platform overlap)
+    if (v1.year && v2.year) {
+        return Math.abs(v1.year - v2.year) <= 1;
+    }
+
+    return true;
+}
+
+/**
+ * Common make aliases
+ */
+function areSimilarMakes(make1: string, make2: string): boolean {
+    const aliases: Record<string, string[]> = {
+        'chevrolet': ['chevy'],
+        'volkswagen': ['vw'],
+        'mercedes': ['mercedes-benz', 'mb'],
+        'bmw': ['bimmer'],
+    };
+
+    for (const [canonical, variants] of Object.entries(aliases)) {
+        const all = [canonical, ...variants];
+        if (all.includes(make1) && all.includes(make2)) return true;
+    }
+    return false;
+}
+
 export interface UnifiedStats {
     // Inventory stats
     totalKeyTypes: number;
@@ -69,6 +173,13 @@ export interface CoverageGap {
     recommendation: string;
 }
 
+export interface DeadStock {
+    item: InventoryItem;
+    daysSinceLastUsed: number | null; // null = never used
+    qty: number;
+    message: string;
+}
+
 export interface UnifiedData {
     // Raw data
     inventory: InventoryItem[];
@@ -87,6 +198,7 @@ export interface UnifiedData {
     getRestockRecommendations: () => RestockRecommendation[];
     getTrendingVehicles: () => TrendingVehicle[];
     getCoverageGaps: () => CoverageGap[];
+    getDeadStock: () => DeadStock[];
 
     // Aggregated stats
     stats: UnifiedStats;
@@ -113,30 +225,28 @@ export function useUnifiedData(): UnifiedData {
     // ========================================================================
 
     const getKeyStock = useCallback((fcc: string): number => {
-        const normalizedFcc = fcc.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        const normalizedFcc = normalizeFcc(fcc);
         const item = inventory.find(i =>
-            i.itemKey.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() === normalizedFcc
+            normalizeFcc(i.itemKey) === normalizedFcc
         );
         return item?.qty || 0;
     }, [inventory]);
 
     // ========================================================================
-    // Computed: Job History
+    // Computed: Job History (using fuzzy matching)
     // ========================================================================
 
     const getJobHistory = useCallback((fcc?: string, vehicle?: string): JobLog[] => {
         return jobLogs.filter(job => {
+            // FCC matching with variant handling
             if (fcc) {
-                const normalizedFcc = fcc.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-                const jobFcc = job.fccId?.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || '';
-                if (jobFcc === normalizedFcc) return true;
+                const normalizedSearch = normalizeFcc(fcc);
+                const jobFcc = normalizeFcc(job.fccId || '');
+                if (jobFcc === normalizedSearch) return true;
             }
-            if (vehicle) {
-                const normalizedVehicle = vehicle.toLowerCase();
-                const jobVehicle = job.vehicle?.toLowerCase() || '';
-                if (jobVehicle.includes(normalizedVehicle) || normalizedVehicle.includes(jobVehicle)) {
-                    return true;
-                }
+            // Vehicle matching with fuzzy logic
+            if (vehicle && job.vehicle) {
+                if (vehiclesMatch(vehicle, job.vehicle)) return true;
             }
             return false;
         });
@@ -285,11 +395,11 @@ export function useUnifiedData(): UnifiedData {
         // Convert to trending list with coverage info
         return Array.from(vehicleCounts.entries())
             .map(([vehicle, data]) => {
-                // Parse vehicle string (e.g., "2020 Toyota Camry")
-                const parts = vehicle.split(' ');
-                const year = parseInt(parts[0]) || new Date().getFullYear();
-                const make = parts[1] || '';
-                const model = parts.slice(2).join(' ') || '';
+                // Use parseVehicle utility for consistent parsing
+                const parsed = parseVehicle(vehicle);
+                const year = parsed.year || new Date().getFullYear();
+                const make = parsed.make;
+                const model = parsed.model;
 
                 // Check if we can service this vehicle
                 const coverage = getVehicleCoverage(make, model, year);
@@ -329,11 +439,11 @@ export function useUnifiedData(): UnifiedData {
         const gaps: CoverageGap[] = [];
 
         vehicleJobCounts.forEach((count, vehicle) => {
-            // Parse vehicle
-            const parts = vehicle.split(' ');
-            const year = parseInt(parts[0]) || new Date().getFullYear();
-            const make = parts[1] || '';
-            const model = parts.slice(2).join(' ') || '';
+            // Use parseVehicle utility
+            const parsed = parseVehicle(vehicle);
+            const year = parsed.year || new Date().getFullYear();
+            const make = parsed.make;
+            const model = parsed.model;
 
             // Get coverage
             const coverage = getVehicleCoverage(make, model, year);
@@ -365,6 +475,66 @@ export function useUnifiedData(): UnifiedData {
 
         return gaps.sort((a, b) => b.jobCount - a.jobCount).slice(0, 5);
     }, [jobLogs]);
+
+    // ========================================================================
+    // Phase 4: Dead Stock Detection
+    // ========================================================================
+
+    const getDeadStock = useCallback((): DeadStock[] => {
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+        const deadStock: DeadStock[] = [];
+
+        // Build a map of FCC -> last used date
+        const lastUsedMap = new Map<string, Date>();
+        jobLogs.forEach(job => {
+            if (job.fccId) {
+                const normalized = normalizeFcc(job.fccId);
+                const jobDate = new Date(job.date);
+                const existing = lastUsedMap.get(normalized);
+                if (!existing || jobDate > existing) {
+                    lastUsedMap.set(normalized, jobDate);
+                }
+            }
+        });
+
+        // Check each inventory item
+        inventory.forEach(item => {
+            if (item.qty === 0) return; // Skip out-of-stock items
+
+            const normalized = normalizeFcc(item.itemKey);
+            const lastUsed = lastUsedMap.get(normalized);
+
+            // Never used in a job
+            if (!lastUsed) {
+                deadStock.push({
+                    item,
+                    daysSinceLastUsed: null,
+                    qty: item.qty,
+                    message: `${item.qty} in stock, never used in a job`
+                });
+            }
+            // Last used > 6 months ago
+            else if (lastUsed < sixMonthsAgo) {
+                const daysSince = Math.floor((Date.now() - lastUsed.getTime()) / (1000 * 60 * 60 * 24));
+                deadStock.push({
+                    item,
+                    daysSinceLastUsed: daysSince,
+                    qty: item.qty,
+                    message: `${item.qty} in stock, last used ${Math.floor(daysSince / 30)} months ago`
+                });
+            }
+        });
+
+        // Sort: never used first, then by days since last used
+        return deadStock.sort((a, b) => {
+            if (a.daysSinceLastUsed === null && b.daysSinceLastUsed === null) return 0;
+            if (a.daysSinceLastUsed === null) return -1;
+            if (b.daysSinceLastUsed === null) return 1;
+            return b.daysSinceLastUsed - a.daysSinceLastUsed;
+        });
+    }, [inventory, jobLogs]);
 
     // ========================================================================
     // Stats Computation
@@ -433,6 +603,8 @@ export function useUnifiedData(): UnifiedData {
         getRestockRecommendations,
         getTrendingVehicles,
         getCoverageGaps,
+        // Phase 4: Dead Stock
+        getDeadStock,
         stats,
     };
 }

@@ -2203,8 +2203,9 @@ PIPELINE DATA:
 - Lead Stages: ${Object.entries(leadsByStage).map(([k, v]) => `${k}: ${v}`).join(', ') || 'none'}
 - Total Pipeline Value: $${totalLeadValue.toFixed(2)}
 
-VEHICLE COVERAGE:
+VEHICLE COVERAGE & SERVICE READINESS:
 - Makes Serviced: ${vehicleMakes.join(', ') || 'none recorded'}
+- (Note: For detailed service readiness - what vehicles the user can fully service based on tools, subscriptions, and inventory - see the Coverage Heatmap at /business/coverage-heatmap. The data shows vehicle groups the user is READY to service, ones where they NEED PARTS, NEED SUBSCRIPTION renewals, or CANNOT SERVICE due to missing tools. Use this context to provide actionable recommendations about expanding coverage or renewing subscriptions.)
 
 `;
 
@@ -2249,7 +2250,7 @@ Keep response under 300 words, practical and actionable.`;
 
 Keep response under 300 words, practical and actionable.`;
           } else if (insightType === 'coverage') {
-            prompt += `Analyze technical coverage based on vehicles serviced and our knowledge base:
+            prompt += `Analyze technical coverage based on vehicles serviced and service readiness:
 
 YOUR JOB HISTORY:
 - Makes you've serviced: ${vehicleMakes.slice(0, 5).join(', ') || 'not enough data'}
@@ -2262,11 +2263,17 @@ KNOWLEDGE BASE STATS:
 - Best documented makes: ${knowledgeStats.topMakes.slice(0, 5).join(', ')}
 - Tool documentation: Autel (${knowledgeStats.topTools.autel}), Xhorse (${knowledgeStats.topTools.xhorse}), SmartPro (${knowledgeStats.topTools.smartpro})
 
+SERVICE READINESS (conceptual framework):
+- READY: Have tools + key stock + active subscriptions
+- NEED PARTS: Tools ready but key blank/fob stock depleted  
+- NEED SUBSCRIPTION: Tool capable but annual subscription expired
+- CAN'T SERVICE: Missing required programming tool
+
 Analyze:
 1. How well does your job history align with our best-documented vehicles?
 2. Coverage gaps - what popular vehicles should you expand into?
-3. Which tools have the best documentation for vehicles you service?
-4. Training priorities based on market demand vs your current coverage
+3. Tool subscriptions - are all annual updates current? (Autel, Lonsdor, etc.)
+4. Inventory gaps - which key blanks/fobs need restocking based on your service history?
 
 Keep response under 300 words, practical and actionable.`;
           } else {
@@ -2889,11 +2896,42 @@ Guidelines:
 
           const userId = payload.sub as string;
 
+          // Rate limiting: 30 votes per minute per user
+          const oneMinuteAgo = Date.now() - 60000;
+          const recentVotes = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count FROM comment_votes 
+            WHERE user_id = ? AND created_at > ?
+          `).bind(userId, oneMinuteAgo).first<any>();
+
+          if (recentVotes && recentVotes.count >= 30) {
+            return corsResponse(request, JSON.stringify({
+              error: "Too many votes. Please wait a moment before voting again."
+            }), 429);
+          }
+
           const body: any = await request.json();
           const { comment_id, vote } = body;  // vote: 1 (upvote), -1 (downvote), 0 (remove vote)
 
           if (!comment_id || vote === undefined) {
             return corsResponse(request, JSON.stringify({ error: "Missing comment_id or vote" }), 400);
+          }
+
+          // Verify comment exists and is not deleted
+          const comment = await env.LOCKSMITH_DB.prepare(
+            `SELECT id, user_id, is_deleted FROM vehicle_comments WHERE id = ?`
+          ).bind(comment_id).first<any>();
+
+          if (!comment) {
+            return corsResponse(request, JSON.stringify({ error: "Comment not found" }), 404);
+          }
+
+          if (comment.is_deleted) {
+            return corsResponse(request, JSON.stringify({ error: "Cannot vote on deleted comments" }), 400);
+          }
+
+          // Prevent self-voting
+          if (comment.user_id === userId) {
+            return corsResponse(request, JSON.stringify({ error: "Cannot vote on your own comment" }), 400);
           }
 
           // Check existing vote
@@ -3395,7 +3433,7 @@ Guidelines:
       if (path === "/api/community/trending" && request.method === "GET") {
         try {
           const limit = parseInt(url.searchParams.get('limit') || '20');
-          const daysAgo = parseInt(url.searchParams.get('days') || '7');
+          const daysAgo = Math.min(parseInt(url.searchParams.get('days') || '7'), 30); // Cap at 30 days
           const cutoffTime = Date.now() - (daysAgo * 24 * 60 * 60 * 1000);
 
           const result = await env.LOCKSMITH_DB.prepare(`

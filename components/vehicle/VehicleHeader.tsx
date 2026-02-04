@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { EditModeToggle } from '@/components/admin';
+import ReadinessBadge from './ReadinessBadge';
 
 interface VehicleHeaderProps {
     make: string;
@@ -91,6 +92,8 @@ export default function VehicleHeader({
                                         ⚠️ CAN-FD Required
                                     </span>
                                 )}
+                                {/* Service Readiness Badge */}
+                                <ReadinessBadge make={make} model={model} year={year} size="sm" />
                             </div>
                         </div>
 
