@@ -314,7 +314,7 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 </section>
             )}
 
-            {/* 3x3 Horizontal Scroll Grid - Models */}
+            {/* 4x4 Vertical Grid - Models */}
             {selectedMake && !selectedModel && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
@@ -353,50 +353,39 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                                     )}
                                 </div>
                             )}
-                            <div className="overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
-                                <div className="flex gap-4" style={{ width: 'max-content' }}>
-                                    {groupInto4x4Blocks(
-                                        models
-                                            .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m))
-                                            .filter(m => !showEVOnly || evModels.includes(m))
-                                    ).map((block, blockIndex) => (
-                                        <div
-                                            key={blockIndex}
-                                            className="grid grid-cols-4 gap-1.5 snap-center"
-                                            style={{ minWidth: 'calc(100vw - 32px)', maxWidth: 'calc(100vw - 32px)' }}
-                                        >
-                                            {block.flat().map(model => {
-                                                const imageSrc = getModelImage(selectedMake, model);
-                                                const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
+                            {/* Vertical 4-column grid for models */}
+                            <div className="grid grid-cols-4 gap-1.5">
+                                {models
+                                    .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m))
+                                    .filter(m => !showEVOnly || evModels.includes(m))
+                                    .map(model => {
+                                        const imageSrc = getModelImage(selectedMake, model);
+                                        const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
 
-                                                return (
-                                                    <button
-                                                        key={model}
-                                                        onClick={() => handleModelSelect(model)}
-                                                        className="aspect-square flex flex-col items-center justify-center gap-0.5 p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
-                                                    >
-                                                        {!hasError ? (
-                                                            <img
-                                                                src={imageSrc}
-                                                                alt={model}
-                                                                className="w-10 h-8 object-contain flex-shrink-0"
-                                                                onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
-                                                            />
-                                                        ) : (
-                                                            <div className="w-10 h-8 rounded bg-gray-700/50 flex items-center justify-center">
-                                                                <span className="text-lg">🚗</span>
-                                                            </div>
-                                                        )}
-                                                        <span className="text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-2">
-                                                            {model}
-                                                        </span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
+                                        return (
+                                            <button
+                                                key={model}
+                                                onClick={() => handleModelSelect(model)}
+                                                className="aspect-square flex flex-col items-center justify-center gap-0.5 p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                            >
+                                                {!hasError ? (
+                                                    <img
+                                                        src={imageSrc}
+                                                        alt={model}
+                                                        className="w-10 h-8 object-contain flex-shrink-0"
+                                                        onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
+                                                    />
+                                                ) : (
+                                                    <div className="w-10 h-8 rounded bg-gray-700/50 flex items-center justify-center">
+                                                        <span className="text-lg">🚗</span>
+                                                    </div>
+                                                )}
+                                                <span className="text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-2">
+                                                    {model}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
                             </div>
                         </>
                     )}
