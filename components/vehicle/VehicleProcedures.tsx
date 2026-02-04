@@ -117,17 +117,17 @@ function ProcedureSectionView({
                 </div>
             )}
 
-            <div className="grid gap-3">
+            <div className="grid gap-2 md:gap-3">
                 {section.steps.map((step, i) => (
-                    <div key={i} className="flex gap-4 p-4 rounded-xl hover:bg-zinc-800/20 transition-all border border-transparent hover:border-zinc-800 group">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 ${stepColor}`}>
+                    <div key={i} className="flex gap-2 md:gap-4 p-2 md:p-4 rounded-xl hover:bg-zinc-800/20 transition-all border border-transparent hover:border-zinc-800 group">
+                        <div className={`w-6 h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-xs md:text-sm font-bold shrink-0 ${stepColor}`}>
                             {step.stepNumber || i + 1}
                         </div>
-                        <div className="flex-1 pt-1">
+                        <div className="flex-1 pt-0.5 md:pt-1">
                             <div className="flex flex-wrap items-start gap-2">
                                 {step.tool && <ToolBadge tool={step.tool} />}
                             </div>
-                            <p className="text-zinc-200 text-sm leading-relaxed mt-1">
+                            <p className="text-zinc-200 text-xs md:text-sm leading-relaxed mt-0.5 md:mt-1">
                                 {typeof step.content === 'string'
                                     ? step.content
                                     : typeof step.content === 'object' && step.content !== null

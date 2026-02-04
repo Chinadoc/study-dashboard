@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import VehicleHeader from '@/components/vehicle/VehicleHeader';
 import VehicleSpecs from '@/components/vehicle/VehicleSpecs';
@@ -372,6 +372,46 @@ export default function VehicleDetailClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>({});
+    const [activeSection, setActiveSection] = useState('specs');
+
+    // Track section visibility with Intersection Observer
+    useEffect(() => {
+        if (typeof window === 'undefined' || loading) return;
+
+        const sectionIds = ['section-specs', 'section-keyConfigs', 'section-procedures', 'section-images', 'section-pearls', 'section-comments'];
+        const sectionMap: Record<string, string> = {
+            'section-specs': 'specs',
+            'section-keyConfigs': 'keyConfigs',
+            'section-procedures': 'procedures',
+            'section-images': 'images',
+            'section-pearls': 'pearls',
+            'section-comments': 'comments',
+        };
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                // Find the first visible section from top
+                const visibleEntry = entries
+                    .filter(entry => entry.isIntersecting)
+                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+
+                if (visibleEntry) {
+                    const sectionKey = sectionMap[visibleEntry.target.id];
+                    if (sectionKey) {
+                        setActiveSection(sectionKey);
+                    }
+                }
+            },
+            { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
+        );
+
+        sectionIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) observer.observe(element);
+        });
+
+        return () => observer.disconnect();
+    }, [loading]);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -886,7 +926,8 @@ export default function VehicleDetailClient() {
 
             {/* Section Navigation Sidebar */}
             <VehicleSidebar
-                activeSection="specs"
+                activeSection={activeSection}
+                onSectionChange={setActiveSection}
                 availableSections={{
                     specs: true,
                     procedures: !!(addKeyProcedure || aklProcedure || addKeyWalkthrough || aklWalkthrough),
@@ -973,49 +1014,50 @@ export default function VehicleDetailClient() {
                             </div>
                         </section>
                     )}
-
                     {/* Programming Procedures */}
-                    <VehicleProcedures procedures={{
-                        addKey: addKeyProcedure ? {
-                            title: addKeyProcedure.title,
-                            time_minutes: parseInt(addKeyProcedure.time_estimate) || 30,
-                            steps: addKeyProcedure.steps?.map((s: any) => s.action || s) || [],
-                            requirements: addKeyProcedure.tools || [],
-                            pearls: routedPearls.addKey
-                        } : addKeyWalkthrough ? {
-                            title: addKeyWalkthrough.title,
-                            time_minutes: addKeyWalkthrough.time_minutes || addKeyWalkthrough.estimated_time_mins,
-                            steps: parseSteps(addKeyWalkthrough),
-                            menu_path: addKeyWalkthrough.menu_path || addKeyWalkthrough.platform_code,
-                            pearls: routedPearls.addKey
-                        } : routedPearls.addKey.length > 0 ? {
-                            // Third fallback: Build procedure from pearls (pass as rawText for parsing)
-                            title: 'Add Key Procedure',
-                            rawText: routedPearls.addKey.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
-                            pearls: routedPearls.addKey
-                        } : undefined,
-                        akl: aklProcedure ? {
-                            title: aklProcedure.title,
-                            time_minutes: parseInt(aklProcedure.time_estimate) || 45,
-                            risk_level: 'high' as const,
-                            steps: aklProcedure.steps?.map((s: any) => s.action || s) || [],
-                            requirements: aklProcedure.tools || [],
-                            pearls: routedPearls.akl
-                        } : aklWalkthrough ? {
-                            title: aklWalkthrough.title,
-                            time_minutes: aklWalkthrough.time_minutes || aklWalkthrough.estimated_time_mins,
-                            risk_level: ((aklWalkthrough.risk_level === 'moderate' ? 'medium' : aklWalkthrough.risk_level) as 'low' | 'medium' | 'high') || 'high',
-                            steps: parseSteps(aklWalkthrough),
-                            menu_path: aklWalkthrough.menu_path || aklWalkthrough.platform_code,
-                            pearls: routedPearls.akl
-                        } : routedPearls.akl.length > 0 ? {
-                            // Third fallback: Build procedure from pearls (pass as rawText for parsing)
-                            title: 'All Keys Lost (AKL) Procedure',
-                            risk_level: 'high' as const,
-                            rawText: routedPearls.akl.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
-                            pearls: routedPearls.akl
-                        } : undefined,
-                    }} />
+                    <div id="section-procedures">
+                        <VehicleProcedures procedures={{
+                            addKey: addKeyProcedure ? {
+                                title: addKeyProcedure.title,
+                                time_minutes: parseInt(addKeyProcedure.time_estimate) || 30,
+                                steps: addKeyProcedure.steps?.map((s: any) => s.action || s) || [],
+                                requirements: addKeyProcedure.tools || [],
+                                pearls: routedPearls.addKey
+                            } : addKeyWalkthrough ? {
+                                title: addKeyWalkthrough.title,
+                                time_minutes: addKeyWalkthrough.time_minutes || addKeyWalkthrough.estimated_time_mins,
+                                steps: parseSteps(addKeyWalkthrough),
+                                menu_path: addKeyWalkthrough.menu_path || addKeyWalkthrough.platform_code,
+                                pearls: routedPearls.addKey
+                            } : routedPearls.addKey.length > 0 ? {
+                                // Third fallback: Build procedure from pearls (pass as rawText for parsing)
+                                title: 'Add Key Procedure',
+                                rawText: routedPearls.addKey.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
+                                pearls: routedPearls.addKey
+                            } : undefined,
+                            akl: aklProcedure ? {
+                                title: aklProcedure.title,
+                                time_minutes: parseInt(aklProcedure.time_estimate) || 45,
+                                risk_level: 'high' as const,
+                                steps: aklProcedure.steps?.map((s: any) => s.action || s) || [],
+                                requirements: aklProcedure.tools || [],
+                                pearls: routedPearls.akl
+                            } : aklWalkthrough ? {
+                                title: aklWalkthrough.title,
+                                time_minutes: aklWalkthrough.time_minutes || aklWalkthrough.estimated_time_mins,
+                                risk_level: ((aklWalkthrough.risk_level === 'moderate' ? 'medium' : aklWalkthrough.risk_level) as 'low' | 'medium' | 'high') || 'high',
+                                steps: parseSteps(aklWalkthrough),
+                                menu_path: aklWalkthrough.menu_path || aklWalkthrough.platform_code,
+                                pearls: routedPearls.akl
+                            } : routedPearls.akl.length > 0 ? {
+                                // Third fallback: Build procedure from pearls (pass as rawText for parsing)
+                                title: 'All Keys Lost (AKL) Procedure',
+                                risk_level: 'high' as const,
+                                rawText: routedPearls.akl.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
+                                pearls: routedPearls.akl
+                            } : undefined,
+                        }} />
+                    </div>
 
                     {/* Visual References Gallery */}
                     <div id="section-images">

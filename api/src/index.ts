@@ -6360,7 +6360,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             'WK', 'WK2', 'WL', 'JK', 'JL', 'JT', 'KL', 'MK',
             // Luxury package variants
             'Sport Sedan', 'Gran Coupe', 'Gran Turismo',
-            'Cross Country', 'Sportback', 'Avant', 'Allroad',
+            'Cross Country', 'Sportback', 'Avant', 'Allroad', 'Cabriolet', 'Convertible', 'Roadster', 'Coupe', 'Sedan', 'Wagon',
             // Common trim packages
             'Laredo', 'Overland', 'Summit', 'Trailhawk', 'High Altitude', 'Limited X'
           ];

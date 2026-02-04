@@ -120,6 +120,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         try {
             const res = await fetch(`${API_URL}/api/pearls/${pearlId}/reply`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
@@ -152,6 +153,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         try {
             const res = await fetch(`${API_URL}/api/pearls/suggest-edit`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
@@ -362,55 +364,55 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
 
             {/* Suggest Edit Modal */}
             {suggestingEdit && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setSuggestingEdit(null)}>
-                    <div className="bg-zinc-900 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
-                        <h3 className="text-lg font-bold text-white mb-4">✏️ Suggest Edit</h3>
+                <div className="fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50 md:p-4" onClick={() => setSuggestingEdit(null)}>
+                    <div className="bg-zinc-900 md:rounded-xl w-full md:max-w-2xl max-h-[90vh] overflow-y-auto p-4 md:p-6 rounded-t-xl md:rounded-xl" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="text-base md:text-lg font-bold text-white mb-3 md:mb-4">✏️ Suggest Edit</h3>
 
-                        <div className="mb-4">
-                            <label className="text-xs text-zinc-400 block mb-1">Original Content</label>
-                            <div className="p-3 bg-zinc-800 rounded text-sm text-zinc-400 border border-zinc-700">
+                        <div className="mb-3 md:mb-4">
+                            <label className="text-[10px] md:text-xs text-zinc-400 block mb-1">Original Content</label>
+                            <div className="p-2 md:p-3 bg-zinc-800 rounded text-xs md:text-sm text-zinc-400 border border-zinc-700 max-h-24 overflow-y-auto">
                                 {getContent(suggestingEdit)}
                             </div>
                         </div>
 
-                        <div className="mb-4">
-                            <label className="text-xs text-zinc-400 block mb-1">Your Suggested Edit</label>
+                        <div className="mb-3 md:mb-4">
+                            <label className="text-[10px] md:text-xs text-zinc-400 block mb-1">Your Suggested Edit</label>
                             <textarea
                                 value={suggestedContent}
                                 onChange={(e) => setSuggestedContent(e.target.value)}
-                                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded text-sm text-white resize-none"
-                                rows={6}
+                                className="w-full p-2 md:p-3 bg-zinc-800 border border-zinc-700 rounded text-xs md:text-sm text-white resize-none"
+                                rows={4}
                             />
                         </div>
 
-                        <div className="mb-4">
-                            <label className="text-xs text-zinc-400 block mb-1">Reason for Edit (optional)</label>
+                        <div className="mb-3 md:mb-4">
+                            <label className="text-[10px] md:text-xs text-zinc-400 block mb-1">Reason for Edit (optional)</label>
                             <input
                                 type="text"
                                 value={editReason}
                                 onChange={(e) => setEditReason(e.target.value)}
                                 placeholder="e.g., Fixed typo, Updated procedure, Added clarification..."
-                                className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-white"
+                                className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs md:text-sm text-white"
                             />
                         </div>
 
-                        <div className="flex justify-between items-center border-t border-zinc-700 pt-4">
-                            <p className="text-xs text-zinc-500">
+                        <div className="flex flex-col-reverse md:flex-row justify-between items-stretch md:items-center gap-3 border-t border-zinc-700 pt-3 md:pt-4">
+                            <p className="text-[10px] md:text-xs text-zinc-500 text-center md:text-left">
                                 ⭐ Earn 10 points if your edit is approved!
                             </p>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 justify-end">
                                 <button
                                     onClick={() => setSuggestingEdit(null)}
-                                    className="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white text-sm rounded transition"
+                                    className="flex-1 md:flex-none px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white text-xs md:text-sm rounded transition"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSuggestEdit}
                                     disabled={submitting || suggestedContent === getContent(suggestingEdit)}
-                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm rounded transition"
+                                    className="flex-1 md:flex-none px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs md:text-sm rounded transition"
                                 >
-                                    {submitting ? 'Submitting...' : 'Submit Suggestion'}
+                                    {submitting ? 'Submitting...' : 'Submit'}
                                 </button>
                             </div>
                         </div>

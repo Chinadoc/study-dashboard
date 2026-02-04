@@ -33,9 +33,6 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const [loadingModels, setLoadingModels] = useState(false);
     const [loadingYears, setLoadingYears] = useState(false);
 
-    // Year era filter
-    const [yearEra, setYearEra] = useState<'all' | 'modern' | 'classic'>('all');
-
     // Image error tracking
     const [makeImageErrors, setMakeImageErrors] = useState<Set<string>>(new Set());
     const [modelImageErrors, setModelImageErrors] = useState<Set<string>>(new Set());
@@ -135,14 +132,14 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
         return `/assets/vehicles/${makeLower}/${makeLower}_${modelLower}.png`;
     };
 
-    // Group items into 3x3 blocks for horizontal scroll (9 items per page)
-    const groupInto3x3Blocks = <T,>(items: T[]): T[][][] => {
+    // Group items into 4x4 blocks for horizontal scroll (16 items per page)
+    const groupInto4x4Blocks = <T,>(items: T[]): T[][][] => {
         const blocks: T[][][] = [];
-        for (let i = 0; i < items.length; i += 9) {
+        for (let i = 0; i < items.length; i += 16) {
             const block: T[][] = [];
-            for (let row = 0; row < 3; row++) {
-                const startIdx = i + (row * 3);
-                const rowItems = items.slice(startIdx, startIdx + 3);
+            for (let row = 0; row < 4; row++) {
+                const startIdx = i + (row * 4);
+                const rowItems = items.slice(startIdx, startIdx + 4);
                 if (rowItems.length > 0) block.push(rowItems);
             }
             if (block.length > 0) blocks.push(block);
@@ -260,13 +257,13 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 </div>
             )}
 
-            {/* 3x3 Grid - Makes (Square Cards) */}
+            {/* 4x4 Grid - Makes (Square Cards) */}
             {!selectedMake && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
                         Select Make
                     </h2>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-4 gap-1.5">
                         {makes.map(make => {
                             const logoUrl = getMakeLogo(make);
                             const brandColor = getBrandColor(make);
@@ -277,24 +274,24 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                                 <button
                                     key={make}
                                     onClick={() => handleMakeSelect(make)}
-                                    className="aspect-square flex flex-col items-center justify-center gap-2 p-2 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                    className="aspect-square flex flex-col items-center justify-center gap-1 p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
                                 >
                                     {!hasError ? (
                                         <img
                                             src={logoUrl}
                                             alt={make}
-                                            className="w-12 h-12 object-contain rounded-full bg-white p-1"
+                                            className="w-8 h-8 object-contain rounded-full bg-white p-0.5"
                                             onError={() => setMakeImageErrors(prev => new Set(prev).add(make))}
                                         />
                                     ) : (
                                         <div
-                                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                                            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-[10px]"
                                             style={{ backgroundColor: brandColor }}
                                         >
                                             {initials}
                                         </div>
                                     )}
-                                    <span className="text-xs text-gray-200 font-medium text-center leading-tight line-clamp-2">{make}</span>
+                                    <span className="text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-1">{make}</span>
                                 </button>
                             );
                         })}
@@ -315,10 +312,10 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                     ) : (
                         <div className="overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
                             <div className="flex gap-4" style={{ width: 'max-content' }}>
-                                {groupInto3x3Blocks(models).map((block, blockIndex) => (
+                                {groupInto4x4Blocks(models).map((block, blockIndex) => (
                                     <div
                                         key={blockIndex}
-                                        className="grid grid-cols-3 gap-2 snap-center"
+                                        className="grid grid-cols-4 gap-1.5 snap-center"
                                         style={{ minWidth: 'calc(100vw - 32px)', maxWidth: 'calc(100vw - 32px)' }}
                                     >
                                         {block.flat().map(model => {
@@ -329,21 +326,21 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                                                 <button
                                                     key={model}
                                                     onClick={() => handleModelSelect(model)}
-                                                    className="aspect-square flex flex-col items-center justify-center gap-1 p-2 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                                    className="aspect-square flex flex-col items-center justify-center gap-0.5 p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
                                                 >
                                                     {!hasError ? (
                                                         <img
                                                             src={imageSrc}
                                                             alt={model}
-                                                            className="w-16 h-12 object-contain flex-shrink-0"
+                                                            className="w-10 h-8 object-contain flex-shrink-0"
                                                             onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
                                                         />
                                                     ) : (
-                                                        <div className="w-16 h-12 rounded bg-gray-700/50 flex items-center justify-center">
-                                                            <span className="text-2xl">🚗</span>
+                                                        <div className="w-10 h-8 rounded bg-gray-700/50 flex items-center justify-center">
+                                                            <span className="text-lg">🚗</span>
                                                         </div>
                                                     )}
-                                                    <span className="text-xs text-gray-200 font-medium text-center leading-tight line-clamp-2">
+                                                    <span className="text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-2">
                                                         {model}
                                                     </span>
                                                 </button>
@@ -369,47 +366,22 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading years...
                         </div>
                     ) : (
-                        <>
-                            {/* Year Era Toggle */}
-                            {years.some(y => y < 2000) && years.some(y => y >= 2000) && (
-                                <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
-                                    <button
-                                        onClick={() => setYearEra('all')}
-                                        className={`flex-1 px-2 py-2 text-xs rounded-md font-medium transition-colors ${yearEra === 'all' ? 'bg-purple-500 text-white' : 'text-gray-400'}`}
-                                    >
-                                        All ({years.length})
-                                    </button>
-                                    <button
-                                        onClick={() => setYearEra('modern')}
-                                        className={`flex-1 px-2 py-2 text-xs rounded-md font-medium transition-colors ${yearEra === 'modern' ? 'bg-emerald-500 text-white' : 'text-gray-400'}`}
-                                    >
-                                        2000+ ({years.filter(y => y >= 2000).length})
-                                    </button>
-                                    <button
-                                        onClick={() => setYearEra('classic')}
-                                        className={`flex-1 px-2 py-2 text-xs rounded-md font-medium transition-colors ${yearEra === 'classic' ? 'bg-amber-500 text-white' : 'text-gray-400'}`}
-                                    >
-                                        Classic ({years.filter(y => y < 2000).length})
-                                    </button>
-                                </div>
-                            )}
-                            <div className="grid grid-cols-4 gap-2">
-                                {(yearEra === 'all' ? years : yearEra === 'modern' ? years.filter(y => y >= 2000) : years.filter(y => y < 2000)).map(year => (
-                                    <button
-                                        key={year}
-                                        onClick={() => handleYearSelect(year)}
-                                        className={`py-3 px-2 rounded-xl border transition-all text-center font-bold text-sm
-                                            ${selectedYear === year
-                                                ? 'border-purple-500 bg-purple-500/20 text-purple-300'
-                                                : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
-                                            }
-                                        `}
-                                    >
-                                        {year}
-                                    </button>
-                                ))}
-                            </div>
-                        </>
+                        <div className="grid grid-cols-4 gap-2">
+                            {years.map(year => (
+                                <button
+                                    key={year}
+                                    onClick={() => handleYearSelect(year)}
+                                    className={`py-3 px-2 rounded-xl border transition-all text-center font-bold text-sm
+                                        ${selectedYear === year
+                                            ? 'border-purple-500 bg-purple-500/20 text-purple-300'
+                                            : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
+                                        }
+                                    `}
+                                >
+                                    {year}
+                                </button>
+                            ))}
+                        </div>
                     )}
                 </section>
             )}

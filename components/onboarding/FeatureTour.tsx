@@ -35,7 +35,8 @@ const TOUR_STEPS: TourStep[] = [
 export default function FeatureTour() {
     const { showWizard, closeWizard, markTourComplete, isTourComplete } = useOnboarding();
     const [currentStep, setCurrentStep] = useState(0);
-    const [position, setPosition] = useState({ top: 0, left: 0 });
+    // Start with centered fallback position to avoid flash at (0,0)
+    const [position, setPosition] = useState({ top: 200, left: 500 });
     const [isVisible, setIsVisible] = useState(false);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +46,7 @@ export default function FeatureTour() {
         if (!step) return;
 
         const targetEl = document.querySelector(step.target);
+        const tooltipEl = tooltipRef.current;
 
         if (!targetEl) {
             // Use fallback center position if element not found
@@ -56,17 +58,27 @@ export default function FeatureTour() {
         }
 
         const rect = targetEl.getBoundingClientRect();
+        const tooltipHeight = tooltipEl?.offsetHeight || 200;
+        const tooltipWidth = tooltipEl?.offsetWidth || 320;
+        const padding = 16;
+
         let top = 0;
         let left = 0;
 
+        // For bottom nav elements, position tooltip above with fallback
         switch (step.position) {
             case 'bottom':
                 top = rect.bottom + 12;
                 left = rect.left + rect.width / 2;
                 break;
             case 'top':
-                top = rect.top - 12;
+                // Position above the element
+                top = rect.top - tooltipHeight - 12;
                 left = rect.left + rect.width / 2;
+                // If it would go off the top, switch to bottom
+                if (top < padding) {
+                    top = rect.bottom + 12;
+                }
                 break;
             case 'left':
                 top = rect.top + rect.height / 2;
@@ -77,6 +89,14 @@ export default function FeatureTour() {
                 left = rect.right + 12;
                 break;
         }
+
+        // Clamp to viewport bounds
+        const maxTop = window.innerHeight - tooltipHeight - padding;
+        const maxLeft = window.innerWidth - tooltipWidth / 2 - padding;
+        const minLeft = tooltipWidth / 2 + padding;
+
+        top = Math.max(padding, Math.min(top, maxTop));
+        left = Math.max(minLeft, Math.min(left, maxLeft));
 
         setPosition({ top, left });
 
@@ -93,9 +113,14 @@ export default function FeatureTour() {
         if (showWizard) {
             setCurrentStep(0);
             setIsVisible(true);
-            // Small delay to let DOM settle
-            const timer = setTimeout(updatePosition, 100);
-            return () => clearTimeout(timer);
+            // Initial position update after brief delay for DOM to settle
+            const timer1 = setTimeout(updatePosition, 50);
+            // Second update after tooltip has rendered with proper dimensions
+            const timer2 = setTimeout(updatePosition, 200);
+            return () => {
+                clearTimeout(timer1);
+                clearTimeout(timer2);
+            };
         } else {
             setIsVisible(false);
         }
@@ -146,18 +171,8 @@ export default function FeatureTour() {
     };
 
     const getTransform = () => {
-        switch (step.position) {
-            case 'bottom':
-                return 'translateX(-50%)';
-            case 'top':
-                return 'translateX(-50%) translateY(-100%)';
-            case 'left':
-                return 'translateX(-100%) translateY(-50%)';
-            case 'right':
-                return 'translateY(-50%)';
-            default:
-                return 'translateX(-50%)';
-        }
+        // Just center horizontally; vertical positioning is calculated
+        return 'translateX(-50%)';
     };
 
     return (
