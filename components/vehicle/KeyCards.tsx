@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { AFFILIATE_TAG } from '@/lib/config';
 import { useInventory } from '@/contexts/InventoryContext';
+import { useUnifiedData } from '@/lib/useUnifiedData';
 import OwnedBadge from '@/components/shared/OwnedBadge';
 
 interface KeyConfig {
@@ -36,6 +37,47 @@ interface KeyCardsProps {
         frequency?: Pearl[];  // Frequency mismatch warnings
         access?: Pearl[];     // Cylinder access pearls
     };
+}
+
+// Job History Banner - Shows if user has serviced similar vehicles before
+function JobHistoryBanner({ vehicleInfo }: { vehicleInfo: { make: string; model: string; year: number } }) {
+    const { canServiceVehicle, getJobHistory } = useUnifiedData();
+
+    // Get coverage and history for this vehicle
+    const vehicleStr = `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`;
+    const jobs = getJobHistory(undefined, vehicleStr);
+    const coverage = canServiceVehicle(vehicleInfo.make, vehicleInfo.model, vehicleInfo.year);
+
+    // Don't show if no relevant data
+    if (jobs.length === 0 && !coverage.canService) return null;
+
+    return (
+        <div className="mb-4 flex flex-wrap gap-2">
+            {/* Job History Badge */}
+            {jobs.length > 0 && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-medium">
+                    <span>📝</span>
+                    <span>You&apos;ve done {jobs.length} job{jobs.length > 1 ? 's' : ''} on similar vehicles</span>
+                </div>
+            )}
+
+            {/* Can Service Badge */}
+            {coverage.canService && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-medium">
+                    <span>✅</span>
+                    <span>You can service this ({coverage.ownedTools.map(t => t.ownedToolName || t.name).join(', ')})</span>
+                </div>
+            )}
+
+            {/* Stock Status */}
+            {coverage.hasStock && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-medium">
+                    <span>📦</span>
+                    <span>{coverage.keyStock} in stock</span>
+                </div>
+            )}
+        </div>
+    );
 }
 
 // Collapsible pearl tags for key configurations
@@ -115,6 +157,9 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
             {(pearls?.keyConfig?.length ?? 0) > 0 || (pearls?.frequency?.length ?? 0) > 0 || (pearls?.access?.length ?? 0) > 0 ? (
                 <KeyConfigPearlTags pearls={pearls} />
             ) : null}
+
+            {/* Job History Banner - from Unified Data */}
+            {vehicleInfo && <JobHistoryBanner vehicleInfo={vehicleInfo} />}
 
             {/* Responsive layout: fill space for 2-4 keys, horizontal scroll for 5+ */}
             {useScrollLayout ? (
