@@ -73,11 +73,6 @@ export default function BusinessDashboard() {
 
     return (
         <div className="min-h-screen bg-eurokeys-dark p-4 space-y-4">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <h1 className="text-xl font-bold text-white">Business Dashboard</h1>
-            </div>
-
             {/* Today's Overview */}
             <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
                 <h2 className="text-sm font-medium text-gray-400 mb-3">Today&apos;s Overview</h2>
