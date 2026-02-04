@@ -271,20 +271,32 @@ export default function ChatWidget() {
 
         .chat-panel {
           position: fixed;
-          bottom: 96px;
-          right: 24px;
-          width: 380px;
-          max-width: calc(100vw - 48px);
-          height: 500px;
-          max-height: calc(100vh - 140px);
+          bottom: 144px; /* Above toggle button on mobile */
+          right: 16px;
+          width: 340px;
+          max-width: calc(100vw - 32px);
+          height: 400px;
+          max-height: calc(100vh - 200px);
           background: #1a1a2e;
           border-radius: 16px;
           box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          z-index: 999;
+          z-index: 44;
           border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (min-width: 1024px) {
+          .chat-panel {
+            bottom: 96px;
+            right: 24px;
+            width: 380px;
+            max-width: calc(100vw - 48px);
+            height: 500px;
+            max-height: calc(100vh - 140px);
+            z-index: 999;
+          }
         }
 
         .chat-header {

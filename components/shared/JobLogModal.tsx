@@ -559,6 +559,34 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                         </div>
                     </div>
 
+                    {/* Community Tips Panel */}
+                    {(communityTips.length > 0 || loadingTips) && (
+                        <div className="p-3 bg-gradient-to-r from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-xl">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-sm">💡</span>
+                                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                                    Community Tips
+                                </span>
+                                {loadingTips && (
+                                    <span className="text-xs text-zinc-500 animate-pulse">Loading...</span>
+                                )}
+                            </div>
+                            {communityTips.length > 0 && (
+                                <div className="space-y-2">
+                                    {communityTips.map((tip, i) => (
+                                        <div key={i} className="text-sm text-zinc-300">
+                                            <span className="text-purple-400">•</span>{' '}
+                                            <span className="line-clamp-2">{tip.content}</span>
+                                            <span className="text-xs text-zinc-500 ml-1">
+                                                — {tip.user_name} ({tip.score > 0 ? '+' : ''}{tip.score})
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {/* Price & Date */}
                     <div className="grid grid-cols-2 gap-3">
                         <div>
