@@ -310,7 +310,8 @@ function BrowsePageContent() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <header className="text-center mb-8">
+            {/* Header - hidden on mobile for compact layout */}
+            <header className="text-center mb-8 hidden md:block">
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent mb-2">
                     Browse Database
                 </h1>
