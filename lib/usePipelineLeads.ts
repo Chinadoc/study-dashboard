@@ -283,6 +283,57 @@ export function usePipelineLeads() {
         ).sort((a, b) => (a.followUpDate || '').localeCompare(b.followUpDate || ''));
     }, [leads]);
 
+    // Force full sync - pushes ALL local leads to cloud
+    const forceFullSync = useCallback(async (): Promise<{ success: boolean; synced: number; error?: string }> => {
+        const token = getAuthToken();
+        if (!token) {
+            return { success: false, synced: 0, error: 'Not authenticated' };
+        }
+
+        try {
+            const localLeads = getLeadsFromStorage();
+
+            if (localLeads.length === 0) {
+                // No local data, just fetch from cloud
+                const data = await apiRequest('/api/user/pipeline-leads');
+                if (data?.leads) {
+                    setLeads(data.leads);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.leads));
+                }
+                return { success: true, synced: 0 };
+            }
+
+            // Push ALL local leads to cloud
+            console.log(`[ForceSync] Pushing ${localLeads.length} leads to cloud...`);
+            let synced = 0;
+            for (const lead of localLeads) {
+                const result = await apiRequest('/api/user/pipeline-leads', {
+                    method: 'POST',
+                    body: JSON.stringify(lead),
+                });
+                if (result) synced++;
+            }
+
+            // Refresh from cloud to get merged state
+            const data = await apiRequest('/api/user/pipeline-leads');
+            if (data?.leads) {
+                setLeads(data.leads);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data.leads));
+            }
+
+            hasSyncedRef.current = true;
+            console.log(`[ForceSync] Successfully synced ${synced} leads`);
+            return { success: true, synced };
+        } catch (e) {
+            console.error('[ForceSync] Failed:', e);
+            return {
+                success: false,
+                synced: 0,
+                error: e instanceof Error ? e.message : 'Unknown error'
+            };
+        }
+    }, []);
+
     return {
         leads,
         loading,
@@ -292,6 +343,7 @@ export function usePipelineLeads() {
         getStats,
         getLeadsByStatus,
         getFollowUpLeads,
+        forceFullSync,
     };
 }
 

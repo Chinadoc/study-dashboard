@@ -320,13 +320,15 @@ export default function InventoryPage() {
             case 'low': items = lowStock; break;
         }
 
-        // Apply search filter
+        // Apply search filter (supports OEM, FCC, vehicle, serial number)
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
             items = items.filter(item =>
                 item.itemKey.toLowerCase().includes(q) ||
                 (item.vehicle && item.vehicle.toLowerCase().includes(q)) ||
                 (item.fcc_id && item.fcc_id.toLowerCase().includes(q)) ||
+                (item.oem_number && item.oem_number.toLowerCase().includes(q)) ||
+                (item.related_oems && item.related_oems.toLowerCase().includes(q)) ||
                 (item.serialNumber && item.serialNumber.toLowerCase().includes(q))
             );
         }
@@ -563,7 +565,15 @@ export default function InventoryPage() {
                                                 <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">Warranty</span>
                                             )}
                                         </div>
-                                        <div className="font-bold text-sm sm:text-base text-white truncate">{item.itemKey}</div>
+                                        <div className="font-bold text-sm sm:text-base text-white truncate">
+                                            {item.itemKey}
+                                        </div>
+                                        {/* Show FCC as secondary reference if different from primary key */}
+                                        {item.fcc_id && item.fcc_id.toUpperCase() !== item.itemKey.toUpperCase() && (
+                                            <div className="text-[10px] sm:text-xs text-yellow-500/70 font-mono">
+                                                FCC: {item.fcc_id}
+                                            </div>
+                                        )}
                                         {item.serialNumber && (
                                             <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
                                         )}

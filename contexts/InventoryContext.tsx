@@ -9,11 +9,14 @@ import { useAuth } from '@/contexts/AuthContext';
 // ============================================================================
 
 export interface InventoryItem {
-    itemKey: string;
+    itemKey: string;  // Primary identifier - OEM number (preferred) or FCC ID
     type: 'key' | 'blank' | 'tool' | 'consumable';
     qty: number;
     vehicle?: string;
-    fcc_id?: string;
+    fcc_id?: string;  // FCC ID for reference/lookup
+    oem_number?: string;  // OEM number when itemKey is OEM-based
+    related_fccs?: string;  // Comma-separated related FCCs
+    related_oems?: string;  // Comma-separated related OEMs
     link?: string;
     updated_at?: number;
     // Tool-specific fields
@@ -24,16 +27,24 @@ export interface InventoryItem {
     notes?: string;
 }
 
+// Metadata for adding items with OEM/FCC cross-references
+export interface AddToInventoryMetadata {
+    fcc_id?: string;
+    oem_number?: string;
+    related_oems?: string;
+    related_fccs?: string;
+}
+
 interface InventoryContextType {
     inventory: InventoryItem[];
     loading: boolean;
-    // Quick lookups
-    isOwned: (fcc: string) => boolean;
-    getQuantity: (fcc: string) => number;
-    // Mutations
-    addToInventory: (fcc: string, vehicle?: string, qty?: number) => void;
-    removeFromInventory: (fcc: string, qty?: number) => void;
-    updateQuantity: (fcc: string, delta: number, vehicle?: string) => void;
+    // Quick lookups - accepts OEM or FCC
+    isOwned: (keyOrFcc: string) => boolean;
+    getQuantity: (keyOrFcc: string) => number;
+    // Mutations - itemKey is now OEM (preferred) or FCC
+    addToInventory: (itemKey: string, vehicle?: string, qty?: number, metadata?: AddToInventoryMetadata) => void;
+    removeFromInventory: (itemKey: string, qty?: number) => void;
+    updateQuantity: (itemKey: string, delta: number, vehicle?: string, metadata?: AddToInventoryMetadata) => void;
     // Login prompt state
     showLoginPrompt: boolean;
     dismissLoginPrompt: () => void;
@@ -93,22 +104,41 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
         }
     }, [isAuthenticated]);
 
-    // Helper for robust FCC matching
-    const normalizeFcc = (fcc: string): string => {
-        if (!fcc) return '';
+    // Helper for robust key matching (OEM or FCC)
+    const normalizeKey = (key: string): string => {
+        if (!key) return '';
         // Remove dashes, spaces, and non-alphanumeric chars
-        return fcc.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        return key.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     };
 
-    // Build FCC -> quantity map for O(1) lookups
-    const fccQuantityMap = useMemo(() => {
+    // Alias for backward compatibility
+    const normalizeFcc = normalizeKey;
+
+    // Build dual lookup map for O(1) lookups (supports both OEM and FCC)
+    const keyQuantityMap = useMemo(() => {
         const map = new Map<string, number>();
         inventory.forEach(item => {
             if (item.type === 'key' && item.itemKey) {
-                // Normalize FCC ID robustly
-                const fcc = normalizeFcc(item.itemKey);
-                if (fcc) {
-                    map.set(fcc, (map.get(fcc) || 0) + (item.qty || 0));
+                // Index by primary itemKey (now OEM preferred)
+                const key = normalizeKey(item.itemKey);
+                if (key) {
+                    map.set(key, (map.get(key) || 0) + (item.qty || 0));
+                }
+
+                // Also index by FCC if different from itemKey (for backward compat)
+                if (item.fcc_id && normalizeKey(item.fcc_id) !== key) {
+                    const fcc = normalizeKey(item.fcc_id);
+                    if (fcc) {
+                        map.set(fcc, (map.get(fcc) || 0) + (item.qty || 0));
+                    }
+                }
+
+                // Also index by OEM number if stored separately
+                if (item.oem_number && normalizeKey(item.oem_number) !== key) {
+                    const oem = normalizeKey(item.oem_number);
+                    if (oem) {
+                        map.set(oem, (map.get(oem) || 0) + (item.qty || 0));
+                    }
                 }
             }
         });
@@ -116,30 +146,28 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     }, [inventory]);
 
     // ========================================================================
-    // Quick Lookups
+    // Quick Lookups (support both OEM and FCC)
     // ========================================================================
 
-    const isOwned = useCallback((fccInput: string): boolean => {
-        if (!fccInput) return false;
-        // Handle comma-separated FCCs - return true if ANY are owned
-        const fccs = fccInput.split(/[\s,]+/).filter(Boolean);
-        return fccs.some(fcc => (fccQuantityMap.get(normalizeFcc(fcc)) || 0) > 0);
-    }, [fccQuantityMap]);
+    const isOwned = useCallback((keyOrFccInput: string): boolean => {
+        if (!keyOrFccInput) return false;
+        // Handle comma-separated keys/FCCs - return true if ANY are owned
+        const keys = keyOrFccInput.split(/[\s,]+/).filter(Boolean);
+        return keys.some(key => (keyQuantityMap.get(normalizeKey(key)) || 0) > 0);
+    }, [keyQuantityMap]);
 
-    const getQuantity = useCallback((fccInput: string): number => {
-        if (!fccInput) return 0;
-        // Handle comma-separated FCCs - return sum of all matches? 
-        // Or max? Usually a key has one primary FCC, but if listed with multiple,
-        // we likely want to know if we have *that* key.
-        // Let's return the MAX quantity of any matching FCC, as they are likely aliases.
-        const fccs = fccInput.split(/[\s,]+/).filter(Boolean);
+    const getQuantity = useCallback((keyOrFccInput: string): number => {
+        if (!keyOrFccInput) return 0;
+        // Handle comma-separated keys/FCCs - return MAX quantity of any match
+        // (they are likely aliases for the same physical key)
+        const keys = keyOrFccInput.split(/[\s,]+/).filter(Boolean);
         let maxQty = 0;
-        fccs.forEach(fcc => {
-            const qty = fccQuantityMap.get(normalizeFcc(fcc)) || 0;
+        keys.forEach(key => {
+            const qty = keyQuantityMap.get(normalizeKey(key)) || 0;
             if (qty > maxQty) maxQty = qty;
         });
         return maxQty;
-    }, [fccQuantityMap]);
+    }, [keyQuantityMap]);
 
     // ========================================================================
     // Sync: Load inventory
@@ -333,20 +361,24 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     // Mutations
     // ========================================================================
 
-    const updateQuantity = useCallback((fcc: string, delta: number, vehicle?: string) => {
-        if (!fcc) return;
+    const updateQuantity = useCallback((itemKey: string, delta: number, vehicle?: string, metadata?: AddToInventoryMetadata) => {
+        if (!itemKey) return;
 
         setInventory(prev => {
-            const normalizedTarget = normalizeFcc(fcc);
-            // Find existing item by matching normalized keys
+            const normalizedTarget = normalizeKey(itemKey);
+            // Find existing item by matching normalized keys (check itemKey, fcc_id, oem_number)
             const existingIndex = prev.findIndex(i =>
-                i.type === 'key' && normalizeFcc(i.itemKey) === normalizedTarget
+                i.type === 'key' && (
+                    normalizeKey(i.itemKey) === normalizedTarget ||
+                    (i.fcc_id && normalizeKey(i.fcc_id) === normalizedTarget) ||
+                    (i.oem_number && normalizeKey(i.oem_number) === normalizedTarget)
+                )
             );
 
             let updated: InventoryItem[];
             let itemToSync: InventoryItem | null = null;
             let shouldDelete = false;
-            let targetItemKey = fcc; // Default to input for new items
+            let targetItemKey = itemKey; // Default to input for new items
 
             if (existingIndex >= 0) {
                 const existing = prev[existingIndex];
@@ -363,13 +395,16 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
                     updated = prev.map((item, i) => i === existingIndex ? itemToSync! : item);
                 }
             } else if (delta > 0) {
-                // Add new item
+                // Add new item with OEM-based primary key and metadata
                 itemToSync = {
                     itemKey: targetItemKey,
                     type: 'key',
                     qty: delta,
                     vehicle,
-                    fcc_id: fcc,
+                    fcc_id: metadata?.fcc_id || (targetItemKey.match(/^[A-Z0-9]{3,}-[A-Z0-9]+$/i) ? targetItemKey : undefined),
+                    oem_number: metadata?.oem_number,
+                    related_fccs: metadata?.related_fccs,
+                    related_oems: metadata?.related_oems,
                     updated_at: Date.now()
                 };
                 updated = [...prev, itemToSync];
@@ -402,12 +437,12 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
         });
     }, [isAuthenticated, syncToAPI, deleteFromAPI]);
 
-    const addToInventory = useCallback((fcc: string, vehicle?: string, qty: number = 1) => {
-        updateQuantity(fcc, qty, vehicle);
+    const addToInventory = useCallback((itemKey: string, vehicle?: string, qty: number = 1, metadata?: AddToInventoryMetadata) => {
+        updateQuantity(itemKey, qty, vehicle, metadata);
     }, [updateQuantity]);
 
-    const removeFromInventory = useCallback((fcc: string, qty: number = 1) => {
-        updateQuantity(fcc, -qty);
+    const removeFromInventory = useCallback((itemKey: string, qty: number = 1) => {
+        updateQuantity(itemKey, -qty);
     }, [updateQuantity]);
 
     const dismissLoginPrompt = useCallback(() => {

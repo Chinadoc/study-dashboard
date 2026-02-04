@@ -206,15 +206,42 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
 
 function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { make: string; model: string; year: number } }) {
     const [added, setAdded] = useState(false);
+    const [showOemSelector, setShowOemSelector] = useState(false);
     const { addToInventory: contextAddToInventory } = useInventory();
 
-    const handleAddToInventory = () => {
-        const itemKey = config.fcc || config.name || 'Unknown Key';
-        const vehicleStr = vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined;
+    const vehicleStr = vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined;
 
-        contextAddToInventory(itemKey, vehicleStr, 1);
+    // Handle adding a specific OEM to inventory
+    const handleAddOem = (oemNumber: string) => {
+        contextAddToInventory(oemNumber, vehicleStr, 1, {
+            fcc_id: config.fcc,
+            oem_number: oemNumber,
+            related_oems: config.oem?.map(o => o.number).join(','),
+            related_fccs: config.fcc || ''
+        });
         setAdded(true);
+        setShowOemSelector(false);
         setTimeout(() => setAdded(false), 2000);
+    };
+
+    const handleAddToInventory = () => {
+        const oems = config.oem || [];
+
+        if (oems.length === 0) {
+            // No OEM data - fall back to FCC as primary key
+            const itemKey = config.fcc || config.name || 'Unknown Key';
+            contextAddToInventory(itemKey, vehicleStr, 1, {
+                fcc_id: config.fcc
+            });
+            setAdded(true);
+            setTimeout(() => setAdded(false), 2000);
+        } else if (oems.length === 1) {
+            // Single OEM - use directly
+            handleAddOem(oems[0].number);
+        } else {
+            // Multiple OEMs - show selection modal
+            setShowOemSelector(true);
+        }
     };
 
     const typeColors: Record<string, string> = {
@@ -313,12 +340,6 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
 
             {/* Specs Grid */}
             <div className="space-y-1 mb-3">
-                {config.partNumber && (
-                    <div className="text-xs truncate">
-                        <span className="text-zinc-500">Part#: </span>
-                        <span className="text-white font-mono">{config.partNumber}</span>
-                    </div>
-                )}
                 {config.chip && (() => {
                     // Detect VATS (resistor values) and display abbreviated
                     const chipLower = config.chip.toLowerCase();
@@ -387,6 +408,53 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     </div>
                 )}
             </div>
+            {/* OEM Selection Modal */}
+            {showOemSelector && config.oem && config.oem.length > 1 && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowOemSelector(false);
+                    }}
+                >
+                    <div
+                        className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 w-80 max-h-[80vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-lg font-bold mb-2 text-white">Select OEM Part Number</h3>
+                        <p className="text-xs text-zinc-400 mb-3">
+                            This key has {config.oem.length} OEM variants. Select the one you&apos;re adding to inventory:
+                        </p>
+                        <div className="space-y-2">
+                            {config.oem.map((oem, i) => (
+                                <button
+                                    key={i}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleAddOem(oem.number);
+                                    }}
+                                    className="w-full px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-left transition-colors"
+                                >
+                                    <span className="font-mono text-yellow-400">{oem.number}</span>
+                                    {oem.label && <span className="text-zinc-500 ml-2 text-xs">{oem.label}</span>}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setShowOemSelector(false);
+                            }}
+                            className="w-full mt-3 px-3 py-2 bg-zinc-700 hover:bg-zinc-600 rounded-lg text-zinc-300 text-sm"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </CardWrapper>
     );
 }

@@ -326,6 +326,54 @@ export function useInvoices() {
         }
     }, []);
 
+    // Force full sync - pushes ALL local invoices to cloud
+    const forceFullSync = useCallback(async (): Promise<{ success: boolean; synced: number; error?: string }> => {
+        const token = getAuthToken();
+        if (!token) {
+            return { success: false, synced: 0, error: 'Not authenticated' };
+        }
+
+        try {
+            const localInvoices = getInvoicesFromStorage();
+
+            if (localInvoices.length === 0) {
+                const data = await apiRequest('/api/user/invoices');
+                if (data?.invoices) {
+                    setInvoices(data.invoices);
+                    localStorage.setItem(INVOICES_STORAGE_KEY, JSON.stringify(data.invoices));
+                }
+                return { success: true, synced: 0 };
+            }
+
+            console.log(`[ForceSync] Pushing ${localInvoices.length} invoices to cloud...`);
+            let synced = 0;
+            for (const inv of localInvoices) {
+                const result = await apiRequest('/api/user/invoices', {
+                    method: 'POST',
+                    body: JSON.stringify(inv),
+                });
+                if (result) synced++;
+            }
+
+            const data = await apiRequest('/api/user/invoices');
+            if (data?.invoices) {
+                setInvoices(data.invoices);
+                localStorage.setItem(INVOICES_STORAGE_KEY, JSON.stringify(data.invoices));
+            }
+
+            hasSyncedRef.current = true;
+            console.log(`[ForceSync] Successfully synced ${synced} invoices`);
+            return { success: true, synced };
+        } catch (e) {
+            console.error('[ForceSync] Failed:', e);
+            return {
+                success: false,
+                synced: 0,
+                error: e instanceof Error ? e.message : 'Unknown error'
+            };
+        }
+    }, []);
+
     return {
         invoices,
         loading,
@@ -333,5 +381,6 @@ export function useInvoices() {
         updateInvoice,
         deleteInvoice,
         getInvoicesFromStorage,
+        forceFullSync,
     };
 }

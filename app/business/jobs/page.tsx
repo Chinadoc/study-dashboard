@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import { usePipelineLeads, PipelineLead } from '@/lib/usePipelineLeads';
@@ -9,9 +9,12 @@ import CalendarView from '@/components/business/CalendarView';
 import GoalProgress from '@/components/business/GoalProgress';
 import InvoiceBuilder from '@/components/business/InvoiceBuilder';
 import PipelineView from '@/components/business/PipelineView';
+import DispatchQueueView from '@/components/business/DispatchQueueView';
+import MyJobsView from '@/components/business/MyJobsView';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
+import { getTechniciansFromStorage, Technician } from '@/lib/technicianTypes';
 
-type JobsSubTab = 'all' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
+type JobsSubTab = 'all' | 'dispatch' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
 
 export default function JobsPage() {
     const [activeSubTab, setActiveSubTab] = useState<JobsSubTab>('all');
@@ -30,9 +33,26 @@ export default function JobsPage() {
     const { getStats: getPipelineStats } = usePipelineLeads();
     const stats = getJobStats();
 
-    // Filter jobs based on subtab
+    // Load technicians for dispatch
+    const [technicians, setTechnicians] = useState<Technician[]>([]);
+    const [currentUserId, setCurrentUserId] = useState<string | undefined>();
+
+    useEffect(() => {
+        setTechnicians(getTechniciansFromStorage());
+        // Get current user ID from auth
+        const userId = localStorage.getItem('user_id');
+        if (userId) setCurrentUserId(userId);
+    }, []);
+
+    // Filter jobs based on subtab - "pending" tab shows claimed and in_progress jobs
     const pendingJobs = useMemo(() =>
-        jobLogs.filter(j => j.status === 'pending' || j.status === 'in_progress'),
+        jobLogs.filter(j => j.status === 'claimed' || j.status === 'in_progress'),
+        [jobLogs]
+    );
+
+    // Unassigned jobs for dispatch queue
+    const unassignedJobs = useMemo(() =>
+        jobLogs.filter(j => j.status === 'unassigned'),
         [jobLogs]
     );
 
@@ -55,7 +75,8 @@ export default function JobsPage() {
             gasCost: data.gasCost,
             referralSource: data.referralSource,
             status: data.status || 'completed',
-        });
+            source: 'manual',
+        } as Omit<JobLog, 'id' | 'createdAt'>);
         setJobModalOpen(false);
     };
 
@@ -87,16 +108,63 @@ export default function JobsPage() {
                 ? `[Pipeline Lead #${lead.id.slice(-6)}] ${lead.notes}`
                 : `[Pipeline Lead #${lead.id.slice(-6)}]`,
             referralSource,
-            status: 'pending',
-        });
+            status: 'unassigned',
+            source: 'pipeline',
+        } as Omit<JobLog, 'id' | 'createdAt'>);
 
         // Show success feedback
         setPipelineSuccess(lead.customerName || 'Lead');
         setTimeout(() => setPipelineSuccess(null), 3000);
     };
 
+    // =========================================================================
+    // Dispatch Handlers
+    // =========================================================================
+
+    const handleClaimJob = (jobId: string, technicianId: string, technicianName: string) => {
+        updateJobLog(jobId, {
+            status: 'claimed',
+            technicianId,
+            technicianName,
+            claimedAt: Date.now(),
+        });
+    };
+
+    const handleAssignJob = (jobId: string, technicianId: string, technicianName: string) => {
+        updateJobLog(jobId, {
+            status: 'claimed',
+            technicianId,
+            technicianName,
+            claimedAt: Date.now(),
+        });
+    };
+
+    const handleUnclaimJob = (jobId: string) => {
+        updateJobLog(jobId, {
+            status: 'unassigned',
+            technicianId: undefined,
+            technicianName: undefined,
+            claimedAt: undefined,
+        });
+    };
+
+    const handleStartJob = (jobId: string) => {
+        updateJobLog(jobId, {
+            status: 'in_progress',
+            startedAt: Date.now(),
+        });
+    };
+
+    const handleCompleteJob = (jobId: string) => {
+        updateJobLog(jobId, {
+            status: 'completed',
+            completedAt: Date.now(),
+        });
+    };
+
     const subtabs = [
         { id: 'all', label: 'All Jobs', icon: '📝', count: jobLogs.length },
+        { id: 'dispatch', label: 'Dispatch', icon: '🚚', count: unassignedJobs.length > 0 ? unassignedJobs.length : undefined },
         { id: 'pipeline', label: 'Pipeline', icon: '📥', count: activeLeadsCount > 0 ? activeLeadsCount : undefined },
         { id: 'calendar', label: 'Calendar', icon: '📅' },
         { id: 'pending', label: 'Pending', icon: '⏳', count: pendingJobs.length },
@@ -175,6 +243,34 @@ export default function JobsPage() {
                         setJobModalOpen(true);
                     }}
                 />
+            )}
+
+            {activeSubTab === 'dispatch' && (
+                <div className="space-y-6">
+                    {/* Dispatch Queue - Unassigned Jobs */}
+                    <DispatchQueueView
+                        jobs={jobLogs}
+                        technicians={technicians}
+                        currentUserId={currentUserId}
+                        currentUserRole="owner"
+                        onClaimJob={handleClaimJob}
+                        onAssignJob={handleAssignJob}
+                        onUnclaimJob={handleUnclaimJob}
+                    />
+
+                    {/* My Jobs View - if technician has claimed jobs */}
+                    {currentUserId && (
+                        <div className="mt-8 pt-6 border-t border-slate-700">
+                            <MyJobsView
+                                jobs={jobLogs}
+                                technicianId={currentUserId}
+                                onStartJob={handleStartJob}
+                                onCompleteJob={handleCompleteJob}
+                                onUnclaimJob={handleUnclaimJob}
+                            />
+                        </div>
+                    )}
+                </div>
             )}
 
             {activeSubTab === 'pipeline' && (

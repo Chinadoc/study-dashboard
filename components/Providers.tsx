@@ -10,6 +10,7 @@ import { AdminModeProvider } from '@/contexts/AdminModeContext';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { FleetPanelProvider } from '@/contexts/FleetPanelContext';
 import { TeamPanelProvider } from '@/contexts/TeamPanelContext';
+import { FleetProvider } from '@/contexts/FleetContext';
 import InventoryLoginPrompt from '@/components/shared/InventoryLoginPrompt';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 import FleetPanelWrapper from '@/components/business/FleetPanelWrapper';
@@ -18,27 +19,29 @@ import TeamPanelWrapper from '@/components/business/TeamPanelWrapper';
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <AuthProvider>
-            <SubscriptionProvider>
-                <AnalyticsProvider>
-                    <InventoryProvider>
-                        <GoalProvider>
-                            <AdminModeProvider>
-                                <OnboardingProvider>
-                                    <FleetPanelProvider>
-                                        <TeamPanelProvider>
-                                            {children}
-                                            <InventoryLoginPrompt />
-                                            <OnboardingFlow />
-                                            <FleetPanelWrapper />
-                                            <TeamPanelWrapper />
-                                        </TeamPanelProvider>
-                                    </FleetPanelProvider>
-                                </OnboardingProvider>
-                            </AdminModeProvider>
-                        </GoalProvider>
-                    </InventoryProvider>
-                </AnalyticsProvider>
-            </SubscriptionProvider>
+            <FleetProvider>
+                <SubscriptionProvider>
+                    <AnalyticsProvider>
+                        <InventoryProvider>
+                            <GoalProvider>
+                                <AdminModeProvider>
+                                    <OnboardingProvider>
+                                        <FleetPanelProvider>
+                                            <TeamPanelProvider>
+                                                {children}
+                                                <InventoryLoginPrompt />
+                                                <OnboardingFlow />
+                                                <FleetPanelWrapper />
+                                                <TeamPanelWrapper />
+                                            </TeamPanelProvider>
+                                        </FleetPanelProvider>
+                                    </OnboardingProvider>
+                                </AdminModeProvider>
+                            </GoalProvider>
+                        </InventoryProvider>
+                    </AnalyticsProvider>
+                </SubscriptionProvider>
+            </FleetProvider>
         </AuthProvider>
     );
 }

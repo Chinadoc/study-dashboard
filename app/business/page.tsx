@@ -7,6 +7,7 @@ import { useInventory } from '@/contexts/InventoryContext';
 import { getLowStockItems } from '@/lib/inventoryTypes';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import BusinessInsightsPanel from '@/components/business/BusinessInsightsPanel';
+import ForceSyncButton from '@/components/business/ForceSyncButton';
 
 export default function BusinessDashboard() {
     const { jobLogs, getJobStats } = useJobLogs();
@@ -200,7 +201,7 @@ export default function BusinessDashboard() {
                     <span className="text-2xl">📝</span>
                     <div>
                         <div className="font-bold text-yellow-300">Log New Job</div>
-                        <div className="text-xs text-gray-400">Track work & revenue</div>
+                        <div className="text-xs text-gray-400">Track work &amp; revenue</div>
                     </div>
                 </Link>
                 <Link
@@ -213,6 +214,15 @@ export default function BusinessDashboard() {
                         <div className="text-xs text-gray-400">Manage stock</div>
                     </div>
                 </Link>
+            </div>
+
+            {/* Sync Controls */}
+            <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
+                <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-sm font-medium text-gray-400">Data Sync</h2>
+                    <span className="text-xs text-gray-500">Having sync issues?</span>
+                </div>
+                <ForceSyncButton />
             </div>
         </div>
     );

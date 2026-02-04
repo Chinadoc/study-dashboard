@@ -41,12 +41,26 @@ export interface JobLog {
 
     // Technician assignment
     technicianId?: string;  // ID of the technician who handled this job
+    technicianName?: string; // Denormalized for display
 
-    // Job tracking
-    status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+    // Dispatch workflow status
+    status: 'unassigned' | 'claimed' | 'in_progress' | 'completed' | 'cancelled';
+
+    // Dispatch timestamps (for aging calculations)
+    claimedAt?: number;      // When tech claimed/was assigned
+    startedAt?: number;      // When work began (in_progress)
+    completedAt?: number;    // When job finished
+
+    // Legacy time fields (deprecated, use timestamps above)
     startTime?: string;
     endTime?: string;
     laborMinutes?: number;
+
+    // Priority for dispatch queue
+    priority?: 'normal' | 'high' | 'urgent';
+
+    // Job source tracking
+    source?: 'pipeline' | 'call_center' | 'walk_in' | 'csv_import' | 'manual';
 
     // Cost tracking
     partsCost?: number;
@@ -788,6 +802,80 @@ export function useJobLogs() {
             .map(({ name, phone, email, address }) => ({ name, phone, email, address }));
     }, [jobLogs]);
 
+    // Force full sync - clears sync state and pushes ALL local jobs to cloud
+    const forceFullSync = useCallback(async (): Promise<{ success: boolean; synced: number; error?: string }> => {
+        const token = getAuthToken();
+        if (!token) {
+            return { success: false, synced: 0, error: 'Not authenticated' };
+        }
+
+        setSyncStatus('syncing');
+
+        try {
+            // Clear sync state to treat this as a fresh sync
+            updateSyncState({ lastCloudSync: 0, pendingCount: 0 });
+            hasSyncedRef.current = false;
+
+            // Get all local jobs
+            const localJobs = getJobLogsFromStorage();
+
+            if (localJobs.length === 0) {
+                // No local data to sync, just fetch from cloud
+                const data = await apiRequest('/api/jobs');
+                if (data?.jobs) {
+                    setJobLogs(data.jobs);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.jobs));
+                    updateSyncState({ lastCloudSync: data.serverTime || Date.now() });
+                }
+                setSyncStatus('synced');
+                return { success: true, synced: 0 };
+            }
+
+            // Push ALL local jobs to cloud (force sync)
+            console.log(`[ForceSync] Pushing ${localJobs.length} jobs to cloud...`);
+            const result = await apiRequest('/api/jobs/sync', {
+                method: 'POST',
+                body: JSON.stringify({
+                    jobs: localJobs,
+                    deviceId: getDeviceId(),
+                    forceSync: true
+                }),
+            });
+
+            if (!result?.success) {
+                throw new Error(result?.error || 'Sync failed');
+            }
+
+            // Mark all as synced
+            const synced = localJobs.map(j => ({
+                ...j,
+                syncStatus: 'synced' as const,
+                syncedAt: Date.now()
+            }));
+            setJobLogs(synced);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+
+            // Update sync state
+            updateSyncState({
+                lastCloudSync: result.serverTime || Date.now(),
+                pendingCount: 0
+            });
+            hasSyncedRef.current = true;
+            setSyncStatus('synced');
+
+            console.log(`[ForceSync] Successfully synced ${result.synced} jobs`);
+            return { success: true, synced: result.synced };
+        } catch (e) {
+            console.error('[ForceSync] Failed:', e);
+            setSyncStatus('error');
+            return {
+                success: false,
+                synced: 0,
+                error: e instanceof Error ? e.message : 'Unknown error'
+            };
+        }
+    }, []);
+
     return {
         jobLogs,
         loading,
@@ -799,6 +887,7 @@ export function useJobLogs() {
         resolveConflicts,
         getJobStats,
         getRecentCustomers,
+        forceFullSync,
     };
 }
 
