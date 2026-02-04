@@ -72,6 +72,15 @@ function BrowsePageContent() {
     // Merged models for display (with variant indicators)
     const [mergedModels, setMergedModels] = useState<MergedModel[]>([]);
 
+    // Preview summary for instant card
+    const [previewSummary, setPreviewSummary] = useState<{
+        keyTypes?: string[];
+        fccIds?: string[];
+        hasGuide?: boolean;
+        immoSystem?: string;
+    } | null>(null);
+    const [loadingPreview, setLoadingPreview] = useState(false);
+
     // Mobile detection
     const [isMobile, setIsMobile] = useState(false);
 
@@ -156,6 +165,41 @@ function BrowsePageContent() {
         }
         fetchYears();
     }, [selectedModel, selectedMake]);
+
+    // Fetch preview summary when year is selected (for instant preview card)
+    useEffect(() => {
+        if (!selectedYear || !selectedModel || !selectedMake || typeof window === 'undefined') {
+            setPreviewSummary(null);
+            return;
+        }
+
+        async function fetchPreview() {
+            setLoadingPreview(true);
+            try {
+                // Use the lookup endpoint for a quick summary
+                const res = await fetch(`${API_BASE}/api/vyp/lookup?year=${selectedYear}&make=${encodeURIComponent(selectedMake!)}&model=${encodeURIComponent(selectedModel!)}`);
+                const data = await res.json();
+
+                if (data.vehicle) {
+                    // Extract quick summary data
+                    const keyTypes = data.vehicle.keys?.map((k: any) => k.key_type).filter(Boolean) || [];
+                    const fccIds = data.vehicle.remotes?.map((r: any) => r.fcc_id).filter(Boolean) || [];
+                    const hasGuide = !!data.vehicle.programming_guide;
+                    const immoSystem = data.vehicle.immo_system || null;
+
+                    setPreviewSummary({ keyTypes, fccIds, hasGuide, immoSystem });
+                } else {
+                    setPreviewSummary({ hasGuide: false });
+                }
+            } catch (error) {
+                console.error('Failed to fetch preview:', error);
+                setPreviewSummary(null);
+            } finally {
+                setLoadingPreview(false);
+            }
+        }
+        fetchPreview();
+    }, [selectedYear, selectedModel, selectedMake]);
 
     const handleNavigate = () => {
         if (selectedMake && selectedModel && selectedYear) {
@@ -339,8 +383,8 @@ function BrowsePageContent() {
                                         key={make}
                                         onClick={() => handleMakeSelect(make)}
                                         className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedMake === make
-                                                ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
-                                                : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                            ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
+                                            : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
                                             }`}
                                     >
                                         <img
@@ -408,8 +452,8 @@ function BrowsePageContent() {
                                                     key={model.name}
                                                     onClick={() => handleModelSelect(model.name)}
                                                     className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedModel === model.name
-                                                            ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
-                                                            : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                                        ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
+                                                        : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
                                                         }`}
                                                 >
                                                     <img
@@ -448,8 +492,8 @@ function BrowsePageContent() {
                                             key={year}
                                             onClick={() => setSelectedYear(year)}
                                             className={`w-full px-3 py-2 text-left text-sm transition-colors ${selectedYear === year
-                                                    ? 'bg-emerald-500/20 text-emerald-300 border-l-2 border-emerald-500'
-                                                    : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                                ? 'bg-emerald-500/20 text-emerald-300 border-l-2 border-emerald-500'
+                                                : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
                                                 }`}
                                         >
                                             {year}
@@ -478,20 +522,40 @@ function BrowsePageContent() {
                                         </div>
                                         {/* Vehicle Info */}
                                         <div className="text-center">
-                                            <div className="text-2xl font-bold text-white">{selectedYear}</div>
-                                            <div className="text-lg text-purple-300">{selectedMake} {selectedModel}</div>
+                                            <div className="text-xl font-bold text-white">{selectedYear}</div>
+                                            <div className="text-sm text-purple-300">{selectedMake} {selectedModel}</div>
                                         </div>
-                                        {/* Quick Stats */}
-                                        <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                                            <div className="p-2 rounded-lg bg-white/5 border border-white/10">
-                                                <div className="text-gray-500">Keys</div>
-                                                <div className="font-bold text-purple-400">—</div>
+                                        {/* Quick Stats from API */}
+                                        {loadingPreview ? (
+                                            <div className="text-center text-purple-400 animate-pulse text-xs py-2">Loading info...</div>
+                                        ) : previewSummary ? (
+                                            <div className="space-y-1.5 text-xs">
+                                                {previewSummary.keyTypes && previewSummary.keyTypes.length > 0 && (
+                                                    <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                        <span className="text-gray-500">🔑</span>
+                                                        <span className="text-gray-300 truncate">{[...new Set(previewSummary.keyTypes)].join(', ')}</span>
+                                                    </div>
+                                                )}
+                                                {previewSummary.immoSystem && (
+                                                    <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                        <span className="text-gray-500">🛡️</span>
+                                                        <span className="text-gray-300 truncate">{previewSummary.immoSystem}</span>
+                                                    </div>
+                                                )}
+                                                {previewSummary.fccIds && previewSummary.fccIds.length > 0 && (
+                                                    <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                        <span className="text-gray-500">📡</span>
+                                                        <span className="text-gray-300 truncate">{[...new Set(previewSummary.fccIds)].slice(0, 2).join(', ')}</span>
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                    <span className="text-gray-500">📖</span>
+                                                    <span className={previewSummary.hasGuide ? 'text-emerald-400' : 'text-gray-500'}>
+                                                        {previewSummary.hasGuide ? 'Guide Available' : 'No guide yet'}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div className="p-2 rounded-lg bg-white/5 border border-white/10">
-                                                <div className="text-gray-500">Guide</div>
-                                                <div className="font-bold text-emerald-400">✓</div>
-                                            </div>
-                                        </div>
+                                        ) : null}
                                         {/* Go Button */}
                                         <button
                                             onClick={handleNavigate}
