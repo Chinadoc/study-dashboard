@@ -325,175 +325,194 @@ function BrowsePageContent() {
                 <>
                     <SearchBar onSearch={handleSearch} />
 
-                    {!selectedMake ? (
-                        <>
-                            <MakeGrid
-                                makes={showAllMakes ? makes : (popularMakes.length > 0 ? popularMakes : POPULAR_MAKES as unknown as string[])}
-                                selectedMake={selectedMake}
-                                onSelect={handleMakeSelect}
-                            />
-                            {hasMoreMakes && (
-                                <div className="text-center mt-6">
+                    {/* Cascading Columns Layout (Finder-style) */}
+                    <div className="grid grid-cols-4 gap-1 bg-gray-900/50 rounded-2xl border border-gray-700/50 overflow-hidden" style={{ height: '500px' }}>
+                        {/* Column 1: Makes */}
+                        <div className="flex flex-col border-r border-gray-700/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Make</span>
+                                <span className="text-[10px] text-gray-500">{makes.length}</span>
+                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                {makes.map(make => (
                                     <button
-                                        onClick={() => setShowAllMakes(!showAllMakes)}
-                                        className="px-6 py-2 rounded-lg border border-gray-600 text-gray-400 hover:text-purple-400 hover:border-purple-400 transition-colors"
+                                        key={make}
+                                        onClick={() => handleMakeSelect(make)}
+                                        className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedMake === make
+                                                ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
+                                                : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                            }`}
                                     >
-                                        {showAllMakes ? '← Show Popular Makes Only' : `Show ${makes.length - popularMakes.length} More Makes →`}
+                                        <img
+                                            src={`https://www.carlogos.org/car-logos/${make.toLowerCase().replace(/\s+/g, '-')}-logo.png`}
+                                            alt=""
+                                            className="w-5 h-5 object-contain"
+                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                        />
+                                        <span className="truncate">{make}</span>
+                                        {selectedMake === make && <span className="ml-auto text-purple-400">›</span>}
                                     </button>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            <div className="flex items-center gap-4 mb-6">
-                                <button
-                                    onClick={() => { setSelectedMake(null); setSelectedModel(null); setSelectedYear(null); }}
-                                    className="text-gray-400 hover:text-purple-400 transition-colors"
-                                >
-                                    ← Back to Makes
-                                </button>
-                                <h2 className="text-2xl font-bold text-white">{selectedMake}</h2>
+                                ))}
                             </div>
+                        </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                                {/* Column 1: Model Selection */}
-                                <WizardStep
-                                    title="Model"
-                                    stepNumber={2}
-                                    isActive={!selectedModel}
-                                    isDisabled={false}
-                                >
-                                    {loadingModels ? (
-                                        <div className="p-4 text-center text-purple-400 animate-pulse">Loading models...</div>
-                                    ) : (
-                                        <>
-                                            {/* Combined Model Filter Toggle: 2000+ | All | EV */}
-                                            {(hasClassicOnly || hasEV) && (
-                                                <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
-                                                    {hasClassicOnly && (
-                                                        <button
-                                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
-                                                            className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-400 hover:text-white'}`}
-                                                        >
-                                                            2000+ ({models.length - classicOnlyModels.length})
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
-                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
-                                                    >
-                                                        All ({models.length})
-                                                    </button>
-                                                    {hasEV && (
-                                                        <button
-                                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
-                                                            className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-400 hover:text-white'}`}
-                                                        >
-                                                            ⚡ EV ({evModels.length})
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            )}
-                                            {/* Use merged models for cleaner display, filtered by era and EV */}
-                                            {mergedModels
-                                                .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m.name))
-                                                .filter(m => !showEVOnly || evModels.includes(m.name))
-                                                .map(model => (
-                                                    <WizardStepOption
-                                                        key={model.name}
-                                                        label={model.display}
-                                                        isSelected={selectedModel === model.name}
-                                                        onClick={() => handleModelSelect(model.name)}
-                                                        thumbnailUrl={getModelThumbnailUrl(selectedMake, model.name)}
-                                                    />
-                                                ))}
-                                        </>
-                                    )}
-                                </WizardStep>
-
-                                {/* Column 2: Year Selection */}
-                                <WizardStep
-                                    title="Year"
-                                    stepNumber={3}
-                                    isActive={!!selectedModel && !selectedYear}
-                                    isDisabled={!selectedModel}
-                                >
-                                    {!selectedModel ? (
-                                        <div className="p-8 text-center text-gray-500 italic text-sm">Select a model first</div>
-                                    ) : loadingYears ? (
-                                        <div className="p-4 text-center text-purple-400 animate-pulse">Loading years...</div>
-                                    ) : (
-                                        years.map(year => (
-                                            <WizardStepOption
-                                                key={year}
-                                                label={year}
-                                                isSelected={selectedYear === year}
-                                                onClick={() => setSelectedYear(year)}
-                                            />
-                                        ))
-                                    )}
-                                </WizardStep>
-
-                                {/* Column 3: Preview Panel */}
-                                <div
-                                    className={`
-                                p-6 rounded-2xl border transition-all duration-300 backdrop-blur-md
-                                ${selectedYear
-                                            ? 'border-emerald-500/60 shadow-[0_0_30px_rgba(16,185,129,0.2)] bg-emerald-500/5'
-                                            : 'border-white/10 bg-white/5'}
-                            `}
-                                >
-                                    <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-4">
-                                        Preview
+                        {/* Column 2: Models */}
+                        <div className="flex flex-col border-r border-gray-700/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Model</span>
+                                {selectedMake && <span className="text-[10px] text-gray-500">{models.length}</span>}
+                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                {!selectedMake ? (
+                                    <div className="flex items-center justify-center h-full text-gray-600 text-sm">
+                                        ← Select a make
                                     </div>
-
-                                    {selectedYear ? (
-                                        <div className="flex flex-col gap-4">
-                                            {/* Vehicle Summary */}
-                                            <div className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/10 border border-white/10">
-                                                <div className="text-2xl font-bold text-white mb-1">
-                                                    {selectedYear} {selectedMake}
-                                                </div>
-                                                <div className="text-xl text-purple-300 font-medium">
-                                                    {selectedModel}
-                                                </div>
+                                ) : loadingModels ? (
+                                    <div className="flex items-center justify-center h-full text-purple-400 animate-pulse text-sm">
+                                        Loading...
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Era/EV Toggle */}
+                                        {(hasClassicOnly || hasEV) && (
+                                            <div className="flex gap-0.5 p-1.5 border-b border-gray-700/50 bg-gray-800/30">
+                                                {hasClassicOnly && (
+                                                    <button
+                                                        onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
+                                                        className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-500'}`}
+                                                    >
+                                                        2000+
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
+                                                    className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-500'}`}
+                                                >
+                                                    All
+                                                </button>
+                                                {hasEV && (
+                                                    <button
+                                                        onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
+                                                        className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-500'}`}
+                                                    >
+                                                        ⚡ EV
+                                                    </button>
+                                                )}
                                             </div>
-
-                                            {/* Quick Stats Placeholder */}
-                                            <div className="grid grid-cols-2 gap-2 text-center">
-                                                <div className="p-2 rounded-lg bg-white/5 border border-white/10">
-                                                    <div className="text-xs text-gray-500 uppercase">Keys</div>
-                                                    <div className="text-lg font-bold text-purple-400">—</div>
-                                                </div>
-                                                <div className="p-2 rounded-lg bg-white/5 border border-white/10">
-                                                    <div className="text-xs text-gray-500 uppercase">Remotes</div>
-                                                    <div className="text-lg font-bold text-purple-400">—</div>
-                                                </div>
-                                            </div>
-
-                                            {/* GO Button - Prominently placed */}
-                                            <button
-                                                onClick={handleNavigate}
-                                                className="w-full px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-1 hover:shadow-emerald-500/40 active:scale-95 text-center text-lg"
-                                            >
-                                                Go →
-                                            </button>
-                                        </div>
-                                    ) : selectedModel ? (
-                                        <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
-                                            <div className="text-4xl mb-4 opacity-30">📅</div>
-                                            <div className="text-gray-500 text-sm">Select a year to preview</div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
-                                            <div className="text-4xl mb-4 opacity-30">🚗</div>
-                                            <div className="text-gray-500 text-sm">Select model and year to see preview</div>
-                                        </div>
-                                    )}
-                                </div>
+                                        )}
+                                        {mergedModels
+                                            .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m.name))
+                                            .filter(m => !showEVOnly || evModels.includes(m.name))
+                                            .map(model => (
+                                                <button
+                                                    key={model.name}
+                                                    onClick={() => handleModelSelect(model.name)}
+                                                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedModel === model.name
+                                                            ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
+                                                            : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                                        }`}
+                                                >
+                                                    <img
+                                                        src={getModelThumbnailUrl(selectedMake, model.name)}
+                                                        alt=""
+                                                        className="w-8 h-6 object-contain rounded"
+                                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                    />
+                                                    <span className="truncate">{model.display}</span>
+                                                    {selectedModel === model.name && <span className="ml-auto text-purple-400">›</span>}
+                                                </button>
+                                            ))}
+                                    </>
+                                )}
                             </div>
-                        </>
-                    )}
+                        </div>
+
+                        {/* Column 3: Years */}
+                        <div className="flex flex-col border-r border-gray-700/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Year</span>
+                                {selectedModel && <span className="text-[10px] text-gray-500">{years.length}</span>}
+                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                {!selectedModel ? (
+                                    <div className="flex items-center justify-center h-full text-gray-600 text-sm">
+                                        ← Select a model
+                                    </div>
+                                ) : loadingYears ? (
+                                    <div className="flex items-center justify-center h-full text-purple-400 animate-pulse text-sm">
+                                        Loading...
+                                    </div>
+                                ) : (
+                                    years.map(year => (
+                                        <button
+                                            key={year}
+                                            onClick={() => setSelectedYear(year)}
+                                            className={`w-full px-3 py-2 text-left text-sm transition-colors ${selectedYear === year
+                                                    ? 'bg-emerald-500/20 text-emerald-300 border-l-2 border-emerald-500'
+                                                    : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                                }`}
+                                        >
+                                            {year}
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Column 4: Preview */}
+                        <div className="flex flex-col bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50">
+                                <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Preview</span>
+                            </div>
+                            <div className="flex-1 flex flex-col p-4">
+                                {selectedYear && selectedMake && selectedModel ? (
+                                    <div className="flex flex-col gap-4 h-full">
+                                        {/* Vehicle Image */}
+                                        <div className="flex-1 flex items-center justify-center">
+                                            <img
+                                                src={getModelThumbnailUrl(selectedMake, selectedModel)}
+                                                alt={`${selectedYear} ${selectedMake} ${selectedModel}`}
+                                                className="max-w-full max-h-32 object-contain rounded-lg"
+                                                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-car.png'; }}
+                                            />
+                                        </div>
+                                        {/* Vehicle Info */}
+                                        <div className="text-center">
+                                            <div className="text-2xl font-bold text-white">{selectedYear}</div>
+                                            <div className="text-lg text-purple-300">{selectedMake} {selectedModel}</div>
+                                        </div>
+                                        {/* Quick Stats */}
+                                        <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                                            <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                                                <div className="text-gray-500">Keys</div>
+                                                <div className="font-bold text-purple-400">—</div>
+                                            </div>
+                                            <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                                                <div className="text-gray-500">Guide</div>
+                                                <div className="font-bold text-emerald-400">✓</div>
+                                            </div>
+                                        </div>
+                                        {/* Go Button */}
+                                        <button
+                                            onClick={handleNavigate}
+                                            className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5 text-center"
+                                        >
+                                            View Details →
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
+                                        <div className="text-4xl mb-3 opacity-30">🚗</div>
+                                        <div className="text-sm">
+                                            {!selectedMake ? 'Select a make to begin' :
+                                                !selectedModel ? 'Select a model' :
+                                                    'Select a year to preview'}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
 
                     <div className="mt-12 text-center">
                         <a href="/" className="text-gray-500 hover:text-purple-400 transition-colors text-sm">
