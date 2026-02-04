@@ -57,6 +57,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                 if (pearl.id != null) {
                     try {
                         const res = await fetch(`${API_URL}/api/pearls/${pearl.id}/votes`, {
+                            credentials: 'include',
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
                             }
@@ -89,6 +90,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         try {
             const res = await fetch(`${API_URL}/api/pearls/vote`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
