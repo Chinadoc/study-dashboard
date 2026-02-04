@@ -64,6 +64,9 @@ function BrowsePageContent() {
     const [hasEV, setHasEV] = useState(false);
     const [showEVOnly, setShowEVOnly] = useState(false);
 
+    // Year era filter toggle
+    const [yearEra, setYearEra] = useState<'all' | 'modern' | 'classic'>('all');
+
     // Merged models for display (with variant indicators)
     const [mergedModels, setMergedModels] = useState<MergedModel[]>([]);
 
@@ -406,14 +409,39 @@ function BrowsePageContent() {
                                     ) : loadingYears ? (
                                         <div className="p-4 text-center text-purple-400 animate-pulse">Loading years...</div>
                                     ) : (
-                                        years.map(year => (
-                                            <WizardStepOption
-                                                key={year}
-                                                label={year}
-                                                isSelected={selectedYear === year}
-                                                onClick={() => setSelectedYear(year)}
-                                            />
-                                        ))
+                                        <>
+                                            {/* Year Era Toggle */}
+                                            {years.some(y => y < 2000) && years.some(y => y >= 2000) && (
+                                                <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
+                                                    <button
+                                                        onClick={() => setYearEra('all')}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${yearEra === 'all' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                    >
+                                                        All ({years.length})
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setYearEra('modern')}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${yearEra === 'modern' ? 'bg-emerald-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                    >
+                                                        2000+ ({years.filter(y => y >= 2000).length})
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setYearEra('classic')}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${yearEra === 'classic' ? 'bg-amber-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                    >
+                                                        Pre-2000 ({years.filter(y => y < 2000).length})
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {(yearEra === 'all' ? years : yearEra === 'modern' ? years.filter(y => y >= 2000) : years.filter(y => y < 2000)).map(year => (
+                                                <WizardStepOption
+                                                    key={year}
+                                                    label={year}
+                                                    isSelected={selectedYear === year}
+                                                    onClick={() => setSelectedYear(year)}
+                                                />
+                                            ))}
+                                        </>
                                     )}
                                 </WizardStep>
 

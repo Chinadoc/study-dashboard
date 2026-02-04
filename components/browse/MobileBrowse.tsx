@@ -33,6 +33,9 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const [loadingModels, setLoadingModels] = useState(false);
     const [loadingYears, setLoadingYears] = useState(false);
 
+    // Year era filter
+    const [yearEra, setYearEra] = useState<'all' | 'modern' | 'classic'>('all');
+
     // Image error tracking
     const [makeImageErrors, setMakeImageErrors] = useState<Set<string>>(new Set());
     const [modelImageErrors, setModelImageErrors] = useState<Set<string>>(new Set());
@@ -366,22 +369,47 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading years...
                         </div>
                     ) : (
-                        <div className="grid grid-cols-4 gap-2">
-                            {years.map(year => (
-                                <button
-                                    key={year}
-                                    onClick={() => handleYearSelect(year)}
-                                    className={`py-3 px-2 rounded-xl border transition-all text-center font-bold text-sm
-                                        ${selectedYear === year
-                                            ? 'border-purple-500 bg-purple-500/20 text-purple-300'
-                                            : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
-                                        }
-                                    `}
-                                >
-                                    {year}
-                                </button>
-                            ))}
-                        </div>
+                        <>
+                            {/* Year Era Toggle */}
+                            {years.some(y => y < 2000) && years.some(y => y >= 2000) && (
+                                <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
+                                    <button
+                                        onClick={() => setYearEra('all')}
+                                        className={`flex-1 px-2 py-2 text-xs rounded-md font-medium transition-colors ${yearEra === 'all' ? 'bg-purple-500 text-white' : 'text-gray-400'}`}
+                                    >
+                                        All ({years.length})
+                                    </button>
+                                    <button
+                                        onClick={() => setYearEra('modern')}
+                                        className={`flex-1 px-2 py-2 text-xs rounded-md font-medium transition-colors ${yearEra === 'modern' ? 'bg-emerald-500 text-white' : 'text-gray-400'}`}
+                                    >
+                                        2000+ ({years.filter(y => y >= 2000).length})
+                                    </button>
+                                    <button
+                                        onClick={() => setYearEra('classic')}
+                                        className={`flex-1 px-2 py-2 text-xs rounded-md font-medium transition-colors ${yearEra === 'classic' ? 'bg-amber-500 text-white' : 'text-gray-400'}`}
+                                    >
+                                        Classic ({years.filter(y => y < 2000).length})
+                                    </button>
+                                </div>
+                            )}
+                            <div className="grid grid-cols-4 gap-2">
+                                {(yearEra === 'all' ? years : yearEra === 'modern' ? years.filter(y => y >= 2000) : years.filter(y => y < 2000)).map(year => (
+                                    <button
+                                        key={year}
+                                        onClick={() => handleYearSelect(year)}
+                                        className={`py-3 px-2 rounded-xl border transition-all text-center font-bold text-sm
+                                            ${selectedYear === year
+                                                ? 'border-purple-500 bg-purple-500/20 text-purple-300'
+                                                : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
+                                            }
+                                        `}
+                                    >
+                                        {year}
+                                    </button>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </section>
             )}
