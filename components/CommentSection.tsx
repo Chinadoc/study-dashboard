@@ -61,7 +61,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                 }
                 const response = await fetch(url, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                        'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                     }
                 });
                 const data = await response.json();
@@ -91,7 +91,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                 },
                 body: JSON.stringify({
                     vehicle_key: vehicleKey,
@@ -142,7 +142,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                 },
                 body: JSON.stringify({
                     vehicle_key: vehicleKey,
@@ -202,7 +202,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                 },
                 body: JSON.stringify({ comment_id: commentId, vote })
             });
@@ -270,7 +270,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                 },
                 body: JSON.stringify({ comment_id: commentId, reason: reportReason })
             });
