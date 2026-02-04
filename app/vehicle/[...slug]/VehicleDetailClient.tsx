@@ -14,6 +14,7 @@ import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
 import FloatingCommentTab from '@/components/FloatingCommentTab';
 import CommunityHighlight from '@/components/CommunityHighlight';
+import VehicleSidebar from '@/components/layout/VehicleSidebar';
 import { API_BASE } from '@/lib/config';
 import { trackVehicleView } from '@/lib/analytics';
 import { filterRelevantImages } from '@/lib/imageRelevanceScorer';
@@ -881,6 +882,19 @@ export default function VehicleDetailClient() {
                 platform={header.platform}
                 architecture={header.immobilizer_system}
                 canFd={header.can_fd_required === 1 || header.can_fd_required === true}
+            />
+
+            {/* Section Navigation Sidebar */}
+            <VehicleSidebar
+                activeSection="specs"
+                availableSections={{
+                    procedures: !!(addKeyProcedure || aklProcedure || addKeyWalkthrough || aklWalkthrough),
+                    keyConfigs: mergedKeys.length > 0,
+                    images: imagesList.length > 0,
+                    comments: true,
+                    fccIds: !!specs.fcc_id || allFccs.length > 0,
+                    pearls: pearlsList.length > 0,
+                }}
             />
 
             {/* Two-Column Layout Grid */}
