@@ -570,7 +570,8 @@ function BrowsePageContent() {
                                         <div className="text-sm">
                                             {!selectedMake ? 'Select a make to begin' :
                                                 !selectedModel ? 'Select a model' :
-                                                    'Select a year to preview'}
+                                                    !selectedYear ? 'Select a year to preview' :
+                                                        `Debug: ${selectedYear} ${selectedMake} ${selectedModel}`}
                                         </div>
                                     </div>
                                 )}

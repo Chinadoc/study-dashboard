@@ -444,7 +444,35 @@ export function useJobLogs() {
             }
         );
 
-        return cleanup;
+        // Visibility change handler - re-sync when returning to tab
+        // This ensures cross-device consistency when user switches back from another device/tab
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && getAuthToken() && isOnline()) {
+                console.log('[Sync] Tab became visible - checking for cloud updates...');
+                // Reset hasSyncedRef to force a full fetch (not delta) on visibility change
+                // This ensures we get all latest data from other devices
+                hasSyncedRef.current = false;
+                loadJobs();
+            }
+        };
+
+        // Focus handler as backup for mobile browsers
+        const handleFocus = () => {
+            if (getAuthToken() && isOnline()) {
+                console.log('[Sync] Window focused - checking for cloud updates...');
+                hasSyncedRef.current = false;
+                loadJobs();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            cleanup();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
     }, [mergeJobs, processSyncQueue]);
 
     // Save to localStorage (for cache) and cloud (for sync)
