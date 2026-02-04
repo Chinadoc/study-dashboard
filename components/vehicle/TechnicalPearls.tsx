@@ -54,7 +54,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         const fetchVotes = async () => {
             const newStates: VoteState = {};
             for (const pearl of pearls) {
-                if (pearl.id) {
+                if (pearl.id != null) {
                     try {
                         const res = await fetch(`${API_URL}/api/pearls/${pearl.id}/votes`, {
                             headers: {
