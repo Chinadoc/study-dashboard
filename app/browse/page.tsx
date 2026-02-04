@@ -173,12 +173,21 @@ function BrowsePageContent() {
             return;
         }
 
+        let cancelled = false;
+        let loadingTimeout: ReturnType<typeof setTimeout>;
+
         async function fetchPreview() {
-            setLoadingPreview(true);
+            // Only show loading state after 150ms delay to prevent flicker
+            loadingTimeout = setTimeout(() => {
+                if (!cancelled) setLoadingPreview(true);
+            }, 150);
+
             try {
                 // Use the lookup endpoint for a quick summary
                 const res = await fetch(`${API_BASE}/api/vyp/lookup?year=${selectedYear}&make=${encodeURIComponent(selectedMake!)}&model=${encodeURIComponent(selectedModel!)}`);
                 const data = await res.json();
+
+                if (cancelled) return;
 
                 if (data.vehicle) {
                     // Extract quick summary data
@@ -192,13 +201,21 @@ function BrowsePageContent() {
                     setPreviewSummary({ hasGuide: false });
                 }
             } catch (error) {
-                console.error('Failed to fetch preview:', error);
-                setPreviewSummary(null);
+                if (!cancelled) {
+                    console.error('Failed to fetch preview:', error);
+                    setPreviewSummary(null);
+                }
             } finally {
-                setLoadingPreview(false);
+                clearTimeout(loadingTimeout);
+                if (!cancelled) setLoadingPreview(false);
             }
         }
         fetchPreview();
+
+        return () => {
+            cancelled = true;
+            clearTimeout(loadingTimeout);
+        };
     }, [selectedYear, selectedModel, selectedMake]);
 
     const handleNavigate = () => {
@@ -378,7 +395,8 @@ function BrowsePageContent() {
                                 <span className="text-[10px] text-gray-500">{makes.length}</span>
                             </div>
                             <div className="overflow-y-auto" style={{ maxHeight: 'calc(500px - 40px)' }}>
-                                {makes.map(make => (
+                                {/* Popular Makes */}
+                                {makes.filter(m => (POPULAR_MAKES as readonly string[]).includes(m)).map(make => (
                                     <button
                                         key={make}
                                         onClick={() => handleMakeSelect(make)}
@@ -391,6 +409,32 @@ function BrowsePageContent() {
                                             src={`https://www.carlogos.org/car-logos/${make.toLowerCase().replace(/\s+/g, '-')}-logo.png`}
                                             alt=""
                                             className="w-5 h-5 object-contain"
+                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                        />
+                                        <span className="truncate">{make}</span>
+                                        {selectedMake === make && <span className="ml-auto text-purple-400">›</span>}
+                                    </button>
+                                ))}
+                                {/* Lesser-Used Makes Divider */}
+                                {makes.filter(m => !(POPULAR_MAKES as readonly string[]).includes(m)).length > 0 && (
+                                    <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-gray-500 border-t border-gray-700/50 mt-1 bg-gray-800/30">
+                                        Lesser Used
+                                    </div>
+                                )}
+                                {/* Lesser-Used Makes */}
+                                {makes.filter(m => !(POPULAR_MAKES as readonly string[]).includes(m)).map(make => (
+                                    <button
+                                        key={make}
+                                        onClick={() => handleMakeSelect(make)}
+                                        className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedMake === make
+                                            ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
+                                            : 'text-gray-400 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                            }`}
+                                    >
+                                        <img
+                                            src={`https://www.carlogos.org/car-logos/${make.toLowerCase().replace(/\s+/g, '-')}-logo.png`}
+                                            alt=""
+                                            className="w-5 h-5 object-contain opacity-60"
                                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                         />
                                         <span className="truncate">{make}</span>
@@ -570,8 +614,7 @@ function BrowsePageContent() {
                                         <div className="text-sm">
                                             {!selectedMake ? 'Select a make to begin' :
                                                 !selectedModel ? 'Select a model' :
-                                                    !selectedYear ? 'Select a year to preview' :
-                                                        `Debug: ${selectedYear} ${selectedMake} ${selectedModel}`}
+                                                    'Select a year to preview'}
                                         </div>
                                     </div>
                                 )}

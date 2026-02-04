@@ -383,7 +383,7 @@ export default function OnboardingFlow() {
                                 <span className="text-green-400">✓</span> Full vehicle database
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className="text-green-400">✓</span> Share with 3 team members
+                                <span className="text-green-400">✓</span> Invoicing & accounting
                             </li>
                         </ul>
                     </div>
