@@ -131,34 +131,59 @@ async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<
     return res.json();
 }
 
+// Conflict item for resolution UI
+export interface ConflictItem {
+    id: string;
+    local: JobLog;
+    cloud: JobLog;
+}
+
 export function useJobLogs() {
     const [jobLogs, setJobLogs] = useState<JobLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced');
+    const [conflicts, setConflicts] = useState<ConflictItem[]>([]);
     const hasSyncedRef = useRef(false);
     const isSyncingRef = useRef(false);
 
-    // Merge local and cloud jobs using timestamps
+    // Merge local and cloud jobs using timestamps, detecting conflicts
     const mergeJobs = useCallback((local: JobLog[], cloud: JobLog[]): JobLog[] => {
         const merged = new Map<string, JobLog>();
+        const detectedConflicts: ConflictItem[] = [];
 
         // Start with cloud jobs
         cloud.forEach(job => {
             merged.set(job.id, { ...job, syncStatus: 'synced' as const });
         });
 
-        // Merge in local jobs, using updatedAt for conflict resolution
+        // Merge in local jobs, detect conflicts
         local.forEach(localJob => {
             const cloudJob = merged.get(localJob.id);
             if (!cloudJob) {
                 // Local-only job, needs to sync
                 merged.set(localJob.id, { ...localJob, syncStatus: 'pending' as const });
             } else {
-                // Both exist - compare timestamps
+                // Both exist - check for conflict
                 const localTime = localJob.updatedAt || localJob.createdAt || 0;
                 const cloudTime = cloudJob.updatedAt || cloudJob.createdAt || 0;
+                const localDevice = localJob.deviceId;
+                const cloudDevice = cloudJob.deviceId;
 
-                if (localTime > cloudTime) {
+                // Conflict: different devices modified within 5 minutes of each other
+                const timeDiff = Math.abs(localTime - cloudTime);
+                const isConflict = localDevice !== cloudDevice &&
+                    timeDiff < 5 * 60 * 1000 && // 5 minutes
+                    timeDiff > 0; // Both were modified
+
+                if (isConflict) {
+                    // Flag as conflict for manual resolution
+                    merged.set(localJob.id, { ...localJob, syncStatus: 'conflict' as const });
+                    detectedConflicts.push({
+                        id: localJob.id,
+                        local: localJob,
+                        cloud: cloudJob
+                    });
+                } else if (localTime > cloudTime) {
                     // Local is newer
                     merged.set(localJob.id, { ...localJob, syncStatus: 'pending' as const });
                 }
@@ -166,11 +191,80 @@ export function useJobLogs() {
             }
         });
 
+        // Store conflicts for UI
+        if (detectedConflicts.length > 0) {
+            setConflicts(prev => {
+                // Merge with existing conflicts, avoiding duplicates
+                const existing = new Set(prev.map(c => c.id));
+                const newConflicts = detectedConflicts.filter(c => !existing.has(c.id));
+                return [...prev, ...newConflicts];
+            });
+        }
+
         // Sort by createdAt descending
         return Array.from(merged.values()).sort((a, b) =>
             (b.createdAt || 0) - (a.createdAt || 0)
         );
     }, []);
+
+    // Resolve conflicts based on user choices
+    const resolveConflicts = useCallback(async (
+        resolutions: { id: string; choice: 'local' | 'cloud' | 'merge' }[]
+    ) => {
+        const resolved: JobLog[] = [];
+
+        for (const { id, choice } of resolutions) {
+            const conflict = conflicts.find(c => c.id === id);
+            if (!conflict) continue;
+
+            if (choice === 'local') {
+                // Keep local, push to cloud
+                resolved.push({ ...conflict.local, syncStatus: 'pending' as const });
+            } else if (choice === 'cloud') {
+                // Keep cloud version
+                resolved.push({ ...conflict.cloud, syncStatus: 'synced' as const });
+            } else if (choice === 'merge') {
+                // Keep both - create a duplicate of local with new ID
+                const localCopy = {
+                    ...conflict.local,
+                    id: generateId(),
+                    syncStatus: 'pending' as const,
+                };
+                resolved.push({ ...conflict.cloud, syncStatus: 'synced' as const });
+                resolved.push(localCopy);
+            }
+        }
+
+        // Update state
+        setJobLogs(prev => {
+            const updated = prev.filter(j => !resolutions.some(r => r.id === j.id));
+            return [...resolved, ...updated].sort((a, b) =>
+                (b.createdAt || 0) - (a.createdAt || 0)
+            );
+        });
+
+        // Clear resolved conflicts
+        setConflicts(prev => prev.filter(c => !resolutions.some(r => r.id === c.id)));
+
+        // Persist and sync
+        const allJobs = getJobLogsFromStorage();
+        const updated = allJobs.filter(j => !resolutions.some(r => r.id === j.id));
+        const final = [...resolved, ...updated];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(final));
+
+        // Sync pending ones to cloud
+        const pending = resolved.filter(j => j.syncStatus === 'pending');
+        if (pending.length > 0 && isOnline()) {
+            try {
+                await apiRequest('/api/jobs/sync', {
+                    method: 'POST',
+                    body: JSON.stringify({ jobs: pending, deviceId: getDeviceId() }),
+                });
+            } catch (e) {
+                console.error('Failed to sync resolved conflicts:', e);
+            }
+        }
+    }, [conflicts]);
 
     // Process pending sync queue
     const processSyncQueue = useCallback(async () => {
@@ -665,9 +759,11 @@ export function useJobLogs() {
         jobLogs,
         loading,
         syncStatus,
+        conflicts,
         addJobLog,
         updateJobLog,
         deleteJobLog,
+        resolveConflicts,
         getJobStats,
         getRecentCustomers,
     };

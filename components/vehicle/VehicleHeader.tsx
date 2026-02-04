@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { EditModeToggle } from '@/components/admin';
 import ReadinessBadge from './ReadinessBadge';
+import LogJobButton from './LogJobButton';
 
 interface VehicleHeaderProps {
     make: string;
@@ -115,6 +116,17 @@ export default function VehicleHeader({
                                 </svg>
                             </div>
                         )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="hidden md:flex items-center gap-2">
+                        <LogJobButton
+                            make={make}
+                            model={model}
+                            year={year}
+                            fccId={specs.fccId}
+                            variant="primary"
+                        />
                     </div>
                 </div>
             </div>

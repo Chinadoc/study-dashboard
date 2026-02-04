@@ -13,6 +13,7 @@ import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
 import FloatingCommentTab from '@/components/FloatingCommentTab';
+import CommunityHighlight from '@/components/CommunityHighlight';
 import { API_BASE } from '@/lib/config';
 import { trackVehicleView } from '@/lib/analytics';
 import { filterRelevantImages } from '@/lib/imageRelevanceScorer';
@@ -887,6 +888,9 @@ export default function VehicleDetailClient() {
 
                 {/* Left Column: Main Content (8/12) */}
                 <div className="lg:col-span-8 space-y-8">
+                    {/* Community Highlight - Top voted tip */}
+                    <CommunityHighlight make={make} model={model} year={year} />
+
                     {/* Vehicle Specifications Grid */}
                     <VehicleSpecs
                         specs={fullSpecs}

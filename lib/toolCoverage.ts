@@ -40,16 +40,31 @@ interface VehicleCoverageRecord {
 const COVERAGE_DATA = (vehicleCoverageData as { vehicles: VehicleCoverageRecord[] }).vehicles || [];
 
 // Map tool IDs from businessTypes to coverage categories
-// Autel models all use 'autel' baseline data (derived coverage handled by autelModelCoverage.ts)
+// Brand models all use their respective baseline data (derived coverage can be added per-brand)
 const TOOL_ID_TO_COVERAGE: Record<string, keyof Pick<VehicleCoverageRecord, 'autel' | 'smartPro' | 'lonsdor' | 'vvdi'>> = {
+    // Autel
     'autel_im508s': 'autel',
     'autel_im608': 'autel',
     'autel_im608_pro': 'autel',
     'autel_im608_pro2': 'autel',
-    'obdstar_g3': 'autel',      // Similar to Autel
-    'autopropad': 'smartPro',    // Smart Pro category
+    // OBDStar (uses autel baseline - similar coverage)
+    'obdstar_x300_mini': 'autel',
+    'obdstar_x300_pro4': 'autel',
+    'obdstar_x300_dp_plus': 'autel',
+    'obdstar_g3': 'autel',
+    // AutoProPAD / Smart Pro
+    'autopropad_basic': 'smartPro',
+    'autopropad': 'smartPro',
+    'smart_pro_tcode': 'smartPro',
     'smart_pro': 'smartPro',
-    'lonsdor_k518': 'lonsdor',
+    // Lonsdor
+    'lonsdor_k518s': 'lonsdor',
+    'lonsdor_k518ise': 'lonsdor',
+    'lonsdor_k518_pro': 'lonsdor',
+    // Xhorse/VVDI
+    'xhorse_mini_obd': 'vvdi',
+    'xhorse_keytool_max': 'vvdi',
+    'xhorse_vvdi2': 'vvdi',
     'xhorse_keytool_plus': 'vvdi',
 };
 
