@@ -6351,7 +6351,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             // Drivetrain (same key system)
             'AWD', '4WD', '2WD', 'FWD', 'RWD', 'Quattro', 'xDrive', '4Matic',
             // Powertrain variants (same key system)
-            'Hybrid', 'PHEV', 'EV', 'Diesel', 'Turbo', 'V6', 'V8',
+            'Hybrid', 'PHEV', 'Plug-In', 'EV', 'Diesel', 'Turbo', 'V6', 'V8',
             // Performance trims (Jeep/Dodge especially - same key system)
             'SRT', 'SRT8', 'Trackhawk', 'Hellcat', 'Demon', 'Scat Pack', 'R/T', 'GT',
             // Extended/size variants (same key system)  

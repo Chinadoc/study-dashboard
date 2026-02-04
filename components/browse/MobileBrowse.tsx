@@ -33,6 +33,14 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const [loadingModels, setLoadingModels] = useState(false);
     const [loadingYears, setLoadingYears] = useState(false);
 
+    // Model era filter (2000+ vs All vs EV)
+    const [classicOnlyModels, setClassicOnlyModels] = useState<string[]>([]);
+    const [hasClassicOnly, setHasClassicOnly] = useState(false);
+    const [modelEra, setModelEra] = useState<'all' | 'modern'>('modern'); // Default to modern
+    const [evModels, setEvModels] = useState<string[]>([]);
+    const [hasEV, setHasEV] = useState(false);
+    const [showEVOnly, setShowEVOnly] = useState(false);
+
     // Image error tracking
     const [makeImageErrors, setMakeImageErrors] = useState<Set<string>>(new Set());
     const [modelImageErrors, setModelImageErrors] = useState<Set<string>>(new Set());
@@ -62,6 +70,8 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
 
         async function fetchModels() {
             setLoadingModels(true);
+            setModelEra('modern'); // Default to modern
+            setShowEVOnly(false); // Reset EV filter
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(selectedMake!)}`);
                 const data = await res.json();
@@ -70,6 +80,11 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                     (m: string) => !m.toLowerCase().includes('misc')
                 );
                 setModels(filteredModels);
+                // Store filter data from API
+                setClassicOnlyModels((data.classicOnlyModels || []) as string[]);
+                setHasClassicOnly(data.hasClassicOnly || false);
+                setEvModels((data.evModels || []) as string[]);
+                setHasEV(data.hasEV || false);
             } catch (error) {
                 console.error('Failed to fetch models:', error);
             } finally {
@@ -310,47 +325,80 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading models...
                         </div>
                     ) : (
-                        <div className="overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
-                            <div className="flex gap-4" style={{ width: 'max-content' }}>
-                                {groupInto4x4Blocks(models).map((block, blockIndex) => (
-                                    <div
-                                        key={blockIndex}
-                                        className="grid grid-cols-4 gap-1.5 snap-center"
-                                        style={{ minWidth: 'calc(100vw - 32px)', maxWidth: 'calc(100vw - 32px)' }}
+                        <>
+                            {/* Combined Model Filter Toggle: 2000+ | All | EV */}
+                            {(hasClassicOnly || hasEV) && (
+                                <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
+                                    {hasClassicOnly && (
+                                        <button
+                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
+                                            className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-400'}`}
+                                        >
+                                            2000+ ({models.length - classicOnlyModels.length})
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
+                                        className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-400'}`}
                                     >
-                                        {block.flat().map(model => {
-                                            const imageSrc = getModelImage(selectedMake, model);
-                                            const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
+                                        All ({models.length})
+                                    </button>
+                                    {hasEV && (
+                                        <button
+                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
+                                            className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-400'}`}
+                                        >
+                                            ⚡ EV ({evModels.length})
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                            <div className="overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
+                                <div className="flex gap-4" style={{ width: 'max-content' }}>
+                                    {groupInto4x4Blocks(
+                                        models
+                                            .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m))
+                                            .filter(m => !showEVOnly || evModels.includes(m))
+                                    ).map((block, blockIndex) => (
+                                        <div
+                                            key={blockIndex}
+                                            className="grid grid-cols-4 gap-1.5 snap-center"
+                                            style={{ minWidth: 'calc(100vw - 32px)', maxWidth: 'calc(100vw - 32px)' }}
+                                        >
+                                            {block.flat().map(model => {
+                                                const imageSrc = getModelImage(selectedMake, model);
+                                                const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
 
-                                            return (
-                                                <button
-                                                    key={model}
-                                                    onClick={() => handleModelSelect(model)}
-                                                    className="aspect-square flex flex-col items-center justify-center gap-0.5 p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
-                                                >
-                                                    {!hasError ? (
-                                                        <img
-                                                            src={imageSrc}
-                                                            alt={model}
-                                                            className="w-10 h-8 object-contain flex-shrink-0"
-                                                            onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
-                                                        />
-                                                    ) : (
-                                                        <div className="w-10 h-8 rounded bg-gray-700/50 flex items-center justify-center">
-                                                            <span className="text-lg">🚗</span>
-                                                        </div>
-                                                    )}
-                                                    <span className="text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-2">
-                                                        {model}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                ))}
+                                                return (
+                                                    <button
+                                                        key={model}
+                                                        onClick={() => handleModelSelect(model)}
+                                                        className="aspect-square flex flex-col items-center justify-center gap-0.5 p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                                    >
+                                                        {!hasError ? (
+                                                            <img
+                                                                src={imageSrc}
+                                                                alt={model}
+                                                                className="w-10 h-8 object-contain flex-shrink-0"
+                                                                onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
+                                                            />
+                                                        ) : (
+                                                            <div className="w-10 h-8 rounded bg-gray-700/50 flex items-center justify-center">
+                                                                <span className="text-lg">🚗</span>
+                                                            </div>
+                                                        )}
+                                                        <span className="text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-2">
+                                                            {model}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
                             </div>
-                            <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
-                        </div>
+                        </>
                     )}
                 </section>
             )}

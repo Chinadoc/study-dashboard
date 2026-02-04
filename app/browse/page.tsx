@@ -366,40 +366,31 @@ function BrowsePageContent() {
                                         <div className="p-4 text-center text-purple-400 animate-pulse">Loading models...</div>
                                     ) : (
                                         <>
-                                            {/* Era Filter Toggle (Modern vs All) */}
-                                            {hasClassicOnly && (
-                                                <div className="flex gap-1 mb-2 p-1 bg-gray-800/50 rounded-lg">
-                                                    <button
-                                                        onClick={() => setModelEra('modern')}
-                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'modern' ? 'bg-emerald-500 text-white' : 'text-gray-400 hover:text-white'}`}
-                                                    >
-                                                        2000+ ({models.length - classicOnlyModels.length})
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setModelEra('all')}
-                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'all' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
-                                                    >
-                                                        All ({models.length})
-                                                    </button>
-                                                </div>
-                                            )}
-                                            {/* EV Toggle */}
-                                            {hasEV && (
+                                            {/* Combined Model Filter Toggle: 2000+ | All | EV */}
+                                            {(hasClassicOnly || hasEV) && (
                                                 <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
+                                                    {hasClassicOnly && (
+                                                        <button
+                                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
+                                                            className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                        >
+                                                            2000+ ({models.length - classicOnlyModels.length})
+                                                        </button>
+                                                    )}
                                                     <button
-                                                        onClick={() => setShowEVOnly(false)}
-                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${!showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'
-                                                            }`}
+                                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
                                                     >
                                                         All ({models.length})
                                                     </button>
-                                                    <button
-                                                        onClick={() => setShowEVOnly(true)}
-                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-400 hover:text-white'
-                                                            }`}
-                                                    >
-                                                        ⚡ EV ({evModels.length})
-                                                    </button>
+                                                    {hasEV && (
+                                                        <button
+                                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
+                                                            className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-400 hover:text-white'}`}
+                                                        >
+                                                            ⚡ EV ({evModels.length})
+                                                        </button>
+                                                    )}
                                                 </div>
                                             )}
                                             {/* Use merged models for cleaner display, filtered by era and EV */}
