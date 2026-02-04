@@ -17,6 +17,7 @@ interface RecentComment {
     user_picture: string | null;
     content: string;
     upvotes: number;
+    downvotes?: number;
     is_verified: boolean;
     verified_type: string | null;
     created_at: number;
