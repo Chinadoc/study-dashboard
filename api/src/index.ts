@@ -2533,6 +2533,37 @@ Keep response under 300 words, practical and actionable.`;
             }
           }
 
+          // 4b. Query top community comments for this vehicle
+          let communityTips: any[] = [];
+          if (make && model) {
+            try {
+              const vehicleKey = year
+                ? `${make[0].toUpperCase() + make.slice(1)}|${model[0].toUpperCase() + model.slice(1)}|${year}`
+                : `${make[0].toUpperCase() + make.slice(1)}|${model[0].toUpperCase() + model.slice(1)}`;
+
+              const communityQuery = `
+                SELECT content, user_name, upvotes, COALESCE(downvotes, 0) as downvotes,
+                       (upvotes - COALESCE(downvotes, 0)) as score
+                FROM vehicle_comments 
+                WHERE vehicle_key LIKE ? AND COALESCE(is_deleted, 0) = 0
+                ORDER BY score DESC, upvotes DESC
+                LIMIT 3
+              `;
+              const communityResult = await env.LOCKSMITH_DB.prepare(communityQuery)
+                .bind(`${vehicleKey}%`).all();
+              communityTips = (communityResult.results || []).filter((c: any) => c.score >= 1);
+            } catch {
+              // Community table might not exist, continue without
+            }
+          }
+
+          if (communityTips.length > 0) {
+            contextBlock += `\n## Community Tips (from technicians):\n`;
+            for (const tip of communityTips) {
+              contextBlock += `- "${tip.content}" — ${tip.user_name} (${tip.score > 0 ? '+' : ''}${tip.score} votes)\n`;
+            }
+          }
+
           // 5. Call AI provider (Gemini or OpenRouter/DeepSeek)
           const systemPrompt = `You are EuroKeys AI, an expert automotive locksmith assistant. You help locksmiths with vehicle key programming, immobilizer systems, and related technical questions.
 

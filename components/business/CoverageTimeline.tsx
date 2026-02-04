@@ -133,15 +133,30 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
     // Check if owned tools cover a vehicle
     const hasToolForVehicle = (v: VehicleCoverage): boolean => {
         const toolIdToKey: Record<string, typeof TOOLS[number]> = {
+            // Autel
             'autel_im508s': 'autel',
             'autel_im608': 'autel',
             'autel_im608_pro': 'autel',
             'autel_im608_pro2': 'autel',
-            'smart_pro': 'smartPro',
-            'autopropad': 'smartPro',
-            'lonsdor_k518': 'lonsdor',
-            'xhorse_keytool_plus': 'vvdi',
+            // OBDStar
+            'obdstar_x300_mini': 'autel',
+            'obdstar_x300_pro4': 'autel',
+            'obdstar_x300_dp_plus': 'autel',
             'obdstar_g3': 'autel',
+            // Smart Pro / AutoProPAD
+            'smart_pro_tcode': 'smartPro',
+            'smart_pro': 'smartPro',
+            'autopropad_basic': 'smartPro',
+            'autopropad': 'smartPro',
+            // Lonsdor
+            'lonsdor_k518s': 'lonsdor',
+            'lonsdor_k518ise': 'lonsdor',
+            'lonsdor_k518_pro': 'lonsdor',
+            // Xhorse
+            'xhorse_mini_obd': 'vvdi',
+            'xhorse_keytool_max': 'vvdi',
+            'xhorse_vvdi2': 'vvdi',
+            'xhorse_keytool_plus': 'vvdi',
         };
 
         return ownedToolIds.some(toolId => {

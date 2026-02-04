@@ -14,6 +14,7 @@ import {
     getSyncStatus as getQueueSyncStatus
 } from './syncQueue';
 import { syncEvents } from './syncEvents';
+import { addChecksum, findCorruptedItems } from './checksum';
 
 // API base URL - use environment variable or default to production
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
@@ -62,6 +63,7 @@ export interface JobLog {
     syncedAt?: number;        // When it was last synced to cloud
     syncStatus?: 'pending' | 'synced' | 'conflict';  // Current sync state
     deviceId?: string;        // Origin device for conflict resolution
+    _checksum?: string;       // Data integrity verification
 }
 
 export interface JobStats {
@@ -455,13 +457,16 @@ export function useJobLogs() {
             syncStatus: 'pending',
         };
 
+        // Add checksum for integrity verification
+        const jobWithChecksum = addChecksum(jobWithMeta as unknown as Record<string, unknown>) as unknown as JobLog;
+
         // Always save to localStorage as cache
         const current = getJobLogsFromStorage();
         const exists = current.findIndex(j => j.id === job.id);
         if (exists >= 0) {
-            current[exists] = jobWithMeta;
+            current[exists] = jobWithChecksum;
         } else {
-            current.unshift(jobWithMeta);
+            current.unshift(jobWithChecksum);
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
         updateSyncState({ lastLocalModified: Date.now() });
@@ -472,7 +477,7 @@ export function useJobLogs() {
             try {
                 await apiRequest('/api/jobs', {
                     method: 'POST',
-                    body: JSON.stringify(jobWithMeta),
+                    body: JSON.stringify(jobWithChecksum),
                 });
                 // Mark as synced
                 const synced = current.map(j =>
@@ -488,7 +493,7 @@ export function useJobLogs() {
                     id: job.id,
                     type: isNew ? 'create' : 'update',
                     entityType: 'job',
-                    data: jobWithMeta as unknown as Record<string, unknown>,
+                    data: jobWithChecksum as unknown as Record<string, unknown>,
                     timestamp: Date.now(),
                 });
                 setSyncStatus('pending');
@@ -499,7 +504,7 @@ export function useJobLogs() {
                 id: job.id,
                 type: isNew ? 'create' : 'update',
                 entityType: 'job',
-                data: jobWithMeta as unknown as Record<string, unknown>,
+                data: jobWithChecksum as unknown as Record<string, unknown>,
                 timestamp: Date.now(),
             });
             setSyncStatus('offline');

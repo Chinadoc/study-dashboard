@@ -84,6 +84,10 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         setTechnicians(getActiveTechnicians());
     }, []);
 
+    // Community tips for the vehicle being logged
+    const [communityTips, setCommunityTips] = useState<Array<{ content: string; user_name: string; score: number }>>([]);
+    const [loadingTips, setLoadingTips] = useState(false);
+
     const [formData, setFormData] = useState<JobFormData>({
         vehicle: prefillVehicle,
         fccId: prefillFccId,
@@ -347,6 +351,44 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             lookupFccIds(vehicle);
         }, 800); // 800ms debounce
 
+        return () => clearTimeout(timeoutId);
+    }, [formData.vehicle]);
+
+    // Fetch community tips when vehicle changes
+    useEffect(() => {
+        const vehicle = formData.vehicle.trim();
+        if (!vehicle || vehicle.length < 8) {
+            setCommunityTips([]);
+            return;
+        }
+
+        const { year, make, model } = parseVehicle(vehicle);
+        if (!make || !model) return;
+
+        const fetchTips = async () => {
+            setLoadingTips(true);
+            try {
+                const vehicleKey = encodeURIComponent(`${make}|${model}${year ? `|${year}` : ''}`);
+                const res = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/vehicle-comments?vehicle_key=${vehicleKey}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const comments = (data.comments || [])
+                        .filter((c: any) => (c.upvotes - (c.downvotes || 0)) >= 1)
+                        .slice(0, 3)
+                        .map((c: any) => ({
+                            content: c.content,
+                            user_name: c.user_name,
+                            score: c.upvotes - (c.downvotes || 0)
+                        }));
+                    setCommunityTips(comments);
+                }
+            } catch (err) {
+                console.error('Failed to fetch community tips:', err);
+            }
+            setLoadingTips(false);
+        };
+
+        const timeoutId = setTimeout(fetchTips, 1000); // 1s debounce
         return () => clearTimeout(timeoutId);
     }, [formData.vehicle]);
 
