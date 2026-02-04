@@ -480,7 +480,7 @@ export default {
       // JOBS CLOUD SYNC ENDPOINTS
       // ==============================================
 
-      // GET /api/jobs - Get all jobs for authenticated user
+      // GET /api/jobs - Get all jobs for authenticated user (with delta sync support)
       if (path === "/api/jobs" && request.method === "GET") {
         try {
           const sessionToken = getSessionToken(request);
@@ -491,21 +491,47 @@ export default {
 
           const userId = payload.sub as string;
 
-          const result = await env.LOCKSMITH_DB.prepare(
-            "SELECT id, data, created_at FROM job_logs WHERE user_id = ? ORDER BY created_at DESC"
-          ).bind(userId).all();
+          // Delta sync support: only return jobs updated since the given timestamp
+          const sinceParam = url.searchParams.get('since');
+          let query = "SELECT id, data, created_at, updated_at FROM job_logs WHERE user_id = ?";
+          const params: any[] = [userId];
+
+          if (sinceParam) {
+            const sinceTs = parseInt(sinceParam, 10);
+            if (!isNaN(sinceTs)) {
+              query += " AND (updated_at > ? OR (updated_at IS NULL AND created_at > ?))";
+              params.push(sinceTs, sinceTs);
+            }
+          }
+
+          query += " ORDER BY created_at DESC";
+
+          const result = await env.LOCKSMITH_DB.prepare(query).bind(...params).all();
 
           // Parse the JSON data field for each job
           const jobs = (result.results || []).map((row: any) => {
             try {
               const jobData = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
-              return { ...jobData, id: row.id, createdAt: row.created_at };
+              return {
+                ...jobData,
+                id: row.id,
+                createdAt: row.created_at,
+                updatedAt: row.updated_at || row.created_at
+              };
             } catch {
-              return { id: row.id, createdAt: row.created_at };
+              return { id: row.id, createdAt: row.created_at, updatedAt: row.updated_at || row.created_at };
             }
           });
 
-          return corsResponse(request, JSON.stringify({ jobs }), 200);
+          // Add server time header for clock sync
+          const headers = new Headers();
+          headers.set('X-Server-Time', String(Date.now()));
+
+          return corsResponse(request, JSON.stringify({
+            jobs,
+            serverTime: Date.now(),
+            isDelta: !!sinceParam
+          }), 200, headers);
         } catch (err: any) {
           console.error('/api/jobs GET error:', err);
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -527,13 +553,14 @@ export default {
           // Generate ID if not provided
           const jobId = jobData.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
           const createdAt = jobData.createdAt || Date.now();
+          const updatedAt = jobData.updatedAt || Date.now();
 
-          // Upsert job - INSERT OR REPLACE
+          // Upsert job - INSERT OR REPLACE with updated_at
           await env.LOCKSMITH_DB.prepare(
-            "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at) VALUES (?, ?, ?, ?)"
-          ).bind(jobId, userId, JSON.stringify(jobData), createdAt).run();
+            "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
+          ).bind(jobId, userId, JSON.stringify(jobData), createdAt, updatedAt).run();
 
-          return corsResponse(request, JSON.stringify({ success: true, id: jobId }), 200);
+          return corsResponse(request, JSON.stringify({ success: true, id: jobId, serverTime: Date.now() }), 200);
         } catch (err: any) {
           console.error('/api/jobs POST error:', err);
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -574,24 +601,34 @@ export default {
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
-          const { jobs } = await request.json() as { jobs: any[] };
+          const { jobs, deviceId } = await request.json() as { jobs: any[], deviceId?: string };
 
           if (!Array.isArray(jobs)) {
             return corsResponse(request, JSON.stringify({ error: "jobs must be an array" }), 400);
           }
 
-          // Batch insert/update all jobs
+          // Batch insert/update all jobs with updated_at
           let synced = 0;
+          const serverTime = Date.now();
           for (const job of jobs) {
             const jobId = job.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-            const createdAt = job.createdAt || Date.now();
+            const createdAt = job.createdAt || serverTime;
+            const updatedAt = job.updatedAt || serverTime;
+
+            // Store deviceId in job data for conflict tracking
+            const enrichedJob = { ...job, deviceId: deviceId || job.deviceId };
+
             await env.LOCKSMITH_DB.prepare(
-              "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at) VALUES (?, ?, ?, ?)"
-            ).bind(jobId, userId, JSON.stringify(job), createdAt).run();
+              "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
+            ).bind(jobId, userId, JSON.stringify(enrichedJob), createdAt, updatedAt).run();
             synced++;
           }
 
-          return corsResponse(request, JSON.stringify({ success: true, synced }), 200);
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            synced,
+            serverTime
+          }), 200);
         } catch (err: any) {
           console.error('/api/jobs/sync error:', err);
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -3176,6 +3213,108 @@ Guidelines:
 
           return corsResponse(request, JSON.stringify({
             leaderboard
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/community/trending - Get trending content (highest score in last 7 days)
+      if (path === "/api/community/trending" && request.method === "GET") {
+        try {
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const daysAgo = parseInt(url.searchParams.get('days') || '7');
+          const cutoffTime = Date.now() - (daysAgo * 24 * 60 * 60 * 1000);
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              vc.id, vc.vehicle_key, vc.user_id, vc.user_name, vc.user_picture,
+              vc.content, vc.upvotes, COALESCE(vc.downvotes, 0) as downvotes,
+              (vc.upvotes - COALESCE(vc.downvotes, 0)) as score,
+              vc.job_type, vc.tool_used, vc.created_at,
+              COALESCE(vc.is_verified, 0) as is_verified, vc.verified_type,
+              ur.rank_level
+            FROM vehicle_comments vc
+            LEFT JOIN user_reputation ur ON vc.user_id = ur.user_id
+            WHERE COALESCE(vc.is_deleted, 0) = 0 
+              AND vc.parent_id IS NULL
+              AND vc.created_at > ?
+            ORDER BY score DESC, vc.upvotes DESC, vc.created_at DESC
+            LIMIT ?
+          `).bind(cutoffTime, Math.min(limit, 50)).all();
+
+          return corsResponse(request, JSON.stringify({
+            trending: result.results || [],
+            period_days: daysAgo
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/community/insights - Get community stats for AI integration
+      if (path === "/api/community/insights" && request.method === "GET") {
+        try {
+          const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+
+          // Get total comments and active this week
+          const commentStats = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              COUNT(*) as total_comments,
+              SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as comments_this_week
+            FROM vehicle_comments
+            WHERE COALESCE(is_deleted, 0) = 0
+          `).bind(weekAgo).first<any>();
+
+          // Get total and new verified pearls
+          const pearlStats = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              COUNT(*) as total_verified,
+              SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as pearls_this_week
+            FROM verified_pearls
+          `).bind(weekAgo).first<any>();
+
+          // Get top contributors this week
+          const topContributors = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              vc.user_name, COUNT(*) as contributions,
+              SUM(vc.upvotes) as total_upvotes
+            FROM vehicle_comments vc
+            WHERE vc.created_at > ? AND COALESCE(vc.is_deleted, 0) = 0
+            GROUP BY vc.user_id, vc.user_name
+            ORDER BY contributions DESC, total_upvotes DESC
+            LIMIT 5
+          `).bind(weekAgo).all();
+
+          // Get most discussed vehicles this week
+          const hotVehicles = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              vehicle_key, COUNT(*) as comment_count,
+              SUM(upvotes) as total_upvotes
+            FROM vehicle_comments
+            WHERE created_at > ? AND COALESCE(is_deleted, 0) = 0
+            GROUP BY vehicle_key
+            ORDER BY comment_count DESC, total_upvotes DESC
+            LIMIT 5
+          `).bind(weekAgo).all();
+
+          // Get trending topics by analyzing content (simple keyword extraction)
+          const recentContent = await env.LOCKSMITH_DB.prepare(`
+            SELECT content FROM vehicle_comments
+            WHERE created_at > ? AND COALESCE(is_deleted, 0) = 0 AND upvotes > 0
+            LIMIT 50
+          `).bind(weekAgo).all();
+
+          return corsResponse(request, JSON.stringify({
+            stats: {
+              total_comments: commentStats?.total_comments || 0,
+              comments_this_week: commentStats?.comments_this_week || 0,
+              total_verified_pearls: pearlStats?.total_verified || 0,
+              new_pearls_this_week: pearlStats?.pearls_this_week || 0
+            },
+            top_contributors: topContributors.results || [],
+            hot_vehicles: hotVehicles.results || [],
+            sample_content: (recentContent.results || []).slice(0, 10)
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);

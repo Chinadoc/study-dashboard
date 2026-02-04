@@ -46,9 +46,10 @@ interface Mention {
 
 export default function CommunityPage() {
     const { isAuthenticated, user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'recent' | 'verified' | 'mentions' | 'leaderboard'>('recent');
+    const [activeTab, setActiveTab] = useState<'trending' | 'recent' | 'verified' | 'mentions' | 'leaderboard'>('trending');
     const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
     const [verifiedPearls, setVerifiedPearls] = useState<RecentComment[]>([]);
+    const [trendingComments, setTrendingComments] = useState<RecentComment[]>([]);
     const [mentions, setMentions] = useState<Mention[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
@@ -58,6 +59,13 @@ export default function CommunityPage() {
         const fetchData = async () => {
             setLoading(true);
             try {
+                // Fetch trending comments (highest score in last 7 days)
+                const trendingRes = await fetch(`${API_URL}/api/community/trending`);
+                if (trendingRes.ok) {
+                    const data = await trendingRes.json();
+                    setTrendingComments(data.trending || []);
+                }
+
                 // Fetch recent comments across all vehicles
                 const recentRes = await fetch(`${API_URL}/api/community/recent`);
                 if (recentRes.ok) {
@@ -152,6 +160,12 @@ export default function CommunityPage() {
             {/* Tab Navigation */}
             <div className={styles.tabs}>
                 <button
+                    className={`${styles.tab} ${activeTab === 'trending' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('trending')}
+                >
+                    🔥 Trending
+                </button>
+                <button
                     className={`${styles.tab} ${activeTab === 'recent' ? styles.active : ''}`}
                     onClick={() => setActiveTab('recent')}
                 >
@@ -186,6 +200,56 @@ export default function CommunityPage() {
                     <div className={styles.loading}>Loading community data...</div>
                 ) : (
                     <>
+                        {/* Trending Tab */}
+                        {activeTab === 'trending' && (
+                            <div className={styles.commentList}>
+                                {trendingComments.length === 0 ? (
+                                    <div className={styles.empty}>No trending posts yet. Be the first to contribute!</div>
+                                ) : (
+                                    trendingComments.map(comment => {
+                                        const vehicle = parseVehicleKey(comment.vehicle_key);
+                                        const score = comment.upvotes - (comment.downvotes || 0);
+                                        return (
+                                            <div key={comment.id} className={`${styles.commentCard} ${comment.is_verified ? styles.verified : ''} ${score >= 5 ? styles.hot : ''}`}>
+                                                <div className={styles.cardHeader}>
+                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}`} className={styles.vehicleLink}>
+                                                        {vehicle.make} {vehicle.model}
+                                                    </Link>
+                                                    {score >= 5 && <span className={styles.hotBadge}>🔥 Hot</span>}
+                                                    <span className={styles.time}>{formatTime(comment.created_at)}</span>
+                                                </div>
+                                                <div className={styles.cardBody}>
+                                                    <div className={styles.userInfo}>
+                                                        {comment.user_picture && (
+                                                            <img src={comment.user_picture} alt="" className={styles.avatar} />
+                                                        )}
+                                                        <span className={styles.userName}>{comment.user_name || 'Anonymous'}</span>
+                                                        {comment.rank_level && (
+                                                            <span className={styles.rank}>{getRankDisplay(comment.rank_level).icon}</span>
+                                                        )}
+                                                        {comment.is_verified && (
+                                                            <span className={styles.verifiedBadge}>✓ Pearl</span>
+                                                        )}
+                                                    </div>
+                                                    <div className={styles.commentContent}>
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                            {comment.content.length > 200 ? comment.content.slice(0, 200) + '...' : comment.content}
+                                                        </ReactMarkdown>
+                                                    </div>
+                                                </div>
+                                                <div className={styles.cardFooter}>
+                                                    <span className={`${styles.score} ${score >= 5 ? styles.highScore : ''}`}>▲ {score}</span>
+                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}#comments`} className={styles.viewLink}>
+                                                        View Discussion →
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        )}
+
                         {/* Recent Comments Tab */}
                         {activeTab === 'recent' && (
                             <div className={styles.commentList}>

@@ -263,10 +263,17 @@ export function useJobLogs() {
                 return;
             }
 
-            // 2. Fetch from cloud
+            // 2. Fetch from cloud (with delta sync - only fetch jobs updated since last sync)
             try {
                 const syncState = getSyncState();
-                const data = await apiRequest('/api/jobs');
+                const lastSync = syncState.lastCloudSync;
+
+                // Use delta sync if we have a previous sync timestamp and some local data
+                const endpoint = lastSync && localJobs.length > 0
+                    ? `/api/jobs?since=${lastSync}`
+                    : '/api/jobs';
+
+                const data = await apiRequest(endpoint);
 
                 if (data?.jobs) {
                     // 3. Merge local and cloud
@@ -303,8 +310,10 @@ export function useJobLogs() {
                     }
 
                     hasSyncedRef.current = true;
+                    // Store serverTime for more accurate sync tracking
+                    const serverTime = data.serverTime || Date.now();
                     updateSyncState({
-                        lastCloudSync: Date.now(),
+                        lastCloudSync: serverTime,
                         pendingCount: 0
                     });
                     setSyncStatus('synced');
