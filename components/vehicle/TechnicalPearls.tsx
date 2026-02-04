@@ -59,7 +59,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                         const res = await fetch(`${API_URL}/api/pearls/${pearl.id}/votes`, {
                             credentials: 'include',
                             headers: {
-                                'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                                'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                             }
                         });
                         if (res.ok) {
@@ -93,7 +93,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                 },
                 body: JSON.stringify({ pearl_id: pearlId, vote })
             });
@@ -122,7 +122,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                 },
                 body: JSON.stringify({
                     content: replyContent,
@@ -154,7 +154,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
                 },
                 body: JSON.stringify({
                     pearl_id: suggestingEdit.id,
