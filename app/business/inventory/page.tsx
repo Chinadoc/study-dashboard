@@ -669,6 +669,13 @@ export default function InventoryPage() {
                     <p className="text-sm mt-1">{searchQuery ? 'Try a different search term' : 'Add inventory items to track your stock'}</p>
                 </div>
             )}
+
+            {/* Key Scanner Modal */}
+            <KeyScannerModal
+                isOpen={showScanner}
+                onClose={() => setShowScanner(false)}
+                onKeyIdentified={handleKeyIdentified}
+            />
         </div>
     );
 }

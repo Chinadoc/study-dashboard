@@ -1,6 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+    DndContext,
+    DragEndEvent,
+    DragOverlay,
+    DragStartEvent,
+    closestCenter,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { PipelineLead, usePipelineLeads } from '@/lib/usePipelineLeads';
 import LeadCard from './LeadCard';
 import AddLeadModal from './AddLeadModal';
@@ -55,6 +67,121 @@ function LostReasonModal({ isOpen, onClose, onConfirm }: LostReasonModalProps) {
     );
 }
 
+// Draggable Lead Card wrapper
+function DraggableLeadCard({
+    lead,
+    expanded,
+    onToggleExpand,
+    onUpdateStatus,
+    onMarkLost,
+    onConvertToJob,
+    onDelete,
+}: {
+    lead: PipelineLead;
+    expanded: boolean;
+    onToggleExpand: () => void;
+    onUpdateStatus: (status: PipelineLead['status']) => void;
+    onMarkLost: () => void;
+    onConvertToJob: () => void;
+    onDelete: () => void;
+}) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: lead.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            <LeadCard
+                lead={lead}
+                expanded={expanded}
+                onToggleExpand={onToggleExpand}
+                onUpdateStatus={onUpdateStatus}
+                onMarkLost={onMarkLost}
+                onConvertToJob={onConvertToJob}
+                onDelete={onDelete}
+            />
+        </div>
+    );
+}
+
+// Droppable column
+function DroppableColumn({
+    status,
+    label,
+    icon,
+    color,
+    leads,
+    expandedLeadId,
+    onToggleExpand,
+    onUpdateStatus,
+    onMarkLost,
+    onConvertToJob,
+    onDelete,
+}: {
+    status: PipelineLead['status'];
+    label: string;
+    icon: string;
+    color: string;
+    leads: PipelineLead[];
+    expandedLeadId: string | null;
+    onToggleExpand: (id: string) => void;
+    onUpdateStatus: (id: string, status: PipelineLead['status']) => void;
+    onMarkLost: (lead: PipelineLead) => void;
+    onConvertToJob: (lead: PipelineLead) => void;
+    onDelete: (id: string) => void;
+}) {
+    return (
+        <div
+            className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-3 min-h-[200px]"
+            data-status={status}
+        >
+            {/* Column Header */}
+            <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                    <span>{icon}</span>
+                    <span className="font-bold text-sm">{label}</span>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full bg-${color}-500/20 text-${color}-400`}>
+                    {leads.length}
+                </span>
+            </div>
+
+            {/* Leads */}
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                {leads.length > 0 ? (
+                    leads.map(lead => (
+                        <DraggableLeadCard
+                            key={lead.id}
+                            lead={lead}
+                            expanded={expandedLeadId === lead.id}
+                            onToggleExpand={() => onToggleExpand(lead.id)}
+                            onUpdateStatus={(newStatus) => onUpdateStatus(lead.id, newStatus)}
+                            onMarkLost={() => onMarkLost(lead)}
+                            onConvertToJob={() => onConvertToJob(lead)}
+                            onDelete={() => onDelete(lead.id)}
+                        />
+                    ))
+                ) : (
+                    <div className="text-center py-8 text-gray-600 text-sm border-2 border-dashed border-zinc-700 rounded-lg">
+                        Drop leads here
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 interface PipelineViewProps {
     onConvertToJob?: (lead: PipelineLead) => void;
 }
@@ -64,8 +191,20 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
     const [lostModalLead, setLostModalLead] = useState<PipelineLead | null>(null);
+    const [activeDragId, setActiveDragId] = useState<string | null>(null);
+    // For drag-to-lost: store the lead and show modal
+    const [pendingLostLead, setPendingLostLead] = useState<PipelineLead | null>(null);
 
     const stats = getStats();
+
+    // DnD sensors
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8, // Start drag after 8px movement
+            },
+        })
+    );
 
     // Group leads by status
     const leadsByStatus = {
@@ -85,6 +224,7 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
     const handleMarkLost = (lead: PipelineLead, reason: PipelineLead['lostReason']) => {
         updateLead(lead.id, { status: 'lost', lostReason: reason });
         setLostModalLead(null);
+        setPendingLostLead(null);
     };
 
     const handleConvertToJob = (lead: PipelineLead) => {
@@ -93,6 +233,74 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
             deleteLead(lead.id);
         }
     };
+
+    // Handle status update - now simply updates status, no auto-convert
+    const handleUpdateStatus = (id: string, status: PipelineLead['status']) => {
+        const lead = leads.find(l => l.id === id);
+        if (!lead) return;
+
+        if (status === 'lost') {
+            // Show lost reason modal
+            setLostModalLead(lead);
+        } else {
+            // Just update status - "scheduled" now shows in scheduled column
+            updateLead(id, { status });
+        }
+    };
+
+    // DnD handlers
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveDragId(event.active.id as string);
+    };
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        setActiveDragId(null);
+
+        if (!over) return;
+
+        const leadId = active.id as string;
+        const lead = leads.find(l => l.id === leadId);
+        if (!lead) return;
+
+        // Find target column from the over element
+        let targetStatus: PipelineLead['status'] | null = null;
+
+        // Check if dropped on another lead - use that lead's status
+        const targetLead = leads.find(l => l.id === over.id);
+        if (targetLead) {
+            targetStatus = targetLead.status;
+        }
+
+        // Alternative: check by element position
+        const activeRect = event.active.rect.current.translated;
+        if (!targetStatus && activeRect) {
+            const columnElements = document.querySelectorAll('[data-status]');
+            columnElements.forEach((el) => {
+                const rect = el.getBoundingClientRect();
+                if (
+                    activeRect.left >= rect.left &&
+                    activeRect.left <= rect.right &&
+                    activeRect.top >= rect.top &&
+                    activeRect.top <= rect.bottom
+                ) {
+                    targetStatus = el.getAttribute('data-status') as PipelineLead['status'];
+                }
+            });
+        }
+
+        if (!targetStatus || targetStatus === lead.status) return;
+
+        // Handle the status change
+        if (targetStatus === 'lost') {
+            // Show lost reason modal
+            setPendingLostLead(lead);
+        } else {
+            updateLead(leadId, { status: targetStatus });
+        }
+    };
+
+    const activeLead = activeDragId ? leads.find(l => l.id === activeDragId) : null;
 
     return (
         <div className="space-y-4">
@@ -130,54 +338,54 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
                 📥 Add New Lead
             </button>
 
-            {/* Pipeline Columns */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {columns.map(col => (
-                    <div key={col.status} className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-3">
-                        {/* Column Header */}
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                                <span>{col.icon}</span>
-                                <span className="font-bold text-sm">{col.label}</span>
-                            </div>
-                            <span className={`text-xs px-2 py-0.5 rounded-full bg-${col.color}-500/20 text-${col.color}-400`}>
-                                {leadsByStatus[col.status].length}
-                            </span>
-                        </div>
+            {/* Drag hint */}
+            <p className="text-xs text-gray-500 text-center">
+                💡 Drag and drop leads between columns to change status
+            </p>
 
-                        {/* Leads */}
-                        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                            {leadsByStatus[col.status].length > 0 ? (
-                                leadsByStatus[col.status].map(lead => (
-                                    <LeadCard
-                                        key={lead.id}
-                                        lead={lead}
-                                        expanded={expandedLeadId === lead.id}
-                                        onToggleExpand={() => setExpandedLeadId(
-                                            expandedLeadId === lead.id ? null : lead.id
-                                        )}
-                                        onUpdateStatus={(status) => {
-                                            if (status === 'scheduled' && onConvertToJob) {
-                                                // Auto-convert to pending job when scheduled
-                                                handleConvertToJob(lead);
-                                            } else {
-                                                updateLead(lead.id, { status });
-                                            }
-                                        }}
-                                        onMarkLost={() => setLostModalLead(lead)}
-                                        onConvertToJob={() => handleConvertToJob(lead)}
-                                        onDelete={() => deleteLead(lead.id)}
-                                    />
-                                ))
-                            ) : (
-                                <div className="text-center py-8 text-gray-600 text-sm">
-                                    No leads
-                                </div>
-                            )}
+            {/* Pipeline Columns with DnD */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {columns.map(col => (
+                        <DroppableColumn
+                            key={col.status}
+                            status={col.status}
+                            label={col.label}
+                            icon={col.icon}
+                            color={col.color}
+                            leads={leadsByStatus[col.status]}
+                            expandedLeadId={expandedLeadId}
+                            onToggleExpand={(id) => setExpandedLeadId(expandedLeadId === id ? null : id)}
+                            onUpdateStatus={handleUpdateStatus}
+                            onMarkLost={(lead) => setLostModalLead(lead)}
+                            onConvertToJob={handleConvertToJob}
+                            onDelete={deleteLead}
+                        />
+                    ))}
+                </div>
+
+                {/* Drag Overlay */}
+                <DragOverlay>
+                    {activeLead ? (
+                        <div className="opacity-90 rotate-3 scale-105">
+                            <LeadCard
+                                lead={activeLead}
+                                expanded={false}
+                                onToggleExpand={() => { }}
+                                onUpdateStatus={() => { }}
+                                onMarkLost={() => { }}
+                                onConvertToJob={() => { }}
+                                onDelete={() => { }}
+                            />
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
 
             {/* Add Lead Modal */}
             <AddLeadModal
@@ -186,11 +394,18 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
                 onSubmit={addLead}
             />
 
-            {/* Lost Reason Modal */}
+            {/* Lost Reason Modal - for button click */}
             <LostReasonModal
                 isOpen={!!lostModalLead}
                 onClose={() => setLostModalLead(null)}
                 onConfirm={(reason) => lostModalLead && handleMarkLost(lostModalLead, reason)}
+            />
+
+            {/* Lost Reason Modal - for drag to lost column */}
+            <LostReasonModal
+                isOpen={!!pendingLostLead}
+                onClose={() => setPendingLostLead(null)}
+                onConfirm={(reason) => pendingLostLead && handleMarkLost(pendingLostLead, reason)}
             />
         </div>
     );
