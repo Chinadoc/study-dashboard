@@ -13,6 +13,7 @@ import {
     SyncStatus,
     getSyncStatus as getQueueSyncStatus
 } from './syncQueue';
+import { syncEvents } from './syncEvents';
 
 // API base URL - use environment variable or default to production
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
@@ -430,29 +431,48 @@ export function useJobLogs() {
     }, [saveJob]);
 
     const deleteJobLog = useCallback(async (id: string) => {
+        // Save original job before deletion (for potential rollback)
+        const originalJobs = getJobLogsFromStorage();
+        const deletedJob = originalJobs.find(j => j.id === id);
+
+        // Optimistic update - remove immediately
         setJobLogs(prev => prev.filter(log => log.id !== id));
 
         // Remove from localStorage
-        const current = getJobLogsFromStorage();
-        const updated = current.filter(j => j.id !== id);
+        const updated = originalJobs.filter(j => j.id !== id);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         updateSyncState({ lastLocalModified: Date.now() });
+
+        // Rollback function
+        const rollback = () => {
+            if (deletedJob) {
+                const current = getJobLogsFromStorage();
+                current.unshift(deletedJob);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+                setJobLogs(prev => [deletedJob, ...prev]);
+            }
+        };
 
         // Delete from cloud
         const token = getAuthToken();
         if (token && isOnline()) {
             try {
                 await apiRequest(`/api/jobs/${id}`, { method: 'DELETE' });
+                // Emit success event
+                syncEvents.success('job', id, 'delete', 'Job deleted');
             } catch (e) {
                 console.error('Failed to delete job from cloud, queuing for retry:', e);
+                // Queue for later, don't rollback yet - let SW handle it
                 addToQueue({
                     id,
                     type: 'delete',
                     entityType: 'job',
-                    data: { id },
+                    data: { id, _rollbackData: deletedJob },
                     timestamp: Date.now(),
                 });
                 setSyncStatus('pending');
+                // Emit error event with rollback action
+                syncEvents.error('job', id, 'delete', 'Failed to delete, queued for retry', { rollback });
             }
         } else if (token) {
             // Offline - queue for later
@@ -460,10 +480,11 @@ export function useJobLogs() {
                 id,
                 type: 'delete',
                 entityType: 'job',
-                data: { id },
+                data: { id, _rollbackData: deletedJob },
                 timestamp: Date.now(),
             });
             setSyncStatus('offline');
+            syncEvents.offline('job', id, 'delete');
         }
     }, []);
 

@@ -148,6 +148,22 @@ export default function JobsPage() {
                         setInvoiceJob(job);
                         setInvoiceModalOpen(true);
                     }}
+                    onImportJobs={(jobs) => {
+                        jobs.forEach(job => {
+                            addJobLog({
+                                vehicle: job.vehicle || '',
+                                jobType: job.jobType || 'other',
+                                price: job.price || 0,
+                                date: job.date || new Date().toISOString().split('T')[0],
+                                customerName: job.customerName,
+                                keyCost: job.keyCost,
+                                gasCost: job.gasCost,
+                                partsCost: job.partsCost,
+                                notes: job.notes,
+                                status: job.status || 'completed',
+                            });
+                        });
+                    }}
                 />
             )}
 

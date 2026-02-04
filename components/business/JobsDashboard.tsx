@@ -85,6 +85,69 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
         }
     };
 
+    // CSV Import handler
+    const handleCsvImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !onImportJobs) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const text = event.target?.result as string;
+                const lines = text.split('\n').filter(line => line.trim());
+                if (lines.length < 2) {
+                    setImportStatus('No data rows found');
+                    return;
+                }
+
+                // Parse header
+                const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+
+                // Map CSV to JobLog fields
+                const jobs: Partial<JobLog>[] = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                    const row: Record<string, string> = {};
+                    headers.forEach((h, idx) => row[h] = values[idx] || '');
+
+                    // Map common CSV field names to JobLog
+                    const job: Partial<JobLog> = {
+                        id: Date.now().toString() + i,
+                        date: row.date || new Date().toISOString().split('T')[0],
+                        vehicle: row.vehicle || row.car || '',
+                        jobType: (row.type || row.jobtype || 'other').toLowerCase().replace(' ', '_') as any,
+                        price: parseFloat(row.revenue || row.price || '0') || 0,
+                        keyCost: parseFloat(row['key cost'] || row.keycost || '0') || 0,
+                        gasCost: parseFloat(row['gas cost'] || row.gascost || '0') || 0,
+                        partsCost: parseFloat(row['parts cost'] || row.partscost || '0') || 0,
+                        customerName: row.customer || row.customername || '',
+                        notes: row.notes || '',
+                        status: 'completed'
+                    };
+
+                    if (job.vehicle) {
+                        jobs.push(job);
+                    }
+                }
+
+                if (jobs.length > 0) {
+                    onImportJobs(jobs);
+                    setImportStatus(`✅ Imported ${jobs.length} jobs`);
+                    setTimeout(() => setImportStatus(null), 3000);
+                } else {
+                    setImportStatus('No valid jobs found');
+                }
+            } catch (err) {
+                setImportStatus('Failed to parse CSV');
+                console.error('CSV import error:', err);
+            }
+        };
+        reader.readAsText(file);
+
+        // Reset input
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     return (
         <div className="space-y-6">
             {/* Stats Overview */}
@@ -129,13 +192,38 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
                 </div>
             </div>
 
-            {/* Add Job Button */}
-            <button
-                onClick={onAddJob}
-                className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black text-lg rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all shadow-lg shadow-yellow-500/20"
-            >
-                📝 Log New Job
-            </button>
+            {/* Add Job + Import Buttons */}
+            <div className="flex gap-3">
+                <button
+                    onClick={onAddJob}
+                    className="flex-1 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black text-lg rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all shadow-lg shadow-yellow-500/20"
+                >
+                    📝 Log New Job
+                </button>
+                {onImportJobs && (
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-6 py-4 bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold rounded-xl hover:bg-zinc-700 transition-all flex items-center gap-2"
+                        title="Import from CSV"
+                    >
+                        📥 Import
+                    </button>
+                )}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv"
+                    onChange={handleCsvImport}
+                    className="hidden"
+                />
+            </div>
+
+            {/* Import Status */}
+            {importStatus && (
+                <div className={`text-center py-2 px-4 rounded-lg text-sm ${importStatus.includes('✅') ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                    {importStatus}
+                </div>
+            )}
 
             {/* Search & Filters */}
             <div className="flex flex-col sm:flex-row gap-3">
