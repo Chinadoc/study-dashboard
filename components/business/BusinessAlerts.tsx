@@ -100,7 +100,7 @@ export default function BusinessAlerts() {
     };
 
     return (
-        <div className="relative">
+        <div className="relative z-10">
             {/* Horizontal scrollable container with snap points */}
             <div
                 className="
