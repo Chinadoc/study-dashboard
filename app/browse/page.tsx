@@ -370,14 +370,14 @@ function BrowsePageContent() {
                     <SearchBar onSearch={handleSearch} />
 
                     {/* Cascading Columns Layout (Finder-style) */}
-                    <div className="grid grid-cols-4 gap-1 bg-gray-900/50 rounded-2xl border border-gray-700/50 overflow-hidden" style={{ height: '500px' }}>
+                    <div className="grid grid-cols-4 gap-1 bg-gray-900/50 rounded-2xl border border-gray-700/50" style={{ height: '500px' }}>
                         {/* Column 1: Makes */}
-                        <div className="flex flex-col border-r border-gray-700/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                        <div className="flex flex-col min-h-0 border-r border-gray-700/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between flex-shrink-0">
                                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Make</span>
                                 <span className="text-[10px] text-gray-500">{makes.length}</span>
                             </div>
-                            <div className="flex-1 overflow-y-auto">
+                            <div className="flex-1 min-h-0 overflow-y-scroll">
                                 {makes.map(make => (
                                     <button
                                         key={make}
@@ -401,12 +401,12 @@ function BrowsePageContent() {
                         </div>
 
                         {/* Column 2: Models */}
-                        <div className="flex flex-col border-r border-gray-700/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                        <div className="flex flex-col min-h-0 border-r border-gray-700/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between flex-shrink-0">
                                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Model</span>
                                 {selectedMake && <span className="text-[10px] text-gray-500">{models.length}</span>}
                             </div>
-                            <div className="flex-1 overflow-y-auto">
+                            <div className="flex-1 min-h-0 overflow-y-scroll">
                                 {!selectedMake ? (
                                     <div className="flex items-center justify-center h-full text-gray-600 text-sm">
                                         ← Select a make
@@ -472,12 +472,12 @@ function BrowsePageContent() {
                         </div>
 
                         {/* Column 3: Years */}
-                        <div className="flex flex-col border-r border-gray-700/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                        <div className="flex flex-col min-h-0 border-r border-gray-700/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between flex-shrink-0">
                                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Year</span>
                                 {selectedModel && <span className="text-[10px] text-gray-500">{years.length}</span>}
                             </div>
-                            <div className="flex-1 overflow-y-auto">
+                            <div className="flex-1 min-h-0 overflow-y-scroll">
                                 {!selectedModel ? (
                                     <div className="flex items-center justify-center h-full text-gray-600 text-sm">
                                         ← Select a model
@@ -504,11 +504,11 @@ function BrowsePageContent() {
                         </div>
 
                         {/* Column 4: Preview */}
-                        <div className="flex flex-col bg-gradient-to-br from-gray-800/50 to-gray-900/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50">
+                        <div className="flex flex-col min-h-0 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex-shrink-0">
                                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Preview</span>
                             </div>
-                            <div className="flex-1 flex flex-col p-4">
+                            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col p-4">
                                 {selectedYear && selectedMake && selectedModel ? (
                                     <div className="flex flex-col gap-4 h-full">
                                         {/* Vehicle Image */}
