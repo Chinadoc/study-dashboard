@@ -9,6 +9,7 @@ import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
+import KeyScannerModal from '@/components/inventory/KeyScannerModal';
 import { API_BASE } from '@/lib/config';
 
 // FCC data for image lookups and key type detection
@@ -195,7 +196,20 @@ export default function InventoryPage() {
     const [importError, setImportError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fccDataMap, setFccDataMap] = useState<Map<string, { imageUrl?: string; productType?: string }>>(new Map());
+    const [showScanner, setShowScanner] = useState(false);
     const { jobLogs } = useJobLogs();
+
+    // Handle key identified from scanner
+    const handleKeyIdentified = (result: { fccId?: string; oemNumber?: string; vehicle?: string; productName?: string }) => {
+        const itemKey = result.oemNumber || result.fccId || '';
+        if (itemKey) {
+            updateQuantity(itemKey, 1, result.vehicle, {
+                fcc_id: result.fccId,
+                oem_number: result.oemNumber
+            });
+        }
+        setShowScanner(false);
+    };
 
     // Calculate job usage count per inventory item (this month)
     const jobUsageMap = useMemo(() => {
@@ -433,8 +447,15 @@ export default function InventoryPage() {
                     )}
                 </div>
 
-                {/* Export/Import Buttons */}
+                {/* Scan / Export / Import Buttons */}
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowScanner(true)}
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 border border-yellow-500/30 rounded-lg text-xs sm:text-sm font-medium transition-colors"
+                        title="Scan Key"
+                    >
+                        📷 <span className="hidden sm:inline">Scan</span>
+                    </button>
                     <button
                         onClick={handleExport}
                         className="px-2 sm:px-3 py-1.5 sm:py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs sm:text-sm font-medium transition-colors"
