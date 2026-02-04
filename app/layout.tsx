@@ -4,7 +4,6 @@ import './globals.css';
 import { Providers } from '@/components/Providers';
 import { ModeProvider } from '@/contexts/ModeContext';
 import { GoogleSignInButton } from '@/components/shared/GoogleSignInButton';
-import ModeToggle from '@/components/layout/ModeToggle';
 import BottomNav from '@/components/layout/BottomNav';
 import ChatWidget from '@/components/ChatWidget';
 
@@ -49,26 +48,10 @@ export default function RootLayout({
                                         <span className="sm:hidden">EK</span>
                                     </a>
 
-                                    {/* Center Navigation - Hidden on mobile */}
-                                    <div className="hidden lg:flex gap-6">
-                                        <a href="/browse" className="text-sm text-slate-400 hover:text-white">
-                                            📁 Browse Database
-                                        </a>
-                                        <a href="/fcc" className="text-sm text-slate-400 hover:text-white">
-                                            📡 FCC Database
-                                        </a>
-                                        <a href="/dossiers" className="text-sm text-slate-400 hover:text-white">
-                                            📚 Dossiers
-                                        </a>
-                                        <a href="/gallery" className="text-sm text-slate-400 hover:text-white">
-                                            📷 Gallery
-                                        </a>
-                                        <a href="/inventory" className="text-sm text-slate-400 hover:text-white">
-                                            📦 Business
-                                        </a>
-                                    </div>
+                                    {/* Center Navigation - Now handled by BottomNav on all screens */}
+                                    {/* Hidden - using unified nav bar */}
 
-                                    {/* Right - Search, Mode Toggle & Auth */}
+                                    {/* Right - Search & Auth */}
                                     <div className="flex items-center gap-2">
                                         {/* Search Icon - Links to browse page */}
                                         <a href="/browse" className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white">
@@ -76,8 +59,6 @@ export default function RootLayout({
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                             </svg>
                                         </a>
-                                        {/* Mode Toggle */}
-                                        <ModeToggle />
                                         {/* Google Sign-In Button */}
                                         <GoogleSignInButton />
                                     </div>
