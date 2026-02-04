@@ -355,7 +355,7 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 </section>
             )}
 
-            {/* Horizontal Scroll Grid - Years */}
+            {/* Year Grid - matches makes/models layout */}
             {selectedModel && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
@@ -366,28 +366,21 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading years...
                         </div>
                     ) : (
-                        <div className="overflow-x-auto pb-2 -mx-4 px-4">
-                            <div className="flex gap-3" style={{ width: 'max-content' }}>
-                                {groupIntoRows(years, 3).map((row, rowIndex) => (
-                                    <div key={rowIndex} className="flex flex-col gap-3" style={{ minWidth: '300px' }}>
-                                        {row.map(year => (
-                                            <button
-                                                key={year}
-                                                onClick={() => handleYearSelect(year)}
-                                                className={`p-3 rounded-xl border transition-all text-center font-bold
-                                                    ${selectedYear === year
-                                                        ? 'border-purple-500 bg-purple-500/20 text-purple-300'
-                                                        : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
-                                                    }
-                                                `}
-                                            >
-                                                {year}
-                                            </button>
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
+                        <div className="grid grid-cols-4 gap-2">
+                            {years.map(year => (
+                                <button
+                                    key={year}
+                                    onClick={() => handleYearSelect(year)}
+                                    className={`py-3 px-2 rounded-xl border transition-all text-center font-bold text-sm
+                                        ${selectedYear === year
+                                            ? 'border-purple-500 bg-purple-500/20 text-purple-300'
+                                            : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
+                                        }
+                                    `}
+                                >
+                                    {year}
+                                </button>
+                            ))}
                         </div>
                     )}
                 </section>
