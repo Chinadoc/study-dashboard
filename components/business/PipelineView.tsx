@@ -184,9 +184,10 @@ function DroppableColumn({
 
 interface PipelineViewProps {
     onConvertToJob?: (lead: PipelineLead) => void;
+    onScheduleLead?: (lead: PipelineLead) => void; // Opens modal to fill in job details
 }
 
-export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
+export default function PipelineView({ onConvertToJob, onScheduleLead }: PipelineViewProps) {
     const { leads, addLead, updateLead, deleteLead, getStats } = usePipelineLeads();
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
@@ -234,7 +235,7 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
         }
     };
 
-    // Handle status update - now simply updates status, no auto-convert
+    // Handle status update - opens scheduling modal for 'scheduled' status
     const handleUpdateStatus = (id: string, status: PipelineLead['status']) => {
         const lead = leads.find(l => l.id === id);
         if (!lead) return;
@@ -242,8 +243,11 @@ export default function PipelineView({ onConvertToJob }: PipelineViewProps) {
         if (status === 'lost') {
             // Show lost reason modal
             setLostModalLead(lead);
+        } else if (status === 'scheduled' && onScheduleLead) {
+            // Open scheduling modal to fill in job details before creating pending job
+            onScheduleLead(lead);
         } else {
-            // Just update status - "scheduled" now shows in scheduled column
+            // Just update status for other transitions
             updateLead(id, { status });
         }
     };

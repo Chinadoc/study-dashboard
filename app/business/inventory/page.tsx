@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInventory } from '@/contexts/InventoryContext';
 import { useJobLogs } from '@/lib/useJobLogs';
 import { getLowStockItems, TOOL_CATEGORIES, ToolType, KEY_CATEGORIES, detectKeyCategory, KeyCategory } from '@/lib/inventoryTypes';
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
-import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
+import { exportInventoryToCSV, generateAmazonSearchUrl, ExternalInventoryRow } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import KeyScannerModal from '@/components/inventory/KeyScannerModal';
+import InventoryImportModal from '@/components/inventory/InventoryImportModal';
 import { API_BASE } from '@/lib/config';
 
 // FCC data for image lookups and key type detection
@@ -194,7 +195,7 @@ export default function InventoryPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [importError, setImportError] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [fccDataMap, setFccDataMap] = useState<Map<string, { imageUrl?: string; productType?: string }>>(new Map());
     const [showScanner, setShowScanner] = useState(false);
     const { jobLogs } = useJobLogs();
@@ -283,27 +284,21 @@ export default function InventoryPage() {
         exportInventoryToCSV(exportData);
     };
 
-    // Import handler
-    const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    // Import handler - receives items from InventoryImportModal
+    const handleImport = (items: ExternalInventoryRow[]) => {
+        let importedCount = 0;
 
-        setImportError(null);
-        const { items, errors } = await parseInventoryCSV(file);
-
-        if (errors.length > 0) {
-            setImportError(`${errors.length} rows had issues`);
-        }
-
-        // Add each item to inventory
         items.forEach(item => {
-            updateQuantity(item.itemKey, item.qty, item.vehicle);
+            updateQuantity(item.itemKey, item.qty, undefined, {
+                fcc_id: item.fcc_id,
+                oem_number: item.oemNumber,
+            });
+            importedCount++;
         });
 
-        // Reset file input
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        // Show success message briefly
+        setImportError(`✅ Imported ${importedCount} items`);
+        setTimeout(() => setImportError(null), 3000);
     };
 
     // Check for first-time user
@@ -463,16 +458,12 @@ export default function InventoryPage() {
                     >
                         📤 <span className="hidden sm:inline">Export</span>
                     </button>
-                    <label className="px-2 sm:px-3 py-1.5 sm:py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs sm:text-sm font-medium cursor-pointer transition-colors">
+                    <button
+                        onClick={() => setShowImportModal(true)}
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs sm:text-sm font-medium cursor-pointer transition-colors"
+                    >
                         📥 <span className="hidden sm:inline">Import</span>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".csv"
-                            onChange={handleImport}
-                            className="hidden"
-                        />
-                    </label>
+                    </button>
                 </div>
             </div>
 
@@ -675,6 +666,13 @@ export default function InventoryPage() {
                 isOpen={showScanner}
                 onClose={() => setShowScanner(false)}
                 onKeyIdentified={handleKeyIdentified}
+            />
+
+            {/* Inventory Import Modal */}
+            <InventoryImportModal
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                onImport={handleImport}
             />
         </div>
     );

@@ -13,6 +13,7 @@ import DispatchQueueView from '@/components/business/DispatchQueueView';
 import MyJobsView from '@/components/business/MyJobsView';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import { getTechniciansFromStorage, Technician } from '@/lib/technicianTypes';
+import { useFleet } from '@/contexts/FleetContext';
 
 type JobsSubTab = 'all' | 'dispatch' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
 
@@ -28,21 +29,43 @@ export default function JobsPage() {
     const [prefillDate, setPrefillDate] = useState<string | undefined>(undefined);
     // Success feedback for pipeline conversion
     const [pipelineSuccess, setPipelineSuccess] = useState<string | null>(null);
+    // Track lead being scheduled (to delete after job creation)
+    const [schedulingLead, setSchedulingLead] = useState<PipelineLead | null>(null);
 
     const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
-    const { getStats: getPipelineStats } = usePipelineLeads();
+    const { getStats: getPipelineStats, deleteLead } = usePipelineLeads();
     const stats = getJobStats();
 
-    // Load technicians for dispatch
+    // Fleet context for role-based dispatch access
+    const { role: fleetRole, currentMember, isFleetMember, members, permissions } = useFleet();
+
+    // Load technicians for dispatch - prefer fleet members if available
     const [technicians, setTechnicians] = useState<Technician[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | undefined>();
 
     useEffect(() => {
-        setTechnicians(getTechniciansFromStorage());
+        // If we're in a fleet org, use fleet members as technicians
+        if (isFleetMember && members.length > 0) {
+            const fleetTechs: Technician[] = members
+                .filter(m => m.role === 'technician' && m.status === 'active')
+                .map(m => ({
+                    id: m.id,
+                    name: m.displayName,
+                    email: m.email || '',
+                    phone: m.phone || '',
+                    role: m.technicianProfile?.specializations?.[0] || 'Service Technician',
+                    active: m.status === 'active',
+                    createdAt: m.createdAt,
+                }));
+            setTechnicians(fleetTechs);
+        } else {
+            // Fallback to local storage for non-fleet users
+            setTechnicians(getTechniciansFromStorage());
+        }
         // Get current user ID from auth
         const userId = localStorage.getItem('user_id');
         if (userId) setCurrentUserId(userId);
-    }, []);
+    }, [isFleetMember, members]);
 
     // Filter jobs based on subtab - "pending" tab shows claimed and in_progress jobs
     const pendingJobs = useMemo(() =>
@@ -57,6 +80,9 @@ export default function JobsPage() {
     );
 
     const handleJobSubmit = (data: JobFormData) => {
+        // Determine source and status based on whether this is a pipeline conversion
+        const isFromPipeline = !!schedulingLead;
+
         addJobLog({
             vehicle: data.vehicle,
             fccId: data.fccId || undefined,
@@ -64,7 +90,9 @@ export default function JobsPage() {
             jobType: data.jobType,
             price: data.price,
             date: data.date,
-            notes: data.notes || undefined,
+            notes: isFromPipeline && schedulingLead
+                ? `[Pipeline Lead #${schedulingLead.id.slice(-6)}] ${data.notes || ''}`
+                : (data.notes || undefined),
             customerName: data.customerName,
             customerPhone: data.customerPhone,
             customerAddress: data.customerAddress,
@@ -74,10 +102,21 @@ export default function JobsPage() {
             milesDriven: data.milesDriven,
             gasCost: data.gasCost,
             referralSource: data.referralSource,
-            status: data.status || 'completed',
-            source: 'manual',
+            status: isFromPipeline ? 'unassigned' : (data.status || 'completed'),
+            source: isFromPipeline ? 'pipeline' : 'manual',
         } as Omit<JobLog, 'id' | 'createdAt'>);
+
+        // If this was a pipeline conversion, delete the lead and show success
+        if (isFromPipeline && schedulingLead) {
+            deleteLead(schedulingLead.id);
+            setPipelineSuccess(schedulingLead.customerName || 'Lead');
+            setTimeout(() => setPipelineSuccess(null), 3000);
+        }
+
         setJobModalOpen(false);
+        setSchedulingLead(null);
+        setPrefillData(null);
+        setPrefillDate(undefined);
     };
 
     const pipelineStats = getPipelineStats();
@@ -115,6 +154,18 @@ export default function JobsPage() {
         // Show success feedback
         setPipelineSuccess(lead.customerName || 'Lead');
         setTimeout(() => setPipelineSuccess(null), 3000);
+    };
+
+    // Handle scheduling a lead - opens modal to fill in job details
+    const handleScheduleLead = (lead: PipelineLead) => {
+        setSchedulingLead(lead);
+        setPrefillData({
+            vehicle: lead.vehicle,
+            customerName: lead.customerName,
+            customerPhone: lead.customerPhone,
+        });
+        setPrefillDate(lead.followUpDate);
+        setJobModalOpen(true);
     };
 
     // =========================================================================
@@ -251,8 +302,8 @@ export default function JobsPage() {
                     <DispatchQueueView
                         jobs={jobLogs}
                         technicians={technicians}
-                        currentUserId={currentUserId}
-                        currentUserRole="owner"
+                        currentUserId={currentMember?.id || currentUserId}
+                        currentUserRole={fleetRole || 'owner'}
                         onClaimJob={handleClaimJob}
                         onAssignJob={handleAssignJob}
                         onUnclaimJob={handleUnclaimJob}
@@ -285,7 +336,10 @@ export default function JobsPage() {
                             <span>Job created for <strong>{pipelineSuccess}</strong> → moved to Pending</span>
                         </div>
                     )}
-                    <PipelineView onConvertToJob={handleConvertLead} />
+                    <PipelineView
+                        onConvertToJob={handleConvertLead}
+                        onScheduleLead={handleScheduleLead}
+                    />
                 </div>
             )}
 
@@ -331,11 +385,18 @@ export default function JobsPage() {
                         setJobModalOpen(false);
                         setPrefillData(null);
                         setPrefillDate(undefined);
+                        setSchedulingLead(null);
                     }}
                     onSubmit={handleJobSubmit}
                     recentCustomers={getRecentCustomers()}
                     prefillVehicle={prefillData?.vehicle}
                     prefillDate={prefillDate}
+                    prefillCustomerName={prefillData?.customerName}
+                    prefillCustomerPhone={prefillData?.customerPhone}
+                    prefillPrice={schedulingLead?.estimatedValue}
+                    prefillJobType={schedulingLead?.jobType}
+                    prefillReferralSource={schedulingLead?.source}
+                    prefillNotes={schedulingLead?.notes}
                 />
             )}
 

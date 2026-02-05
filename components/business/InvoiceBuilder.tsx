@@ -18,6 +18,8 @@ import {
 import { JobLog, getJobLogsFromStorage } from '@/lib/useJobLogs';
 import { loadBusinessProfile } from '@/lib/businessTypes';
 import { useInventory } from '@/contexts/InventoryContext';
+import { useFleetCustomers, FleetCustomer } from '@/lib/useFleetCustomers';
+import { API_BASE } from '@/lib/config';
 
 // Customer suggestion type
 interface CustomerSuggestion {
@@ -25,6 +27,8 @@ interface CustomerSuggestion {
     phone?: string;
     email?: string;
     address?: string;
+    source: 'fleet' | 'job';  // Track where customer came from
+    fleetId?: string;  // ID if from fleet customers
 }
 
 // Parse vehicles list and merge consecutive year ranges
@@ -93,6 +97,25 @@ function getKeyThumbnailUrl(fccId: string): string {
     return `https://imagedelivery.net/GiRpfD5lDLey01HWJKJGqg/fcc_${fccId.replace(/[^a-zA-Z0-9]/g, '')}_0/thumbnail`;
 }
 
+// Get historical price for a key from job logs
+// Returns the most recent price, or average if multiple jobs exist
+function getHistoricalPrice(fccId: string | undefined, itemKey: string): number {
+    if (!fccId && !itemKey) return 0;
+
+    const jobs = getJobLogsFromStorage();
+    const matchingJobs = jobs.filter(job => {
+        if (!job.fccId || !job.price || job.price <= 0) return false;
+        const jobFcc = job.fccId.toUpperCase().replace(/[-\s]/g, '');
+        const targetFcc = (fccId || '').toUpperCase().replace(/[-\s]/g, '');
+        const targetKey = itemKey.toUpperCase().replace(/[-\s]/g, '');
+        return jobFcc === targetFcc || jobFcc === targetKey;
+    }).sort((a, b) => b.createdAt - a.createdAt);
+
+    if (matchingJobs.length === 0) return 0;
+
+    // Return most recent price
+    return matchingJobs[0].price;
+}
 
 interface InvoiceBuilderProps {
     isOpen: boolean;
@@ -129,6 +152,11 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
     const { inventory } = useInventory();
     const [showInventoryPicker, setShowInventoryPicker] = useState(false);
 
+    // Fleet customers management
+    const { customers: fleetCustomers, addCustomer: addFleetCustomer, customerExists } = useFleetCustomers();
+    const [customerSaved, setCustomerSaved] = useState(false); // Track if current customer was just saved
+    const [showCustomerDropdown, setShowCustomerDropdown] = useState(false); // Toggle between dropdown/manual entry
+
     // Customer autocomplete
     const [customerSuggestions, setCustomerSuggestions] = useState<CustomerSuggestion[]>([]);
     const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
@@ -156,6 +184,24 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
         if (profile.logo) {
             setBusinessLogo(profile.logo);
         }
+
+        // Load tax rate from user preferences
+        const loadTaxRate = async () => {
+            try {
+                const response = await fetch(`${API_BASE}/api/user/preferences`, {
+                    credentials: 'include',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.preferences?.sales_tax_rate) {
+                        setTaxRate(data.preferences.sales_tax_rate);
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load tax rate preference:', e);
+            }
+        };
+        loadTaxRate();
     }, []);
 
     // Pre-fill from job
@@ -208,24 +254,39 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
         }
     };
 
-    // Load all unique customers from job logs
+    // Load all unique customers from job logs + fleet customers
     const allCustomers = useMemo((): CustomerSuggestion[] => {
-        const jobs = getJobLogsFromStorage();
         const customerMap = new Map<string, CustomerSuggestion>();
 
+        // First, add fleet customers (these take priority)
+        fleetCustomers.forEach(fc => {
+            customerMap.set(fc.name.toLowerCase(), {
+                name: fc.name,
+                phone: fc.phone,
+                email: fc.email,
+                address: fc.address,
+                source: 'fleet',
+                fleetId: fc.id,
+            });
+        });
+
+        // Then add job log customers (only if not already in fleet)
+        const jobs = getJobLogsFromStorage();
         jobs.forEach(job => {
             if (job.customerName && job.customerName.trim()) {
-                const existing = customerMap.get(job.customerName);
+                const key = job.customerName.toLowerCase();
+                const existing = customerMap.get(key);
                 if (!existing) {
-                    customerMap.set(job.customerName, {
+                    customerMap.set(key, {
                         name: job.customerName,
                         phone: job.customerPhone,
                         email: job.customerEmail,
                         address: job.customerAddress,
+                        source: 'job',
                     });
-                } else {
-                    // Merge in any missing fields
-                    customerMap.set(job.customerName, {
+                } else if (existing.source === 'job') {
+                    // Merge in any missing fields for job customers
+                    customerMap.set(key, {
                         ...existing,
                         phone: existing.phone || job.customerPhone,
                         email: existing.email || job.customerEmail,
@@ -235,8 +296,14 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
             }
         });
 
-        return Array.from(customerMap.values());
-    }, []);
+        // Sort: fleet customers first, then alphabetically
+        return Array.from(customerMap.values()).sort((a, b) => {
+            if (a.source === 'fleet' && b.source !== 'fleet') return -1;
+            if (a.source !== 'fleet' && b.source === 'fleet') return 1;
+            return a.name.localeCompare(b.name);
+        });
+    }, [fleetCustomers]);
+
 
     // Handle customer name input changes with autocomplete
     const handleCustomerNameChange = (value: string) => {
@@ -262,7 +329,31 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
             address: customer.address,
         });
         setShowCustomerSuggestions(false);
+        setCustomerSaved(customer.source === 'fleet'); // Already saved if from fleet
     };
+
+    // Save current customer to fleet customers
+    const handleSaveCustomer = async () => {
+        if (!customerInfo.name.trim()) return;
+
+        // Check if already exists
+        if (customerExists(customerInfo.name)) {
+            setCustomerSaved(true);
+            return;
+        }
+
+        await addFleetCustomer({
+            name: customerInfo.name.trim(),
+            phone: customerInfo.phone,
+            email: customerInfo.email,
+            address: customerInfo.address,
+        });
+        setCustomerSaved(true);
+    };
+
+    // Check if current customer can be saved (has name and not already in fleet)
+    const canSaveCustomer = customerInfo.name.trim().length > 0 && !customerExists(customerInfo.name) && !customerSaved;
+
 
     // Add inventory item as a line item
     const addInventoryItem = (item: { itemKey: string; vehicle?: string; fcc_id?: string }) => {
@@ -284,9 +375,17 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
             ? `${vehicles[0]} - ${item.fcc_id || item.itemKey}`
             : item.fcc_id || item.itemKey;
 
+        // Look up historical price for this key
+        const historicalPrice = getHistoricalPrice(item.fcc_id, item.itemKey);
+
         setLineItems((prev) => [
             ...prev,
-            { description, quantity: 1, unitPrice: 0, total: 0 },
+            {
+                description,
+                quantity: 1,
+                unitPrice: historicalPrice,
+                total: historicalPrice
+            },
         ]);
         setShowInventoryPicker(false);
     };
@@ -296,9 +395,18 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
         if (!pendingInventoryItem) return;
 
         const description = `${vehicle} - ${pendingInventoryItem.fcc_id || pendingInventoryItem.itemKey}`;
+
+        // Look up historical price for this key
+        const historicalPrice = getHistoricalPrice(pendingInventoryItem.fcc_id, pendingInventoryItem.itemKey);
+
         setLineItems((prev) => [
             ...prev,
-            { description, quantity: 1, unitPrice: 0, total: 0 },
+            {
+                description,
+                quantity: 1,
+                unitPrice: historicalPrice,
+                total: historicalPrice
+            },
         ]);
         setPendingInventoryItem(null);
     };
@@ -492,48 +600,113 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
 
                         {/* Customer Info */}
                         <div>
-                            <h3 className="text-sm font-bold text-zinc-400 uppercase mb-3">Bill To</h3>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={customerInfo.name}
-                                    onChange={(e) => handleCustomerNameChange(e.target.value)}
-                                    onFocus={() => customerInfo.name.length >= 2 && setShowCustomerSuggestions(customerSuggestions.length > 0)}
-                                    onBlur={() => setTimeout(() => setShowCustomerSuggestions(false), 150)}
-                                    placeholder="Customer Name *"
-                                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
-                                />
-                                {/* Customer suggestions dropdown */}
-                                {showCustomerSuggestions && customerSuggestions.length > 0 && (
-                                    <div className="absolute z-10 w-full mt-1 bg-zinc-800 border border-zinc-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                        {customerSuggestions.map((customer, idx) => (
-                                            <button
-                                                key={idx}
-                                                onClick={() => selectCustomer(customer)}
-                                                className="w-full px-4 py-2 text-left hover:bg-zinc-700 text-white text-sm flex justify-between items-center"
-                                            >
-                                                <span className="font-medium">{customer.name}</span>
-                                                {customer.phone && <span className="text-zinc-400 text-xs">{customer.phone}</span>}
-                                            </button>
-                                        ))}
-                                    </div>
+                            <div className="flex justify-between items-center mb-3">
+                                <h3 className="text-sm font-bold text-zinc-400 uppercase">Bill To</h3>
+                                {allCustomers.length > 0 && (
+                                    <button
+                                        onClick={() => setShowCustomerDropdown(!showCustomerDropdown)}
+                                        className="text-xs text-blue-400 hover:text-blue-300"
+                                    >
+                                        {showCustomerDropdown ? '✏️ Enter manually' : '📋 Select existing'}
+                                    </button>
                                 )}
                             </div>
+
+                            {/* Customer Dropdown Mode */}
+                            {showCustomerDropdown && allCustomers.length > 0 ? (
+                                <div className="mb-3">
+                                    <select
+                                        className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
+                                        value=""
+                                        onChange={(e) => {
+                                            const selected = allCustomers.find(c => c.name === e.target.value);
+                                            if (selected) selectCustomer(selected);
+                                            setShowCustomerDropdown(false);
+                                        }}
+                                    >
+                                        <option value="">Select a customer...</option>
+                                        {allCustomers.map((customer, idx) => (
+                                            <option key={idx} value={customer.name}>
+                                                {customer.source === 'fleet' ? '⭐ ' : ''}{customer.name}
+                                                {customer.phone ? ` (${customer.phone})` : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <p className="text-xs text-zinc-500 mt-1">⭐ = Saved customer • Others from job history</p>
+                                </div>
+                            ) : (
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={customerInfo.name}
+                                        onChange={(e) => {
+                                            handleCustomerNameChange(e.target.value);
+                                            setCustomerSaved(false); // Reset saved status on manual edit
+                                        }}
+                                        onFocus={() => customerInfo.name.length >= 2 && setShowCustomerSuggestions(customerSuggestions.length > 0)}
+                                        onBlur={() => setTimeout(() => setShowCustomerSuggestions(false), 150)}
+                                        placeholder="Customer Name *"
+                                        className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
+                                    />
+                                    {/* Customer suggestions dropdown */}
+                                    {showCustomerSuggestions && customerSuggestions.length > 0 && (
+                                        <div className="absolute z-10 w-full mt-1 bg-zinc-800 border border-zinc-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                            {customerSuggestions.map((customer, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => selectCustomer(customer)}
+                                                    className="w-full px-4 py-2 text-left hover:bg-zinc-700 text-white text-sm flex justify-between items-center"
+                                                >
+                                                    <span className="flex items-center gap-2">
+                                                        {customer.source === 'fleet' && <span className="text-yellow-400">⭐</span>}
+                                                        <span className="font-medium">{customer.name}</span>
+                                                    </span>
+                                                    {customer.phone && <span className="text-zinc-400 text-xs">{customer.phone}</span>}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-2 gap-2 mt-2">
                                 <input
                                     type="text"
                                     value={customerInfo.phone || ''}
-                                    onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
+                                    onChange={(e) => {
+                                        setCustomerInfo({ ...customerInfo, phone: e.target.value });
+                                        setCustomerSaved(false);
+                                    }}
                                     placeholder="Phone"
                                     className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
                                 />
                                 <input
                                     type="email"
                                     value={customerInfo.email || ''}
-                                    onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
+                                    onChange={(e) => {
+                                        setCustomerInfo({ ...customerInfo, email: e.target.value });
+                                        setCustomerSaved(false);
+                                    }}
                                     placeholder="Email"
                                     className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
                                 />
+                            </div>
+
+                            {/* Add Customer Button */}
+                            <div className="mt-2 flex items-center gap-2">
+                                {canSaveCustomer && (
+                                    <button
+                                        onClick={handleSaveCustomer}
+                                        className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1"
+                                    >
+                                        👤 Save to My Customers
+                                    </button>
+                                )}
+                                {customerSaved && (
+                                    <span className="text-sm text-zinc-500 flex items-center gap-1">
+                                        ✓ Customer saved
+                                    </span>
+                                )}
                             </div>
                         </div>
 

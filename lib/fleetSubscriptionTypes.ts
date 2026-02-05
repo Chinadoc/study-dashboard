@@ -2,7 +2,13 @@
  * Fleet Subscription & Organization Types
  * 
  * Defines roles, permissions, and data structures for the Fleet add-on subscription tier.
- * This is separate from fleetTypes.ts which handles fleet customer accounts (B2B customers).
+ * Built for modern automotive locksmith dispatch operations.
+ * 
+ * Industry terms:
+ * - Service Technician: Field tech who performs automotive locksmith work
+ * - Dispatcher: Office/call center staff who manages job assignments
+ * - Service Area: Geographic zones a technician covers
+ * - ETA: Estimated time of arrival for field service
  * 
  * Pricing Structure:
  * - $50 base (fleet addon)
@@ -25,17 +31,54 @@ export const FLEET_SUBSCRIPTION_PRICING = {
     MINIMUM_MONTHLY: 15000,      // $150 in cents
 } as const;
 
+// Display labels for roles (locksmith industry terminology)
+export const ROLE_LABELS: Record<FleetUserRole, string> = {
+    owner: 'Fleet Owner',
+    dispatcher: 'Dispatcher',
+    technician: 'Service Technician',
+} as const;
+
+export const ROLE_ICONS: Record<FleetUserRole, string> = {
+    owner: '👑',
+    dispatcher: '📞',
+    technician: '🔧',
+} as const;
+
+// Technician specialization options
+export const TECHNICIAN_SPECIALIZATIONS = [
+    'automotive_locksmith',    // General automotive key work
+    'eeprom_specialist',       // EEPROM/dump reads
+    'oem_programming',         // OEM tool certified (NASTF/VSP)
+    'motorcycle_marine',       // Motorcycles, boats, RVs
+    'safe_vault',             // Safes and vaults
+    'commercial_access',      // Commercial door hardware
+] as const;
+
+export type TechnicianSpecialization = typeof TECHNICIAN_SPECIALIZATIONS[number];
+
 // ============================================================================
 // Types
 // ============================================================================
 
 export type FleetUserRole = 'owner' | 'dispatcher' | 'technician';
 
-export type FleetSubscriptionPlan = 'fleet_basic' | 'fleet_pro';
+export type FleetSubscriptionPlan = 'fleet_basic' | 'fleet_pro' | 'fleet_enterprise';
 
 export type OrganizationStatus = 'active' | 'past_due' | 'cancelled' | 'trialing';
 
-export type MemberStatus = 'active' | 'suspended' | 'pending';
+export type MemberStatus = 'active' | 'suspended' | 'pending' | 'on_break';
+
+/**
+ * Service Area - geographic zones for dispatching
+ */
+export interface ServiceArea {
+    id: string;
+    name: string;              // e.g., "North Dallas", "Downtown Houston"
+    zipCodes?: string[];       // Covered ZIP codes
+    radius?: number;           // Coverage radius in miles
+    centerLat?: number;
+    centerLng?: number;
+}
 
 /**
  * Fleet Organization - represents a business with a fleet subscription
@@ -45,6 +88,17 @@ export interface FleetOrganization {
     ownerUserId: string;
     name: string;
 
+    // Business Info
+    businessPhone?: string;
+    businessEmail?: string;
+    businessAddress?: string;
+    timezone?: string;        // e.g., 'America/Chicago'
+    operatingHours?: {
+        start: string;        // "08:00"
+        end: string;          // "18:00"
+        daysOfWeek: number[]; // [1,2,3,4,5] = Mon-Fri
+    };
+
     // Subscription
     plan: FleetSubscriptionPlan;
     stripeSubscriptionId?: string;
@@ -53,6 +107,9 @@ export interface FleetOrganization {
     // Seat limits
     maxDispatchers: number;
     maxTechnicians: number;
+
+    // Service Areas
+    serviceAreas?: ServiceArea[];
 
     // Billing
     billingCycle: 'monthly' | 'yearly';
@@ -84,12 +141,43 @@ export interface FleetMember {
     displayName: string;
     phone?: string;
     email?: string;
+    avatar?: string;
+
+    // Technician-specific fields
+    technicianProfile?: {
+        specializations: TechnicianSpecialization[];
+        certifications?: string[];          // e.g., "NASTF Certified", "Autel IM608 Trained"
+        preferredTools?: string[];          // Tools they have in their van
+        serviceAreaIds?: string[];          // Which zones they cover
+        vehicleInfo?: string;               // "2024 Ford Transit - License ABC123"
+        maxDailyJobs?: number;              // Capacity limit
+        averageResponseTime?: number;       // Minutes (for routing optimization)
+    };
+
+    // Dispatcher-specific fields
+    dispatcherProfile?: {
+        canHandleAfterHours: boolean;
+        languages?: string[];               // e.g., ['en', 'es']
+    };
 
     // Status
     status: MemberStatus;
+    currentStatus?: 'available' | 'busy' | 'on_job' | 'off_duty' | 'en_route';
+    lastLocationUpdate?: number;
+    lastKnownLocation?: { lat: number; lng: number };
+
+    // Invitation tracking
     invitedBy?: string;
     invitedAt?: number;
     joinedAt?: number;
+
+    // Performance metrics (auto-calculated)
+    metrics?: {
+        jobsCompleted?: number;
+        averageRating?: number;
+        completionRate?: number;          // % of assigned jobs completed
+        averageTimeToComplete?: number;   // Minutes
+    };
 
     // Metadata
     createdAt: number;
@@ -106,6 +194,10 @@ export interface FleetInvite {
     role: Exclude<FleetUserRole, 'owner'>; // Can't invite owners
     inviteCode: string;
 
+    // Pre-configured settings for the invite
+    presetSpecializations?: TechnicianSpecialization[];
+    presetServiceAreaIds?: string[];
+
     // Display info
     organizationName: string;
     invitedByName: string;
@@ -113,7 +205,7 @@ export interface FleetInvite {
     // Status
     expiresAt: number;
     acceptedAt?: number;
-    acceptedByUserId?: string;
+    acceptedByUserId?: number;
 
     // Metadata
     createdAt: number;
@@ -123,14 +215,29 @@ export interface FleetInvite {
  * Granular permissions that can override role defaults
  */
 export interface FleetPermissions {
+    // Dispatch Operations
     canViewDispatchQueue: boolean;
     canClaimJobs: boolean;
     canAssignJobs: boolean;
+    canReassignJobs: boolean;
+    canCancelJobs: boolean;
+
+    // Team Management
     canManageTeam: boolean;
+    canInviteMembers: boolean;
+    canRemoveMembers: boolean;
+    canEditMemberRoles: boolean;
+
+    // Reporting & Analytics
     canViewAnalytics: boolean;
-    canEditSettings: boolean;
     canViewFinancials: boolean;
     canExportData: boolean;
+    canViewTeamMetrics: boolean;
+
+    // Settings
+    canEditSettings: boolean;
+    canManageServiceAreas: boolean;
+    canManageBilling: boolean;
 }
 
 // ============================================================================
@@ -142,37 +249,75 @@ export const ROLE_PERMISSIONS: Record<FleetUserRole, FleetPermissions> = {
         canViewDispatchQueue: true,
         canClaimJobs: true,
         canAssignJobs: true,
+        canReassignJobs: true,
+        canCancelJobs: true,
         canManageTeam: true,
+        canInviteMembers: true,
+        canRemoveMembers: true,
+        canEditMemberRoles: true,
         canViewAnalytics: true,
-        canEditSettings: true,
         canViewFinancials: true,
         canExportData: true,
+        canViewTeamMetrics: true,
+        canEditSettings: true,
+        canManageServiceAreas: true,
+        canManageBilling: true,
     },
     dispatcher: {
         canViewDispatchQueue: true,
         canClaimJobs: true,
         canAssignJobs: true,
+        canReassignJobs: true,
+        canCancelJobs: false,
         canManageTeam: false,
-        canViewAnalytics: false,
-        canEditSettings: false,
+        canInviteMembers: false,
+        canRemoveMembers: false,
+        canEditMemberRoles: false,
+        canViewAnalytics: true,
         canViewFinancials: false,
         canExportData: false,
+        canViewTeamMetrics: true,
+        canEditSettings: false,
+        canManageServiceAreas: false,
+        canManageBilling: false,
     },
     technician: {
-        canViewDispatchQueue: true,
+        canViewDispatchQueue: true,  // Can see queue to self-claim
         canClaimJobs: true,
         canAssignJobs: false,
+        canReassignJobs: false,
+        canCancelJobs: false,
         canManageTeam: false,
+        canInviteMembers: false,
+        canRemoveMembers: false,
+        canEditMemberRoles: false,
         canViewAnalytics: false,
-        canEditSettings: false,
         canViewFinancials: false,
         canExportData: false,
+        canViewTeamMetrics: false,
+        canEditSettings: false,
+        canManageServiceAreas: false,
+        canManageBilling: false,
     },
 };
 
 // ============================================================================
 // Utility Functions
 // ============================================================================
+
+/**
+ * Get human-readable role label
+ */
+export function getRoleLabel(role: FleetUserRole): string {
+    return ROLE_LABELS[role];
+}
+
+/**
+ * Get role icon emoji
+ */
+export function getRoleIcon(role: FleetUserRole): string {
+    return ROLE_ICONS[role];
+}
 
 /**
  * Get permissions for a member, merging role defaults with any overrides
@@ -217,7 +362,7 @@ export function formatSubscriptionCost(cents: number): string {
 }
 
 /**
- * Generate a unique invite code
+ * Generate a unique invite code (easy to type/read)
  */
 export function generateInviteCode(): string {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No I, O, 0, 1 for clarity
@@ -241,10 +386,11 @@ export function isInviteExpired(invite: FleetInvite): boolean {
 export interface SeatUsage {
     dispatchers: { current: number; max: number; available: number };
     technicians: { current: number; max: number; available: number };
+    total: { current: number; max: number };
 }
 
 export function getSeatUsage(org: FleetOrganization, members: FleetMember[]): SeatUsage {
-    const activeMembers = members.filter(m => m.status === 'active');
+    const activeMembers = members.filter(m => m.status === 'active' || m.status === 'on_break');
     const dispatcherCount = activeMembers.filter(m => m.role === 'dispatcher').length;
     const technicianCount = activeMembers.filter(m => m.role === 'technician').length;
 
@@ -258,6 +404,10 @@ export function getSeatUsage(org: FleetOrganization, members: FleetMember[]): Se
             current: technicianCount,
             max: org.maxTechnicians,
             available: Math.max(0, org.maxTechnicians - technicianCount),
+        },
+        total: {
+            current: dispatcherCount + technicianCount + 1, // +1 for owner
+            max: org.maxDispatchers + org.maxTechnicians + 1,
         },
     };
 }
@@ -278,6 +428,54 @@ export function canAddMember(org: FleetOrganization, members: FleetMember[], rol
 }
 
 /**
+ * Get available technicians (for job assignment)
+ */
+export function getAvailableTechnicians(members: FleetMember[]): FleetMember[] {
+    return members.filter(m =>
+        m.role === 'technician' &&
+        m.status === 'active' &&
+        m.currentStatus === 'available'
+    );
+}
+
+/**
+ * Find best technician for a job (simple proximity + availability)
+ */
+export function findBestTechnicianForJob(
+    members: FleetMember[],
+    jobLocation?: { lat: number; lng: number },
+    requiredSpecializations?: TechnicianSpecialization[]
+): FleetMember | null {
+    const available = getAvailableTechnicians(members);
+
+    // Filter by specialization if required
+    const qualified = requiredSpecializations?.length
+        ? available.filter(m =>
+            requiredSpecializations.every(spec =>
+                m.technicianProfile?.specializations?.includes(spec)
+            )
+        )
+        : available;
+
+    if (qualified.length === 0) return null;
+    if (!jobLocation) return qualified[0];
+
+    // Sort by distance (simplified - would use proper haversine in production)
+    const withDistance = qualified
+        .filter(m => m.lastKnownLocation)
+        .map(m => ({
+            member: m,
+            distance: Math.sqrt(
+                Math.pow(m.lastKnownLocation!.lat - jobLocation.lat, 2) +
+                Math.pow(m.lastKnownLocation!.lng - jobLocation.lng, 2)
+            ),
+        }))
+        .sort((a, b) => a.distance - b.distance);
+
+    return withDistance[0]?.member || qualified[0];
+}
+
+/**
  * Generate unique IDs
  */
 export function generateOrganizationId(): string {
@@ -290,4 +488,23 @@ export function generateMemberId(): string {
 
 export function generateInviteId(): string {
     return `invite_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+export function generateServiceAreaId(): string {
+    return `area_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * Get specialization display label
+ */
+export function getSpecializationLabel(spec: TechnicianSpecialization): string {
+    const labels: Record<TechnicianSpecialization, string> = {
+        automotive_locksmith: 'Automotive Locksmith',
+        eeprom_specialist: 'EEPROM/Dump Specialist',
+        oem_programming: 'OEM Programming (NASTF)',
+        motorcycle_marine: 'Motorcycle & Marine',
+        safe_vault: 'Safe & Vault',
+        commercial_access: 'Commercial Access Control',
+    };
+    return labels[spec];
 }

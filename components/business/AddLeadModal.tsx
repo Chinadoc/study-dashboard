@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { PipelineLead } from '@/lib/usePipelineLeads';
+import { useFleetCustomers } from '@/lib/useFleetCustomers';
 
 interface AddLeadModalProps {
     isOpen: boolean;
@@ -40,6 +41,33 @@ export default function AddLeadModal({ isOpen, onClose, onSubmit }: AddLeadModal
         followUpDate: '',
         notes: '',
     });
+
+    // Fleet customers management for saving customers
+    const { addCustomer: addFleetCustomer, customerExists } = useFleetCustomers();
+    const [customerSaved, setCustomerSaved] = useState(false);
+
+    // Save current customer to fleet customers
+    const handleSaveCustomer = async () => {
+        const name = formData.customerName.trim();
+        if (!name) return;
+
+        if (customerExists(name)) {
+            setCustomerSaved(true);
+            return;
+        }
+
+        await addFleetCustomer({
+            name,
+            phone: formData.customerPhone || undefined,
+            email: formData.customerEmail || undefined,
+        });
+        setCustomerSaved(true);
+    };
+
+    // Check if current customer can be saved
+    const canSaveCustomer = formData.customerName.trim().length > 0
+        && !customerExists(formData.customerName)
+        && !customerSaved;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -113,7 +141,10 @@ export default function AddLeadModal({ isOpen, onClose, onSubmit }: AddLeadModal
                             type="text"
                             placeholder="John Smith"
                             value={formData.customerName}
-                            onChange={e => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
+                            onChange={e => {
+                                setFormData(prev => ({ ...prev, customerName: e.target.value }));
+                                setCustomerSaved(false);
+                            }}
                             className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
                             required
                             autoFocus
@@ -130,7 +161,10 @@ export default function AddLeadModal({ isOpen, onClose, onSubmit }: AddLeadModal
                                 type="tel"
                                 placeholder="555-123-4567"
                                 value={formData.customerPhone}
-                                onChange={e => setFormData(prev => ({ ...prev, customerPhone: e.target.value }))}
+                                onChange={e => {
+                                    setFormData(prev => ({ ...prev, customerPhone: e.target.value }));
+                                    setCustomerSaved(false);
+                                }}
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
                             />
                         </div>
@@ -239,6 +273,24 @@ export default function AddLeadModal({ isOpen, onClose, onSubmit }: AddLeadModal
                             rows={2}
                             className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/30 resize-none"
                         />
+                    </div>
+
+                    {/* Add Customer Button */}
+                    <div className="flex items-center gap-2">
+                        {canSaveCustomer && (
+                            <button
+                                type="button"
+                                onClick={handleSaveCustomer}
+                                className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1"
+                            >
+                                👤 Save to My Customers
+                            </button>
+                        )}
+                        {customerSaved && (
+                            <span className="text-sm text-zinc-500 flex items-center gap-1">
+                                ✓ Customer saved
+                            </span>
+                        )}
                     </div>
 
                     {/* Submit */}

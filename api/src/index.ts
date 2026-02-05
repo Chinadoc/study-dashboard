@@ -262,6 +262,16 @@ function getKeySignature(row: any): string {
   return `${fccId}_${buttons}_${features}_${keyType}`;
 }
 
+// Helper: Generate random invite code for fleet invitations
+function generateRandomCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No O/0, I/1/L confusion
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
@@ -474,6 +484,73 @@ export default {
         const headers = new Headers();
         headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0`);
         return corsResponse(request, JSON.stringify({ success: true }), 200, headers, "application/json");
+      }
+
+      // ==============================================
+      // SYNC HEALTH CHECK ENDPOINT
+      // ==============================================
+
+      // GET /api/sync/health - Validate database schema for sync compatibility
+      if (path === "/api/sync/health" && request.method === "GET") {
+        try {
+          // Define required tables and their columns for sync
+          const requiredSchema = {
+            job_logs: ['id', 'user_id', 'data', 'created_at', 'updated_at'],
+            user_inventory: ['id', 'user_id', 'data', 'created_at', 'updated_at'],
+            pipeline_leads: ['id', 'user_id', 'data', 'created_at', 'updated_at'],
+            invoices: ['id', 'user_id', 'data', 'created_at', 'updated_at'],
+            fleet_customers: ['id', 'user_id', 'data', 'created_at', 'updated_at'],
+            technicians: ['id', 'user_id', 'data', 'created_at', 'updated_at'],
+            user_licenses: ['id', 'user_id', 'data', 'created_at', 'updated_at'],
+          };
+
+          const results: Record<string, { exists: boolean; columns: string[]; missing: string[] }> = {};
+          let allValid = true;
+
+          for (const [tableName, requiredColumns] of Object.entries(requiredSchema)) {
+            try {
+              // Check if table exists and get its columns
+              const tableInfo = await env.LOCKSMITH_DB.prepare(
+                `PRAGMA table_info(${tableName})`
+              ).all();
+
+              if (!tableInfo.results || tableInfo.results.length === 0) {
+                results[tableName] = { exists: false, columns: [], missing: requiredColumns };
+                allValid = false;
+              } else {
+                const existingColumns = tableInfo.results.map((col: any) => col.name);
+                const missingColumns = requiredColumns.filter(col => !existingColumns.includes(col));
+
+                results[tableName] = {
+                  exists: true,
+                  columns: existingColumns,
+                  missing: missingColumns
+                };
+
+                if (missingColumns.length > 0) {
+                  allValid = false;
+                }
+              }
+            } catch (e) {
+              results[tableName] = { exists: false, columns: [], missing: requiredColumns };
+              allValid = false;
+            }
+          }
+
+          return corsResponse(request, JSON.stringify({
+            healthy: allValid,
+            schemaVersion: 1,
+            serverTime: Date.now(),
+            tables: results
+          }), allValid ? 200 : 503);
+        } catch (err: any) {
+          console.error('/api/sync/health error:', err);
+          return corsResponse(request, JSON.stringify({
+            healthy: false,
+            error: err.message,
+            serverTime: Date.now()
+          }), 500);
+        }
       }
 
       // ==============================================
@@ -1705,6 +1782,510 @@ export default {
           await env.LOCKSMITH_DB.prepare(`DELETE FROM user_licenses WHERE id = ? AND user_id = ?`).bind(id, userId).run();
 
           return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // FLEET ORGANIZATION ENDPOINTS (Multi-User Teams)
+      // ==============================================
+
+      // GET /api/fleet/organization - Get current user's fleet org, members, and invites
+      if (path === "/api/fleet/organization" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          // First check if user is an owner
+          let org = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM fleet_organizations WHERE owner_user_id = ?
+          `).bind(userId).first();
+
+          // If not an owner, check if they're a member of any org
+          let memberRecord: any = null;
+          if (!org) {
+            memberRecord = await env.LOCKSMITH_DB.prepare(`
+              SELECT fm.*, fo.* FROM fleet_members fm
+              JOIN fleet_organizations fo ON fm.organization_id = fo.id
+              WHERE fm.user_id = ? AND fm.status = 'active'
+            `).bind(userId).first();
+
+            if (memberRecord) {
+              org = {
+                id: memberRecord.organization_id || memberRecord.id,
+                owner_user_id: memberRecord.owner_user_id,
+                name: memberRecord.name,
+                plan: memberRecord.plan,
+                max_dispatchers: memberRecord.max_dispatchers,
+                max_technicians: memberRecord.max_technicians,
+                status: memberRecord.status,
+                created_at: memberRecord.created_at,
+                updated_at: memberRecord.updated_at
+              };
+            }
+          }
+
+          if (!org) {
+            return corsResponse(request, JSON.stringify({
+              organization: null,
+              members: [],
+              invites: []
+            }));
+          }
+
+          const orgId = (org as any).id;
+
+          // Get members
+          const membersResult = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM fleet_members WHERE organization_id = ? ORDER BY created_at ASC
+          `).bind(orgId).all();
+
+          const members = (membersResult.results || []).map((m: any) => ({
+            id: m.id,
+            organizationId: m.organization_id,
+            userId: m.user_id,
+            role: m.role,
+            permissions: m.permissions ? JSON.parse(m.permissions) : null,
+            displayName: m.display_name,
+            phone: m.phone,
+            email: m.email,
+            status: m.status,
+            invitedBy: m.invited_by,
+            invitedAt: m.invited_at,
+            joinedAt: m.joined_at,
+            createdAt: m.created_at,
+            updatedAt: m.updated_at
+          }));
+
+          // Get pending invites (only if owner)
+          let invites: any[] = [];
+          if ((org as any).owner_user_id === userId) {
+            const invitesResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT * FROM fleet_invites WHERE organization_id = ? AND accepted_at IS NULL ORDER BY created_at DESC
+            `).bind(orgId).all();
+
+            invites = (invitesResult.results || []).map((i: any) => ({
+              id: i.id,
+              organizationId: i.organization_id,
+              email: i.email,
+              role: i.role,
+              inviteCode: i.invite_code,
+              organizationName: i.organization_name,
+              invitedByName: i.invited_by_name,
+              expiresAt: i.expires_at,
+              acceptedAt: i.accepted_at,
+              createdAt: i.created_at
+            }));
+          }
+
+          return corsResponse(request, JSON.stringify({
+            organization: {
+              id: (org as any).id,
+              ownerUserId: (org as any).owner_user_id,
+              name: (org as any).name,
+              plan: (org as any).plan || 'fleet_basic',
+              stripeSubscriptionId: (org as any).stripe_subscription_id,
+              stripeCustomerId: (org as any).stripe_customer_id,
+              maxDispatchers: (org as any).max_dispatchers || 4,
+              maxTechnicians: (org as any).max_technicians || 4,
+              billingCycle: (org as any).billing_cycle || 'monthly',
+              currentPeriodStart: (org as any).current_period_start,
+              currentPeriodEnd: (org as any).current_period_end,
+              monthlyCost: (org as any).monthly_cost || 15000,
+              status: (org as any).status || 'active',
+              createdAt: (org as any).created_at,
+              updatedAt: (org as any).updated_at
+            },
+            members,
+            invites
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/organization - Create a new fleet organization
+      if (path === "/api/fleet/organization" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userEmail = (payload as any).email as string;
+          const userName = (payload as any).name as string;
+          const body: any = await request.json();
+
+          // Check if user already owns an org
+          const existing = await env.LOCKSMITH_DB.prepare(`
+            SELECT id FROM fleet_organizations WHERE owner_user_id = ?
+          `).bind(userId).first();
+
+          if (existing) {
+            return corsResponse(request, JSON.stringify({ error: "User already owns an organization" }), 400);
+          }
+
+          const orgId = body.id || `org_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const memberId = `member_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const now = Date.now();
+
+          // Create organization
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO fleet_organizations (id, owner_user_id, name, plan, max_dispatchers, max_technicians, billing_cycle, monthly_cost, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            orgId,
+            userId,
+            body.name || 'My Fleet',
+            body.plan || 'fleet_basic',
+            body.maxDispatchers || 4,
+            body.maxTechnicians || 4,
+            body.billingCycle || 'monthly',
+            body.monthlyCost || 15000,
+            'active',
+            now,
+            now
+          ).run();
+
+          // Create owner as first member
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO fleet_members (id, organization_id, user_id, role, display_name, email, status, joined_at, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            memberId,
+            orgId,
+            userId,
+            'owner',
+            userName || userEmail?.split('@')[0] || 'Owner',
+            userEmail,
+            'active',
+            now,
+            now,
+            now
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            organization: {
+              id: orgId,
+              ownerUserId: userId,
+              name: body.name || 'My Fleet',
+              plan: body.plan || 'fleet_basic',
+              maxDispatchers: body.maxDispatchers || 4,
+              maxTechnicians: body.maxTechnicians || 4,
+              status: 'active',
+              createdAt: now
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/invite - Create an invitation
+      if (path === "/api/fleet/invite" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userName = (payload as any).name as string;
+          const body: any = await request.json();
+
+          // Verify user owns the organization
+          const org = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM fleet_organizations WHERE owner_user_id = ?
+          `).bind(userId).first();
+
+          if (!org) {
+            return corsResponse(request, JSON.stringify({ error: "No organization found" }), 404);
+          }
+
+          // Check seat limits
+          const orgId = (org as any).id;
+          const role = body.role;
+
+          const memberCounts = await env.LOCKSMITH_DB.prepare(`
+            SELECT role, COUNT(*) as count FROM fleet_members 
+            WHERE organization_id = ? AND status = 'active'
+            GROUP BY role
+          `).bind(orgId).all();
+
+          const counts: Record<string, number> = {};
+          (memberCounts.results || []).forEach((r: any) => {
+            counts[r.role] = r.count;
+          });
+
+          if (role === 'dispatcher' && (counts['dispatcher'] || 0) >= ((org as any).max_dispatchers || 4)) {
+            return corsResponse(request, JSON.stringify({ error: "Dispatcher seat limit reached" }), 400);
+          }
+          if (role === 'technician' && (counts['technician'] || 0) >= ((org as any).max_technicians || 4)) {
+            return corsResponse(request, JSON.stringify({ error: "Technician seat limit reached" }), 400);
+          }
+
+          const inviteId = body.id || `invite_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const inviteCode = body.inviteCode || generateRandomCode();
+          const now = Date.now();
+          const expiresAt = body.expiresAt || (now + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO fleet_invites (id, organization_id, email, role, invite_code, organization_name, invited_by_name, expires_at, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            inviteId,
+            orgId,
+            body.email,
+            body.role,
+            inviteCode,
+            (org as any).name,
+            userName || 'Owner',
+            expiresAt,
+            now
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            invite: {
+              id: inviteId,
+              organizationId: orgId,
+              email: body.email,
+              role: body.role,
+              inviteCode,
+              organizationName: (org as any).name,
+              invitedByName: userName || 'Owner',
+              expiresAt,
+              createdAt: now
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/fleet/invite/:code - Get invite details by code (public)
+      if (path.startsWith("/api/fleet/invite/") && request.method === "GET") {
+        try {
+          const inviteCode = path.split("/").pop();
+          if (!inviteCode) {
+            return corsResponse(request, JSON.stringify({ error: "Missing invite code" }), 400);
+          }
+
+          const invite = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM fleet_invites WHERE invite_code = ?
+          `).bind(inviteCode).first();
+
+          if (!invite) {
+            return corsResponse(request, JSON.stringify({ error: "Invite not found" }), 404);
+          }
+
+          return corsResponse(request, JSON.stringify({
+            invite: {
+              id: (invite as any).id,
+              organizationId: (invite as any).organization_id,
+              email: (invite as any).email,
+              role: (invite as any).role,
+              inviteCode: (invite as any).invite_code,
+              organizationName: (invite as any).organization_name,
+              invitedByName: (invite as any).invited_by_name,
+              expiresAt: (invite as any).expires_at,
+              acceptedAt: (invite as any).accepted_at,
+              createdAt: (invite as any).created_at
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/invite/accept - Accept an invitation
+      if (path === "/api/fleet/invite/accept" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userEmail = (payload as any).email as string;
+          const userName = (payload as any).name as string;
+          const body: any = await request.json();
+          const { inviteCode } = body;
+
+          // Find the invite
+          const invite = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM fleet_invites WHERE invite_code = ? AND accepted_at IS NULL
+          `).bind(inviteCode).first();
+
+          if (!invite) {
+            return corsResponse(request, JSON.stringify({ error: "Invite not found or already used" }), 404);
+          }
+
+          // Check if expired
+          if ((invite as any).expires_at < Date.now()) {
+            return corsResponse(request, JSON.stringify({ error: "Invite has expired" }), 400);
+          }
+
+          // Check if user is already a member
+          const existingMember = await env.LOCKSMITH_DB.prepare(`
+            SELECT id FROM fleet_members WHERE organization_id = ? AND user_id = ?
+          `).bind((invite as any).organization_id, userId).first();
+
+          if (existingMember) {
+            return corsResponse(request, JSON.stringify({ error: "Already a member of this organization" }), 400);
+          }
+
+          const memberId = `member_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const now = Date.now();
+
+          // Create member
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO fleet_members (id, organization_id, user_id, role, display_name, email, status, invited_at, joined_at, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            memberId,
+            (invite as any).organization_id,
+            userId,
+            (invite as any).role,
+            userName || userEmail?.split('@')[0] || 'Team Member',
+            userEmail,
+            'active',
+            (invite as any).created_at,
+            now,
+            now,
+            now
+          ).run();
+
+          // Mark invite as accepted
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE fleet_invites SET accepted_at = ?, accepted_by_user_id = ? WHERE id = ?
+          `).bind(now, userId, (invite as any).id).run();
+
+          // Get the organization
+          const org = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM fleet_organizations WHERE id = ?
+          `).bind((invite as any).organization_id).first();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            member: {
+              id: memberId,
+              organizationId: (invite as any).organization_id,
+              userId,
+              role: (invite as any).role,
+              displayName: userName || userEmail?.split('@')[0] || 'Team Member',
+              email: userEmail,
+              status: 'active',
+              joinedAt: now
+            },
+            organization: org ? {
+              id: (org as any).id,
+              name: (org as any).name,
+              plan: (org as any).plan
+            } : null
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // PUT /api/fleet/members/:id - Update a member's role
+      if (path.startsWith("/api/fleet/members/") && request.method === "PUT") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const memberId = path.split("/").pop();
+          const body: any = await request.json();
+
+          // Get member and verify ownership
+          const member = await env.LOCKSMITH_DB.prepare(`
+            SELECT fm.*, fo.owner_user_id FROM fleet_members fm
+            JOIN fleet_organizations fo ON fm.organization_id = fo.id
+            WHERE fm.id = ?
+          `).bind(memberId).first();
+
+          if (!member) {
+            return corsResponse(request, JSON.stringify({ error: "Member not found" }), 404);
+          }
+
+          if ((member as any).owner_user_id !== userId) {
+            return corsResponse(request, JSON.stringify({ error: "Not authorized" }), 403);
+          }
+
+          if ((member as any).role === 'owner') {
+            return corsResponse(request, JSON.stringify({ error: "Cannot modify owner" }), 400);
+          }
+
+          // Update member
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE fleet_members SET role = ?, updated_at = ? WHERE id = ?
+          `).bind(body.role, Date.now(), memberId).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            member: {
+              id: memberId,
+              role: body.role
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/fleet/members/:id - Remove a member
+      if (path.startsWith("/api/fleet/members/") && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const memberId = path.split("/").pop();
+
+          // Get member and verify ownership
+          const member = await env.LOCKSMITH_DB.prepare(`
+            SELECT fm.*, fo.owner_user_id FROM fleet_members fm
+            JOIN fleet_organizations fo ON fm.organization_id = fo.id
+            WHERE fm.id = ?
+          `).bind(memberId).first();
+
+          if (!member) {
+            return corsResponse(request, JSON.stringify({ error: "Member not found" }), 404);
+          }
+
+          if ((member as any).owner_user_id !== userId) {
+            return corsResponse(request, JSON.stringify({ error: "Not authorized" }), 403);
+          }
+
+          if ((member as any).role === 'owner') {
+            return corsResponse(request, JSON.stringify({ error: "Cannot remove owner" }), 400);
+          }
+
+          // Delete member
+          await env.LOCKSMITH_DB.prepare(`
+            DELETE FROM fleet_members WHERE id = ?
+          `).bind(memberId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id: memberId }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }

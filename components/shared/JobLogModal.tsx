@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FleetAccount, getFleetAccountsFromStorage } from '@/lib/fleetTypes';
 import { Technician, getTechniciansFromStorage, getActiveTechnicians } from '@/lib/technicianTypes';
+import { useFleetCustomers } from '@/lib/useFleetCustomers';
 
 interface RecentCustomer {
     name: string;
@@ -17,9 +18,17 @@ interface JobLogModalProps {
     prefillFccId?: string;
     prefillVehicle?: string;
     prefillDate?: string;  // YYYY-MM-DD format for calendar date selection
+    prefillCustomerName?: string;
+    prefillCustomerPhone?: string;
+    prefillCustomerAddress?: string;
+    prefillNotes?: string;
+    prefillPrice?: number;
+    prefillJobType?: string;
+    prefillReferralSource?: string;
     recentCustomers?: RecentCustomer[];
     fleetAccounts?: FleetAccount[];  // Optional fleet accounts for linking
 }
+
 
 export interface JobFormData {
     vehicle: string;
@@ -61,7 +70,7 @@ const REFERRAL_SOURCES = [
     { value: 'other', label: 'Other' },
 ];
 
-export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', prefillDate, recentCustomers = [], fleetAccounts }: JobLogModalProps) {
+export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', prefillDate, prefillCustomerName = '', prefillCustomerPhone = '', prefillCustomerAddress = '', prefillNotes = '', prefillPrice, prefillJobType, prefillReferralSource, recentCustomers = [], fleetAccounts }: JobLogModalProps) {
     const [showCustomerInfo, setShowCustomerInfo] = useState(false);
     const [showCostTracking, setShowCostTracking] = useState(false);
     const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: number; button_count?: number; image_url?: string }>>([]);
@@ -88,26 +97,49 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
     const [communityTips, setCommunityTips] = useState<Array<{ content: string; user_name: string; score: number }>>([]);
     const [loadingTips, setLoadingTips] = useState(false);
 
+    // Fleet customers management for saving customers
+    const { addCustomer: addFleetCustomer, customerExists } = useFleetCustomers();
+    const [customerSaved, setCustomerSaved] = useState(false);
+
+    // Determine valid job type from prefill
+    const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'other'] as const;
+    const initialJobType = prefillJobType && validJobTypes.includes(prefillJobType as any)
+        ? prefillJobType as JobFormData['jobType']
+        : 'add_key';
+
+    // Determine valid referral source from prefill
+    const validSources = ['google', 'yelp', 'referral', 'repeat', 'other'] as const;
+    const initialReferral = prefillReferralSource && validSources.includes(prefillReferralSource as any)
+        ? prefillReferralSource as JobFormData['referralSource']
+        : undefined;
+
     const [formData, setFormData] = useState<JobFormData>({
         vehicle: prefillVehicle,
         fccId: prefillFccId,
         keyType: '',
-        jobType: 'add_key',
-        price: 0,
+        jobType: initialJobType,
+        price: prefillPrice || 0,
         date: prefillDate || new Date().toISOString().split('T')[0],
-        notes: '',
-        customerName: '',
-        customerPhone: '',
-        customerAddress: '',
+        notes: prefillNotes,
+        customerName: prefillCustomerName,
+        customerPhone: prefillCustomerPhone,
+        customerAddress: prefillCustomerAddress,
         fleetId: '',
         partsCost: 0,
         keyCost: 0,
         serviceCost: 0,
         milesDriven: 0,
         gasCost: 0,
-        referralSource: undefined,
+        referralSource: initialReferral,
         status: 'completed',
     });
+
+    // Auto-show customer info section if prefilled
+    useEffect(() => {
+        if (prefillCustomerName || prefillCustomerPhone) {
+            setShowCustomerInfo(true);
+        }
+    }, [prefillCustomerName, prefillCustomerPhone]);
 
     // Update date when prefillDate changes (e.g., from calendar selection)
     useEffect(() => {
@@ -133,6 +165,29 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             setFormData(prev => ({ ...prev, fleetId: '' }));
         }
     };
+
+    // Save current customer to fleet customers
+    const handleSaveCustomer = async () => {
+        const name = formData.customerName?.trim();
+        if (!name) return;
+
+        if (customerExists(name)) {
+            setCustomerSaved(true);
+            return;
+        }
+
+        await addFleetCustomer({
+            name,
+            phone: formData.customerPhone,
+            address: formData.customerAddress,
+        });
+        setCustomerSaved(true);
+    };
+
+    // Check if current customer can be saved
+    const canSaveCustomer = (formData.customerName?.trim().length || 0) > 0
+        && !customerExists(formData.customerName || '')
+        && !customerSaved;
 
     // Keep track of last looked-up FCC ID to avoid duplicate lookups
     const lastLookedUpFcc = useRef<string>('');
@@ -757,7 +812,10 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                     type="text"
                                     placeholder="John Smith"
                                     value={formData.customerName || ''}
-                                    onChange={e => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
+                                    onChange={e => {
+                                        setFormData(prev => ({ ...prev, customerName: e.target.value }));
+                                        setCustomerSaved(false);
+                                    }}
                                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                                 />
                             </div>
@@ -770,7 +828,10 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                         type="tel"
                                         placeholder="555-123-4567"
                                         value={formData.customerPhone || ''}
-                                        onChange={e => setFormData(prev => ({ ...prev, customerPhone: e.target.value }))}
+                                        onChange={e => {
+                                            setFormData(prev => ({ ...prev, customerPhone: e.target.value }));
+                                            setCustomerSaved(false);
+                                        }}
                                         className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                                     />
                                 </div>
@@ -798,9 +859,30 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                     type="text"
                                     placeholder="123 Main St, City, ST"
                                     value={formData.customerAddress || ''}
-                                    onChange={e => setFormData(prev => ({ ...prev, customerAddress: e.target.value }))}
+                                    onChange={e => {
+                                        setFormData(prev => ({ ...prev, customerAddress: e.target.value }));
+                                        setCustomerSaved(false);
+                                    }}
                                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                                 />
+                            </div>
+
+                            {/* Add Customer Button */}
+                            <div className="flex items-center gap-2 pt-2">
+                                {canSaveCustomer && (
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveCustomer}
+                                        className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1"
+                                    >
+                                        👤 Save to My Customers
+                                    </button>
+                                )}
+                                {customerSaved && (
+                                    <span className="text-sm text-zinc-500 flex items-center gap-1">
+                                        ✓ Customer saved
+                                    </span>
+                                )}
                             </div>
                         </div>
                     )}
