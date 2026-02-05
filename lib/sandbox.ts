@@ -15,7 +15,7 @@ const STORAGE_KEY = 'eurokeys_sandbox_mode';
 export const SANDBOX_LIMITS = {
     inventoryItems: 3,
     jobs: 2,
-    demoVehicle: '/vehicle/chevrolet/silverado-1500/2021',
+    demoVehicle: '/vehicle/honda/civic/2018',
 };
 
 export function getSandboxState(): SandboxState | null {
@@ -75,6 +75,6 @@ export function clearSandboxMode(): void {
 }
 
 export function isDemoVehicle(path: string): boolean {
-    return path.includes('/vehicle/chevrolet/silverado-1500/2021') ||
-        path.includes('/vehicle/Chevrolet/Silverado%201500/2021');
+    return path.includes('/vehicle/honda/civic/2018') ||
+        path.includes('/vehicle/Honda/Civic/2018');
 }

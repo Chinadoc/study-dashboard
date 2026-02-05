@@ -595,12 +595,7 @@ function BrowsePageContent() {
                                                                 <span className="text-gray-300 truncate">{[...new Set(previewSummary.fccIds)].slice(0, 2).join(', ')}</span>
                                                             </div>
                                                         )}
-                                                        <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                            <span className="text-gray-500">📖</span>
-                                                            <span className={previewSummary.hasGuide ? 'text-emerald-400' : 'text-gray-500'}>
-                                                                {previewSummary.hasGuide ? 'Guide Available' : 'No guide yet'}
-                                                            </span>
-                                                        </div>
+
                                                     </div>
                                                 ) : null}
                                             </>

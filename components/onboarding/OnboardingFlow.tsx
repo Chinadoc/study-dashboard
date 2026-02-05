@@ -10,7 +10,7 @@ import { useRouter, usePathname } from 'next/navigation';
 const SANDBOX_LIMITS = {
     inventoryItems: 3,
     jobs: 2,
-    demoVehicle: '/vehicle/chevrolet/Silverado/2021',
+    demoVehicle: '/vehicle/honda/civic/2018',
 };
 
 // Storage key for tour state persistence
@@ -27,49 +27,32 @@ interface GuidedStep {
     emoji: string;
 }
 
+// Simplified 6-step tour
 const GUIDED_TOUR: GuidedStep[] = [
     // Browse page - Vehicle Search
     {
         id: 'browse-intro',
         page: '/browse',
         title: 'Browse Vehicles',
-        content: 'This is your main database. Search any make, model, or year to find key programming info.',
+        content: 'Search any make, model, or year. This is your main database for key programming info.',
         position: 'center',
         emoji: '🔍',
     },
-    // Vehicle Demo 1: US Domestic
+    // Vehicle Demo: Honda Civic 2018 (the ONLY free demo)
     {
-        id: 'vehicle-demo-us',
-        page: '/vehicle/chevrolet/Silverado/2021',
-        title: 'US Domestic Example',
-        content: 'See comprehensive data for domestic vehicles: key types, FCC IDs, and onboard programming.',
+        id: 'vehicle-demo',
+        page: '/vehicle/honda/civic/2018',
+        title: 'Honda Civic 2018',
+        content: 'Explore complete key data: FCC IDs, transponder chips, frequencies, and programming steps.',
         position: 'center',
-        emoji: '🇺🇸',
-    },
-    // Vehicle Demo 2: Asian (Honda Civic)
-    {
-        id: 'vehicle-demo-asian',
-        page: '/vehicle/honda/civic/2017',
-        title: 'Asian Import Example',
-        content: 'Access detailed specs for Asian imports, including transponder chips and remote frequencies.',
-        position: 'center',
-        emoji: '🇯🇵',
-    },
-    // Vehicle Demo 3: European (BMW 330i)
-    {
-        id: 'vehicle-demo-euro',
-        page: '/vehicle/bmw/330i/2019',
-        title: 'European Luxury Example',
-        content: 'Master complex European systems like FEM/BDC with clear, step-by-step guidance.',
-        position: 'center',
-        emoji: '🇩🇪',
+        emoji: '🚗',
     },
     // FCC Database
     {
         id: 'fcc-database',
         page: '/fcc',
         title: 'FCC ID Lookup',
-        content: 'Look up any remote by FCC ID to find compatible vehicles, frequencies, and replacement parts.',
+        content: 'Look up any remote by FCC ID to find compatible vehicles and replacement parts.',
         position: 'center',
         emoji: '📡',
     },
@@ -78,7 +61,7 @@ const GUIDED_TOUR: GuidedStep[] = [
         id: 'business-jobs',
         page: '/business/jobs',
         title: 'Job Logging',
-        content: 'Track every job you complete. Log customer info, vehicle, parts used, and revenue.',
+        content: 'Track every job: customer info, vehicle, parts used, and revenue.',
         position: 'center',
         emoji: '📋',
     },
@@ -87,7 +70,7 @@ const GUIDED_TOUR: GuidedStep[] = [
         id: 'business-inventory',
         page: '/business/inventory',
         title: 'Inventory Management',
-        content: 'Keep track of your key blanks, remotes, and supplies. Know what you have in stock instantly.',
+        content: 'Keep track of your key blanks, remotes, and supplies.',
         position: 'center',
         emoji: '📦',
     },
@@ -96,7 +79,7 @@ const GUIDED_TOUR: GuidedStep[] = [
         id: 'business-dashboard',
         page: '/business',
         title: 'Business Dashboard',
-        content: 'See your stats at a glance: revenue trends, job counts, AI insights, and upcoming work.',
+        content: 'See your stats at a glance: revenue, job counts, AI insights, and upcoming work.',
         position: 'center',
         emoji: '📊',
     },

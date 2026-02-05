@@ -245,6 +245,9 @@ export const GoogleSignInButton = () => {
                         <button
                             onClick={() => {
                                 setDropdownOpen(false);
+                                // Clear tour state to restart from beginning
+                                localStorage.removeItem('eurokeys_tour_state');
+                                localStorage.removeItem('eurokeys_onboarding');
                                 openWizard();
                             }}
                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-amber-500/20 hover:text-white"
