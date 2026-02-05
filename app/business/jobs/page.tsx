@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import { usePipelineLeads, PipelineLead } from '@/lib/usePipelineLeads';
@@ -17,7 +18,16 @@ import { useFleet } from '@/contexts/FleetContext';
 
 type JobsSubTab = 'all' | 'dispatch' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
 
+// Wrapper to provide Suspense boundary for useSearchParams
 export default function JobsPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen" />}>
+            <JobsPageContent />
+        </Suspense>
+    );
+}
+
+function JobsPageContent() {
     const [activeSubTab, setActiveSubTab] = useState<JobsSubTab>('all');
     const [jobModalOpen, setJobModalOpen] = useState(false);
     const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
@@ -66,6 +76,25 @@ export default function JobsPage() {
         const userId = localStorage.getItem('user_id');
         if (userId) setCurrentUserId(userId);
     }, [isFleetMember, members]);
+
+    // Handle URL params for quick-log from vehicle pages
+    const searchParams = useSearchParams();
+    useEffect(() => {
+        const action = searchParams?.get('action');
+        if (action === 'log') {
+            const vehicle = searchParams?.get('vehicle') || '';
+            const fcc = searchParams?.get('fcc') || '';
+            if (vehicle) {
+                setPrefillData({ vehicle });
+            }
+            // Auto open the modal
+            setJobModalOpen(true);
+            // Clear URL params after handling
+            if (typeof window !== 'undefined') {
+                window.history.replaceState({}, '', '/business/jobs');
+            }
+        }
+    }, [searchParams]);
 
     // Filter jobs based on subtab - "pending" tab shows claimed and in_progress jobs
     const pendingJobs = useMemo(() =>

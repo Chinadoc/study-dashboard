@@ -924,6 +924,22 @@ export default function VehicleDetailClient() {
                 canFd={header.can_fd_required === 1 || header.can_fd_required === true}
             />
 
+            {/* Quick Log Job Button - Prefills vehicle data */}
+            <div className="flex items-center gap-3 mt-4">
+                <a
+                    href={`/business/jobs?action=log&vehicle=${encodeURIComponent(`${year} ${make} ${model}`)}&fcc=${encodeURIComponent(fullSpecs.fccId || '')}&keyType=${encodeURIComponent(fullSpecs.chipType || '')}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-green-500/20"
+                >
+                    📝 Log Job for This Vehicle
+                </a>
+                <a
+                    href={`/business/inventory?action=add&vehicle=${encodeURIComponent(`${year} ${make} ${model}`)}&fcc=${encodeURIComponent(fullSpecs.fccId || '')}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-xl font-medium text-sm transition-all"
+                >
+                    📦 Add to Inventory
+                </a>
+            </div>
+
             {/* Section Navigation Sidebar */}
             <VehicleSidebar
                 activeSection={activeSection}

@@ -12,6 +12,7 @@ interface LeadCardProps {
     onDelete: () => void;
     expanded?: boolean;
     onToggleExpand?: () => void;
+    hasTips?: boolean;  // True if community tips exist for this vehicle
 }
 
 const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
@@ -46,6 +47,7 @@ export default function LeadCard({
     onDelete,
     expanded = false,
     onToggleExpand,
+    hasTips = false,
 }: LeadCardProps) {
     const today = new Date().toISOString().split('T')[0];
     const needsFollowUp = lead.followUpDate && lead.followUpDate <= today && lead.status !== 'lost';
@@ -102,6 +104,11 @@ export default function LeadCard({
                     })()}
                     {lead.vehicle && lead.jobType && <span className="mx-1">•</span>}
                     {lead.jobType && <span>{lead.jobType}</span>}
+                    {hasTips && (
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30" title="Community tips available">
+                            💡 Tips
+                        </span>
+                    )}
                 </div>
             )}
 

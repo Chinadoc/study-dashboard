@@ -51,6 +51,7 @@ interface FleetContextType {
     updateMemberRole: (memberId: string, role: FleetUserRole) => Promise<boolean>;
     acceptInvite: (inviteCode: string) => Promise<boolean>;
     refresh: () => Promise<void>;
+    refreshOrganization: () => Promise<void>;
 }
 
 const FleetContext = createContext<FleetContextType | undefined>(undefined);
@@ -317,6 +318,7 @@ export const FleetProvider = ({ children }: { children: ReactNode }) => {
                 updateMemberRole,
                 acceptInvite,
                 refresh: loadFleetData,
+                refreshOrganization: loadFleetData,
             }}
         >
             {children}
