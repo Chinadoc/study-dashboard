@@ -15,6 +15,7 @@ import MyJobsView from '@/components/business/MyJobsView';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import { getTechniciansFromStorage, Technician } from '@/lib/technicianTypes';
 import { useFleet } from '@/contexts/FleetContext';
+import ForceSyncButton from '@/components/business/ForceSyncButton';
 
 type JobsSubTab = 'all' | 'dispatch' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
 
@@ -254,7 +255,7 @@ function JobsPageContent() {
     return (
         <div className="space-y-6">
             {/* Subtab Navigation */}
-            <div className="flex items-center gap-2 p-1 bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-x-auto w-fit">
+            <div className="flex items-center gap-2 p-1 bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-x-auto max-w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {subtabs.map((tab) => (
                     <button
                         key={tab.id}
@@ -279,6 +280,10 @@ function JobsPageContent() {
                         )}
                     </button>
                 ))}
+                {/* Sync Button - for cross-device sync */}
+                <div className="ml-auto flex-shrink-0">
+                    <ForceSyncButton showDetails={false} className="!py-1.5 !px-3 !text-xs" />
+                </div>
             </div>
 
             {/* AI Insight Card */}
