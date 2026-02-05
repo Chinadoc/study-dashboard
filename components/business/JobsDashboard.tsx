@@ -155,26 +155,26 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
                 {/* This Month Revenue */}
                 <div className="bg-gradient-to-br from-emerald-900/30 to-green-800/10 p-4 rounded-xl border border-green-700/30">
                     <div className="text-xs text-green-600 uppercase tracking-wider mb-1">This Month</div>
-                    <div className="text-2xl font-black text-green-400">${stats.thisMonthRevenue.toFixed(0)}</div>
+                    <div className="text-2xl font-black text-green-400">${(stats?.thisMonthRevenue ?? 0).toFixed(0)}</div>
                     <div className="text-xs text-green-500">{stats.thisMonthJobs} jobs</div>
                     {stats.thisMonthProfit !== stats.thisMonthRevenue && (
-                        <div className="text-xs text-emerald-400 mt-1">💰 ${stats.thisMonthProfit.toFixed(0)} profit</div>
+                        <div className="text-xs text-emerald-400 mt-1">💰 ${(stats?.thisMonthProfit ?? 0).toFixed(0)} profit</div>
                     )}
                 </div>
 
                 {/* Total Revenue */}
                 <div className="bg-gradient-to-br from-yellow-900/30 to-amber-800/10 p-4 rounded-xl border border-yellow-700/30">
                     <div className="text-xs text-yellow-600 uppercase tracking-wider mb-1">Total Revenue</div>
-                    <div className="text-2xl font-black text-yellow-500">${stats.totalRevenue.toFixed(0)}</div>
+                    <div className="text-2xl font-black text-yellow-500">${(stats?.totalRevenue ?? 0).toFixed(0)}</div>
                     <div className="text-xs text-yellow-400">{stats.totalJobs} total jobs</div>
                 </div>
 
                 {/* Avg Job Value */}
                 <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/10 p-4 rounded-xl border border-purple-700/30">
                     <div className="text-xs text-purple-600 uppercase tracking-wider mb-1">Avg Value</div>
-                    <div className="text-2xl font-black text-purple-400">${stats.avgJobValue.toFixed(0)}</div>
+                    <div className="text-2xl font-black text-purple-400">${(stats?.avgJobValue ?? 0).toFixed(0)}</div>
                     {stats.avgProfit > 0 && (
-                        <div className="text-xs text-purple-400">${stats.avgProfit.toFixed(0)} avg profit</div>
+                        <div className="text-xs text-purple-400">${(stats?.avgProfit ?? 0).toFixed(0)} avg profit</div>
                     )}
                 </div>
 
@@ -480,7 +480,7 @@ function JobCard({
                     </div>
                 </div>
                 <div className="text-right flex-shrink-0">
-                    <div className="text-green-400 font-bold">${job.price.toFixed(0)}</div>
+                    <div className="text-green-400 font-bold">${(job.price ?? 0).toFixed(0)}</div>
                     <div className="text-xs text-gray-500">{dateStr}</div>
                 </div>
                 <span className={`text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`}>▼</span>
