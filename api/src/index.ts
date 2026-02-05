@@ -1555,12 +1555,39 @@ export default {
           const userId = payload.sub as string;
 
           const result = await env.LOCKSMITH_DB.prepare(`
-            SELECT id, data, created_at FROM invoices WHERE user_id = ? ORDER BY created_at DESC
+            SELECT id, created_at, updated_at,
+              invoice_number, job_id, subtotal, tax_rate, tax_amount, total, notes, due_date, status,
+              business_name, business_address, business_phone, business_email, business_logo_url,
+              customer_name, customer_address, customer_phone, customer_email,
+              line_items
+            FROM invoices WHERE user_id = ? ORDER BY created_at DESC
           `).bind(userId).all();
 
           const invoices = (result.results || []).map((row: any) => ({
             id: row.id,
-            ...JSON.parse(row.data || '{}'),
+            invoiceNumber: row.invoice_number,
+            jobId: row.job_id,
+            subtotal: row.subtotal,
+            taxRate: row.tax_rate,
+            taxAmount: row.tax_amount,
+            total: row.total,
+            notes: row.notes,
+            dueDate: row.due_date,
+            status: row.status || 'draft',
+            businessInfo: {
+              name: row.business_name,
+              address: row.business_address,
+              phone: row.business_phone,
+              email: row.business_email,
+              logoUrl: row.business_logo_url
+            },
+            customerInfo: {
+              name: row.customer_name,
+              address: row.customer_address,
+              phone: row.customer_phone,
+              email: row.customer_email
+            },
+            lineItems: row.line_items ? JSON.parse(row.line_items) : [],
             createdAt: row.created_at
           }));
 
@@ -1585,15 +1612,52 @@ export default {
 
           if (!invoice || !invoice.id) return corsResponse(request, JSON.stringify({ error: "Missing invoice data or ID" }), 400);
 
+          const now = Date.now();
           await env.LOCKSMITH_DB.prepare(`
-            INSERT INTO invoices (id, user_id, data, created_at)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET data = excluded.data
+            INSERT INTO invoices (
+              id, user_id, created_at, updated_at,
+              invoice_number, job_id, subtotal, tax_rate, tax_amount, total, notes, due_date, status,
+              business_name, business_address, business_phone, business_email, business_logo_url,
+              customer_name, customer_address, customer_phone, customer_email,
+              line_items, synced_at, sync_status, data
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              updated_at = excluded.updated_at,
+              invoice_number = excluded.invoice_number, job_id = excluded.job_id,
+              subtotal = excluded.subtotal, tax_rate = excluded.tax_rate, tax_amount = excluded.tax_amount,
+              total = excluded.total, notes = excluded.notes, due_date = excluded.due_date, status = excluded.status,
+              business_name = excluded.business_name, business_address = excluded.business_address,
+              business_phone = excluded.business_phone, business_email = excluded.business_email, business_logo_url = excluded.business_logo_url,
+              customer_name = excluded.customer_name, customer_address = excluded.customer_address,
+              customer_phone = excluded.customer_phone, customer_email = excluded.customer_email,
+              line_items = excluded.line_items, synced_at = excluded.synced_at, data = excluded.data
           `).bind(
             invoice.id,
             userId,
-            JSON.stringify(invoice),
-            invoice.createdAt || Date.now()
+            invoice.createdAt || now,
+            now,
+            invoice.invoiceNumber || null,
+            invoice.jobId || null,
+            invoice.subtotal || 0,
+            invoice.taxRate || null,
+            invoice.taxAmount || null,
+            invoice.total || 0,
+            invoice.notes || null,
+            invoice.dueDate || null,
+            invoice.status || 'draft',
+            invoice.businessInfo?.name || null,
+            invoice.businessInfo?.address || null,
+            invoice.businessInfo?.phone || null,
+            invoice.businessInfo?.email || null,
+            invoice.businessInfo?.logoUrl || null,
+            invoice.customerInfo?.name || null,
+            invoice.customerInfo?.address || null,
+            invoice.customerInfo?.phone || null,
+            invoice.customerInfo?.email || null,
+            JSON.stringify(invoice.lineItems || []),
+            now,
+            'synced',
+            JSON.stringify(invoice) // Keep JSON for backwards compatibility
           ).run();
 
           return corsResponse(request, JSON.stringify({ success: true, id: invoice.id }));
