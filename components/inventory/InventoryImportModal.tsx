@@ -39,7 +39,7 @@ export default function InventoryImportModal({ isOpen, onClose, onImport }: Inve
             setParseResult({
                 items: [],
                 errors: ['Failed to parse file'],
-                stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0 },
+                stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0, matchedByOem: 0, matchedByFcc: 0, unmatched: 0 },
                 detectedFormat: 'Generic',
                 detectedDelimiter: ','
             });
@@ -136,23 +136,23 @@ export default function InventoryImportModal({ isOpen, onClose, onImport }: Inve
                         {/* Parse Results */}
                         {parseResult && (
                             <>
-                                {/* Stats */}
+                                {/* Stats - OEM priority matching */}
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     <div className="bg-zinc-800 rounded-lg p-3 text-center">
                                         <div className="text-2xl font-bold text-white">{parseResult.stats.total}</div>
                                         <div className="text-xs text-zinc-500">Total Items</div>
                                     </div>
-                                    <div className="bg-zinc-800 rounded-lg p-3 text-center">
-                                        <div className="text-2xl font-bold text-yellow-400">{parseResult.stats.withFcc}</div>
-                                        <div className="text-xs text-zinc-500">With FCC ID</div>
+                                    <div className="bg-zinc-800 rounded-lg p-3 text-center border border-blue-500/30">
+                                        <div className="text-2xl font-bold text-blue-400">{parseResult.stats.matchedByOem}</div>
+                                        <div className="text-xs text-blue-400">OEM Match ★</div>
                                     </div>
                                     <div className="bg-zinc-800 rounded-lg p-3 text-center">
-                                        <div className="text-2xl font-bold text-blue-400">{parseResult.stats.withOem}</div>
-                                        <div className="text-xs text-zinc-500">With OEM #</div>
+                                        <div className="text-2xl font-bold text-yellow-400">{parseResult.stats.matchedByFcc}</div>
+                                        <div className="text-xs text-zinc-500">FCC Only</div>
                                     </div>
                                     <div className="bg-zinc-800 rounded-lg p-3 text-center">
-                                        <div className="text-2xl font-bold text-green-400">{parseResult.stats.withQuantity}</div>
-                                        <div className="text-xs text-zinc-500">With Quantity</div>
+                                        <div className="text-2xl font-bold text-zinc-500">{parseResult.stats.unmatched}</div>
+                                        <div className="text-xs text-zinc-600">No Match</div>
                                     </div>
                                 </div>
 
@@ -199,12 +199,16 @@ export default function InventoryImportModal({ isOpen, onClose, onImport }: Inve
                                                                 {item.itemKey}
                                                             </td>
                                                             <td className="px-3 py-2">
-                                                                {item.fcc_id ? (
-                                                                    <span className="text-yellow-400 font-mono text-xs">{item.fcc_id}</span>
-                                                                ) : item.oemNumber ? (
-                                                                    <span className="text-blue-400 font-mono text-xs">{item.oemNumber}</span>
+                                                                {item.matchedBy === 'oem' ? (
+                                                                    <span className="text-blue-400 font-mono text-xs" title="OEM Match (priority)">
+                                                                        {item.oemNumber}
+                                                                    </span>
+                                                                ) : item.matchedBy === 'fcc' ? (
+                                                                    <span className="text-yellow-400 font-mono text-xs" title="FCC Match">
+                                                                        {item.fcc_id}
+                                                                    </span>
                                                                 ) : (
-                                                                    <span className="text-zinc-600">—</span>
+                                                                    <span className="text-zinc-600" title="No match found">—</span>
                                                                 )}
                                                             </td>
                                                             <td className="px-3 py-2 text-right text-zinc-300">{item.qty}</td>

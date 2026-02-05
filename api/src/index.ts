@@ -570,7 +570,16 @@ export default {
 
           // Delta sync support: only return jobs updated since the given timestamp
           const sinceParam = url.searchParams.get('since');
-          let query = "SELECT id, data, created_at, updated_at FROM job_logs WHERE user_id = ?";
+          // Select individual columns (structured like user_inventory)
+          let query = `SELECT 
+            id, created_at, updated_at, 
+            vehicle, fcc_id, key_type, job_type, price, date, notes,
+            customer_name, customer_phone, customer_email, customer_address,
+            fleet_id, technician_id, technician_name,
+            status, claimed_at, started_at, completed_at, priority, source,
+            parts_cost, key_cost, service_cost, miles_driven, gas_cost,
+            referral_source, synced_at, sync_status, device_id
+          FROM job_logs WHERE user_id = ?`;
           const params: any[] = [userId];
 
           if (sinceParam) {
@@ -585,20 +594,41 @@ export default {
 
           const result = await env.LOCKSMITH_DB.prepare(query).bind(...params).all();
 
-          // Parse the JSON data field for each job
-          const jobs = (result.results || []).map((row: any) => {
-            try {
-              const jobData = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
-              return {
-                ...jobData,
-                id: row.id,
-                createdAt: row.created_at,
-                updatedAt: row.updated_at || row.created_at
-              };
-            } catch {
-              return { id: row.id, createdAt: row.created_at, updatedAt: row.updated_at || row.created_at };
-            }
-          });
+          // Map DB columns to camelCase response
+          const jobs = (result.results || []).map((row: any) => ({
+            id: row.id,
+            vehicle: row.vehicle,
+            fccId: row.fcc_id,
+            keyType: row.key_type,
+            jobType: row.job_type,
+            price: row.price,
+            date: row.date,
+            notes: row.notes,
+            customerName: row.customer_name,
+            customerPhone: row.customer_phone,
+            customerEmail: row.customer_email,
+            customerAddress: row.customer_address,
+            fleetId: row.fleet_id,
+            technicianId: row.technician_id,
+            technicianName: row.technician_name,
+            status: row.status || 'completed',
+            claimedAt: row.claimed_at,
+            startedAt: row.started_at,
+            completedAt: row.completed_at,
+            priority: row.priority || 'normal',
+            source: row.source,
+            partsCost: row.parts_cost,
+            keyCost: row.key_cost,
+            serviceCost: row.service_cost,
+            milesDriven: row.miles_driven,
+            gasCost: row.gas_cost,
+            referralSource: row.referral_source,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at || row.created_at,
+            syncedAt: row.synced_at,
+            syncStatus: row.sync_status || 'synced',
+            deviceId: row.device_id
+          }));
 
           // Add server time header for clock sync
           const headers = new Headers();
@@ -625,17 +655,57 @@ export default {
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
-          const jobData = await request.json() as any;
+          const job = await request.json() as any;
 
           // Generate ID if not provided
-          const jobId = jobData.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-          const createdAt = jobData.createdAt || Date.now();
-          const updatedAt = jobData.updatedAt || Date.now();
+          const jobId = job.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+          const createdAt = job.createdAt || Date.now();
+          const updatedAt = job.updatedAt || Date.now();
 
-          // Upsert job - INSERT OR REPLACE with updated_at
-          await env.LOCKSMITH_DB.prepare(
-            "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
-          ).bind(jobId, userId, JSON.stringify(jobData), createdAt, updatedAt).run();
+          // Insert into individual columns (structured like user_inventory)
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT OR REPLACE INTO job_logs (
+              id, user_id, created_at, updated_at,
+              vehicle, fcc_id, key_type, job_type, price, date, notes,
+              customer_name, customer_phone, customer_email, customer_address,
+              fleet_id, technician_id, technician_name,
+              status, claimed_at, started_at, completed_at, priority, source,
+              parts_cost, key_cost, service_cost, miles_driven, gas_cost,
+              referral_source, synced_at, sync_status, device_id, data
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            jobId, userId, createdAt, updatedAt,
+            job.vehicle || null,
+            job.fccId || null,
+            job.keyType || null,
+            job.jobType || null,
+            job.price || null,
+            job.date || null,
+            job.notes || null,
+            job.customerName || null,
+            job.customerPhone || null,
+            job.customerEmail || null,
+            job.customerAddress || null,
+            job.fleetId || null,
+            job.technicianId || null,
+            job.technicianName || null,
+            job.status || 'completed',
+            job.claimedAt || null,
+            job.startedAt || null,
+            job.completedAt || null,
+            job.priority || 'normal',
+            job.source || null,
+            job.partsCost || null,
+            job.keyCost || null,
+            job.serviceCost || null,
+            job.milesDriven || null,
+            job.gasCost || null,
+            job.referralSource || null,
+            Date.now(),
+            'synced',
+            job.deviceId || null,
+            JSON.stringify(job) // Keep JSON for backwards compatibility during transition
+          ).run();
 
           return corsResponse(request, JSON.stringify({ success: true, id: jobId, serverTime: Date.now() }), 200);
         } catch (err: any) {
@@ -684,20 +754,58 @@ export default {
             return corsResponse(request, JSON.stringify({ error: "jobs must be an array" }), 400);
           }
 
-          // Batch insert/update all jobs with updated_at
+          // Batch insert/update all jobs into individual columns
           let synced = 0;
           const serverTime = Date.now();
           for (const job of jobs) {
             const jobId = job.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
             const createdAt = job.createdAt || serverTime;
             const updatedAt = job.updatedAt || serverTime;
+            const jobDeviceId = deviceId || job.deviceId || null;
 
-            // Store deviceId in job data for conflict tracking
-            const enrichedJob = { ...job, deviceId: deviceId || job.deviceId };
-
-            await env.LOCKSMITH_DB.prepare(
-              "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
-            ).bind(jobId, userId, JSON.stringify(enrichedJob), createdAt, updatedAt).run();
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT OR REPLACE INTO job_logs (
+                id, user_id, created_at, updated_at,
+                vehicle, fcc_id, key_type, job_type, price, date, notes,
+                customer_name, customer_phone, customer_email, customer_address,
+                fleet_id, technician_id, technician_name,
+                status, claimed_at, started_at, completed_at, priority, source,
+                parts_cost, key_cost, service_cost, miles_driven, gas_cost,
+                referral_source, synced_at, sync_status, device_id, data
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              jobId, userId, createdAt, updatedAt,
+              job.vehicle || null,
+              job.fccId || null,
+              job.keyType || null,
+              job.jobType || null,
+              job.price || null,
+              job.date || null,
+              job.notes || null,
+              job.customerName || null,
+              job.customerPhone || null,
+              job.customerEmail || null,
+              job.customerAddress || null,
+              job.fleetId || null,
+              job.technicianId || null,
+              job.technicianName || null,
+              job.status || 'completed',
+              job.claimedAt || null,
+              job.startedAt || null,
+              job.completedAt || null,
+              job.priority || 'normal',
+              job.source || null,
+              job.partsCost || null,
+              job.keyCost || null,
+              job.serviceCost || null,
+              job.milesDriven || null,
+              job.gasCost || null,
+              job.referralSource || null,
+              serverTime,
+              'synced',
+              jobDeviceId,
+              JSON.stringify(job) // Keep JSON for backwards compatibility
+            ).run();
             synced++;
           }
 

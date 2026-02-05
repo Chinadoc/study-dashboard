@@ -23,6 +23,8 @@ export interface ExternalInventoryRow extends InventoryCSVRow {
     supplier?: string;
     rawDescription?: string;
     oemNumber?: string;
+    // Matching priority: OEM first (more granular), then FCC
+    matchedBy?: 'oem' | 'fcc' | 'none';
 }
 
 export interface ExternalImportResult {
@@ -33,6 +35,10 @@ export interface ExternalImportResult {
         withFcc: number;
         withOem: number;
         withQuantity: number;
+        // Match stats (OEM has priority)
+        matchedByOem: number;
+        matchedByFcc: number;
+        unmatched: number;
     };
     detectedFormat: 'QuickBooks' | 'Square' | 'EuroKeys' | 'Generic';
     detectedDelimiter: string;
@@ -171,7 +177,7 @@ export async function parseExternalInventoryCSV(file: File): Promise<ExternalImp
                 resolve({
                     items: [],
                     errors: ['Could not read file'],
-                    stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0 },
+                    stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0, matchedByOem: 0, matchedByFcc: 0, unmatched: 0 },
                     detectedFormat: 'Generic',
                     detectedDelimiter: ','
                 });
@@ -183,7 +189,7 @@ export async function parseExternalInventoryCSV(file: File): Promise<ExternalImp
                 resolve({
                     items: [],
                     errors: ['File is empty or has no data rows'],
-                    stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0 },
+                    stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0, matchedByOem: 0, matchedByFcc: 0, unmatched: 0 },
                     detectedFormat: 'Generic',
                     detectedDelimiter: ','
                 });
@@ -207,7 +213,7 @@ export async function parseExternalInventoryCSV(file: File): Promise<ExternalImp
 
             const items: ExternalInventoryRow[] = [];
             const errors: string[] = [];
-            const stats = { total: 0, withFcc: 0, withOem: 0, withQuantity: 0 };
+            const stats = { total: 0, withFcc: 0, withOem: 0, withQuantity: 0, matchedByOem: 0, matchedByFcc: 0, unmatched: 0 };
 
             // Parse data rows
             for (let i = 1; i < lines.length; i++) {
@@ -264,6 +270,18 @@ export async function parseExternalInventoryCSV(file: File): Promise<ExternalImp
                         type = 'tool';
                     }
 
+                    // Determine matchedBy (OEM has priority - more granular than FCC)
+                    let matchedBy: 'oem' | 'fcc' | 'none' = 'none';
+                    if (oemNumber) {
+                        matchedBy = 'oem';
+                        stats.matchedByOem++;
+                    } else if (fccId) {
+                        matchedBy = 'fcc';
+                        stats.matchedByFcc++;
+                    } else {
+                        stats.unmatched++;
+                    }
+
                     items.push({
                         itemKey,
                         type,
@@ -274,6 +292,7 @@ export async function parseExternalInventoryCSV(file: File): Promise<ExternalImp
                         salesPrice: price,
                         supplier: vendor,
                         rawDescription: description || undefined,
+                        matchedBy,
                     });
 
                     stats.total++;
@@ -299,7 +318,7 @@ export async function parseExternalInventoryCSV(file: File): Promise<ExternalImp
             resolve({
                 items: [],
                 errors: ['Failed to read file'],
-                stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0 },
+                stats: { total: 0, withFcc: 0, withOem: 0, withQuantity: 0, matchedByOem: 0, matchedByFcc: 0, unmatched: 0 },
                 detectedFormat: 'Generic',
                 detectedDelimiter: ','
             });
