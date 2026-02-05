@@ -7964,6 +7964,310 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
+      // VEHICLE COVERAGE MAP (Tool compatibility)
+      // ==============================================
+      // List all vehicle coverage with optional filters
+      if (path === "/api/vehicle-coverage") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const tool = url.searchParams.get("tool") || "";
+          const yearParam = url.searchParams.get("year");
+          const chip = url.searchParams.get("chip") || "";
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "500", 10), 2000);
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("LOWER(model) LIKE ?");
+            params.push(`%${model}%`);
+          }
+          if (tool) {
+            conditions.push("tool_family = ?");
+            params.push(tool);
+          }
+          if (yearParam) {
+            const y = parseInt(yearParam, 10);
+            if (!Number.isNaN(y)) {
+              conditions.push("year_start <= ? AND year_end >= ?");
+              params.push(y, y);
+            }
+          }
+          if (chip) {
+            conditions.push("chips LIKE ?");
+            params.push(`%${chip}%`);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              id, vehicle_id, make, model, year_start, year_end,
+              tool_family, status, confidence, limitations, cables,
+              platform, chips, chip_registry_ids,
+              source, dossier_mentions, flags, notes,
+              created_at, updated_at
+            FROM vehicle_coverage
+            ${whereClause}
+            ORDER BY make, model, year_start, tool_family
+            LIMIT ?
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit).all();
+          const coverage = (result.results || []).map((r: any) => ({
+            ...r,
+            limitations: r.limitations ? JSON.parse(r.limitations) : [],
+            cables: r.cables ? JSON.parse(r.cables) : [],
+            chips: r.chips ? JSON.parse(r.chips) : [],
+            flags: r.flags ? JSON.parse(r.flags) : []
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            source: "vehicle_coverage",
+            count: coverage.length,
+            coverage
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // Get inferred + explicit coverage for a specific vehicle
+      if (path === "/api/vehicle-coverage/infer") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const yearParam = url.searchParams.get("year");
+          const year = yearParam ? parseInt(yearParam, 10) : null;
+
+          if (!make || !model) {
+            return corsResponse(request, JSON.stringify({ error: "make and model parameters required" }), 400);
+          }
+
+          // 1. Get explicit coverage records
+          let explicitSql = `
+            SELECT tool_family, status, confidence, limitations, cables, chips, platform
+            FROM vehicle_coverage
+            WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
+          `;
+          const explicitParams: (string | number)[] = [make, `%${model}%`];
+
+          if (year && !Number.isNaN(year)) {
+            explicitSql += " AND year_start <= ? AND year_end >= ?";
+            explicitParams.push(year, year);
+          }
+
+          const explicitResult = await env.LOCKSMITH_DB.prepare(explicitSql).bind(...explicitParams).all();
+          const explicitCoverage = (explicitResult.results || []) as any[];
+
+          // 2. Get chips for this vehicle (from explicit coverage or chip mapping)
+          const chips = new Set<string>();
+          for (const c of explicitCoverage) {
+            if (c.chips) {
+              try {
+                const chipList = JSON.parse(c.chips);
+                chipList.forEach((chip: string) => chips.add(chip));
+              } catch (e) { }
+            }
+          }
+
+          // 3. Get tool-chip support matrix for inference
+          const toolChipSql = `
+            SELECT tool_family, chip_name, support_level, required_addon, notes
+            FROM tool_chip_support
+            WHERE chip_name IN (${Array.from(chips).map(() => '?').join(',') || "''"})
+          `;
+          const toolChipResult = chips.size > 0
+            ? await env.LOCKSMITH_DB.prepare(toolChipSql).bind(...Array.from(chips)).all()
+            : { results: [] };
+
+          const inferredByTool = new Map<string, { support_level: string; chips: string[]; addon?: string }>();
+          for (const tc of (toolChipResult.results || []) as any[]) {
+            if (!inferredByTool.has(tc.tool_family)) {
+              inferredByTool.set(tc.tool_family, { support_level: tc.support_level, chips: [], addon: tc.required_addon });
+            }
+            const entry = inferredByTool.get(tc.tool_family)!;
+            entry.chips.push(tc.chip_name);
+            // Upgrade support level if this chip is better
+            if (tc.support_level === 'full' && entry.support_level !== 'full') {
+              entry.support_level = 'full';
+            }
+          }
+
+          // 4. Merge explicit and inferred
+          const mergedCoverage: Record<string, any> = {};
+          const toolFamilies = ['autel', 'smartPro', 'lonsdor', 'vvdi'];
+
+          for (const tool of toolFamilies) {
+            const explicit = explicitCoverage.find((c: any) => c.tool_family === tool);
+            const inferred = inferredByTool.get(tool);
+
+            if (explicit) {
+              mergedCoverage[tool] = {
+                status: explicit.status || (inferred ? 'Yes' : ''),
+                confidence: explicit.confidence || 'high',
+                source: 'explicit',
+                limitations: explicit.limitations ? JSON.parse(explicit.limitations) : [],
+                cables: explicit.cables ? JSON.parse(explicit.cables) : [],
+                inferred_from_chips: inferred?.chips || []
+              };
+            } else if (inferred) {
+              mergedCoverage[tool] = {
+                status: inferred.support_level === 'full' ? 'Yes' : 'Partial',
+                confidence: 'inferred',
+                source: 'chip_inference',
+                limitations: [],
+                cables: inferred.addon ? [inferred.addon] : [],
+                inferred_from_chips: inferred.chips
+              };
+            } else {
+              mergedCoverage[tool] = {
+                status: '',
+                confidence: 'unknown',
+                source: 'none',
+                limitations: [],
+                cables: [],
+                inferred_from_chips: []
+              };
+            }
+          }
+
+          return corsResponse(request, JSON.stringify({
+            make,
+            model,
+            year,
+            chips: Array.from(chips),
+            coverage: mergedCoverage
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // Get tool-chip support matrix
+      if (path === "/api/tool-chip-support") {
+        try {
+          const tool = url.searchParams.get("tool") || "";
+          const chip = url.searchParams.get("chip") || "";
+
+          const conditions: string[] = [];
+          const params: string[] = [];
+
+          if (tool) {
+            conditions.push("tool_family = ?");
+            params.push(tool);
+          }
+          if (chip) {
+            conditions.push("chip_name LIKE ?");
+            params.push(`%${chip}%`);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT id, tool_family, tool_model, chip_name, support_level, required_addon, notes
+            FROM tool_chip_support
+            ${whereClause}
+            ORDER BY tool_family, chip_name
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+          return corsResponse(request, JSON.stringify({
+            source: "tool_chip_support",
+            count: result.results?.length || 0,
+            support: result.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/vehicle-coverage - Create or update coverage record
+      if (path === "/api/vehicle-coverage" && request.method === "POST") {
+        try {
+          // Auth required
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          const userEmail = payload.email as string;
+          const userIsDev = payload.is_developer || isDeveloper(userEmail, env.DEV_EMAILS);
+
+          if (!userIsDev) {
+            return corsResponse(request, JSON.stringify({ error: "Developer access required" }), 403);
+          }
+
+          const body = await request.json() as any;
+          const { make, model, year_start, year_end, tool_family, status, confidence, limitations, cables, platform, chips, notes } = body;
+
+          if (!make || !model || !year_start || !tool_family) {
+            return corsResponse(request, JSON.stringify({ error: "make, model, year_start, and tool_family are required" }), 400);
+          }
+
+          // Upsert: check if record exists
+          const existingCheck = await env.LOCKSMITH_DB.prepare(`
+            SELECT id FROM vehicle_coverage 
+            WHERE make = ? AND model = ? AND year_start = ? AND year_end = ? AND tool_family = ?
+          `).bind(make, model, year_start, year_end || year_start, tool_family).first();
+
+          if (existingCheck) {
+            // Update
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE vehicle_coverage 
+              SET status = ?, confidence = ?, limitations = ?, cables = ?, platform = ?, chips = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+              WHERE id = ?
+            `).bind(
+              status || '',
+              confidence || 'medium',
+              limitations ? JSON.stringify(limitations) : '[]',
+              cables ? JSON.stringify(cables) : '[]',
+              platform || '',
+              chips ? JSON.stringify(chips) : '[]',
+              notes || '',
+              existingCheck.id
+            ).run();
+
+            return corsResponse(request, JSON.stringify({ success: true, action: 'updated', id: existingCheck.id }));
+          } else {
+            // Insert
+            const insertResult = await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO vehicle_coverage (make, model, year_start, year_end, tool_family, status, confidence, limitations, cables, platform, chips, notes, source)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'api')
+            `).bind(
+              make,
+              model,
+              year_start,
+              year_end || year_start,
+              tool_family,
+              status || '',
+              confidence || 'medium',
+              limitations ? JSON.stringify(limitations) : '[]',
+              cables ? JSON.stringify(cables) : '[]',
+              platform || '',
+              chips ? JSON.stringify(chips) : '[]',
+              notes || ''
+            ).run();
+
+            return corsResponse(request, JSON.stringify({ success: true, action: 'created', id: insertResult.meta?.last_row_id }));
+          }
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // AKS VEHICLE PAGES (lishi, mechanical specs)
       // ==============================================
       // Query aks_vehicle_pages for lishi, code_series, etc.
