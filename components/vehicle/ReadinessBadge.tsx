@@ -4,9 +4,11 @@
  * ReadinessBadge Component
  * Shows a compact readiness status for a specific vehicle
  * Uses the useReadiness hook internally
+ * Uses React Portal for tooltip to escape overflow:hidden parent containers
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useReadiness, READINESS_STYLES, ReadinessStatus } from '@/lib/useReadiness';
 import { coverageMatrix } from '@/src/data/coverageMatrixLoader';
 
@@ -26,8 +28,26 @@ export default function ReadinessBadge({
     size = 'sm'
 }: ReadinessBadgeProps) {
     const { calculateReadiness } = useReadiness();
-    // Auto-expand details for critical statuses so helpful info is visible by default
     const [showDetails, setShowDetails] = useState(true);
+    const badgeRef = useRef<HTMLButtonElement>(null);
+    const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+    const [mounted, setMounted] = useState(false);
+
+    // Track mount state for portal
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Update tooltip position when shown
+    useEffect(() => {
+        if (showDetails && badgeRef.current) {
+            const rect = badgeRef.current.getBoundingClientRect();
+            setTooltipPosition({
+                top: rect.bottom + 8, // 8px gap below badge
+                left: rect.left
+            });
+        }
+    }, [showDetails]);
 
     // Find matching coverage group for this vehicle
     const matchedGroup = useMemo(() => {
@@ -45,7 +65,6 @@ export default function ReadinessBadge({
                 const years = yearMatch.map(y => parseInt(y));
                 const minYear = Math.min(...years);
                 const maxYear = Math.max(...years);
-                // If year is in range or close, consider it a match
                 if (year >= minYear && year <= (maxYear || year + 5)) {
                     return matchesMake || matchesModel;
                 }
@@ -61,7 +80,6 @@ export default function ReadinessBadge({
         return calculateReadiness(matchedGroup);
     }, [matchedGroup, calculateReadiness]);
 
-    // No matching coverage data - don't show badge
     if (!readiness) {
         return null;
     }
@@ -69,9 +87,50 @@ export default function ReadinessBadge({
     const style = READINESS_STYLES[readiness.status];
     const isSmall = size === 'sm';
 
+    // Tooltip content rendered via portal
+    const tooltipContent = showDetails && mounted && (
+        <div
+            className="fixed w-64 p-3 rounded-lg bg-gray-800 border border-gray-600 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
+            style={{
+                top: tooltipPosition.top,
+                left: tooltipPosition.left,
+                zIndex: 99999,
+            }}
+        >
+            <div className={`font-bold mb-2 ${style.text}`}>
+                {style.icon} {style.label}
+            </div>
+
+            {readiness.blockers.length > 0 ? (
+                <ul className="text-sm text-white space-y-1">
+                    {readiness.blockers.map((blocker, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                            <span className="text-gray-400 mt-0.5">•</span>
+                            <span>{blocker}</span>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="text-sm text-white">
+                    {style.description}
+                </p>
+            )}
+
+            <div className="mt-2 pt-2 border-t border-gray-700">
+                <a
+                    href="/business/coverage-heatmap"
+                    className="text-xs text-blue-400 hover:underline"
+                >
+                    View full coverage →
+                </a>
+            </div>
+        </div>
+    );
+
     return (
         <div className="relative">
             <button
+                ref={badgeRef}
                 onClick={() => showTooltip && setShowDetails(!showDetails)}
                 className={`
                     ${isSmall ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm'}
@@ -87,48 +146,15 @@ export default function ReadinessBadge({
                 <span>{style.label}</span>
             </button>
 
-            {/* Inline description for critical statuses - visible at first glance */}
+            {/* Inline description for critical statuses */}
             {(readiness.status === 'CANNOT_SERVICE' || readiness.status === 'NEED_SUBSCRIPTION') && (
                 <div className={`text-sm mt-1 font-medium ${readiness.status === 'CANNOT_SERVICE' ? 'text-white' : 'text-orange-300'}`}>
                     {style.description}
                 </div>
             )}
 
-            {/* Tooltip/Dropdown */}
-            {showDetails && (
-                <div
-                    className="absolute top-full mt-2 left-0 z-[9999] w-64 p-3 rounded-lg bg-gray-800 border border-gray-600 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
-                >
-                    <div className={`font-bold mb-2 ${style.text}`}>
-                        {style.icon} {style.label}
-                    </div>
-
-                    {/* Show blockers if any, otherwise show the description */}
-                    {readiness.blockers.length > 0 ? (
-                        <ul className="text-sm text-white space-y-1">
-                            {readiness.blockers.map((blocker, i) => (
-                                <li key={i} className="flex items-start gap-2">
-                                    <span className="text-gray-400 mt-0.5">•</span>
-                                    <span>{blocker}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-white">
-                            {style.description}
-                        </p>
-                    )}
-
-                    <div className="mt-2 pt-2 border-t border-gray-700">
-                        <a
-                            href="/business/coverage-heatmap"
-                            className="text-xs text-blue-400 hover:underline"
-                        >
-                            View full coverage →
-                        </a>
-                    </div>
-                </div>
-            )}
+            {/* Tooltip rendered via portal to escape overflow:hidden containers */}
+            {mounted && tooltipContent && createPortal(tooltipContent, document.body)}
         </div>
     );
 }

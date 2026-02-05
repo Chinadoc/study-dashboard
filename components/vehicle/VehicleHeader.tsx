@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { EditModeToggle } from '@/components/admin';
-import ReadinessBadge from './ReadinessBadge';
+// ReadinessBadge removed - tool coverage logic to be reimplemented later
 import LogJobButton from './LogJobButton';
 
 interface VehicleHeaderProps {
@@ -93,8 +93,7 @@ export default function VehicleHeader({
                                         ⚠️ CAN-FD Required
                                     </span>
                                 )}
-                                {/* Service Readiness Badge */}
-                                <ReadinessBadge make={make} model={model} year={year} size="sm" />
+                                {/* Service Readiness Badge - disabled pending proper tool coverage logic */}
                             </div>
                         </div>
 

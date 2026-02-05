@@ -58,6 +58,7 @@ function corsResponse(request: Request, body: string, status = 200, extraHeaders
   const isAllowedOrigin = origin === "https://eurokeys.app" ||
     origin === "https://study-dashboard-8a9.pages.dev" ||
     origin.endsWith(".study-dashboard-8a9.pages.dev") ||
+    origin.endsWith(".eurokeys.pages.dev") ||  // Cloudflare Pages preview deployments
     origin.endsWith(".workers.dev") ||
     origin.startsWith("http://localhost:") ||
     origin.startsWith("http://127.0.0.1:") ||

@@ -555,15 +555,6 @@ function BrowsePageContent() {
                             <div className="overflow-y-auto flex flex-col p-4" style={{ maxHeight: 'calc(500px - 40px)' }}>
                                 {selectedMake && selectedModel ? (
                                     <div className="flex flex-col gap-4 h-full">
-                                        {/* Vehicle Image - show immediately when model selected */}
-                                        <div className="flex-1 flex items-center justify-center">
-                                            <img
-                                                src={getModelThumbnailUrl(selectedMake, selectedModel)}
-                                                alt={`${selectedMake} ${selectedModel}`}
-                                                className="max-w-full max-h-32 object-contain rounded-lg"
-                                                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-car.png'; }}
-                                            />
-                                        </div>
                                         {/* Vehicle Info */}
                                         <div className="text-center">
                                             {selectedYear ? (
