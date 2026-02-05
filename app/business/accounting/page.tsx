@@ -178,18 +178,18 @@ export default function AccountingPage() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-zinc-400">This Month Revenue</span>
-                                    <span className="text-xl font-bold text-green-400">${stats.thisMonthRevenue.toFixed(0)}</span>
+                                    <span className="text-xl font-bold text-green-400">${(stats?.thisMonthRevenue ?? 0).toFixed(0)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-zinc-400">Last Month Revenue</span>
-                                    <span className="text-xl font-bold text-zinc-500">${stats.lastMonthRevenue.toFixed(0)}</span>
+                                    <span className="text-xl font-bold text-zinc-500">${(stats?.lastMonthRevenue ?? 0).toFixed(0)}</span>
                                 </div>
                                 <div className="pt-2 border-t border-zinc-800">
                                     <div className="flex justify-between items-center">
                                         <span className="text-zinc-400">Change</span>
                                         <span className={`text-lg font-bold ${stats.thisMonthRevenue >= stats.lastMonthRevenue ? 'text-green-400' : 'text-red-400'}`}>
                                             {stats.lastMonthRevenue > 0
-                                                ? `${(((stats.thisMonthRevenue - stats.lastMonthRevenue) / stats.lastMonthRevenue) * 100).toFixed(0)}%`
+                                                ? `${((((stats?.thisMonthRevenue ?? 0) - (stats?.lastMonthRevenue ?? 0)) / (stats?.lastMonthRevenue || 1)) * 100).toFixed(0)}%`
                                                 : 'N/A'
                                             }
                                             {stats.thisMonthRevenue >= stats.lastMonthRevenue ? ' ↑' : ' ↓'}

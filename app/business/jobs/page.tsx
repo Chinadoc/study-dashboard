@@ -510,22 +510,22 @@ function AnalyticsView({ stats }: { stats: ReturnType<ReturnType<typeof useJobLo
 
             {/* Revenue Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard label="Total Revenue" value={`$${stats.totalRevenue.toFixed(0)}`} color="green" />
-                <StatCard label="Total Profit" value={`$${stats.totalProfit.toFixed(0)}`} color="emerald" />
+                <StatCard label="Total Revenue" value={`$${(stats?.totalRevenue ?? 0).toFixed(0)}`} color="green" />
+                <StatCard label="Total Profit" value={`$${(stats?.totalProfit ?? 0).toFixed(0)}`} color="emerald" />
                 <StatCard label="Total Jobs" value={stats.totalJobs.toString()} color="yellow" />
-                <StatCard label="Avg Job Value" value={`$${stats.avgJobValue.toFixed(0)}`} color="purple" />
+                <StatCard label="Avg Job Value" value={`$${(stats?.avgJobValue ?? 0).toFixed(0)}`} color="purple" />
             </div>
 
             {/* Monthly Comparison */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
                     <h3 className="text-lg font-bold mb-4">This Month</h3>
-                    <div className="text-3xl font-black text-green-400">${stats.thisMonthRevenue.toFixed(0)}</div>
+                    <div className="text-3xl font-black text-green-400">${(stats?.thisMonthRevenue ?? 0).toFixed(0)}</div>
                     <div className="text-sm text-gray-500 mt-1">{stats.thisMonthJobs} jobs</div>
                 </div>
                 <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
                     <h3 className="text-lg font-bold mb-4">Last Month</h3>
-                    <div className="text-3xl font-black text-gray-400">${stats.lastMonthRevenue.toFixed(0)}</div>
+                    <div className="text-3xl font-black text-gray-400">${(stats?.lastMonthRevenue ?? 0).toFixed(0)}</div>
                     <div className="text-sm text-gray-500 mt-1">{stats.lastMonthJobs} jobs</div>
                 </div>
             </div>

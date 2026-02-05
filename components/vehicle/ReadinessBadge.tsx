@@ -97,7 +97,7 @@ export default function ReadinessBadge({
             {/* Tooltip/Dropdown */}
             {showDetails && (
                 <div
-                    className="absolute top-full mt-2 left-0 z-50 w-64 p-3 rounded-lg bg-gray-800 border border-gray-600 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="absolute top-full mt-2 left-0 z-[9999] w-64 p-3 rounded-lg bg-gray-800 border border-gray-600 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
                 >
                     <div className={`font-bold mb-2 ${style.text}`}>
                         {style.icon} {style.label}

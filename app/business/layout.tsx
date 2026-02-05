@@ -132,13 +132,13 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                                 {/* Revenue */}
                                 <div className="flex-shrink-0 snap-start px-3 py-1.5 sm:px-4 sm:py-2 bg-zinc-800/50 rounded-lg border border-zinc-700/30 min-w-[80px] text-center">
                                     <div className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">Revenue</div>
-                                    <div className="text-lg sm:text-xl font-black text-green-400">${stats.thisMonthRevenue.toFixed(0)}</div>
+                                    <div className="text-lg sm:text-xl font-black text-green-400">${(stats?.thisMonthRevenue ?? 0).toFixed(0)}</div>
                                 </div>
 
                                 {/* Profit */}
                                 <div className="flex-shrink-0 snap-start px-3 py-1.5 sm:px-4 sm:py-2 bg-zinc-800/50 rounded-lg border border-zinc-700/30 min-w-[80px] text-center">
                                     <div className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">Profit</div>
-                                    <div className="text-lg sm:text-xl font-black text-emerald-400">${stats.thisMonthProfit.toFixed(0)}</div>
+                                    <div className="text-lg sm:text-xl font-black text-emerald-400">${(stats?.thisMonthProfit ?? 0).toFixed(0)}</div>
                                 </div>
 
                                 {/* Jobs */}
