@@ -158,8 +158,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         setUser(null);
+
+        // Clear session and user info
         localStorage.removeItem('session_token');
+        localStorage.removeItem('auth_token');
         localStorage.removeItem('eurokeys_user');
+
+        // CRITICAL: Clear all user-specific business data to prevent 
+        // data contamination when switching accounts
+        const userDataKeys = [
+            'eurokeys_job_logs',
+            'eurokeys_pipeline_leads',
+            'eurokeys_invoices',
+            'eurokeys_inventory',
+            'eurokeys_technicians',
+            'eurokeys_fleet_customers',
+            'eurokeys_licenses',
+            'eurokeys_business_profile',
+            'eurokeys_sync_state',
+            'eurokeys_sync_queue',
+        ];
+
+        userDataKeys.forEach(key => localStorage.removeItem(key));
+        console.log('[Auth] Logged out and cleared all user data');
     }, []);
 
     // Compute isPro only after mount to avoid hydration mismatch from Date.now()
