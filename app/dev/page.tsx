@@ -65,6 +65,49 @@ interface UserData {
     last_activity: number;
 }
 
+interface CoverageGaps {
+    platform_gaps: {
+        make: string;
+        platform_code: string;
+        year_start: number;
+        year_end: number;
+        description: string;
+        security_level: string;
+        akl_typical: string;
+        coverage_count: number;
+        gap_status: 'missing' | 'thin' | 'adequate';
+        priority: number;
+    }[];
+    era_gaps: {
+        era_code: string;
+        era_description: string;
+        akl_difficulty: string;
+        coverage_count: number;
+        makes_covered: number;
+    }[];
+    make_gaps: {
+        make: string;
+        total_platforms: number;
+        missing_platforms: number;
+        covered_platforms: number;
+    }[];
+    critical_gaps: {
+        make: string;
+        platform_code: string;
+        year_start: number;
+        year_end: number;
+        security_level: string;
+        akl_typical: string;
+        notes: string;
+        coverage_count: number;
+    }[];
+    summary: {
+        total_platforms: number;
+        missing_coverage: number;
+        thin_coverage: number;
+    };
+}
+
 // Helper to format bytes
 const formatBytes = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -89,14 +132,35 @@ const countryFlag = (code: string) => {
     return String.fromCodePoint(...[...code.toUpperCase()].map(c => c.charCodeAt(0) + offset));
 };
 
-// Action icon helper
+// Activity categories for filtering
+const ACTIVITY_CATEGORIES: Record<string, { label: string; icon: string; actions: string[] }> = {
+    all: { label: 'All', icon: '📋', actions: [] },
+    auth: { label: 'Auth', icon: '🔐', actions: ['sign_in', 'sign_out', 'identify', 'session_start'] },
+    navigation: { label: 'Navigation', icon: '🧭', actions: ['page_view', 'view_vehicle', 'view_fcc', 'scroll_depth'] },
+    search: { label: 'Search', icon: '🔍', actions: ['search', 'vin_lookup'] },
+    business: { label: 'Business', icon: '💼', actions: ['click_affiliate', 'affiliate_click', 'inventory_add', 'log_job', 'add_comment'] },
+    system: { label: 'System', icon: '⚙️', actions: ['engagement', 'error'] },
+};
+
+// Action icon helper (expanded)
 const actionIcon = (action: string) => {
     const icons: Record<string, string> = {
-        'sign_in': '🔑', 'sign_out': '👋', 'search': '🔍', 'view_vehicle': '🚗',
+        'sign_in': '🔑', 'sign_out': '👋', 'identify': '🪪', 'session_start': '🚀',
+        'page_view': '👁️', 'view_vehicle': '🚗', 'view_fcc': '📡', 'scroll_depth': '📜',
+        'search': '🔍', 'vin_lookup': '🔢',
         'click_affiliate': '💰', 'affiliate_click': '💰', 'inventory_add': '📦',
-        'vin_lookup': '🔢', 'add_comment': '💬', 'page_view': '👁️'
+        'log_job': '📝', 'add_comment': '💬',
+        'engagement': '⏱️', 'error': '❌'
     };
-    return icons[action] || '📝';
+    return icons[action] || '📋';
+};
+
+// Get category for an action
+const getActionCategory = (action: string): string => {
+    for (const [category, data] of Object.entries(ACTIVITY_CATEGORIES)) {
+        if (data.actions.includes(action)) return category;
+    }
+    return 'system';
 };
 
 export default function DevPanelPage() {
@@ -110,8 +174,11 @@ export default function DevPanelPage() {
     const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
     const [clickData, setClickData] = useState<ClickData[]>([]);
     const [users, setUsers] = useState<UserData[]>([]);
+    const [coverageGaps, setCoverageGaps] = useState<CoverageGaps | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps'>('overview');
+    const [activityFilter, setActivityFilter] = useState<string>('all');
+    const [expandedActivityId, setExpandedActivityId] = useState<number | null>(null);
 
     const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
@@ -122,13 +189,14 @@ export default function DevPanelPage() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         try {
-            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes] = await Promise.allSettled([
+            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes] = await Promise.allSettled([
                 fetch(`${API_BASE}/api/admin/stats`, { headers }),
                 fetch(`${API_BASE}/api/admin/cloudflare`, { headers }),
                 fetch(`${API_BASE}/api/admin/activity?limit=50`, { headers }),
                 fetch(`${API_BASE}/api/admin/intelligence/inventory`, { headers }),
                 fetch(`${API_BASE}/api/admin/intelligence/clicks`, { headers }),
-                fetch(`${API_BASE}/api/admin/users`, { headers })
+                fetch(`${API_BASE}/api/admin/users`, { headers }),
+                fetch(`${API_BASE}/api/admin/coverage-gaps`, { headers })
             ]);
 
             if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
@@ -153,6 +221,10 @@ export default function DevPanelPage() {
             if (usersRes.status === 'fulfilled' && usersRes.value.ok) {
                 const data = await usersRes.value.json();
                 setUsers(data.users || []);
+            }
+            if (gapsRes.status === 'fulfilled' && gapsRes.value.ok) {
+                const data = await gapsRes.value.json();
+                setCoverageGaps(data);
             }
         } catch (e) {
             console.error('Failed to fetch dev data:', e);
@@ -217,18 +289,19 @@ export default function DevPanelPage() {
 
             {/* Tab Navigation */}
             <div className="mb-6 flex gap-2 border-b border-eurokeys-border pb-2">
-                {(['overview', 'users', 'activity'] as const).map(tab => (
+                {(['overview', 'users', 'activity', 'gaps'] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === tab
-                                ? 'bg-eurokeys-purple/20 text-eurokeys-purple'
-                                : 'text-slate-400 hover:text-slate-200'
+                            ? 'bg-eurokeys-purple/20 text-eurokeys-purple'
+                            : 'text-slate-400 hover:text-slate-200'
                             }`}
                     >
                         {tab === 'overview' && '📊 Overview'}
                         {tab === 'users' && '👥 Users'}
                         {tab === 'activity' && '📋 Activity'}
+                        {tab === 'gaps' && '🔍 Coverage Gaps'}
                     </button>
                 ))}
             </div>
@@ -266,15 +339,18 @@ export default function DevPanelPage() {
                         />
                         <StatCard
                             label="Visitors (24h)"
-                            value={cloudflareStats?.last24h?.visitors || 0}
+                            value={cloudflareStats?.last24h?.visitors != null ? cloudflareStats.last24h.visitors : 'N/A'}
                             icon="👁️"
-                            subtext={cloudflareStats?.last24h ? `${cloudflareStats.last24h.requests.toLocaleString()} requests` : undefined}
+                            subtext={cloudflareStats?.last24h
+                                ? `${cloudflareStats.last24h.requests.toLocaleString()} requests`
+                                : 'Cloudflare not configured'}
                         />
                         <StatCard
                             label="Cache Rate"
-                            value={`${cloudflareStats?.tech?.cacheRate || 0}%`}
+                            value={cloudflareStats?.tech?.cacheRate != null ? `${cloudflareStats.tech.cacheRate}%` : 'N/A'}
                             icon="⚡"
-                            color={parseFloat(cloudflareStats?.tech?.cacheRate || '0') > 80 ? 'green' : 'yellow'}
+                            color={parseFloat(cloudflareStats?.tech?.cacheRate || '0') > 80 ? 'green' : cloudflareStats ? 'yellow' : undefined}
+                            subtext={!cloudflareStats ? 'Cloudflare not configured' : undefined}
                         />
                     </div>
 
@@ -306,7 +382,9 @@ export default function DevPanelPage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-slate-500">No vehicle data available</p>
+                                    <p className="text-sm text-slate-500">
+                                        {cloudflareStats ? 'No vehicle data available' : 'Configure Cloudflare Analytics to see vehicle views'}
+                                    </p>
                                 )}
                             </div>
 
@@ -444,9 +522,9 @@ export default function DevPanelPage() {
                                                 <span
                                                     key={code}
                                                     className={`rounded px-2 py-1 text-xs font-mono ${code === '2xx' ? 'bg-green-500/20 text-green-400' :
-                                                            code === '3xx' ? 'bg-blue-500/20 text-blue-400' :
-                                                                code === '4xx' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                                    'bg-red-500/20 text-red-400'
+                                                        code === '3xx' ? 'bg-blue-500/20 text-blue-400' :
+                                                            code === '4xx' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                                'bg-red-500/20 text-red-400'
                                                         }`}
                                                 >
                                                     {code}: {count?.toLocaleString()}
@@ -529,29 +607,276 @@ export default function DevPanelPage() {
                 </div>
             )}
 
-            {activeTab === 'activity' && (
-                <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
-                    <h2 className="mb-4 text-lg font-semibold text-white">Recent Activity</h2>
-                    <div className="space-y-2">
-                        {activityLogs.map(log => (
-                            <div key={log.id} className="flex items-start gap-3 rounded-lg bg-slate-800/50 p-3">
-                                <span className="text-xl">{actionIcon(log.action)}</span>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="font-medium text-white">{log.action}</span>
-                                        {log.user_name && (
-                                            <span className="text-sm text-slate-400">by {log.user_name}</span>
-                                        )}
-                                    </div>
-                                    {log.details && (
-                                        <p className="mt-1 truncate text-xs text-slate-500 font-mono max-w-lg">{log.details}</p>
+            {activeTab === 'activity' && (() => {
+                // Filter logs by category
+                const filteredLogs = activityFilter === 'all'
+                    ? activityLogs
+                    : activityLogs.filter(log => ACTIVITY_CATEGORIES[activityFilter]?.actions.includes(log.action));
+
+                // Count activities per category
+                const categoryCounts = Object.keys(ACTIVITY_CATEGORIES).reduce((acc, cat) => {
+                    if (cat === 'all') {
+                        acc[cat] = activityLogs.length;
+                    } else {
+                        acc[cat] = activityLogs.filter(log => ACTIVITY_CATEGORIES[cat].actions.includes(log.action)).length;
+                    }
+                    return acc;
+                }, {} as Record<string, number>);
+
+                return (
+                    <div className="space-y-4">
+                        {/* Category Filters */}
+                        <div className="flex flex-wrap gap-2">
+                            {Object.entries(ACTIVITY_CATEGORIES).map(([key, cat]) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setActivityFilter(key)}
+                                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${activityFilter === key
+                                        ? 'bg-eurokeys-purple text-white'
+                                        : 'bg-slate-800/70 text-slate-300 hover:bg-slate-700'
+                                        }`}
+                                >
+                                    <span>{cat.icon}</span>
+                                    <span>{cat.label}</span>
+                                    <span className={`ml-1 rounded-full px-1.5 py-0.5 text-xs ${activityFilter === key
+                                        ? 'bg-white/20 text-white'
+                                        : 'bg-slate-700 text-slate-400'
+                                        }`}>
+                                        {categoryCounts[key] || 0}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Activity List */}
+                        <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-semibold text-white">
+                                    Recent Activity
+                                    {activityFilter !== 'all' && (
+                                        <span className="ml-2 text-sm font-normal text-slate-400">
+                                            ({ACTIVITY_CATEGORIES[activityFilter]?.label})
+                                        </span>
                                     )}
-                                </div>
-                                <span className="text-xs text-slate-500 whitespace-nowrap">{timeAgo(log.created_at)}</span>
+                                </h2>
+                                <span className="text-sm text-slate-500">
+                                    {filteredLogs.length} events
+                                </span>
                             </div>
-                        ))}
-                        {activityLogs.length === 0 && (
-                            <p className="text-sm text-slate-500">No activity logs</p>
+                            <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                                {filteredLogs.map(log => {
+                                    const isExpanded = expandedActivityId === log.id;
+                                    const category = getActionCategory(log.action);
+                                    let parsedDetails: any = null;
+                                    try {
+                                        parsedDetails = log.details ? JSON.parse(log.details) : null;
+                                    } catch {
+                                        parsedDetails = log.details;
+                                    }
+
+                                    return (
+                                        <div
+                                            key={log.id}
+                                            className={`rounded-lg bg-slate-800/50 transition-all ${isExpanded ? 'ring-1 ring-eurokeys-purple/50' : ''}`}
+                                        >
+                                            <button
+                                                onClick={() => setExpandedActivityId(isExpanded ? null : log.id)}
+                                                className="flex items-start gap-3 p-3 w-full text-left"
+                                            >
+                                                <span className="text-xl flex-shrink-0">{actionIcon(log.action)}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="font-medium text-white">{log.action.replace(/_/g, ' ')}</span>
+                                                        <span className={`rounded px-1.5 py-0.5 text-xs ${category === 'auth' ? 'bg-green-500/20 text-green-400' :
+                                                            category === 'navigation' ? 'bg-blue-500/20 text-blue-400' :
+                                                                category === 'search' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                                    category === 'business' ? 'bg-purple-500/20 text-purple-400' :
+                                                                        'bg-slate-500/20 text-slate-400'
+                                                            }`}>
+                                                            {ACTIVITY_CATEGORIES[category]?.label || category}
+                                                        </span>
+                                                        {log.user_name && (
+                                                            <span className="text-sm text-slate-400">by {log.user_name}</span>
+                                                        )}
+                                                    </div>
+                                                    {!isExpanded && log.details && (
+                                                        <p className="mt-1 truncate text-xs text-slate-500 font-mono max-w-lg">
+                                                            {typeof parsedDetails === 'object'
+                                                                ? Object.entries(parsedDetails).slice(0, 3).map(([k, v]) => `${k}: ${v}`).join(', ')
+                                                                : log.details.substring(0, 100)}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-2 flex-shrink-0">
+                                                    <span className="text-xs text-slate-500 whitespace-nowrap">{timeAgo(log.created_at)}</span>
+                                                    <span className={`text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                                                        ▼
+                                                    </span>
+                                                </div>
+                                            </button>
+
+                                            {/* Expanded Details */}
+                                            {isExpanded && (
+                                                <div className="px-3 pb-3 pt-0">
+                                                    <div className="rounded-lg bg-slate-900/70 p-3 space-y-2">
+                                                        <div className="grid grid-cols-2 gap-2 text-xs">
+                                                            <div>
+                                                                <span className="text-slate-500">User ID:</span>
+                                                                <span className="ml-2 font-mono text-slate-300">{log.user_id}</span>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-slate-500">Email:</span>
+                                                                <span className="ml-2 text-slate-300">{log.user_email || 'N/A'}</span>
+                                                            </div>
+                                                            <div className="col-span-2">
+                                                                <span className="text-slate-500">User Agent:</span>
+                                                                <span className="ml-2 font-mono text-slate-400 text-xs break-all">{log.user_agent}</span>
+                                                            </div>
+                                                        </div>
+                                                        {parsedDetails && (
+                                                            <div className="mt-2 pt-2 border-t border-slate-700">
+                                                                <p className="text-xs text-slate-500 mb-1">Details:</p>
+                                                                <pre className="text-xs font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap">
+                                                                    {typeof parsedDetails === 'object'
+                                                                        ? JSON.stringify(parsedDetails, null, 2)
+                                                                        : parsedDetails}
+                                                                </pre>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                                {filteredLogs.length === 0 && (
+                                    <p className="text-sm text-slate-500 py-4 text-center">
+                                        {activityFilter === 'all'
+                                            ? 'No activity logs'
+                                            : `No ${ACTIVITY_CATEGORIES[activityFilter]?.label.toLowerCase()} activity`}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {activeTab === 'gaps' && (
+                <div className="space-y-6">
+                    {/* Summary Stats */}
+                    <div className="grid gap-4 sm:grid-cols-3">
+                        <StatCard
+                            label="Total Platforms"
+                            value={coverageGaps?.summary?.total_platforms || 0}
+                            icon="📦"
+                        />
+                        <StatCard
+                            label="Missing Coverage"
+                            value={coverageGaps?.summary?.missing_coverage || 0}
+                            icon="❌"
+                            color="red"
+                        />
+                        <StatCard
+                            label="Thin Coverage"
+                            value={coverageGaps?.summary?.thin_coverage || 0}
+                            icon="⚠️"
+                            color="yellow"
+                        />
+                    </div>
+
+                    {/* Critical Gaps - Priority */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+                            🚨 Critical Gaps (High Security, Low Coverage)
+                        </h2>
+                        {coverageGaps?.critical_gaps?.length ? (
+                            <div className="space-y-2">
+                                {coverageGaps.critical_gaps.map((g, i) => (
+                                    <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 px-4 py-3">
+                                        <div>
+                                            <p className="font-medium text-white capitalize">
+                                                {g.make} • {g.platform_code}
+                                            </p>
+                                            <p className="text-xs text-slate-500">
+                                                {g.year_start}–{g.year_end} • Security: {g.security_level} • AKL: {g.akl_typical}
+                                            </p>
+                                            {g.notes && (
+                                                <p className="text-xs text-slate-400 mt-1">{g.notes}</p>
+                                            )}
+                                        </div>
+                                        <span className={`rounded-full px-3 py-1 text-xs font-medium ${g.coverage_count === 0
+                                            ? 'bg-red-500/20 text-red-400'
+                                            : 'bg-yellow-500/20 text-yellow-400'
+                                            }`}>
+                                            {g.coverage_count} records
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-500">No critical gaps found</p>
+                        )}
+                    </div>
+
+                    {/* Makes with Gaps */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+                            🏭 Coverage by Make
+                        </h2>
+                        {coverageGaps?.make_gaps?.length ? (
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {coverageGaps.make_gaps.map((m, i) => (
+                                    <div key={i} className="rounded-lg border border-eurokeys-border bg-slate-800/30 p-3">
+                                        <p className="font-medium text-white capitalize mb-2">{m.make}</p>
+                                        <div className="flex justify-between text-xs text-slate-400">
+                                            <span>Platforms: {m.total_platforms}</span>
+                                            <span className="text-green-400">✓ {m.covered_platforms}</span>
+                                            <span className="text-red-400">✗ {m.missing_platforms}</span>
+                                        </div>
+                                        <div className="mt-2 h-1.5 rounded-full bg-slate-700 overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full bg-gradient-to-r from-green-500 to-eurokeys-purple"
+                                                style={{ width: `${(m.covered_platforms / m.total_platforms) * 100}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-500">No make data available</p>
+                        )}
+                    </div>
+
+                    {/* Era Breakdown */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+                            📅 Coverage by Era
+                        </h2>
+                        {coverageGaps?.era_gaps?.length ? (
+                            <div className="space-y-3">
+                                {coverageGaps.era_gaps.map((e, i) => (
+                                    <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 px-4 py-3">
+                                        <div>
+                                            <p className="font-medium text-white">{e.era_description}</p>
+                                            <p className="text-xs text-slate-500">
+                                                AKL Difficulty: <span className={
+                                                    e.akl_difficulty === 'low' ? 'text-green-400' :
+                                                        e.akl_difficulty === 'medium' ? 'text-yellow-400' :
+                                                            e.akl_difficulty === 'high' ? 'text-orange-400' :
+                                                                'text-red-400'
+                                                }>{e.akl_difficulty}</span>
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-lg font-bold text-eurokeys-purple">{e.coverage_count}</p>
+                                            <p className="text-xs text-slate-500">{e.makes_covered} makes</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-500">No era data available</p>
                         )}
                     </div>
                 </div>
@@ -599,8 +924,8 @@ function StatCard({ label, value, icon, trend, subtext, color }: {
                 )}
             </div>
             <p className={`mt-2 text-2xl font-bold ${color === 'green' ? 'text-green-400' :
-                    color === 'yellow' ? 'text-yellow-400' :
-                        color === 'red' ? 'text-red-400' : 'text-white'
+                color === 'yellow' ? 'text-yellow-400' :
+                    color === 'red' ? 'text-red-400' : 'text-white'
                 }`}>
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </p>

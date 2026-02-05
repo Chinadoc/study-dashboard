@@ -6086,6 +6086,110 @@ Guidelines:
         }
       }
 
+      // Admin: Coverage Gaps Analysis (developer only)
+      if (path === "/api/admin/coverage-gaps") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          // 1. Platform coverage gaps: platforms in glossary with thin or no coverage
+          const platformGaps = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              ps.make,
+              ps.platform_code,
+              ps.year_start,
+              ps.year_end,
+              ps.description,
+              ps.security_level,
+              ps.akl_typical,
+              COUNT(vc.id) as coverage_count,
+              CASE 
+                WHEN COUNT(vc.id) = 0 THEN 'missing'
+                WHEN COUNT(vc.id) < 3 THEN 'thin'
+                ELSE 'adequate'
+              END as gap_status,
+              CASE 
+                WHEN ps.security_level = 'critical' THEN 1
+                WHEN ps.security_level = 'high' THEN 2
+                WHEN COUNT(vc.id) = 0 THEN 1
+                ELSE 3
+              END as priority
+            FROM platform_security ps
+            LEFT JOIN vehicle_coverage vc ON vc.platform = ps.platform_code
+            GROUP BY ps.make, ps.platform_code
+            ORDER BY priority ASC, coverage_count ASC
+            LIMIT 50
+          `).all();
+
+          // 2. Era-based gaps: vehicles by era with low coverage
+          const eraGaps = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              se.era_code,
+              se.description as era_description,
+              se.akl_difficulty,
+              COUNT(vc.id) as coverage_count,
+              COUNT(DISTINCT vc.make) as makes_covered
+            FROM security_eras se
+            LEFT JOIN vehicle_coverage vc ON vc.year_start >= se.year_start AND vc.year_start <= se.year_end
+            GROUP BY se.era_code
+            ORDER BY se.year_start DESC
+          `).all();
+
+          // 3. Makes with coverage gaps (platforms exist but no coverage)
+          const makeGaps = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              ps.make,
+              COUNT(DISTINCT ps.platform_code) as total_platforms,
+              SUM(CASE WHEN vc.id IS NULL THEN 1 ELSE 0 END) as missing_platforms,
+              SUM(CASE WHEN vc.id IS NOT NULL THEN 1 ELSE 0 END) as covered_platforms
+            FROM platform_security ps
+            LEFT JOIN vehicle_coverage vc ON vc.platform = ps.platform_code
+            GROUP BY ps.make
+            ORDER BY missing_platforms DESC
+          `).all();
+
+          // 4. Critical platforms (high security, no/thin coverage)
+          const criticalGaps = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              ps.make,
+              ps.platform_code,
+              ps.year_start,
+              ps.year_end,
+              ps.security_level,
+              ps.akl_typical,
+              ps.notes,
+              COUNT(vc.id) as coverage_count
+            FROM platform_security ps
+            LEFT JOIN vehicle_coverage vc ON vc.platform = ps.platform_code
+            WHERE ps.security_level IN ('critical', 'high')
+            GROUP BY ps.make, ps.platform_code
+            HAVING coverage_count < 3
+            ORDER BY ps.security_level DESC, coverage_count ASC
+            LIMIT 20
+          `).all();
+
+          return corsResponse(request, JSON.stringify({
+            platform_gaps: platformGaps.results || [],
+            era_gaps: eraGaps.results || [],
+            make_gaps: makeGaps.results || [],
+            critical_gaps: criticalGaps.results || [],
+            summary: {
+              total_platforms: (platformGaps.results || []).length,
+              missing_coverage: (platformGaps.results || []).filter((p: any) => p.gap_status === 'missing').length,
+              thin_coverage: (platformGaps.results || []).filter((p: any) => p.gap_status === 'thin').length
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // Admin: Intelligence - Inventory Aggregation
       if (path === "/api/admin/intelligence/inventory") {
         try {
@@ -7980,26 +8084,26 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const params: (string | number)[] = [];
 
           if (make) {
-            conditions.push("LOWER(make) = ?");
+            conditions.push("LOWER(vc.make) = ?");
             params.push(make);
           }
           if (model) {
-            conditions.push("LOWER(model) LIKE ?");
+            conditions.push("LOWER(vc.model) LIKE ?");
             params.push(`%${model}%`);
           }
           if (tool) {
-            conditions.push("tool_family = ?");
+            conditions.push("vc.tool_family = ?");
             params.push(tool);
           }
           if (yearParam) {
             const y = parseInt(yearParam, 10);
             if (!Number.isNaN(y)) {
-              conditions.push("year_start <= ? AND year_end >= ?");
+              conditions.push("vc.year_start <= ? AND vc.year_end >= ?");
               params.push(y, y);
             }
           }
           if (chip) {
-            conditions.push("chips LIKE ?");
+            conditions.push("vc.chips LIKE ?");
             params.push(`%${chip}%`);
           }
 
@@ -8007,14 +8111,29 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           const sql = `
             SELECT 
-              id, vehicle_id, make, model, year_start, year_end,
-              tool_family, status, confidence, limitations, cables,
-              platform, chips, chip_registry_ids,
-              source, dossier_mentions, flags, notes,
-              created_at, updated_at
-            FROM vehicle_coverage
+              vc.id, vc.vehicle_id, vc.make, vc.model, vc.year_start, vc.year_end,
+              vc.tool_family, vc.status, vc.confidence, vc.limitations, vc.cables,
+              vc.platform, vc.chips, vc.chip_registry_ids,
+              vc.source, vc.dossier_mentions, vc.flags, vc.notes,
+              vc.created_at, vc.updated_at,
+              -- Derive capabilities from platform_security or security_eras
+              COALESCE(vc.add_key_supported, ps.obd_typical, se.obd_default, 1) as add_key_supported,
+              COALESCE(vc.akl_supported, 
+                CASE ps.akl_typical WHEN 'yes' THEN 1 WHEN 'partial' THEN 0 WHEN 'no' THEN 0 ELSE NULL END,
+                CASE se.akl_difficulty WHEN 'low' THEN 1 WHEN 'medium' THEN 1 WHEN 'high' THEN 0 WHEN 'critical' THEN 0 ELSE NULL END,
+                1) as akl_supported,
+              COALESCE(vc.bench_required, ps.bench_typical, se.bench_default, 0) as bench_required,
+              COALESCE(vc.obd_supported, ps.obd_typical, se.obd_default, 1) as obd_supported,
+              COALESCE(ps.sgw_required, 0) as sgw_required,
+              COALESCE(ps.can_fd_required, 0) as can_fd_required,
+              ps.akl_typical, ps.security_level as platform_security_level,
+              se.era_code, se.akl_difficulty
+            FROM vehicle_coverage vc
+            LEFT JOIN platform_security ps ON vc.platform = ps.platform_code 
+              AND LOWER(vc.make) LIKE ps.make || '%'
+            LEFT JOIN security_eras se ON vc.year_start >= se.year_start AND vc.year_start <= se.year_end
             ${whereClause}
-            ORDER BY make, model, year_start, tool_family
+            ORDER BY vc.make, vc.model, vc.year_start, vc.tool_family
             LIMIT ?
           `;
 
