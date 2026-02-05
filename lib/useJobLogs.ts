@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
     getDeviceId,
     getSyncState,
@@ -15,6 +15,7 @@ import {
 } from './syncQueue';
 import { syncEvents } from './syncEvents';
 import { addChecksum, findCorruptedItems } from './checksum';
+import { getUserScopedKey, getCurrentUserId } from './sync/syncUtils';
 
 // API base URL - use environment variable or default to production
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
@@ -162,6 +163,9 @@ export function useJobLogs() {
     const hasSyncedRef = useRef(false);
     const isSyncingRef = useRef(false);
 
+    // User-scoped storage key prevents data contamination between accounts
+    const effectiveStorageKey = useMemo(() => getUserScopedKey(STORAGE_KEY), []);
+
     // Normalize job to ensure required fields exist (defensive against malformed cloud data)
     const normalizeJob = useCallback((job: Partial<JobLog>): JobLog => {
         return {
@@ -283,7 +287,7 @@ export function useJobLogs() {
         const allJobs = getJobLogsFromStorage();
         const updated = allJobs.filter(j => !resolutions.some(r => r.id === j.id));
         const final = [...resolved, ...updated];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(final));
+        localStorage.setItem(effectiveStorageKey, JSON.stringify(final));
 
         // Sync pending ones to cloud
         const pending = resolved.filter(j => j.syncStatus === 'pending');
@@ -373,7 +377,7 @@ export function useJobLogs() {
             // 1. Load local jobs first (instant UI)
             let localJobs: JobLog[] = [];
             try {
-                const saved = localStorage.getItem(STORAGE_KEY);
+                const saved = localStorage.getItem(effectiveStorageKey);
                 if (saved) {
                     localJobs = JSON.parse(saved);
                     setJobLogs(localJobs);
@@ -409,7 +413,7 @@ export function useJobLogs() {
                     const merged = mergeJobs(localJobs, cloudJobs);
 
                     setJobLogs(merged);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+                    localStorage.setItem(effectiveStorageKey, JSON.stringify(merged));
 
                     // 4. Find local-only jobs that need to sync
                     const cloudIds = new Set(cloudJobs.map(j => j.id));
@@ -434,7 +438,7 @@ export function useJobLogs() {
                             syncedAt: Date.now()
                         }));
                         setJobLogs(synced);
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+                        localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
                     }
 
                     hasSyncedRef.current = true;
@@ -527,7 +531,7 @@ export function useJobLogs() {
         } else {
             current.unshift(jobWithChecksum);
         }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+        localStorage.setItem(effectiveStorageKey, JSON.stringify(current));
         updateSyncState({ lastLocalModified: Date.now() });
 
         // Save to cloud if authenticated and online
@@ -542,7 +546,7 @@ export function useJobLogs() {
                 const synced = current.map(j =>
                     j.id === job.id ? { ...j, syncStatus: 'synced' as const, syncedAt: Date.now() } : j
                 );
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+                localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
                 updateSyncState({ lastCloudSync: Date.now() });
                 setSyncStatus('synced');
             } catch (e) {
@@ -598,7 +602,7 @@ export function useJobLogs() {
 
         // Remove from localStorage
         const updated = originalJobs.filter(j => j.id !== id);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        localStorage.setItem(effectiveStorageKey, JSON.stringify(updated));
         updateSyncState({ lastLocalModified: Date.now() });
 
         // Rollback function
@@ -606,7 +610,7 @@ export function useJobLogs() {
             if (deletedJob) {
                 const current = getJobLogsFromStorage();
                 current.unshift(deletedJob);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+                localStorage.setItem(effectiveStorageKey, JSON.stringify(current));
                 setJobLogs(prev => [deletedJob, ...prev]);
             }
         };
@@ -841,7 +845,7 @@ export function useJobLogs() {
                 const data = await apiRequest('/api/jobs');
                 if (data?.jobs) {
                     setJobLogs(data.jobs);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.jobs));
+                    localStorage.setItem(effectiveStorageKey, JSON.stringify(data.jobs));
                     updateSyncState({ lastCloudSync: data.serverTime || Date.now() });
                 }
                 setSyncStatus('synced');
@@ -870,7 +874,7 @@ export function useJobLogs() {
                 syncedAt: Date.now()
             }));
             setJobLogs(synced);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+            localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
 
             // Update sync state
             updateSyncState({
@@ -912,7 +916,9 @@ export function useJobLogs() {
 export function getJobLogsFromStorage(): JobLog[] {
     if (typeof window === 'undefined') return [];
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        // Use user-scoped key for data isolation between accounts
+        const key = getUserScopedKey(STORAGE_KEY);
+        const saved = localStorage.getItem(key);
         return saved ? JSON.parse(saved) : [];
     } catch {
         return [];
@@ -927,6 +933,8 @@ export function addJobLogToStorage(log: Omit<JobLog, 'id' | 'createdAt'>): JobLo
     };
     const logs = getJobLogsFromStorage();
     logs.unshift(newLog);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+    // Use user-scoped key for data isolation between accounts
+    const key = getUserScopedKey(STORAGE_KEY);
+    localStorage.setItem(key, JSON.stringify(logs));
     return newLog;
 }

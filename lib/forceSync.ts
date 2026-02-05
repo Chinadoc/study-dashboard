@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { API_BASE } from './config';
+import { getUserScopedKey } from './sync/syncUtils';
 
 // ============================================================================
 // Force Sync All Data
@@ -16,7 +17,7 @@ interface SyncResult {
     error?: string;
 }
 
-// Storage keys for each data type
+// Storage keys for each data type (base keys - will be user-scoped)
 const STORAGE_KEYS = {
     jobs: 'eurokeys_job_logs',
     leads: 'eurokeys_pipeline_leads',
@@ -29,6 +30,11 @@ const STORAGE_KEYS = {
 function getAuthToken(): string | null {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('session_token') || localStorage.getItem('auth_token');
+}
+
+// Get user-scoped storage key
+function getScopedKey(baseKey: string): string {
+    return getUserScopedKey(baseKey);
 }
 
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
@@ -62,7 +68,7 @@ async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<
 async function syncJobs(): Promise<SyncResult> {
     const dataType = 'jobs';
     try {
-        const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.jobs) || '[]');
+        const local = JSON.parse(localStorage.getItem(getScopedKey(STORAGE_KEYS.jobs)) || '[]');
         if (local.length === 0) return { dataType, success: true, synced: 0 };
 
         // Filter to only actual jobs (not inventory items that were incorrectly stored)
@@ -83,7 +89,7 @@ async function syncJobs(): Promise<SyncResult> {
         if (result?.success) {
             // Mark as synced
             const synced = actualJobs.map((j: any) => ({ ...j, syncStatus: 'synced', syncedAt: Date.now() }));
-            localStorage.setItem(STORAGE_KEYS.jobs, JSON.stringify(synced));
+            localStorage.setItem(getScopedKey(STORAGE_KEYS.jobs), JSON.stringify(synced));
             return { dataType, success: true, synced: result.synced };
         }
         return { dataType, success: false, synced: 0, error: result?.error || 'Unknown error' };
@@ -96,7 +102,7 @@ async function syncJobs(): Promise<SyncResult> {
 async function syncLeads(): Promise<SyncResult> {
     const dataType = 'leads';
     try {
-        const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.leads) || '[]');
+        const local = JSON.parse(localStorage.getItem(getScopedKey(STORAGE_KEYS.leads)) || '[]');
         if (local.length === 0) return { dataType, success: true, synced: 0 };
 
         console.log(`[ForceSync] Syncing ${local.length} leads...`);
@@ -118,7 +124,7 @@ async function syncLeads(): Promise<SyncResult> {
 async function syncInvoices(): Promise<SyncResult> {
     const dataType = 'invoices';
     try {
-        const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.invoices) || '[]');
+        const local = JSON.parse(localStorage.getItem(getScopedKey(STORAGE_KEYS.invoices)) || '[]');
         if (local.length === 0) return { dataType, success: true, synced: 0 };
 
         console.log(`[ForceSync] Syncing ${local.length} invoices...`);
@@ -140,7 +146,7 @@ async function syncInvoices(): Promise<SyncResult> {
 async function syncTechnicians(): Promise<SyncResult> {
     const dataType = 'technicians';
     try {
-        const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.technicians) || '[]');
+        const local = JSON.parse(localStorage.getItem(getScopedKey(STORAGE_KEYS.technicians)) || '[]');
         if (local.length === 0) return { dataType, success: true, synced: 0 };
 
         console.log(`[ForceSync] Syncing ${local.length} technicians...`);
@@ -162,7 +168,7 @@ async function syncTechnicians(): Promise<SyncResult> {
 async function syncFleets(): Promise<SyncResult> {
     const dataType = 'fleets';
     try {
-        const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.fleets) || '[]');
+        const local = JSON.parse(localStorage.getItem(getScopedKey(STORAGE_KEYS.fleets)) || '[]');
         if (local.length === 0) return { dataType, success: true, synced: 0 };
 
         console.log(`[ForceSync] Syncing ${local.length} fleet customers...`);

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { API_BASE } from '@/lib/config';
 import { useAuth } from '@/contexts/AuthContext';
+import { getUserScopedKey } from '@/lib/sync/syncUtils';
 
 // ============================================================================
 // Types
@@ -73,7 +74,8 @@ const InventoryContext = createContext<InventoryContextType | undefined>(undefin
 function getInventoryFromStorage(): InventoryItem[] {
     if (typeof window === 'undefined') return [];
     try {
-        return JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
+        const key = getUserScopedKey(INVENTORY_KEY);
+        return JSON.parse(localStorage.getItem(key) || '[]');
     } catch {
         return [];
     }
@@ -81,7 +83,8 @@ function getInventoryFromStorage(): InventoryItem[] {
 
 function saveInventoryToStorage(items: InventoryItem[]) {
     if (typeof window === 'undefined') return;
-    localStorage.setItem(INVENTORY_KEY, JSON.stringify(items));
+    const key = getUserScopedKey(INVENTORY_KEY);
+    localStorage.setItem(key, JSON.stringify(items));
 }
 
 // ============================================================================

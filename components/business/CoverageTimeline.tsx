@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { loadBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
 import vehicleCoverageData from '@/src/data/unified_vehicle_coverage.json';
+import { getUserScopedKey } from '@/lib/sync/syncUtils';
 
 // Unified coverage data with rich limitation/cable/flag data
 interface ToolCoverageDetail {
@@ -97,7 +98,7 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
             setOwnedToolIds(profile.tools || []);
 
             // Load key inventory and parse vehicle associations
-            const inventoryRaw = localStorage.getItem('eurokeys_inventory');
+            const inventoryRaw = localStorage.getItem(getUserScopedKey('eurokeys_inventory'));
             if (inventoryRaw) {
                 try {
                     const inventory = JSON.parse(inventoryRaw);
