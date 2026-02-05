@@ -24,7 +24,8 @@ import {
     saveToStorage,
     mergeRecords,
     getSyncState,
-    updateSyncState
+    updateSyncState,
+    getUserScopedKey
 } from './syncUtils';
 
 /**
@@ -61,12 +62,15 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
         const hasSyncedRef = useRef(false);
         const isMountedRef = useRef(true);
 
+        // Use user-scoped storage key to prevent data contamination between accounts
+        const effectiveStorageKey = useMemo(() => getUserScopedKey(storageKey), [storageKey]);
+
         // Load and sync data
         const loadData = useCallback(async (forceFull = false) => {
             if (!isMountedRef.current) return;
 
-            // Load from localStorage first
-            const { items: localItems, needsMigration, lastSync } = loadFromStorage<T>(storageKey, schemaVersion);
+            // Load from localStorage first (using user-scoped key)
+            const { items: localItems, needsMigration, lastSync } = loadFromStorage<T>(effectiveStorageKey, schemaVersion);
 
             if (localItems.length > 0) {
                 setItems(localItems);
@@ -114,7 +118,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
 
                     setItems(merged);
                     setConflicts(newConflicts.map(c => ({ ...c, resolution: undefined })));
-                    saveToStorage(storageKey, merged, schemaVersion);
+                    saveToStorage(effectiveStorageKey, merged, schemaVersion);
 
                     // Sync local-only items to cloud
                     const pendingItems = merged.filter(item => item.syncStatus === 'pending');
@@ -144,7 +148,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
                                 syncedAt: Date.now()
                             }));
                             setItems(synced);
-                            saveToStorage(storageKey, synced, schemaVersion);
+                            saveToStorage(effectiveStorageKey, synced, schemaVersion);
                         }
                     }
 
@@ -165,7 +169,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
             }
 
             setLoading(false);
-        }, [storageKey, apiEndpoint, syncEndpoint, schemaVersion, mergeStrategy, idField, enableDeltaSync, transformApi]);
+        }, [effectiveStorageKey, apiEndpoint, syncEndpoint, schemaVersion, mergeStrategy, idField, enableDeltaSync, transformApi]);
 
         // Initial load
         useEffect(() => {
@@ -204,7 +208,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
                 document.removeEventListener('visibilitychange', handleVisibilityChange);
                 window.removeEventListener('focus', handleFocus);
             };
-        }, [loadData, storageKey]);
+        }, [loadData, effectiveStorageKey]);
 
         // Connectivity handlers
         useEffect(() => {
@@ -240,7 +244,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
 
             setItems(prev => {
                 const updated = [transformed, ...prev];
-                saveToStorage(storageKey, updated, schemaVersion);
+                saveToStorage(effectiveStorageKey, updated, schemaVersion);
                 return updated;
             });
 
@@ -258,7 +262,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
                                     ? { ...item, syncStatus: 'synced' as const, syncedAt: Date.now() }
                                     : item
                             );
-                            saveToStorage(storageKey, synced, schemaVersion);
+                            saveToStorage(effectiveStorageKey, synced, schemaVersion);
                             return synced;
                         });
                     }
@@ -266,7 +270,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
             }
 
             return transformed;
-        }, [storageKey, apiEndpoint, schemaVersion, idField, validate, transformLocal, transformApi]);
+        }, [effectiveStorageKey, apiEndpoint, schemaVersion, idField, validate, transformLocal, transformApi]);
 
         // Update item
         const update = useCallback((id: string, updates: Partial<T>): void => {
@@ -278,7 +282,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
                         ? { ...item, ...updates, updatedAt: now, syncStatus: 'pending' as const }
                         : item
                 );
-                saveToStorage(storageKey, updated, schemaVersion);
+                saveToStorage(effectiveStorageKey, updated, schemaVersion);
 
                 // Sync to cloud
                 const updatedItem = updated.find(item => String(item[idField]) === id);
@@ -292,13 +296,13 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
 
                 return updated;
             });
-        }, [storageKey, apiEndpoint, schemaVersion, idField, transformApi]);
+        }, [effectiveStorageKey, apiEndpoint, schemaVersion, idField, transformApi]);
 
         // Remove item
         const remove = useCallback((id: string): void => {
             setItems(prev => {
                 const updated = prev.filter(item => String(item[idField]) !== id);
-                saveToStorage(storageKey, updated, schemaVersion);
+                saveToStorage(effectiveStorageKey, updated, schemaVersion);
                 return updated;
             });
 
@@ -306,7 +310,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
             if (isAuthenticated() && isOnline()) {
                 apiRequest(`${apiEndpoint}?id=${id}`, { method: 'DELETE' }).catch(console.error);
             }
-        }, [storageKey, apiEndpoint, schemaVersion, idField]);
+        }, [effectiveStorageKey, apiEndpoint, schemaVersion, idField]);
 
         // Force full sync
         const forceFullSync = useCallback(async (): Promise<SyncResult<T>> => {
@@ -342,7 +346,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
                         ? { ...resolvedItem, syncStatus: 'pending' as const, updatedAt: Date.now() }
                         : item
                 );
-                saveToStorage(storageKey, updated, schemaVersion);
+                saveToStorage(effectiveStorageKey, updated, schemaVersion);
                 return updated;
             });
 
@@ -355,7 +359,7 @@ export function createSyncHook<T extends SyncableRecord>(config: SyncConfig<T>) 
                     body: JSON.stringify(resolvedItem),
                 }).catch(console.error);
             }
-        }, [conflicts, storageKey, apiEndpoint, schemaVersion, idField]);
+        }, [conflicts, effectiveStorageKey, apiEndpoint, schemaVersion, idField]);
 
         // Get by ID
         const getById = useCallback((id: string): T | undefined => {

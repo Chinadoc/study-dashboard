@@ -18,6 +18,32 @@ export function isAuthenticated(): boolean {
     return !!getAuthToken();
 }
 
+// Get current user ID from cached user data
+export function getCurrentUserId(): string | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        const userStr = localStorage.getItem('eurokeys_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            return user.id || user.sub || null;
+        }
+    } catch {
+        return null;
+    }
+    return null;
+}
+
+// Generate a user-scoped storage key (enables multi-account support on same device)
+export function getUserScopedKey(baseKey: string): string {
+    const userId = getCurrentUserId();
+    if (userId) {
+        // Use first 8 chars of user ID to keep key length reasonable
+        return `${baseKey}_${userId.slice(0, 8)}`;
+    }
+    // Fallback to base key if not logged in
+    return baseKey;
+}
+
 // ============================================================================
 // Device ID
 // ============================================================================
