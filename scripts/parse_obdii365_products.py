@@ -23,6 +23,17 @@ class VehicleSupport:
 
 
 @dataclass
+class TechnicalSpecs:
+    """Structured technical specifications extracted from product."""
+    chips: List[str]  # PCF79XX, NEC24C64, ID46, etc.
+    immo_modules: List[str]  # BDC2, BDC3, CAS1-4, FEM, etc.
+    protocols: List[str]  # CAN-FD, DoIP, K-LINE, etc.
+    compatible_tools: List[str]  # IM508, XP400, VVDI2, etc.
+    functions: List[str]  # key programming, EEPROM read, etc.
+    keyways: List[str]  # HU92, HU66, etc.
+
+
+@dataclass
 class ParsedProduct:
     sku: str
     name: str
@@ -34,6 +45,7 @@ class ParsedProduct:
     keywords: List[str]
     product_tags: List[str]
     vehicle_support: List[Dict]
+    technical_specs: Dict  # TechnicalSpecs as dict
     locksmith_relevance: str  # high, medium, low
     locksmith_categories: List[str]
     url: str
@@ -106,6 +118,115 @@ class OBDII365Parser:
         "Land Rover", "Jaguar", "Range Rover", "Ferrari", "Lamborghini",
         "Bentley", "Rolls-Royce", "Maserati", "Aston Martin",
     ]
+    
+    # Chip/transponder patterns to extract
+    CHIP_PATTERNS = [
+        # PCF series
+        r'PCF79[0-9A-Z]{2,4}',
+        r'PCF7935', r'PCF7936', r'PCF7939', r'PCF7941', r'PCF7945', r'PCF7952', r'PCF7953',
+        # NEC chips
+        r'NEC24C(?:32|64|128|256)',
+        r'NEC35XX',
+        # ID chips
+        r'ID(?:46|47|48|49|4A|4D|4E|8A|8C|8E)',
+        r'ID\s*(?:46|47|48|49|4A|4D|4E|8A|8C|8E)',
+        # Hitag series
+        r'HITAG[- ]?(?:2|3|PRO)',
+        # Megamos
+        r'MEGAMOS(?:[- ]?(?:48|AES|CRYPTO))?',
+        # Toyota/Lexus
+        r'(?:4D|8A)[- ]?(?:67|68|70|71|72|80)',
+        r'H[- ]?CHIP',
+        r'G[- ]?CHIP',
+        # DST series
+        r'DST(?:40|80|AES)',
+        # Texas
+        r'TI[- ]?(?:DST|CRYPTO)',
+        # Generic transponder mentions
+        r'(?:46|47|48|4D|8A)[- ]?(?:CHIP|TRANSPONDER)',
+    ]
+    
+    # IMMO module patterns
+    IMMO_MODULE_PATTERNS = [
+        # BMW
+        r'BDC[- ]?[234]?', r'FEM', r'CAS[- ]?[1234]', r'EWS[- ]?[234]',
+        # Mercedes
+        r'EIS', r'ESL', r'EZS', r'FBS[- ]?[34]',
+        # VAG
+        r'IMMO[- ]?(?:I{1,5}|[1-5])', r'MQB', r'MLB', r'NEC[- ]?(?:\+|PLUS)?', r'BCM2',
+        # General
+        r'(?:SMART|KEY)[- ]?ECU', r'KESSY', r'KEYLESS[- ]?(?:GO|ENTRY)',
+        # Land Rover/Jaguar
+        r'KVM', r'RFA',
+        # GM
+        r'BCM', r'TPMS',
+        # Toyota
+        r'SMART[- ]?BOX', r'IMMO[- ]?BOX',
+    ]
+    
+    # Protocol patterns
+    PROTOCOL_PATTERNS = [
+        r'CAN[- ]?FD', r'DOIP', r'DO[- ]?IP', r'UDS',
+        r'K[- ]?LINE', r'J2534', r'PASS[- ]?THRU',
+        r'OBD[- ]?II?', r'EOBD', r'JOBD',
+        r'CAN[- ]?BUS', r'LIN[- ]?BUS', r'MOST',
+        r'JTAG', r'BDM', r'SWD',
+    ]
+    
+    # Compatible tool patterns  
+    TOOL_PATTERNS = [
+        # Autel
+        r'IM(?:508|608|108|508S|608S|608[- ]?PRO[- ]?(?:II|2)?)',
+        r'XP400[- ]?(?:PRO)?', r'APB\d{3}', r'G[- ]?BOX[- ]?[23]?',
+        # OBDSTAR
+        r'X300[- ]?(?:DP[- ]?PLUS|PRO[- ]?4|CLASSIC|PAD)?',
+        r'X100[- ]?(?:PRO|PAD)?', r'P001', r'P002', r'Key[- ]?Master',
+        # Xhorse
+        r'VVDI[- ]?(?:2|MB|BMW|PROG|KEY[- ]?TOOL|MINI|BIM)',
+        r'MINI[- ]?(?:PROG|KEY[- ]?TOOL|OBD)',
+        r'KEY[- ]?TOOL[- ]?(?:MAX|PLUS|PAD)?',
+        r'DOLPHIN', r'CONDOR',
+        # Lonsdor
+        r'K518[- ]?(?:ISE|PRO|S)?', r'KH100',
+        # CGDI
+        r'CGDI[- ]?(?:MB|BMW|PROG|PRO)',
+        r'CG[- ]?PRO', r'CG100',
+        # Others
+        r'AVDI', r'ABRITES', r'FVDI', r'SVCI',
+        r'YANHUA[- ]?(?:MINI|ACDP)', r'ACDP[- ]?(?:MINI|2)?',
+        r'GODIAG[- ]?(?:GT100|GD801)',
+        r'LAUNCH[- ]?X431',
+        r'XTOOL[- ]?(?:X100|PAD|PS)',
+    ]
+    
+    # Function patterns
+    FUNCTION_PATTERNS = [
+        r'KEY[- ]?(?:PROGRAMMING|LEARNING|GENERATION|COPY|CLONE|ADD)',
+        r'ALL[- ]?KEY[S]?[- ]?LOST', r'AKL',
+        r'EEPROM[- ]?(?:READ|WRITE|DUMP)',
+        r'MCU[- ]?(?:READ|WRITE|CLONE)',
+        r'ECU[- ]?(?:CLONE|READ|WRITE|RESET|VIRGINIZE)',
+        r'IMMO[- ]?(?:OFF|BYPASS|DELETE|RESET)',
+        r'PIN[- ]?(?:CODE|READ)', r'CS[- ]?READ',
+        r'REMOTE[- ]?(?:LEARNING|PROGRAMMING|RENEW)',
+        r'TRANSPONDER[- ]?(?:COPY|CLONE|READ|WRITE)',
+        r'ODOMETER[- ]?(?:CORRECTION|ADJUST)',
+        r'MILEAGE[- ]?(?:CORRECTION|ADJUST|RESET)',
+        r'AIRBAG[- ]?RESET', r'SRS[- ]?RESET',
+        r'DPF[- ]?(?:REGEN|RESET)', r'EPB[- ]?(?:RESET|SERVICE)',
+        r'CODING', r'ADAPTATION', r'VIRGIN(?:IZE)?',
+    ]
+    
+    # Keyway patterns (Lishi tools)
+    KEYWAY_PATTERNS = [
+        r'HU(?:58|64|66|83|87|92|100|101|162[RT]?|198)',
+        r'TOY(?:38R|40|43|43AT|48|51)',
+        r'HON(?:58R|66|70)',
+        r'NSN14', r'DAT17', r'VA2[RT]?', r'NE72',
+        r'HY(?:20|22)R?', r'KIA3R?', r'MIT8',
+        r'FO(?:21|38)', r'MAZ24R?',
+        r'SIP22', r'GT15', r'WT47T',
+    ]
 
     def __init__(self, html_dir: Path, output_dir: Path):
         self.html_dir = html_dir
@@ -120,6 +241,9 @@ class OBDII365Parser:
             "medium_relevance": 0,
             "low_relevance": 0,
             "with_vehicle_data": 0,
+            "with_chip_data": 0,
+            "with_module_data": 0,
+            "with_tool_compat": 0,
         }
 
     def parse_all(self) -> List[ParsedProduct]:
@@ -142,6 +266,14 @@ class OBDII365Parser:
                     self.stats[f"{product.locksmith_relevance}_relevance"] += 1
                     if product.vehicle_support:
                         self.stats["with_vehicle_data"] += 1
+                    # Track technical specs
+                    specs = product.technical_specs
+                    if specs.get('chips'):
+                        self.stats["with_chip_data"] += 1
+                    if specs.get('immo_modules'):
+                        self.stats["with_module_data"] += 1
+                    if specs.get('compatible_tools'):
+                        self.stats["with_tool_compat"] += 1
             except Exception as e:
                 self.stats["parse_errors"] += 1
                 self.errors.append({
@@ -185,6 +317,9 @@ class OBDII365Parser:
         # Extract vehicle support
         vehicle_support = self._extract_vehicle_support(description_full, name)
         
+        # Extract technical specs (chips, modules, protocols, tools)
+        technical_specs = self._extract_technical_specs(name, description_full)
+        
         # Extract images
         images = self._extract_images(soup)
         
@@ -209,6 +344,7 @@ class OBDII365Parser:
             keywords=keywords,
             product_tags=product_tags,
             vehicle_support=[asdict(v) if isinstance(v, VehicleSupport) else v for v in vehicle_support],
+            technical_specs=asdict(technical_specs),
             locksmith_relevance=relevance,
             locksmith_categories=locksmith_cats,
             url=url or f"https://www.obdii365.com/wholesale/{html_file.stem}.html",
@@ -347,6 +483,49 @@ class OBDII365Parser:
             except ValueError:
                 pass
         return None
+
+    def _extract_technical_specs(self, name: str, description: str) -> TechnicalSpecs:
+        """Extract structured technical specifications from product text."""
+        combined_text = f"{name} {description}".upper()
+        
+        def extract_matches(patterns: List[str], text: str) -> List[str]:
+            """Extract unique matches for a list of regex patterns."""
+            matches = set()
+            for pattern in patterns:
+                for match in re.finditer(pattern, text, re.IGNORECASE):
+                    # Normalize the match
+                    value = match.group(0).strip().upper()
+                    # Clean up common variations
+                    value = re.sub(r'[- ]+', '', value)
+                    matches.add(value)
+            return sorted(list(matches))
+        
+        # Extract each category
+        chips = extract_matches(self.CHIP_PATTERNS, combined_text)
+        immo_modules = extract_matches(self.IMMO_MODULE_PATTERNS, combined_text)
+        protocols = extract_matches(self.PROTOCOL_PATTERNS, combined_text)
+        compatible_tools = extract_matches(self.TOOL_PATTERNS, combined_text)
+        functions = extract_matches(self.FUNCTION_PATTERNS, combined_text)
+        keyways = extract_matches(self.KEYWAY_PATTERNS, combined_text)
+        
+        # Filter out false positives
+        # Remove generic "IMMO" if we have specific IMMO types
+        if immo_modules:
+            specific_immo = [m for m in immo_modules if m != 'IMMO' and not re.match(r'^IMMO[IV]+$', m)]
+            if specific_immo:
+                immo_modules = specific_immo
+        
+        # Remove overly generic tool matches
+        compatible_tools = [t for t in compatible_tools if len(t) > 2]
+        
+        return TechnicalSpecs(
+            chips=chips,
+            immo_modules=immo_modules,
+            protocols=protocols,
+            compatible_tools=compatible_tools,
+            functions=functions,
+            keyways=keyways,
+        )
 
     def _extract_vehicle_support(self, description: str, name: str) -> List[VehicleSupport]:
         """Extract vehicle support from description text."""
@@ -567,6 +746,11 @@ def main():
             print(f"  - {p.name[:60]}... [{p.locksmith_relevance}]")
             if p.vehicle_support:
                 print(f"    Vehicles: {p.vehicle_support[:3]}")
+            specs = p.technical_specs
+            if specs.get('chips'):
+                print(f"    Chips: {specs['chips'][:5]}")
+            if specs.get('compatible_tools'):
+                print(f"    Tools: {specs['compatible_tools'][:5]}")
     
     parser_instance.save_results(products)
     
@@ -578,6 +762,9 @@ def main():
     print(f"Medium relevance: {parser_instance.stats['medium_relevance']}")
     print(f"Low relevance: {parser_instance.stats['low_relevance']}")
     print(f"With vehicle data: {parser_instance.stats['with_vehicle_data']}")
+    print(f"With chip data: {parser_instance.stats['with_chip_data']}")
+    print(f"With module data: {parser_instance.stats['with_module_data']}")
+    print(f"With tool compatibility: {parser_instance.stats['with_tool_compat']}")
 
 
 if __name__ == '__main__':

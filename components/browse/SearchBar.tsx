@@ -328,8 +328,8 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
     }, []);
 
     const handleSelect = (result: SearchResult) => {
-        // Track the search selection
-        trackSearch(result.display, results.length);
+        // Track the actual search query (what user typed) and what they selected
+        trackSearch(query.trim(), results.length);
 
         if (result.type === 'fcc') {
             // Extract FCC ID from display (format: "FCC: M3N-40821302")

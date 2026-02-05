@@ -19,6 +19,7 @@ interface ActivityLog {
 interface AdminStats {
     top_searches: { query: string; count: number }[];
     top_clicks: { url: string; count: number }[];
+    top_vehicle_views: { make: string; model: string; year: string; view_count: number }[];
     global_totals: { searches: number; clicks: number; vin_lookups: number };
     user_growth: number;
     visitor_stats: { active_users: number; total_events: number };
@@ -256,14 +257,13 @@ export default function DevPanelPage() {
 
     if (!user || !isDeveloper) return null;
 
-    // Extract top vehicles from Cloudflare paths
-    const topVehicles = cloudflareStats?.marketing?.topPaths
-        ?.filter(p => p.path.startsWith('/vehicle/'))
-        .slice(0, 8)
-        .map(p => {
-            const parts = p.path.replace('/vehicle/', '').split('/');
-            return { make: parts[0], model: parts[1], year: parts[2], count: p.count, path: p.path };
-        }) || [];
+    // Extract top vehicles from activity logs (database-backed, not Cloudflare)
+    const topVehicles = (adminStats?.top_vehicle_views || []).slice(0, 8).map((v: any) => ({
+        make: v.make,
+        model: v.model,
+        year: v.year,
+        count: v.view_count
+    }));
 
     return (
         <div className="mx-auto max-w-7xl px-4 py-8">
@@ -383,7 +383,7 @@ export default function DevPanelPage() {
                                     </div>
                                 ) : (
                                     <p className="text-sm text-slate-500">
-                                        {cloudflareStats ? 'No vehicle data available' : 'Configure Cloudflare Analytics to see vehicle views'}
+                                        No vehicle views recorded yet
                                     </p>
                                 )}
                             </div>

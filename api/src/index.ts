@@ -6074,9 +6074,24 @@ Guidelines:
           WHERE created_at > ?
         `).bind(thirtyDaysAgo).first<any>();
 
+          // 6. Top Vehicle Views (from view_vehicle events)
+          const topVehicleViews = await env.LOCKSMITH_DB.prepare(`
+          SELECT 
+            json_extract(details, '$.make') as make,
+            json_extract(details, '$.model') as model,
+            json_extract(details, '$.year') as year,
+            COUNT(*) as view_count
+          FROM user_activity
+          WHERE action = 'view_vehicle' AND details LIKE '%"make"%'
+          GROUP BY make, model, year
+          ORDER BY view_count DESC
+          LIMIT 10
+        `).all();
+
           return corsResponse(request, JSON.stringify({
             top_searches: topSearches.results || [],
-            top_clicks: topClicks.results || [], // This uses 'click_affiliate', we should standardize
+            top_clicks: topClicks.results || [],
+            top_vehicle_views: topVehicleViews.results || [],
             global_totals: globalTotals,
             user_growth: growthStats?.new_users || 0,
             visitor_stats: visitorStats
