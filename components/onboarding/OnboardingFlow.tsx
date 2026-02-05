@@ -422,7 +422,7 @@ export default function OnboardingFlow() {
                             🧪 Preview Mode — Try 3 Keys & 2 Jobs
                         </button>
                         <p className="text-zinc-600 text-xs mt-2">
-                            Includes demo access to 2021 Chevy Silverado
+                            Includes demo access to 2018 Honda Civic
                         </p>
                     </div>
                 </div>
