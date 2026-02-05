@@ -123,7 +123,7 @@ function generateId(): string {
 
 function getAuthToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('session_token') || localStorage.getItem('auth_token');
 }
 
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
