@@ -6113,8 +6113,12 @@ Guidelines:
           const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
           if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
+          // Parse query params for filtering
+          const urlObj = new URL(request.url);
+          const categoryFilter = urlObj.searchParams.get('category'); // immo_system, vehicle_platform, security_module, chip_protocol
+
           // 1. Platform coverage gaps: platforms in glossary with thin or no coverage
-          const platformGaps = await env.LOCKSMITH_DB.prepare(`
+          const platformGapsQuery = `
             SELECT 
               ps.make,
               ps.platform_code,
@@ -6122,6 +6126,7 @@ Guidelines:
               ps.year_end,
               ps.description,
               ps.security_level,
+              ps.category,
               ps.akl_typical,
               COUNT(vc.id) as coverage_count,
               CASE 
@@ -6137,9 +6142,21 @@ Guidelines:
               END as priority
             FROM platform_security ps
             LEFT JOIN vehicle_coverage vc ON vc.platform = ps.platform_code
+            ${categoryFilter ? `WHERE ps.category = ?` : ''}
             GROUP BY ps.make, ps.platform_code
             ORDER BY priority ASC, coverage_count ASC
             LIMIT 50
+          `;
+          const platformGaps = categoryFilter
+            ? await env.LOCKSMITH_DB.prepare(platformGapsQuery).bind(categoryFilter).all()
+            : await env.LOCKSMITH_DB.prepare(platformGapsQuery).all();
+
+          // Get category breakdown for summary
+          const categoryBreakdown = await env.LOCKSMITH_DB.prepare(`
+            SELECT category, COUNT(*) as total,
+              SUM(CASE WHEN id IN (SELECT ps.id FROM platform_security ps LEFT JOIN vehicle_coverage vc ON vc.platform = ps.platform_code GROUP BY ps.id HAVING COUNT(vc.id) = 0) THEN 1 ELSE 0 END) as missing
+            FROM platform_security
+            GROUP BY category
           `).all();
 
           // 2. Era-based gaps: vehicles by era with low coverage
@@ -6189,55 +6206,18 @@ Guidelines:
             LIMIT 20
           `).all();
 
-          // 5. Vehicle gaps: vehicles in the vehicles table with no coverage entries
-          const vehicleGaps = await env.LOCKSMITH_DB.prepare(`
-            SELECT 
-              v.make,
-              v.model,
-              MIN(v.year_start) as year_start,
-              MAX(v.year_end) as year_end,
-              COUNT(*) as year_count,
-              'vehicles' as source_table
-            FROM vehicles v
-            LEFT JOIN vehicle_coverage vc ON LOWER(vc.make) = LOWER(v.make) 
-              AND LOWER(vc.model) LIKE '%' || LOWER(v.model) || '%'
-            WHERE vc.id IS NULL
-            GROUP BY v.make, v.model
-            ORDER BY v.make, v.model
-            LIMIT 30
-          `).all();
+          // 5-7. Simple counts for gap estimation (avoiding expensive joins)
+          const [vehicleCount, coverageCount, fccCount, walkthroughCount] = await Promise.all([
+            env.LOCKSMITH_DB.prepare(`SELECT COUNT(DISTINCT make || ':' || model) as cnt FROM vehicles`).first() as Promise<{ cnt: number } | null>,
+            env.LOCKSMITH_DB.prepare(`SELECT COUNT(DISTINCT make || ':' || model) as cnt FROM vehicle_coverage`).first() as Promise<{ cnt: number } | null>,
+            env.LOCKSMITH_DB.prepare(`SELECT COUNT(DISTINCT make || ':' || model) as cnt FROM fcc_cross_reference`).first() as Promise<{ cnt: number } | null>,
+            env.LOCKSMITH_DB.prepare(`SELECT COUNT(DISTINCT make || ':' || model) as cnt FROM walkthroughs_v2`).first() as Promise<{ cnt: number } | null>
+          ]);
 
-          // 6. FCC gaps: vehicles without FCC ID mappings
-          const fccGaps = await env.LOCKSMITH_DB.prepare(`
-            SELECT 
-              v.make,
-              v.model,
-              COUNT(*) as year_count,
-              'vehicles vs fcc_ids' as source_table
-            FROM vehicles v
-            LEFT JOIN fcc_ids f ON LOWER(f.make) = LOWER(v.make) 
-              AND LOWER(f.model) LIKE '%' || LOWER(v.model) || '%'
-            WHERE f.id IS NULL
-            GROUP BY v.make, v.model
-            ORDER BY year_count DESC
-            LIMIT 30
-          `).all();
-
-          // 7. Content gaps: vehicles without dossiers
-          const contentGaps = await env.LOCKSMITH_DB.prepare(`
-            SELECT 
-              v.make,
-              v.model,
-              COUNT(*) as year_count,
-              'vehicles vs dossiers' as source_table
-            FROM vehicles v
-            LEFT JOIN dossiers d ON LOWER(d.make) = LOWER(v.make) 
-              AND LOWER(d.model) LIKE '%' || LOWER(v.model) || '%'
-            WHERE d.id IS NULL
-            GROUP BY v.make, v.model
-            ORDER BY year_count DESC
-            LIMIT 30
-          `).all();
+          // Estimate gaps as: total vehicles - vehicles with coverage
+          const vehicleGapsEstimate = Math.max(0, (vehicleCount?.cnt || 0) - (coverageCount?.cnt || 0));
+          const fccGapsEstimate = Math.max(0, (vehicleCount?.cnt || 0) - (fccCount?.cnt || 0));
+          const contentGapsEstimate = Math.max(0, (vehicleCount?.cnt || 0) - (walkthroughCount?.cnt || 0));
 
           return corsResponse(request, JSON.stringify({
             // Data with source metadata
@@ -6261,29 +6241,32 @@ Guidelines:
               description: 'High-security platforms needing coverage data',
               data: criticalGaps.results || []
             },
+            // Count-only gap metrics for performance (estimated via table count differences)
             vehicle_gaps: {
-              source: 'vehicles LEFT JOIN vehicle_coverage',
-              description: 'Known vehicles without any tool coverage entries',
-              data: vehicleGaps.results || []
+              source: 'vehicles vs vehicle_coverage (count estimate)',
+              description: 'Estimated vehicles without tool coverage entries',
+              count: vehicleGapsEstimate
             },
             fcc_gaps: {
-              source: 'vehicles LEFT JOIN fcc_ids',
-              description: 'Vehicles without key/remote FCC ID mappings',
-              data: fccGaps.results || []
+              source: 'vehicles vs fcc_cross_reference (count estimate)',
+              description: 'Estimated vehicles without key/remote FCC ID mappings',
+              count: fccGapsEstimate
             },
             content_gaps: {
-              source: 'vehicles LEFT JOIN dossiers',
-              description: 'Vehicles without technical dossier/guide content',
-              data: contentGaps.results || []
+              source: 'vehicles vs walkthroughs_v2 (count estimate)',
+              description: 'Estimated vehicles without technical guide content',
+              count: contentGapsEstimate
             },
             summary: {
               total_platforms: (platformGaps.results || []).length,
               missing_coverage: (platformGaps.results || []).filter((p: any) => p.gap_status === 'missing').length,
               thin_coverage: (platformGaps.results || []).filter((p: any) => p.gap_status === 'thin').length,
-              vehicles_without_coverage: (vehicleGaps.results || []).length,
-              vehicles_without_fcc: (fccGaps.results || []).length,
-              vehicles_without_content: (contentGaps.results || []).length
-            }
+              vehicles_without_coverage: vehicleGapsEstimate,
+              vehicles_without_fcc: fccGapsEstimate,
+              vehicles_without_content: contentGapsEstimate
+            },
+            category_breakdown: categoryBreakdown.results || [],
+            active_filter: categoryFilter
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -6392,16 +6375,19 @@ Guidelines:
       if (path === "/api/admin/cloudflare") {
         try {
           const sessionToken = getSessionToken(request);
-          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          console.log("[CF DEBUG] sessionToken exists:", !!sessionToken);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized", reason: "no_session_token" }), 401);
 
           const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          console.log("[CF DEBUG] payload:", payload ? { sub: payload.sub, email: payload.email, is_dev: payload.is_developer } : null);
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized", reason: "invalid_token" }), 401);
 
           const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          console.log("[CF DEBUG] userIsDev:", userIsDev);
           if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
           // Check if API credentials are configured
-          if (!env.CF_ANALYTICS_TOKEN || !env.CF_ZONE_ID || !env.CF_AUTH_EMAIL) {
+          if (!env.CF_ANALYTICS_TOKEN || !env.CF_ZONE_ID) {
             return corsResponse(request, JSON.stringify({
               error: "not_configured",
               message: "Cloudflare Analytics not configured. Add CF_ANALYTICS_TOKEN, CF_ZONE_ID, and CF_AUTH_EMAIL secrets."
@@ -6439,32 +6425,32 @@ Guidelines:
                   uniq { uniques }
                 }
                 
-                topPaths: httpRequestsAdaptiveGroups(
-                  limit: 15
-                  filter: { date_geq: "${sevenDaysAgo}" }
-                  orderBy: [count_DESC]
-                ) {
-                  count
-                  dimensions { clientRequestPath }
-                }
+                # topPaths: httpRequestsAdaptiveGroups(
+                #   limit: 15
+                #   filter: { date_geq: "${sevenDaysAgo}" }
+                #   orderBy: [count_DESC]
+                # ) {
+                #   count
+                #   dimensions { clientRequestPath }
+                # }
                 
-                topReferrers: httpRequestsAdaptiveGroups(
-                  limit: 10
-                  filter: { date_geq: "${sevenDaysAgo}", clientRefererHost_neq: "" }
-                  orderBy: [count_DESC]
-                ) {
-                  count
-                  dimensions { clientRefererHost }
-                }
+                # topReferrers: httpRequestsAdaptiveGroups(
+                #   limit: 10
+                #   filter: { date_geq: "${sevenDaysAgo}", clientRefererHost_neq: "" }
+                #   orderBy: [count_DESC]
+                # ) {
+                #   count
+                #   dimensions { clientRefererHost }
+                # }
                 
-                securityEvents: firewallEventsAdaptiveGroups(
-                  limit: 10
-                  filter: { datetime_geq: "${sevenDaysAgo}T00:00:00Z" }
-                  orderBy: [count_DESC]
-                ) {
-                  count
-                  dimensions { action source }
-                }
+                # securityEvents: firewallEventsAdaptiveGroups(
+                #   limit: 10
+                #   filter: { datetime_geq: "${sevenDaysAgo}T00:00:00Z" }
+                #   orderBy: [count_DESC]
+                # ) {
+                #   count
+                #   dimensions { action source }
+                # }
               }
             }
           }
@@ -6483,7 +6469,7 @@ Guidelines:
           if (!cfResponse.ok) {
             const errorText = await cfResponse.text();
             console.error("Cloudflare API error:", errorText);
-            return corsResponse(request, JSON.stringify({ error: "Cloudflare API error" }), 500);
+            return corsResponse(request, JSON.stringify({ error: `Cloudflare API error: ${errorText}` }), 500);
           }
 
           const cfData: any = await cfResponse.json();
@@ -10952,6 +10938,145 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               "Access-Control-Allow-Headers": "*",
             },
           });
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // INVENTORY MATCH ENDPOINT - For import discrepancy resolution
+      // ==============================================
+      // Batch validate OEM/FCC identifiers against D1 tables
+      // Returns vehicle matches with confidence scores
+
+      if (path === "/api/inventory-match" && request.method === "POST") {
+        try {
+          const body = await request.json() as { identifiers: Array<{ fcc?: string; oem?: string }> };
+          const identifiers = body.identifiers || [];
+
+          if (!Array.isArray(identifiers) || identifiers.length === 0) {
+            return corsResponse(request, JSON.stringify({ error: "identifiers array required" }), 400);
+          }
+
+          // Limit batch size
+          const limitedIdentifiers = identifiers.slice(0, 100);
+          const matches: Array<{
+            identifier: string;
+            type: 'fcc' | 'oem';
+            make?: string;
+            model?: string;
+            yearRange?: string;
+            confidence: 'high' | 'medium' | 'low' | 'none';
+            fcc_id?: string;
+            oem_pn?: string;
+          }> = [];
+
+          for (const id of limitedIdentifiers) {
+            const fcc = id.fcc?.toUpperCase().trim();
+            const oem = id.oem?.toUpperCase().trim();
+
+            // Try FCC match first (lookup fcc_complete table)
+            if (fcc) {
+              const fccMatch = await env.LOCKSMITH_DB.prepare(`
+                SELECT fcc_id, vehicles FROM fcc_complete 
+                WHERE UPPER(fcc_id) = ? LIMIT 1
+              `).bind(fcc).first<{ fcc_id: string; vehicles: string }>();
+
+              if (fccMatch && fccMatch.vehicles) {
+                // Parse vehicles string (format: "Make Model (Year-Year)")
+                const vehicleMatch = fccMatch.vehicles.match(/^([A-Za-z]+)\s+([A-Za-z0-9\s]+)\s*\((\d{4})[^)]*\)/);
+                if (vehicleMatch) {
+                  matches.push({
+                    identifier: fcc,
+                    type: 'fcc',
+                    make: vehicleMatch[1],
+                    model: vehicleMatch[2].trim(),
+                    yearRange: fccMatch.vehicles.match(/\(([^)]+)\)/)?.[1] || '',
+                    confidence: 'high',
+                    fcc_id: fccMatch.fcc_id
+                  });
+                  continue;
+                }
+              }
+            }
+
+            // Try OEM match (lookup vehicles table by oem_part_number)
+            if (oem) {
+              const oemMatch = await env.LOCKSMITH_DB.prepare(`
+                SELECT DISTINCT make, model, year_start, year_end, fcc_id, oem_part_number
+                FROM vehicles
+                WHERE UPPER(oem_part_number) LIKE ? 
+                LIMIT 1
+              `).bind(`%${oem}%`).first<{
+                make: string;
+                model: string;
+                year_start: number;
+                year_end: number;
+                fcc_id: string;
+                oem_part_number: string;
+              }>();
+
+              if (oemMatch) {
+                const yearRange = oemMatch.year_start && oemMatch.year_end
+                  ? `${oemMatch.year_start}-${oemMatch.year_end}`
+                  : oemMatch.year_start ? `${oemMatch.year_start}+` : '';
+
+                matches.push({
+                  identifier: oem,
+                  type: 'oem',
+                  make: oemMatch.make,
+                  model: oemMatch.model,
+                  yearRange,
+                  confidence: 'high',
+                  fcc_id: oemMatch.fcc_id,
+                  oem_pn: oemMatch.oem_part_number
+                });
+                continue;
+              }
+
+              // Try AKS products table as fallback
+              const aksMatch = await env.LOCKSMITH_DB.prepare(`
+                SELECT DISTINCT p.oem_part_number, p.fcc_id, vp.make, vp.model, vp.year
+                FROM aks_products p
+                JOIN aks_vehicle_products vp ON p.page_id = vp.product_page_id
+                WHERE UPPER(p.oem_part_number) LIKE ?
+                LIMIT 1
+              `).bind(`%${oem}%`).first<{
+                oem_part_number: string;
+                fcc_id: string;
+                make: string;
+                model: string;
+                year: number;
+              }>();
+
+              if (aksMatch) {
+                matches.push({
+                  identifier: oem,
+                  type: 'oem',
+                  make: aksMatch.make,
+                  model: aksMatch.model,
+                  yearRange: aksMatch.year ? String(aksMatch.year) : '',
+                  confidence: 'medium',
+                  fcc_id: aksMatch.fcc_id,
+                  oem_pn: aksMatch.oem_part_number
+                });
+                continue;
+              }
+            }
+
+            // No match found
+            matches.push({
+              identifier: fcc || oem || 'unknown',
+              type: fcc ? 'fcc' : 'oem',
+              confidence: 'none'
+            });
+          }
+
+          return corsResponse(request, JSON.stringify({
+            total: matches.length,
+            matched: matches.filter(m => m.confidence !== 'none').length,
+            matches
+          }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }

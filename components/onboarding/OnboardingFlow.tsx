@@ -34,13 +34,32 @@ const GUIDED_TOUR: GuidedStep[] = [
         position: 'center',
         emoji: '🔍',
     },
+    // Vehicle Demo 1: US Domestic
     {
-        id: 'vehicle-demo',
+        id: 'vehicle-demo-us',
         page: '/vehicle/chevrolet/silverado-1500/2021',
-        title: 'Vehicle Detail Page',
-        content: 'Each vehicle shows key types, FCC IDs, transponder chips, and programming notes from the community.',
+        title: 'US Domestic Example',
+        content: 'See comprehensive data for domestic vehicles: key types, FCC IDs, and onboard programming.',
         position: 'center',
-        emoji: '🚗',
+        emoji: '🇺🇸',
+    },
+    // Vehicle Demo 2: Asian (Honda Civic)
+    {
+        id: 'vehicle-demo-asian',
+        page: '/vehicle/honda/civic/2017',
+        title: 'Asian Import Example',
+        content: 'Access detailed specs for Asian imports, including transponder chips and remote frequencies.',
+        position: 'center',
+        emoji: '🇯🇵',
+    },
+    // Vehicle Demo 3: European (BMW 330i)
+    {
+        id: 'vehicle-demo-euro',
+        page: '/vehicle/bmw/330i/2019',
+        title: 'European Luxury Example',
+        content: 'Master complex European systems like FEM/BDC with clear, step-by-step guidance.',
+        position: 'center',
+        emoji: '🇩🇪',
     },
     // FCC Database
     {
@@ -259,7 +278,7 @@ export default function OnboardingFlow() {
                 <div
                     ref={tooltipRef}
                     className={`fixed z-[10000] bg-gradient-to-br from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-xl shadow-2xl shadow-amber-500/10 transition-all duration-300 ${isMobile
-                            ? 'left-4 right-4 bottom-20 p-4'
+                            ? 'left-4 right-4 bottom-[calc(env(safe-area-inset-bottom)+5rem)] p-4 max-h-[30vh] overflow-y-auto'
                             : 'left-1/2 -translate-x-1/2 bottom-24 p-5 max-w-md w-full'
                         }`}
                 >

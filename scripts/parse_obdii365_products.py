@@ -37,20 +37,42 @@ class TechnicalSpecs:
     functions: List[str]  # key programming, EEPROM read, etc.
     # Lishi keyway codes
     keyways: List[str]  # HU92, HU66, etc.
-    # NEW: RF frequencies for remotes
+    # RF frequencies for remotes
     rf_frequencies: List[str]  # 433MHz, 315MHz, 868MHz
-    # NEW: MCU/processor types for bench work
+    # MCU/processor types for bench work
     mcu_types: List[str]  # RH850, TC1797, MC9S12, etc.
-    # NEW: EEPROM chip types
+    # EEPROM chip types
     eeprom_chips: List[str]  # 35080, 93C56, 24C64, etc.
-    # NEW: Key blade part numbers
+    # Key blade part numbers
     key_blades: List[str]  # GT107, TOY43AT, HU92 blade, etc.
-    # NEW: Connectivity options
+    # Connectivity options
     connectivity: List[str]  # Bluetooth, WiFi, USB, ENET
-    # NEW: Remote button configurations
+    # Remote button configurations
     button_count: Optional[str]  # 3-button, 4-button, etc.
-    # NEW: Required adapters/accessories
+    # Required adapters/accessories
     adapters: List[str]  # APB112, VH24, etc.
+    # Key type/style
+    key_type: List[str]  # smart key, flip key, proximity, emergency
+    # Key/remote brand
+    key_brand: List[str]  # Xhorse, Keydiy, JMD, etc.
+    # Vehicle platform codes
+    vehicle_platform: List[str]  # MQB, BMW F-chassis, Mercedes W204, etc.
+    # Security/IMMO generation
+    security_gen: List[str]  # 8A, IMMO4, DST80, AES, HITAG
+    # Is emulator/simulator product
+    is_emulator: bool  # True if emulator/simulator/bypass
+    # Subscription/token info
+    subscription_type: Optional[str]  # "1-year", "lifetime", "tokens"
+    # NEW: Product type/category
+    product_type: List[str]  # programmer, cutter, scanner, decoder
+    # NEW: Year coverage (careful extraction)
+    year_coverage: Optional[Dict]  # {"start": 2010, "end": 2024} or None
+    # NEW: Working mode capabilities
+    working_mode: List[str]  # OBD, Bench, Token-free, Free PIN
+    # NEW: Market focus
+    market_focus: List[str]  # European, Asian, Domestic, Import
+    # NEW: Super/specialty chip type
+    super_chip: List[str]  # Super Chip, King Chip, Magic Chip
 
 
 @dataclass
@@ -304,7 +326,121 @@ class OBDII365Parser:
         r'IMKPA',
         r'XP400[- ]?(?:PRO)?',
     ]
-
+    
+    # Key type/style patterns
+    KEY_TYPE_PATTERNS = [
+        r'SMART[- ]?KEY',
+        r'PROXIMITY[- ]?(?:KEY|FOB)',
+        r'KEYLESS[- ]?(?:ENTRY|GO)',
+        r'(?:FLIP|FOLDING)[- ]?KEY',
+        r'EMERGENCY[- ]?KEY',
+        r'UNIVERSAL[- ]?(?:REMOTE|KEY)',
+        r'AFTERMARKET[- ]?(?:KEY|REMOTE)',
+        r'OEM[- ]?(?:KEY|REMOTE)',
+        r'KEY[- ]?SHELL',
+    ]
+    
+    # Key/remote brand patterns
+    KEY_BRAND_PATTERNS = [
+        r'XHORSE',
+        r'KEYDIY', r'\bKD\b',
+        r'JMD',
+        r'HANDY[- ]?BABY',
+        r'AUTEL[- ]?(?:REMOTE|IKEY)',
+        r'LONSDOR',
+        r'OBDSTAR',
+    ]
+    
+    # Vehicle platform patterns
+    VEHICLE_PLATFORM_PATTERNS = [
+        # BMW chassis
+        r'[EFG][- ]?CHASSIS',
+        # Mercedes W/C codes
+        r'W(?:164|166|204|205|209|211|212|213|221|222|223)',
+        r'C(?:117|118|167|190|238|253|257)',
+        # VAG platforms
+        r'\bMQB\b', r'\bMLB\b', r'PQ(?:25|35|46)',
+        # Toyota
+        r'\bTNGA\b', r'K[- ]?PLATFORM',
+    ]
+    
+    # Security/IMMO generation patterns
+    SECURITY_GEN_PATTERNS = [
+        r'\b8A\b', r'\bBA\b',  # Toyota 8A/BA
+        r'\b8E\b',  # BMW 8E
+        r'IMMO[- ]?[1-5]', r'IMMO[- ]?(?:I{1,5}|IV|V)',
+        r'\bDST(?:40|80)\b',
+        r'\bAES\b',
+        r'\bHITAG\b',
+        r'TYPE[- ]?[AB]',
+    ]
+    
+    # Emulator/simulator indicator patterns
+    EMULATOR_PATTERNS = [
+        r'EMULATOR',
+        r'SIMULATOR',
+        r'(?:ELV|ESL)[- ]?(?:EMULATOR|REPAIR)',
+        r'BYPASS[- ]?(?:CABLE|MODULE)?',
+        r'FILTER[- ]?(?:CABLE)?',
+    ]
+    
+    # Subscription/token patterns
+    SUBSCRIPTION_PATTERNS = [
+        r'(\d+)[- ]?YEAR[S]?[- ]?(?:UPDATE|SUBSCRIPTION)',
+        r'LIFETIME[- ]?(?:FREE|UPDATE)',
+        r'(?:TOKEN|CREDIT)S?',
+        r'ANNUAL[- ]?(?:FEE|SUBSCRIPTION)',
+    ]
+    
+    # Product type/category patterns
+    PRODUCT_TYPE_PATTERNS = [
+        r'KEY[- ]?PROGRAMMER',
+        r'PROGRAMMER',
+        r'(?:KEY[- ]?)?CUTTING[- ]?MACHINE',
+        r'KEY[- ]?CUTTER',
+        r'DIAGNOSTIC[- ]?(?:TOOL|SCANNER)',
+        r'SCANNER',
+        r'DECODER',
+        r'PICK[- ]?(?:TOOL|SET)',
+        r'(?:TRANSPONDER|CHIP)[- ]?(?:CLONER|DUPLICATOR)',
+        r'(?:ODOMETER|MILEAGE)[- ]?(?:CORRECTION|TOOL)',
+        r'LISHI[- ]?(?:TOOL|PICK|DECODER)',
+        r'(?:REMOTE|KEY)[- ]?(?:TESTER|READER)',
+    ]
+    
+    # Working mode patterns
+    WORKING_MODE_PATTERNS = [
+        r'BENCH[- ]?MODE',
+        r'OBD[- ]?MODE',
+        r'DUMP[- ]?MODE',
+        r'ON[- ]?BENCH',
+        r'FREE[- ]?PIN',
+        r'PIN[- ]?FREE',
+        r'NO[- ]?TOKEN',
+        r'TOKEN[- ]?FREE',
+    ]
+    
+    # Market focus patterns
+    MARKET_FOCUS_PATTERNS = [
+        r'EUROPEAN[- ]?(?:CAR|VEHICLE)?',
+        r'ASIAN[- ]?(?:CAR|VEHICLE)?',
+        r'AMERICAN[- ]?(?:CAR|VEHICLE)?',
+        r'JAPANESE[- ]?(?:CAR|VEHICLE)?',
+        r'KOREAN[- ]?(?:CAR|VEHICLE)?',
+        r'CHINESE[- ]?(?:CAR|VEHICLE)?',
+        r'DOMESTIC[- ]?(?:CAR|VEHICLE)?',
+        r'IMPORT[- ]?(?:CAR|VEHICLE)?',
+    ]
+    
+    # Super/specialty chip patterns
+    SUPER_CHIP_PATTERNS = [
+        r'SUPER[- ]?CHIP',
+        r'KING[- ]?CHIP',
+        r'MAGIC[- ]?CHIP',
+        r'MEGA[- ]?CHIP',
+        r'XT27[A]?',  # Xhorse super chip
+        r'VVDI[- ]?SUPER[- ]?CHIP',
+    ]
     def __init__(self, html_dir: Path, output_dir: Path):
         self.html_dir = html_dir
         self.output_dir = output_dir
@@ -325,6 +461,11 @@ class OBDII365Parser:
             "with_mcu_data": 0,
             "with_eeprom_data": 0,
             "with_connectivity": 0,
+            "with_key_type": 0,
+            "with_key_brand": 0,
+            "with_platform": 0,
+            "with_security_gen": 0,
+            "emulators": 0,
         }
 
     def parse_all(self) -> List[ParsedProduct]:
@@ -363,6 +504,16 @@ class OBDII365Parser:
                         self.stats["with_eeprom_data"] += 1
                     if specs.get('connectivity'):
                         self.stats["with_connectivity"] += 1
+                    if specs.get('key_type'):
+                        self.stats["with_key_type"] += 1
+                    if specs.get('key_brand'):
+                        self.stats["with_key_brand"] += 1
+                    if specs.get('vehicle_platform'):
+                        self.stats["with_platform"] += 1
+                    if specs.get('security_gen'):
+                        self.stats["with_security_gen"] += 1
+                    if specs.get('is_emulator'):
+                        self.stats["emulators"] += 1
             except Exception as e:
                 self.stats["parse_errors"] += 1
                 self.errors.append({
@@ -623,6 +774,7 @@ class OBDII365Parser:
         button_matches = re.findall(r'(\d)[- ]?BUTTON', combined_text, re.IGNORECASE)
         button_count = button_matches[0] + '-BUTTON' if button_matches else None
         
+        
         # Filter out false positives
         # Remove generic "IMMO" if we have specific IMMO types
         if immo_modules:
@@ -635,6 +787,72 @@ class OBDII365Parser:
         
         # Clean up connectivity duplicates
         connectivity = list(set(c.replace('WIFI', 'WIFI').replace('WI-FI', 'WIFI') for c in connectivity))
+        
+        # NEW: Extract additional categories
+        key_type = extract_matches(self.KEY_TYPE_PATTERNS, combined_text)
+        key_brand = extract_matches(self.KEY_BRAND_PATTERNS, combined_text)
+        vehicle_platform = extract_matches(self.VEHICLE_PLATFORM_PATTERNS, combined_text)
+        security_gen = extract_matches(self.SECURITY_GEN_PATTERNS, combined_text)
+        
+        # Detect if this is an emulator/simulator product
+        emulator_matches = extract_matches(self.EMULATOR_PATTERNS, combined_text)
+        is_emulator = len(emulator_matches) > 0
+        
+        # Extract subscription type
+        subscription_type = None
+        sub_text = combined_text
+        if re.search(r'LIFETIME[- ]?(?:FREE|UPDATE)', sub_text):
+            subscription_type = "LIFETIME"
+        elif re.search(r'TOKEN|CREDIT', sub_text):
+            subscription_type = "TOKENS"
+        else:
+            year_match = re.search(r'(\d+)[- ]?YEAR', sub_text)
+            if year_match:
+                subscription_type = f"{year_match.group(1)}-YEAR"
+        
+        # NEW: Extract final categories
+        product_type = extract_matches(self.PRODUCT_TYPE_PATTERNS, combined_text)
+        working_mode = extract_matches(self.WORKING_MODE_PATTERNS, combined_text)
+        market_focus = extract_matches(self.MARKET_FOCUS_PATTERNS, combined_text)
+        super_chip = extract_matches(self.SUPER_CHIP_PATTERNS, combined_text)
+        
+        # Clean up market focus (normalize terms)
+        market_focus = list(set(m.replace('CAR', '').replace('VEHICLE', '').strip() for m in market_focus))
+        market_focus = [m for m in market_focus if m]  # Remove empty strings
+        
+        # CAREFUL: Year coverage extraction
+        # Only extract year ranges that appear in clear vehicle support context
+        # Look for patterns like "2010-2024", "2015 to 2023", "up to 2024"
+        year_coverage = None
+        # Only look for years in context of vehicle support, not random years
+        year_context_patterns = [
+            # Explicit ranges with connectors
+            r'(?:SUPPORT|COVER|FOR|FIT)[S]?\s+(?:\w+\s+){0,5}?(20[01][0-9])[- ]?(?:TO|-)(?:[- ]?)(20[12][0-9])',
+            r'(20[01][0-9])[- ]?(?:TO|-)(?:[- ]?)(20[12][0-9])\s+(?:MODEL|YEAR)',
+            # Explicit "up to" or "through" patterns
+            r'(?:UP[- ]?TO|THROUGH|UNTIL)\s+(20[12][0-9])',
+        ]
+        for pattern in year_context_patterns:
+            match = re.search(pattern, combined_text, re.IGNORECASE)
+            if match:
+                groups = match.groups()
+                if len(groups) >= 2:
+                    try:
+                        start_year = int(groups[0])
+                        end_year = int(groups[1])
+                        if 2000 <= start_year <= 2030 and 2000 <= end_year <= 2030 and start_year <= end_year:
+                            year_coverage = {"start": start_year, "end": end_year}
+                            break
+                    except (ValueError, TypeError):
+                        pass
+                elif len(groups) == 1:
+                    try:
+                        end_year = int(groups[0])
+                        if 2015 <= end_year <= 2030:
+                            year_coverage = {"start": None, "end": end_year}
+                            break
+                    except (ValueError, TypeError):
+                        pass
         
         return TechnicalSpecs(
             chips=chips,
@@ -650,6 +868,17 @@ class OBDII365Parser:
             connectivity=connectivity,
             button_count=button_count,
             adapters=adapters,
+            key_type=key_type,
+            key_brand=key_brand,
+            vehicle_platform=vehicle_platform,
+            security_gen=security_gen,
+            is_emulator=is_emulator,
+            subscription_type=subscription_type,
+            product_type=product_type,
+            year_coverage=year_coverage,
+            working_mode=working_mode,
+            market_focus=market_focus,
+            super_chip=super_chip,
         )
 
     def _extract_vehicle_support(self, description: str, name: str) -> List[VehicleSupport]:

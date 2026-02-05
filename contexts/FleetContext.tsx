@@ -10,6 +10,7 @@ import {
     FleetUserRole,
     FleetPermissions,
     SeatUsage,
+    ServiceVehicle,
     ROLE_PERMISSIONS,
     getSeatUsage,
     canAddMember,
@@ -17,6 +18,7 @@ import {
     generateOrganizationId,
     generateMemberId,
     generateInviteId,
+    generateServiceVehicleId,
     FLEET_SUBSCRIPTION_PRICING,
 } from '@/lib/fleetSubscriptionTypes';
 
@@ -30,6 +32,7 @@ interface FleetContextType {
     members: FleetMember[];
     currentMember: FleetMember | null;
     invites: FleetInvite[];
+    serviceVehicles: ServiceVehicle[];
     loading: boolean;
     error: string | null;
 
@@ -50,6 +53,13 @@ interface FleetContextType {
     removeMember: (memberId: string) => Promise<boolean>;
     updateMemberRole: (memberId: string, role: FleetUserRole) => Promise<boolean>;
     acceptInvite: (inviteCode: string) => Promise<boolean>;
+
+    // Service Vehicle Actions
+    addServiceVehicle: (vehicle: Omit<ServiceVehicle, 'id' | 'organizationId' | 'createdAt'>) => Promise<ServiceVehicle | null>;
+    updateServiceVehicle: (id: string, updates: Partial<ServiceVehicle>) => Promise<boolean>;
+    removeServiceVehicle: (id: string) => Promise<boolean>;
+    assignVehicleToTechnician: (vehicleId: string, memberId: string | null) => Promise<boolean>;
+
     refresh: () => Promise<void>;
     refreshOrganization: () => Promise<void>;
 }
@@ -99,6 +109,7 @@ export const FleetProvider = ({ children }: { children: ReactNode }) => {
     const [organization, setOrganization] = useState<FleetOrganization | null>(null);
     const [members, setMembers] = useState<FleetMember[]>([]);
     const [invites, setInvites] = useState<FleetInvite[]>([]);
+    const [serviceVehicles, setServiceVehicles] = useState<ServiceVehicle[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -130,17 +141,19 @@ export const FleetProvider = ({ children }: { children: ReactNode }) => {
         setError(null);
 
         try {
-            // Fetch organization and members
+            // Fetch organization, members, and service vehicles
             const data = await apiRequest<{
                 organization: FleetOrganization | null;
                 members: FleetMember[];
                 invites: FleetInvite[];
+                serviceVehicles?: ServiceVehicle[];
             }>('/api/fleet/organization');
 
             if (data) {
                 setOrganization(data.organization);
                 setMembers(data.members || []);
                 setInvites(data.invites || []);
+                setServiceVehicles(data.serviceVehicles || []);
             }
         } catch (e) {
             setError('Failed to load fleet data');
@@ -293,6 +306,82 @@ export const FleetProvider = ({ children }: { children: ReactNode }) => {
     }, [user]);
 
     // =========================================================================
+    // Service Vehicle Actions
+    // =========================================================================
+
+    const addServiceVehicle = useCallback(async (
+        vehicleData: Omit<ServiceVehicle, 'id' | 'organizationId' | 'createdAt'>
+    ): Promise<ServiceVehicle | null> => {
+        if (!organization) return null;
+
+        const newVehicle: ServiceVehicle = {
+            ...vehicleData,
+            id: generateServiceVehicleId(),
+            organizationId: organization.id,
+            createdAt: Date.now(),
+        };
+
+        const result = await apiRequest<{ vehicle: ServiceVehicle }>('/api/fleet/service-vehicles', {
+            method: 'POST',
+            body: JSON.stringify(newVehicle),
+        });
+
+        if (result?.vehicle) {
+            setServiceVehicles(prev => [...prev, result.vehicle]);
+            return result.vehicle;
+        }
+
+        // Optimistic local update if API not yet implemented
+        setServiceVehicles(prev => [...prev, newVehicle]);
+        return newVehicle;
+    }, [organization]);
+
+    const updateServiceVehicle = useCallback(async (
+        id: string,
+        updates: Partial<ServiceVehicle>
+    ): Promise<boolean> => {
+        const result = await apiRequest<{ vehicle: ServiceVehicle }>(`/api/fleet/service-vehicles/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ ...updates, updatedAt: Date.now() }),
+        });
+
+        if (result?.vehicle) {
+            setServiceVehicles(prev => prev.map(v => v.id === id ? result.vehicle : v));
+            return true;
+        }
+
+        // Optimistic local update
+        setServiceVehicles(prev => prev.map(v =>
+            v.id === id ? { ...v, ...updates, updatedAt: Date.now() } : v
+        ));
+        return true;
+    }, []);
+
+    const removeServiceVehicle = useCallback(async (id: string): Promise<boolean> => {
+        const result = await apiRequest<{ success: boolean }>(`/api/fleet/service-vehicles/${id}`, {
+            method: 'DELETE',
+        });
+
+        if (result?.success !== false) {
+            setServiceVehicles(prev => prev.filter(v => v.id !== id));
+            return true;
+        }
+
+        return false;
+    }, []);
+
+    const assignVehicleToTechnician = useCallback(async (
+        vehicleId: string,
+        memberId: string | null
+    ): Promise<boolean> => {
+        const updates: Partial<ServiceVehicle> = memberId
+            ? { assignedToMemberId: memberId, assignedAt: Date.now(), status: 'assigned' }
+            : { assignedToMemberId: undefined, assignedAt: undefined, status: 'available' };
+
+        return updateServiceVehicle(vehicleId, updates);
+    }, [updateServiceVehicle]);
+
+    // =========================================================================
     // Render
     // =========================================================================
 
@@ -303,6 +392,7 @@ export const FleetProvider = ({ children }: { children: ReactNode }) => {
                 members,
                 currentMember,
                 invites,
+                serviceVehicles,
                 loading,
                 error,
                 role,
@@ -317,6 +407,10 @@ export const FleetProvider = ({ children }: { children: ReactNode }) => {
                 removeMember,
                 updateMemberRole,
                 acceptInvite,
+                addServiceVehicle,
+                updateServiceVehicle,
+                removeServiceVehicle,
+                assignVehicleToTechnician,
                 refresh: loadFleetData,
                 refreshOrganization: loadFleetData,
             }}

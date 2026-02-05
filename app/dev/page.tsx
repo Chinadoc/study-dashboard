@@ -121,31 +121,17 @@ interface CoverageGaps {
     vehicle_gaps: {
         source: string;
         description: string;
-        data: {
-            make: string;
-            model: string;
-            year_start: number;
-            year_end: number;
-            year_count: number;
-        }[];
+        count: number;
     };
     fcc_gaps: {
         source: string;
         description: string;
-        data: {
-            make: string;
-            model: string;
-            year_count: number;
-        }[];
+        count: number;
     };
     content_gaps: {
         source: string;
         description: string;
-        data: {
-            make: string;
-            model: string;
-            year_count: number;
-        }[];
+        count: number;
     };
     summary: {
         total_platforms: number;
@@ -155,6 +141,8 @@ interface CoverageGaps {
         vehicles_without_fcc: number;
         vehicles_without_content: number;
     };
+    category_breakdown?: { category: string; total: number; missing: number }[];
+    active_filter?: string | null;
 }
 
 // Helper to format bytes
@@ -227,6 +215,7 @@ export default function DevPanelPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps'>('overview');
     const [activityFilter, setActivityFilter] = useState<string>('all');
+    const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [expandedActivityId, setExpandedActivityId] = useState<number | null>(null);
 
     const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
@@ -245,7 +234,7 @@ export default function DevPanelPage() {
                 fetch(`${API_BASE}/api/admin/intelligence/inventory`, { headers }),
                 fetch(`${API_BASE}/api/admin/intelligence/clicks`, { headers }),
                 fetch(`${API_BASE}/api/admin/users`, { headers }),
-                fetch(`${API_BASE}/api/admin/coverage-gaps`, { headers })
+                fetch(`${API_BASE}/api/admin/coverage-gaps${categoryFilter ? `?category=${categoryFilter}` : ''}`, { headers })
             ]);
 
             if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
@@ -812,6 +801,43 @@ export default function DevPanelPage() {
 
             {activeTab === 'gaps' && (
                 <div className="space-y-6">
+                    {/* Category Filter Buttons */}
+                    <div className="flex flex-wrap gap-2 items-center">
+                        <span className="text-xs text-slate-500 uppercase tracking-wide mr-2">Filter by Category:</span>
+                        {[
+                            { key: null, label: 'All', icon: '📊' },
+                            { key: 'vehicle_platform', label: 'Platforms', icon: '🚗' },
+                            { key: 'immo_system', label: 'IMMO Systems', icon: '🔐' },
+                            { key: 'security_module', label: 'Modules', icon: '🛡️' },
+                            { key: 'chip_protocol', label: 'Chips', icon: '💾' }
+                        ].map((cat) => (
+                            <button
+                                key={cat.key || 'all'}
+                                onClick={async () => {
+                                    setCategoryFilter(cat.key);
+                                    // Re-fetch with new filter
+                                    const token = localStorage.getItem('session_token');
+                                    const res = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/admin/coverage-gaps${cat.key ? `?category=${cat.key}` : ''}`, {
+                                        headers: { 'Authorization': `Bearer ${token}` }
+                                    });
+                                    if (res.ok) setCoverageGaps(await res.json());
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${categoryFilter === cat.key
+                                    ? 'bg-eurokeys-purple text-white'
+                                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                    }`}
+                            >
+                                <span>{cat.icon}</span>
+                                <span>{cat.label}</span>
+                                {coverageGaps?.category_breakdown?.find(c => c.category === cat.key)?.total && (
+                                    <span className="ml-1 px-1.5 py-0.5 rounded bg-slate-700 text-slate-400 text-[10px]">
+                                        {coverageGaps.category_breakdown.find(c => c.category === cat.key)?.total}
+                                    </span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
                     {/* Summary Stats - Two Rows */}
                     <div className="space-y-4">
                         <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide">Platform Security Gaps</h3>
@@ -913,21 +939,15 @@ export default function DevPanelPage() {
                                 </span>
                             )}
                         </div>
-                        {coverageGaps?.vehicle_gaps?.data?.length ? (
-                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                {coverageGaps.vehicle_gaps.data.slice(0, 15).map((v, i) => (
-                                    <div key={i} className="rounded-lg bg-slate-800/50 px-3 py-2">
-                                        <p className="font-medium text-white capitalize text-sm">
-                                            {v.make} {v.model}
-                                        </p>
-                                        <p className="text-xs text-slate-500">
-                                            {v.year_start === v.year_end ? v.year_start : `${v.year_start}–${v.year_end}`} ({v.year_count} years)
-                                        </p>
-                                    </div>
-                                ))}
+                        {coverageGaps?.vehicle_gaps?.count ? (
+                            <div className="flex items-center gap-4 bg-slate-800/50 rounded-lg p-4">
+                                <span className="text-4xl font-bold text-red-400">
+                                    {coverageGaps.vehicle_gaps.count}
+                                </span>
+                                <span className="text-slate-400">vehicle make/model combinations without tool coverage data</span>
                             </div>
                         ) : (
-                            <p className="text-sm text-slate-500">No vehicle gaps found</p>
+                            <p className="text-sm text-slate-500">All vehicles have tool coverage data</p>
                         )}
                     </div>
 
@@ -1021,17 +1041,15 @@ export default function DevPanelPage() {
                                 </span>
                             )}
                         </div>
-                        {coverageGaps?.fcc_gaps?.data?.length ? (
-                            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                                {coverageGaps.fcc_gaps.data.slice(0, 12).map((v, i) => (
-                                    <div key={i} className="rounded bg-slate-800/50 px-2 py-1 text-sm">
-                                        <span className="text-white capitalize">{v.make}</span>
-                                        <span className="text-slate-400 ml-1">{v.model}</span>
-                                    </div>
-                                ))}
+                        {coverageGaps?.fcc_gaps?.count ? (
+                            <div className="flex items-center gap-4 bg-slate-800/50 rounded-lg p-4">
+                                <span className="text-4xl font-bold text-yellow-400">
+                                    {coverageGaps.fcc_gaps.count}
+                                </span>
+                                <span className="text-slate-400">vehicle make/model combinations without FCC ID mappings</span>
                             </div>
                         ) : (
-                            <p className="text-sm text-slate-500">No FCC gaps found</p>
+                            <p className="text-sm text-slate-500">All vehicles have FCC data</p>
                         )}
                     </div>
                 </div>

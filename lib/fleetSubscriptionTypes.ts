@@ -68,6 +68,41 @@ export type OrganizationStatus = 'active' | 'past_due' | 'cancelled' | 'trialing
 
 export type MemberStatus = 'active' | 'suspended' | 'pending' | 'on_break';
 
+export type ServiceVehicleStatus = 'available' | 'assigned' | 'maintenance' | 'retired';
+
+/**
+ * Service Vehicle - company-owned vehicles assignable to technicians
+ * These are the locksmith's work vans/trucks, NOT customer fleet vehicles
+ */
+export interface ServiceVehicle {
+    id: string;
+    organizationId: string;
+
+    // Vehicle Info
+    year: number;
+    make: string;
+    model: string;
+    vin?: string;
+    licensePlate?: string;
+    color?: string;
+    nickname?: string;           // e.g., "Van #3", "Blue Beast"
+
+    // Assignment
+    assignedToMemberId?: string; // Technician member ID
+    assignedAt?: number;
+
+    // Status
+    status: ServiceVehicleStatus;
+
+    // Equipment/Notes
+    equipmentNotes?: string;     // What tools are in this van
+    notes?: string;
+
+    // Metadata
+    createdAt: number;
+    updatedAt?: number;
+}
+
 /**
  * Service Area - geographic zones for dispatching
  */
@@ -507,4 +542,50 @@ export function getSpecializationLabel(spec: TechnicianSpecialization): string {
         commercial_access: 'Commercial Access Control',
     };
     return labels[spec];
+}
+
+// ============================================================================
+// Service Vehicle Functions
+// ============================================================================
+
+/**
+ * Generate unique service vehicle ID
+ */
+export function generateServiceVehicleId(): string {
+    return `sv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * Get service vehicle assigned to a member
+ */
+export function getAssignedVehicle(vehicles: ServiceVehicle[], memberId: string): ServiceVehicle | undefined {
+    return vehicles.find(v => v.assignedToMemberId === memberId && v.status === 'assigned');
+}
+
+/**
+ * Get available (unassigned) service vehicles
+ */
+export function getAvailableServiceVehicles(vehicles: ServiceVehicle[]): ServiceVehicle[] {
+    return vehicles.filter(v => v.status === 'available' && !v.assignedToMemberId);
+}
+
+/**
+ * Format service vehicle display string
+ */
+export function formatServiceVehicle(vehicle: ServiceVehicle): string {
+    const base = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+    return vehicle.nickname ? `${vehicle.nickname} (${base})` : base;
+}
+
+/**
+ * Get status display info for service vehicles
+ */
+export function getServiceVehicleStatusInfo(status: ServiceVehicleStatus): { label: string; color: string; icon: string } {
+    const info: Record<ServiceVehicleStatus, { label: string; color: string; icon: string }> = {
+        available: { label: 'Available', color: 'green', icon: '✅' },
+        assigned: { label: 'Assigned', color: 'blue', icon: '🔧' },
+        maintenance: { label: 'In Maintenance', color: 'orange', icon: '🔩' },
+        retired: { label: 'Retired', color: 'zinc', icon: '🚫' },
+    };
+    return info[status];
 }

@@ -12,6 +12,14 @@ import {
     suggestFleetAccounts,
     formatVehicle,
 } from '@/lib/fleetTypes';
+import {
+    ServiceVehicle,
+    FleetMember,
+    formatServiceVehicle,
+    getServiceVehicleStatusInfo,
+    ServiceVehicleStatus,
+} from '@/lib/fleetSubscriptionTypes';
+import { useFleet } from '@/contexts/FleetContext';
 import { JobLog } from '@/lib/useJobLogs';
 
 interface FleetPanelProps {
@@ -20,7 +28,7 @@ interface FleetPanelProps {
     jobLogs: JobLog[];
 }
 
-type TabType = 'overview' | 'jobs' | 'inventory';
+type TabType = 'overview' | 'service_vehicles' | 'jobs' | 'key_stock';
 
 export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps) {
     const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -132,16 +140,17 @@ export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-zinc-700">
+                <div className="flex border-b border-zinc-700 overflow-x-auto">
                     {[
                         { id: 'overview' as TabType, label: 'Overview', icon: '🏢' },
+                        { id: 'service_vehicles' as TabType, label: 'Vehicles', icon: '🚐' },
                         { id: 'jobs' as TabType, label: 'Jobs', icon: '📋' },
-                        { id: 'inventory' as TabType, label: 'Inventory', icon: '🔑' },
+                        { id: 'key_stock' as TabType, label: 'Key Stock', icon: '🔑' },
                     ].map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex-1 px-3 py-3 text-sm font-medium transition-colors ${activeTab === tab.id
+                            className={`flex-1 px-2 py-3 text-xs font-medium transition-colors whitespace-nowrap ${activeTab === tab.id
                                 ? 'text-yellow-400 border-b-2 border-yellow-400 bg-zinc-800/50'
                                 : 'text-zinc-400 hover:text-white hover:bg-zinc-800/30'
                                 }`}
@@ -166,6 +175,9 @@ export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps
                             getFleetJobs={getFleetJobs}
                         />
                     )}
+                    {activeTab === 'service_vehicles' && (
+                        <ServiceVehiclesTab />
+                    )}
                     {activeTab === 'jobs' && (
                         <JobsTab
                             fleets={fleets}
@@ -173,8 +185,8 @@ export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps
                             onSelectFleet={setSelectedFleet}
                         />
                     )}
-                    {activeTab === 'inventory' && (
-                        <InventoryTab fleets={fleets} />
+                    {activeTab === 'key_stock' && (
+                        <KeyStockTab fleets={fleets} />
                     )}
                 </div>
             </div>
@@ -390,10 +402,137 @@ function JobsTab({
 }
 
 // ============================================================================
-// Inventory Tab
+// Service Vehicles Tab (Company Work Vans)
 // ============================================================================
 
-function InventoryTab({ fleets }: { fleets: FleetAccount[] }) {
+function ServiceVehiclesTab() {
+    const { serviceVehicles, members, addServiceVehicle, updateServiceVehicle, removeServiceVehicle, assignVehicleToTechnician, isFleetOwner } = useFleet();
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [editingVehicle, setEditingVehicle] = useState<ServiceVehicle | null>(null);
+
+    const technicians = members.filter(m => m.role === 'technician');
+
+    const handleAssign = async (vehicleId: string, memberId: string | null) => {
+        await assignVehicleToTechnician(vehicleId, memberId);
+    };
+
+    const getMemberName = (memberId?: string) => {
+        if (!memberId) return null;
+        const member = members.find(m => m.id === memberId);
+        return member?.displayName || 'Unknown';
+    };
+
+    return (
+        <div className="space-y-4">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <div className="text-sm font-medium text-white">Service Vehicles</div>
+                    <div className="text-xs text-zinc-500">Your company work vans & trucks</div>
+                </div>
+                {isFleetOwner && (
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="text-xs px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-500"
+                    >
+                        + Add Vehicle
+                    </button>
+                )}
+            </div>
+
+            {/* Vehicles List */}
+            {serviceVehicles.length === 0 ? (
+                <div className="text-center py-8">
+                    <div className="text-4xl mb-2">🚐</div>
+                    <div className="text-zinc-400 text-sm">No service vehicles</div>
+                    <div className="text-zinc-500 text-xs">Add your work vans to assign to technicians</div>
+                </div>
+            ) : (
+                <div className="space-y-2">
+                    {serviceVehicles.map(vehicle => {
+                        const statusInfo = getServiceVehicleStatusInfo(vehicle.status);
+                        const assignedTo = getMemberName(vehicle.assignedToMemberId);
+
+                        return (
+                            <div
+                                key={vehicle.id}
+                                className="bg-zinc-800 border border-zinc-700 rounded-lg p-3"
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium text-white">
+                                                {vehicle.nickname || formatServiceVehicle(vehicle)}
+                                            </span>
+                                            <span className={`px-1.5 py-0.5 text-xs rounded-full bg-${statusInfo.color}-500/20 text-${statusInfo.color}-400`}>
+                                                {statusInfo.icon} {statusInfo.label}
+                                            </span>
+                                        </div>
+                                        {vehicle.nickname && (
+                                            <div className="text-xs text-zinc-500">{formatServiceVehicle(vehicle)}</div>
+                                        )}
+                                        {vehicle.licensePlate && (
+                                            <div className="text-xs text-zinc-500">Plate: {vehicle.licensePlate}</div>
+                                        )}
+                                    </div>
+                                    {isFleetOwner && (
+                                        <button
+                                            onClick={() => removeServiceVehicle(vehicle.id)}
+                                            className="text-red-400 hover:text-red-300 text-sm ml-2"
+                                        >
+                                            ×
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Assignment */}
+                                <div className="mt-2 flex items-center gap-2">
+                                    <span className="text-xs text-zinc-500">Assigned to:</span>
+                                    {isFleetOwner ? (
+                                        <select
+                                            value={vehicle.assignedToMemberId || ''}
+                                            onChange={(e) => handleAssign(vehicle.id, e.target.value || null)}
+                                            className="text-xs px-2 py-1 bg-zinc-700 border border-zinc-600 rounded text-white"
+                                        >
+                                            <option value="">Unassigned</option>
+                                            {technicians.map(tech => (
+                                                <option key={tech.id} value={tech.id}>
+                                                    {tech.displayName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span className="text-xs text-white">
+                                            {assignedTo || 'Unassigned'}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Add Modal */}
+            {showAddModal && (
+                <AddServiceVehicleModal
+                    technicians={technicians}
+                    onClose={() => setShowAddModal(false)}
+                    onAdd={async (vehicle) => {
+                        await addServiceVehicle(vehicle);
+                        setShowAddModal(false);
+                    }}
+                />
+            )}
+        </div>
+    );
+}
+
+// ============================================================================
+// Key Stock Tab (Customer Fleet Vehicle Summary for Key Inventory Planning)
+// ============================================================================
+
+function KeyStockTab({ fleets }: { fleets: FleetAccount[] }) {
     // Group vehicles by make for inventory insights
     const vehiclesByMake = useMemo(() => {
         const makes: Record<string, { count: number; models: string[] }> = {};
@@ -416,9 +555,17 @@ function InventoryTab({ fleets }: { fleets: FleetAccount[] }) {
 
     return (
         <div className="space-y-4">
+            {/* Explanation */}
+            <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3">
+                <div className="text-xs text-zinc-400">
+                    <strong className="text-zinc-300">Key Stock Analysis</strong> — Shows which key blanks to stock
+                    based on your customers' fleet vehicles.
+                </div>
+            </div>
+
             {/* Summary */}
             <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4">
-                <div className="text-xs text-zinc-500 uppercase mb-1">Fleet Vehicles</div>
+                <div className="text-xs text-zinc-500 uppercase mb-1">Customer Fleet Vehicles</div>
                 <div className="text-2xl font-bold text-white">{totalVehicles}</div>
                 <div className="text-xs text-zinc-400">across {fleets.length} accounts</div>
             </div>
@@ -426,13 +573,13 @@ function InventoryTab({ fleets }: { fleets: FleetAccount[] }) {
             {/* Vehicle Breakdown */}
             {vehiclesByMake.length === 0 ? (
                 <div className="text-center py-8">
-                    <div className="text-4xl mb-2">🚗</div>
-                    <div className="text-zinc-400 text-sm">No fleet vehicles tracked</div>
-                    <div className="text-zinc-500 text-xs">Add vehicles to fleet accounts to see inventory</div>
+                    <div className="text-4xl mb-2">🔑</div>
+                    <div className="text-zinc-400 text-sm">No customer fleet vehicles</div>
+                    <div className="text-zinc-500 text-xs">Add vehicles to fleet accounts to see key stock needs</div>
                 </div>
             ) : (
                 <div className="space-y-2">
-                    <div className="text-xs text-zinc-500 uppercase font-bold">By Make</div>
+                    <div className="text-xs text-zinc-500 uppercase font-bold">Stock Keys For</div>
                     {vehiclesByMake.map(([make, data]) => (
                         <div
                             key={make}
@@ -441,7 +588,7 @@ function InventoryTab({ fleets }: { fleets: FleetAccount[] }) {
                             <div className="flex items-center justify-between">
                                 <span className="font-medium text-white">{make}</span>
                                 <span className="px-2 py-0.5 bg-zinc-700 text-zinc-300 text-xs rounded-full">
-                                    {data.count}
+                                    {data.count} vehicles
                                 </span>
                             </div>
                             <div className="mt-1 text-xs text-zinc-500">
@@ -452,11 +599,6 @@ function InventoryTab({ fleets }: { fleets: FleetAccount[] }) {
                     ))}
                 </div>
             )}
-
-            {/* Tip */}
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-xs text-blue-300">
-                💡 <strong>Tip:</strong> Add vehicles to fleet accounts to track key inventory and see which blanks to stock.
-            </div>
         </div>
     );
 }
@@ -553,15 +695,18 @@ function FleetDetailModal({
                         </div>
                     </div>
 
-                    {/* Vehicles */}
+                    {/* Customer Fleet Vehicles */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <div className="text-xs text-zinc-500 uppercase font-bold">Vehicles</div>
+                            <div>
+                                <div className="text-xs text-zinc-500 uppercase font-bold">Customer Fleet Vehicles</div>
+                                <div className="text-xs text-zinc-600">Vehicles in this fleet account that you service</div>
+                            </div>
                             <button
                                 onClick={() => setShowAddVehicle(true)}
                                 className="text-xs text-purple-400 hover:text-purple-300"
                             >
-                                + Add Vehicle
+                                + Add
                             </button>
                         </div>
                         {editedFleet.vehicles.length === 0 ? (
@@ -789,6 +934,137 @@ function AddVehicleModal({
                         className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium disabled:opacity-50"
                     >
                         Add Vehicle
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ============================================================================
+// Add Service Vehicle Modal
+// ============================================================================
+
+function AddServiceVehicleModal({
+    technicians,
+    onClose,
+    onAdd,
+}: {
+    technicians: FleetMember[];
+    onClose: () => void;
+    onAdd: (vehicle: Omit<ServiceVehicle, 'id' | 'organizationId' | 'createdAt'>) => void;
+}) {
+    const [year, setYear] = useState('');
+    const [make, setMake] = useState('');
+    const [model, setModel] = useState('');
+    const [vin, setVin] = useState('');
+    const [licensePlate, setLicensePlate] = useState('');
+    const [nickname, setNickname] = useState('');
+    const [assignedTo, setAssignedTo] = useState('');
+    const [status, setStatus] = useState<ServiceVehicleStatus>('available');
+
+    const handleAdd = () => {
+        if (!year || !make || !model) return;
+        onAdd({
+            year: parseInt(year),
+            make,
+            model,
+            vin: vin || undefined,
+            licensePlate: licensePlate || undefined,
+            nickname: nickname || undefined,
+            assignedToMemberId: assignedTo || undefined,
+            assignedAt: assignedTo ? Date.now() : undefined,
+            status: assignedTo ? 'assigned' : status,
+        });
+    };
+
+    return (
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60">
+            <div className="bg-zinc-800 border border-zinc-600 rounded-xl w-full max-w-md mx-4 p-4">
+                <h3 className="text-lg font-bold text-white mb-4">🚐 Add Service Vehicle</h3>
+                <div className="text-xs text-zinc-500 mb-4">
+                    Add a company work van or truck to assign to technicians
+                </div>
+                <div className="space-y-3">
+                    {/* Vehicle Info */}
+                    <div className="grid grid-cols-3 gap-2">
+                        <input
+                            type="number"
+                            value={year}
+                            onChange={(e) => setYear(e.target.value)}
+                            placeholder="Year *"
+                            className="px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                        />
+                        <input
+                            type="text"
+                            value={make}
+                            onChange={(e) => setMake(e.target.value)}
+                            placeholder="Make *"
+                            className="px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                        />
+                        <input
+                            type="text"
+                            value={model}
+                            onChange={(e) => setModel(e.target.value)}
+                            placeholder="Model *"
+                            className="px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                        />
+                    </div>
+
+                    <input
+                        type="text"
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
+                        placeholder="Nickname (e.g., Van #3, Blue Beast)"
+                        className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                    />
+
+                    <div className="grid grid-cols-2 gap-2">
+                        <input
+                            type="text"
+                            value={licensePlate}
+                            onChange={(e) => setLicensePlate(e.target.value.toUpperCase())}
+                            placeholder="License Plate"
+                            className="px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                        />
+                        <input
+                            type="text"
+                            value={vin}
+                            onChange={(e) => setVin(e.target.value.toUpperCase())}
+                            placeholder="VIN"
+                            className="px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                            maxLength={17}
+                        />
+                    </div>
+
+                    {/* Assignment */}
+                    <div>
+                        <label className="text-xs text-zinc-500 block mb-1">Assign to Technician</label>
+                        <select
+                            value={assignedTo}
+                            onChange={(e) => setAssignedTo(e.target.value)}
+                            className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                        >
+                            <option value="">Leave Unassigned</option>
+                            {technicians.map(tech => (
+                                <option key={tech.id} value={tech.id}>
+                                    {tech.displayName}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="flex gap-2 mt-4 justify-end">
+                    <button onClick={onClose} className="px-4 py-2 bg-zinc-700 text-zinc-300 rounded-lg text-sm">
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleAdd}
+                        disabled={!year || !make || !model}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium text-sm disabled:opacity-50"
+                    >
+                        Add Service Vehicle
                     </button>
                 </div>
             </div>
