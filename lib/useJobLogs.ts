@@ -163,8 +163,8 @@ export function useJobLogs() {
     const hasSyncedRef = useRef(false);
     const isSyncingRef = useRef(false);
 
-    // User-scoped storage key prevents data contamination between accounts
-    const effectiveStorageKey = useMemo(() => getUserScopedKey(STORAGE_KEY), []);
+    // Use plain storage key (user-scoping disabled to preserve existing data)
+    const effectiveStorageKey = STORAGE_KEY;
 
     // Normalize job to ensure required fields exist (defensive against malformed cloud data)
     const normalizeJob = useCallback((job: Partial<JobLog>): JobLog => {
