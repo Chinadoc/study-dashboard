@@ -44,7 +44,7 @@ export interface JobLog {
     technicianName?: string; // Denormalized for display
 
     // Dispatch workflow status
-    status: 'unassigned' | 'claimed' | 'in_progress' | 'completed' | 'cancelled';
+    status: 'unassigned' | 'claimed' | 'in_progress' | 'completed' | 'cancelled' | 'pending';
 
     // Dispatch timestamps (for aging calculations)
     claimedAt?: number;      // When tech claimed/was assigned
@@ -162,14 +162,31 @@ export function useJobLogs() {
     const hasSyncedRef = useRef(false);
     const isSyncingRef = useRef(false);
 
+    // Normalize job to ensure required fields exist (defensive against malformed cloud data)
+    const normalizeJob = useCallback((job: Partial<JobLog>): JobLog => {
+        return {
+            id: job.id || generateId(),
+            vehicle: job.vehicle || '',
+            jobType: job.jobType || 'other',
+            price: typeof job.price === 'number' ? job.price : 0,
+            date: job.date || new Date().toISOString().split('T')[0],
+            createdAt: job.createdAt || Date.now(),
+            status: (['unassigned', 'claimed', 'in_progress', 'completed', 'cancelled', 'pending'].includes(job.status as string)
+                ? job.status
+                : 'completed') as JobLog['status'],
+            ...job,
+        } as JobLog;
+    }, []);
+
     // Merge local and cloud jobs using timestamps, detecting conflicts
     const mergeJobs = useCallback((local: JobLog[], cloud: JobLog[]): JobLog[] => {
         const merged = new Map<string, JobLog>();
         const detectedConflicts: ConflictItem[] = [];
 
-        // Start with cloud jobs
+        // Start with cloud jobs (normalize to ensure required fields)
         cloud.forEach(job => {
-            merged.set(job.id, { ...job, syncStatus: 'synced' as const });
+            const normalized = normalizeJob(job);
+            merged.set(normalized.id, { ...normalized, syncStatus: 'synced' as const });
         });
 
         // Merge in local jobs, detect conflicts
@@ -221,7 +238,7 @@ export function useJobLogs() {
         return Array.from(merged.values()).sort((a, b) =>
             (b.createdAt || 0) - (a.createdAt || 0)
         );
-    }, []);
+    }, [normalizeJob]);
 
     // Resolve conflicts based on user choices
     const resolveConflicts = useCallback(async (
@@ -710,7 +727,7 @@ export function useJobLogs() {
             }
 
             // Status counting
-            if (log.status === 'pending' || log.status === 'in_progress') {
+            if (log.status === 'pending' || log.status === 'in_progress' || log.status === 'unassigned' || log.status === 'claimed') {
                 pendingJobs++;
             } else if (log.status === 'completed') {
                 completedJobs++;
