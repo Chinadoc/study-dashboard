@@ -130,39 +130,40 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
         );
     };
 
+    // Tool ID to Data Key mapping
+    const toolIdToKey: Record<string, typeof TOOLS[number]> = useMemo(() => ({
+        // Autel
+        'autel_im508s': 'autel',
+        'autel_im608': 'autel',
+        'autel_im608_pro': 'autel',
+        'autel_im608_pro2': 'autel',
+        // OBDStar
+        'obdstar_x300_mini': 'autel', // Mapping OBDStar to Autel for now as they share similar coverage in this dataset or it's a placeholder
+        'obdstar_x300_pro4': 'autel',
+        'obdstar_x300_dp_plus': 'autel',
+        'obdstar_g3': 'autel',
+        // Smart Pro / AutoProPAD
+        'smart_pro_tcode': 'smartPro',
+        'smart_pro': 'smartPro',
+        'autopropad_basic': 'smartPro', // Mapping APP to SmartPro for similar coverage tier
+        'autopropad': 'smartPro',
+        // Lonsdor
+        'lonsdor_k518s': 'lonsdor',
+        'lonsdor_k518ise': 'lonsdor',
+        'lonsdor_k518_pro': 'lonsdor',
+        // Xhorse
+        'xhorse_mini_obd': 'vvdi',
+        'xhorse_keytool_max': 'vvdi',
+        'xhorse_vvdi2': 'vvdi',
+        'xhorse_keytool_plus': 'vvdi',
+    }), []);
+
     // Check if owned tools cover a vehicle
     const hasToolForVehicle = (v: VehicleCoverage): boolean => {
-        const toolIdToKey: Record<string, typeof TOOLS[number]> = {
-            // Autel
-            'autel_im508s': 'autel',
-            'autel_im608': 'autel',
-            'autel_im608_pro': 'autel',
-            'autel_im608_pro2': 'autel',
-            // OBDStar
-            'obdstar_x300_mini': 'autel',
-            'obdstar_x300_pro4': 'autel',
-            'obdstar_x300_dp_plus': 'autel',
-            'obdstar_g3': 'autel',
-            // Smart Pro / AutoProPAD
-            'smart_pro_tcode': 'smartPro',
-            'smart_pro': 'smartPro',
-            'autopropad_basic': 'smartPro',
-            'autopropad': 'smartPro',
-            // Lonsdor
-            'lonsdor_k518s': 'lonsdor',
-            'lonsdor_k518ise': 'lonsdor',
-            'lonsdor_k518_pro': 'lonsdor',
-            // Xhorse
-            'xhorse_mini_obd': 'vvdi',
-            'xhorse_keytool_max': 'vvdi',
-            'xhorse_vvdi2': 'vvdi',
-            'xhorse_keytool_plus': 'vvdi',
-        };
-
         return ownedToolIds.some(toolId => {
             const toolKey = toolIdToKey[toolId];
             if (!toolKey) return false;
-            const level = getCoverageLevel(v[toolKey].status || '');
+            const level = getCoverageLevel(v[toolKey]?.status || '');
             return level === 'full' || level === 'partial';
         });
     };
@@ -170,7 +171,22 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
     // Timeline view data computation
     const timelineData = useMemo(() => {
         const data: Record<string, Record<number, { level: 'full' | 'partial' | 'none' | 'unknown', models: string[], status: string }>> = {};
-        const toolsToCheck = selectedTool === 'all' ? TOOLS : [selectedTool];
+
+        // Determine which tools to check based on selection
+        let toolsToCheck: readonly string[] = [];
+        if (selectedTool === 'all') {
+            toolsToCheck = TOOLS;
+        } else if (TOOLS.includes(selectedTool as any)) {
+            toolsToCheck = [selectedTool];
+        } else {
+            // It's a specific tool ID, map to category
+            const category = toolIdToKey[selectedTool];
+            if (category) {
+                toolsToCheck = [category];
+            } else {
+                toolsToCheck = ['autel']; // Fallback
+            }
+        }
 
         makes.forEach(make => {
             data[make] = {};
@@ -188,9 +204,10 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
 
                     records.forEach(r => {
                         toolsToCheck.forEach(tool => {
-                            const toolData = r[tool];
-                            const status = toolData.status || '';
-                            if (status) statuses.push(`${TOOL_LABELS[tool]}: ${status}`);
+                            const toolKey = tool as 'autel' | 'smartPro' | 'lonsdor' | 'vvdi';
+                            const toolData = r[toolKey];
+                            const status = toolData?.status || '';
+                            if (status) statuses.push(`${TOOL_LABELS[toolKey]}: ${status}`);
                             const level = getCoverageLevel(status);
                             if (level === 'full') bestLevel = 'full';
                             else if (level === 'partial' && bestLevel !== 'full') bestLevel = 'partial';
@@ -240,11 +257,20 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
                         className="flex-1 sm:flex-none bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 sm:py-2 text-white text-sm min-w-0"
                     >
                         <option value="all">All Tools</option>
-                        {TOOLS.map(tool => (
-                            <option key={tool} value={tool}>
-                                {TOOL_LABELS[tool]}
-                            </option>
-                        ))}
+                        <optgroup label="Tool Families">
+                            {TOOLS.map(tool => (
+                                <option key={tool} value={tool}>
+                                    {TOOL_LABELS[tool]}
+                                </option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="Specific Tools">
+                            {AVAILABLE_TOOLS.map(tool => (
+                                <option key={tool.id} value={tool.id}>
+                                    {tool.shortName}
+                                </option>
+                            ))}
+                        </optgroup>
                     </select>
                 </div>
             </div>
@@ -274,9 +300,12 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
                 {showMyCoverage && (
                     <>
                         <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-                        <div className="flex items-center gap-1.5 sm:gap-2">
+                        <div
+                            onClick={() => setShowMyCoverage(!showMyCoverage)}
+                            className="flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:opacity-80 active:scale-95 transition-all"
+                        >
                             <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-gray-600 ring-2 ring-amber-400" />
-                            <span className="text-xs sm:text-sm text-amber-400">🔧 Tool owned</span>
+                            <span className="text-xs sm:text-sm text-amber-400 font-medium border-b border-dashed border-amber-400/50">🔧 Tool owned</span>
                         </div>
                         <div className="flex items-center gap-1.5 sm:gap-2">
                             <div className="relative w-3 h-3 sm:w-4 sm:h-4">

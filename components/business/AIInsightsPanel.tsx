@@ -458,7 +458,7 @@ export default function AIInsightsPanel() {
                                             {h.type}
                                         </span>
                                         <span className="text-xs text-zinc-500">
-                                            {new Date(h.createdAt).toLocaleDateString()}
+                                            {new Date(h.createdAt * (h.createdAt < 10000000000 ? 1000 : 1)).toLocaleDateString()}
                                         </span>
                                     </div>
                                     <p className="text-sm text-zinc-400 line-clamp-3">{h.content}</p>
