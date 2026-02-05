@@ -1463,12 +1463,26 @@ export default {
           const userId = payload.sub as string;
 
           const result = await env.LOCKSMITH_DB.prepare(`
-            SELECT id, data, created_at, updated_at FROM pipeline_leads WHERE user_id = ? ORDER BY updated_at DESC
+            SELECT id, created_at, updated_at,
+              customer_name, customer_phone, customer_email,
+              vehicle, job_type, estimated_value, status, lost_reason,
+              source, notes, follow_up_date
+            FROM pipeline_leads WHERE user_id = ? ORDER BY updated_at DESC
           `).bind(userId).all();
 
           const leads = (result.results || []).map((row: any) => ({
             id: row.id,
-            ...JSON.parse(row.data || '{}'),
+            customerName: row.customer_name,
+            customerPhone: row.customer_phone,
+            customerEmail: row.customer_email,
+            vehicle: row.vehicle,
+            jobType: row.job_type,
+            estimatedValue: row.estimated_value,
+            status: row.status || 'new',
+            lostReason: row.lost_reason,
+            source: row.source,
+            notes: row.notes,
+            followUpDate: row.follow_up_date,
             createdAt: row.created_at,
             updatedAt: row.updated_at
           }));
@@ -1494,18 +1508,41 @@ export default {
 
           if (!lead || !lead.id) return corsResponse(request, JSON.stringify({ error: "Missing lead data or ID" }), 400);
 
+          const now = Date.now();
           await env.LOCKSMITH_DB.prepare(`
-            INSERT INTO pipeline_leads (id, user_id, data, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO pipeline_leads (
+              id, user_id, created_at, updated_at,
+              customer_name, customer_phone, customer_email,
+              vehicle, job_type, estimated_value, status, lost_reason,
+              source, notes, follow_up_date, synced_at, sync_status, data
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
-              data = excluded.data,
-              updated_at = excluded.updated_at
+              updated_at = excluded.updated_at,
+              customer_name = excluded.customer_name, customer_phone = excluded.customer_phone,
+              customer_email = excluded.customer_email, vehicle = excluded.vehicle,
+              job_type = excluded.job_type, estimated_value = excluded.estimated_value,
+              status = excluded.status, lost_reason = excluded.lost_reason,
+              source = excluded.source, notes = excluded.notes, follow_up_date = excluded.follow_up_date,
+              synced_at = excluded.synced_at, data = excluded.data
           `).bind(
             lead.id,
             userId,
-            JSON.stringify(lead),
-            lead.createdAt || Date.now(),
-            Date.now()
+            lead.createdAt || now,
+            now,
+            lead.customerName || null,
+            lead.customerPhone || null,
+            lead.customerEmail || null,
+            lead.vehicle || null,
+            lead.jobType || null,
+            lead.estimatedValue || null,
+            lead.status || 'new',
+            lead.lostReason || null,
+            lead.source || null,
+            lead.notes || null,
+            lead.followUpDate || null,
+            now,
+            'synced',
+            JSON.stringify(lead)
           ).run();
 
           return corsResponse(request, JSON.stringify({ success: true, id: lead.id }));
