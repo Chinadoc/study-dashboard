@@ -25,12 +25,32 @@ class VehicleSupport:
 @dataclass
 class TechnicalSpecs:
     """Structured technical specifications extracted from product."""
+    # Transponder/chip types
     chips: List[str]  # PCF79XX, NEC24C64, ID46, etc.
+    # IMMO system modules
     immo_modules: List[str]  # BDC2, BDC3, CAS1-4, FEM, etc.
+    # Communication protocols
     protocols: List[str]  # CAN-FD, DoIP, K-LINE, etc.
+    # Parent/compatible tools
     compatible_tools: List[str]  # IM508, XP400, VVDI2, etc.
+    # Supported functions
     functions: List[str]  # key programming, EEPROM read, etc.
+    # Lishi keyway codes
     keyways: List[str]  # HU92, HU66, etc.
+    # NEW: RF frequencies for remotes
+    rf_frequencies: List[str]  # 433MHz, 315MHz, 868MHz
+    # NEW: MCU/processor types for bench work
+    mcu_types: List[str]  # RH850, TC1797, MC9S12, etc.
+    # NEW: EEPROM chip types
+    eeprom_chips: List[str]  # 35080, 93C56, 24C64, etc.
+    # NEW: Key blade part numbers
+    key_blades: List[str]  # GT107, TOY43AT, HU92 blade, etc.
+    # NEW: Connectivity options
+    connectivity: List[str]  # Bluetooth, WiFi, USB, ENET
+    # NEW: Remote button configurations
+    button_count: Optional[str]  # 3-button, 4-button, etc.
+    # NEW: Required adapters/accessories
+    adapters: List[str]  # APB112, VH24, etc.
 
 
 @dataclass
@@ -227,6 +247,63 @@ class OBDII365Parser:
         r'FO(?:21|38)', r'MAZ24R?',
         r'SIP22', r'GT15', r'WT47T',
     ]
+    
+    # RF Frequency patterns (for remotes/fobs)
+    RF_FREQUENCY_PATTERNS = [
+        r'(\d{3})[- ]?MHZ',  # 433MHz, 315MHz, 868MHz, etc.
+    ]
+    
+    # MCU/Processor patterns (for bench/EEPROM work)
+    MCU_PATTERNS = [
+        r'RH850', r'V850',
+        r'TC17(?:66|67|82|96|97)',
+        r'MC9S12[A-Z0-9]*',
+        r'9S12(?:XDP512|DG256|XEP100|XEQ384)?',
+        r'SPC5[0-9]{3}',
+        r'MPC5[0-9]{3}',
+        r'S12X?E?',
+    ]
+    
+    # EEPROM chip patterns
+    EEPROM_PATTERNS = [
+        r'35080', r'35160[DW]?',
+        r'93C(?:46|56|66|76|86)',
+        r'24C(?:01|02|04|08|16|32|64|128|256)',
+        r'25(?:040|080|160|320|640)',
+    ]
+    
+    # Key blade part number patterns
+    KEY_BLADE_PATTERNS = [
+        r'GT1(?:0[0-9]|1[0-9]|2[0-9])',  # GT100-GT129
+        r'TOY43(?:AT|R)?',
+        r'HU(?:66|92|101|162T?)[- ]?BLADE',
+        r'FO(?:21|38)[- ]?BLADE',
+        r'NSN14[- ]?BLADE',
+        r'(?:MIT|TOY|HON|HY|KIA|SX|YM|NE|VA|FO|MAZ)\d{1,2}[A-Z]{0,2}EN',  # Blade part numbers
+    ]
+    
+    # Connectivity patterns
+    CONNECTIVITY_PATTERNS = [
+        r'BLUETOOTH', r'BT[- ]?(?:4|5)?\\.?0?',
+        r'WI[- ]?FI', r'WIFI', r'WIRELESS',
+        r'USB[- ]?(?:C|2\\.0|3\\.0)?', r'TYPE[- ]?C',
+        r'ENET', r'ETHERNET',
+        r'OBD[- ]?(?:16|II)[- ]?(?:CONNECTOR)?',
+    ]
+    
+    # Button count patterns (for remotes)
+    BUTTON_PATTERNS = [
+        r'(\d)[- ]?BUTTON',  # 3-button, 4-button, etc.
+    ]
+    
+    # Adapter/accessory part number patterns
+    ADAPTER_PATTERNS = [
+        r'APB1(?:12|13|14|15|30|31)',
+        r'VH(?:24|29|30|31)',
+        r'G[- ]?BOX[- ]?[23]?',
+        r'IMKPA',
+        r'XP400[- ]?(?:PRO)?',
+    ]
 
     def __init__(self, html_dir: Path, output_dir: Path):
         self.html_dir = html_dir
@@ -244,6 +321,10 @@ class OBDII365Parser:
             "with_chip_data": 0,
             "with_module_data": 0,
             "with_tool_compat": 0,
+            "with_rf_freq": 0,
+            "with_mcu_data": 0,
+            "with_eeprom_data": 0,
+            "with_connectivity": 0,
         }
 
     def parse_all(self) -> List[ParsedProduct]:
@@ -274,6 +355,14 @@ class OBDII365Parser:
                         self.stats["with_module_data"] += 1
                     if specs.get('compatible_tools'):
                         self.stats["with_tool_compat"] += 1
+                    if specs.get('rf_frequencies'):
+                        self.stats["with_rf_freq"] += 1
+                    if specs.get('mcu_types'):
+                        self.stats["with_mcu_data"] += 1
+                    if specs.get('eeprom_chips'):
+                        self.stats["with_eeprom_data"] += 1
+                    if specs.get('connectivity'):
+                        self.stats["with_connectivity"] += 1
             except Exception as e:
                 self.stats["parse_errors"] += 1
                 self.errors.append({
@@ -500,6 +589,17 @@ class OBDII365Parser:
                     matches.add(value)
             return sorted(list(matches))
         
+        def extract_groups(patterns: List[str], text: str) -> List[str]:
+            """Extract capture groups from patterns."""
+            matches = set()
+            for pattern in patterns:
+                for match in re.finditer(pattern, text, re.IGNORECASE):
+                    if match.groups():
+                        matches.add(match.group(1).upper())
+                    else:
+                        matches.add(match.group(0).upper())
+            return sorted(list(matches))
+        
         # Extract each category
         chips = extract_matches(self.CHIP_PATTERNS, combined_text)
         immo_modules = extract_matches(self.IMMO_MODULE_PATTERNS, combined_text)
@@ -507,6 +607,21 @@ class OBDII365Parser:
         compatible_tools = extract_matches(self.TOOL_PATTERNS, combined_text)
         functions = extract_matches(self.FUNCTION_PATTERNS, combined_text)
         keyways = extract_matches(self.KEYWAY_PATTERNS, combined_text)
+        
+        # NEW: Extract additional locksmith categories
+        rf_frequencies = extract_groups(self.RF_FREQUENCY_PATTERNS, combined_text)
+        # Filter valid frequencies
+        rf_frequencies = [f + 'MHZ' for f in rf_frequencies if f in ['315', '433', '434', '868', '902', '915', '314', '312']]
+        
+        mcu_types = extract_matches(self.MCU_PATTERNS, combined_text)
+        eeprom_chips = extract_matches(self.EEPROM_PATTERNS, combined_text)
+        key_blades = extract_matches(self.KEY_BLADE_PATTERNS, combined_text)
+        connectivity = extract_matches(self.CONNECTIVITY_PATTERNS, combined_text)
+        adapters = extract_matches(self.ADAPTER_PATTERNS, combined_text)
+        
+        # Extract button count (take most common/relevant)
+        button_matches = re.findall(r'(\d)[- ]?BUTTON', combined_text, re.IGNORECASE)
+        button_count = button_matches[0] + '-BUTTON' if button_matches else None
         
         # Filter out false positives
         # Remove generic "IMMO" if we have specific IMMO types
@@ -518,6 +633,9 @@ class OBDII365Parser:
         # Remove overly generic tool matches
         compatible_tools = [t for t in compatible_tools if len(t) > 2]
         
+        # Clean up connectivity duplicates
+        connectivity = list(set(c.replace('WIFI', 'WIFI').replace('WI-FI', 'WIFI') for c in connectivity))
+        
         return TechnicalSpecs(
             chips=chips,
             immo_modules=immo_modules,
@@ -525,6 +643,13 @@ class OBDII365Parser:
             compatible_tools=compatible_tools,
             functions=functions,
             keyways=keyways,
+            rf_frequencies=rf_frequencies,
+            mcu_types=mcu_types,
+            eeprom_chips=eeprom_chips,
+            key_blades=key_blades,
+            connectivity=connectivity,
+            button_count=button_count,
+            adapters=adapters,
         )
 
     def _extract_vehicle_support(self, description: str, name: str) -> List[VehicleSupport]:
@@ -745,12 +870,20 @@ def main():
         for p in products[:3]:
             print(f"  - {p.name[:60]}... [{p.locksmith_relevance}]")
             if p.vehicle_support:
-                print(f"    Vehicles: {p.vehicle_support[:3]}")
+                print(f"    Vehicles: {p.vehicle_support[:2]}")
             specs = p.technical_specs
             if specs.get('chips'):
-                print(f"    Chips: {specs['chips'][:5]}")
+                print(f"    Chips: {specs['chips'][:4]}")
             if specs.get('compatible_tools'):
-                print(f"    Tools: {specs['compatible_tools'][:5]}")
+                print(f"    Tools: {specs['compatible_tools'][:4]}")
+            if specs.get('rf_frequencies'):
+                print(f"    RF Freq: {specs['rf_frequencies']}")
+            if specs.get('mcu_types'):
+                print(f"    MCU: {specs['mcu_types'][:3]}")
+            if specs.get('eeprom_chips'):
+                print(f"    EEPROM: {specs['eeprom_chips'][:3]}")
+            if specs.get('connectivity'):
+                print(f"    Connectivity: {specs['connectivity'][:3]}")
     
     parser_instance.save_results(products)
     
@@ -761,10 +894,15 @@ def main():
     print(f"High relevance: {parser_instance.stats['high_relevance']}")
     print(f"Medium relevance: {parser_instance.stats['medium_relevance']}")
     print(f"Low relevance: {parser_instance.stats['low_relevance']}")
+    print("\n--- Technical Data Coverage ---")
     print(f"With vehicle data: {parser_instance.stats['with_vehicle_data']}")
     print(f"With chip data: {parser_instance.stats['with_chip_data']}")
     print(f"With module data: {parser_instance.stats['with_module_data']}")
     print(f"With tool compatibility: {parser_instance.stats['with_tool_compat']}")
+    print(f"With RF frequencies: {parser_instance.stats['with_rf_freq']}")
+    print(f"With MCU data: {parser_instance.stats['with_mcu_data']}")
+    print(f"With EEPROM data: {parser_instance.stats['with_eeprom_data']}")
+    print(f"With connectivity: {parser_instance.stats['with_connectivity']}")
 
 
 if __name__ == '__main__':

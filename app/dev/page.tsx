@@ -68,44 +68,92 @@ interface UserData {
 
 interface CoverageGaps {
     platform_gaps: {
-        make: string;
-        platform_code: string;
-        year_start: number;
-        year_end: number;
+        source: string;
         description: string;
-        security_level: string;
-        akl_typical: string;
-        coverage_count: number;
-        gap_status: 'missing' | 'thin' | 'adequate';
-        priority: number;
-    }[];
+        data: {
+            make: string;
+            platform_code: string;
+            year_start: number;
+            year_end: number;
+            description: string;
+            security_level: string;
+            akl_typical: string;
+            coverage_count: number;
+            gap_status: 'missing' | 'thin' | 'adequate';
+            priority: number;
+        }[];
+    };
     era_gaps: {
-        era_code: string;
-        era_description: string;
-        akl_difficulty: string;
-        coverage_count: number;
-        makes_covered: number;
-    }[];
+        source: string;
+        description: string;
+        data: {
+            era_code: string;
+            era_description: string;
+            akl_difficulty: string;
+            coverage_count: number;
+            makes_covered: number;
+        }[];
+    };
     make_gaps: {
-        make: string;
-        total_platforms: number;
-        missing_platforms: number;
-        covered_platforms: number;
-    }[];
+        source: string;
+        description: string;
+        data: {
+            make: string;
+            total_platforms: number;
+            missing_platforms: number;
+            covered_platforms: number;
+        }[];
+    };
     critical_gaps: {
-        make: string;
-        platform_code: string;
-        year_start: number;
-        year_end: number;
-        security_level: string;
-        akl_typical: string;
-        notes: string;
-        coverage_count: number;
-    }[];
+        source: string;
+        description: string;
+        data: {
+            make: string;
+            platform_code: string;
+            year_start: number;
+            year_end: number;
+            security_level: string;
+            akl_typical: string;
+            notes: string;
+            coverage_count: number;
+        }[];
+    };
+    vehicle_gaps: {
+        source: string;
+        description: string;
+        data: {
+            make: string;
+            model: string;
+            year_start: number;
+            year_end: number;
+            year_count: number;
+        }[];
+    };
+    fcc_gaps: {
+        source: string;
+        description: string;
+        data: {
+            make: string;
+            model: string;
+            year_count: number;
+        }[];
+    };
+    content_gaps: {
+        source: string;
+        description: string;
+        data: {
+            make: string;
+            model: string;
+            year_count: number;
+        }[];
+    };
     summary: {
         total_platforms: number;
         missing_coverage: number;
         thin_coverage: number;
+        vehicles_without_coverage: number;
+        vehicles_without_fcc: number;
+        vehicles_without_content: number;
     };
 }
 
@@ -764,35 +812,66 @@ export default function DevPanelPage() {
 
             {activeTab === 'gaps' && (
                 <div className="space-y-6">
-                    {/* Summary Stats */}
-                    <div className="grid gap-4 sm:grid-cols-3">
-                        <StatCard
-                            label="Total Platforms"
-                            value={coverageGaps?.summary?.total_platforms || 0}
-                            icon="📦"
-                        />
-                        <StatCard
-                            label="Missing Coverage"
-                            value={coverageGaps?.summary?.missing_coverage || 0}
-                            icon="❌"
-                            color="red"
-                        />
-                        <StatCard
-                            label="Thin Coverage"
-                            value={coverageGaps?.summary?.thin_coverage || 0}
-                            icon="⚠️"
-                            color="yellow"
-                        />
+                    {/* Summary Stats - Two Rows */}
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide">Platform Security Gaps</h3>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            <StatCard
+                                label="Total Platforms"
+                                value={coverageGaps?.summary?.total_platforms || 0}
+                                icon="📦"
+                            />
+                            <StatCard
+                                label="Missing Coverage"
+                                value={coverageGaps?.summary?.missing_coverage || 0}
+                                icon="❌"
+                                color="red"
+                            />
+                            <StatCard
+                                label="Thin Coverage"
+                                value={coverageGaps?.summary?.thin_coverage || 0}
+                                icon="⚠️"
+                                color="yellow"
+                            />
+                        </div>
+                        <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide pt-2">Vehicle Data Gaps</h3>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            <StatCard
+                                label="No Tool Coverage"
+                                value={coverageGaps?.summary?.vehicles_without_coverage || 0}
+                                icon="🔧"
+                                color="red"
+                            />
+                            <StatCard
+                                label="No FCC Data"
+                                value={coverageGaps?.summary?.vehicles_without_fcc || 0}
+                                icon="📡"
+                                color="yellow"
+                            />
+                            <StatCard
+                                label="No Content"
+                                value={coverageGaps?.summary?.vehicles_without_content || 0}
+                                icon="📚"
+                                color="yellow"
+                            />
+                        </div>
                     </div>
 
                     {/* Critical Gaps - Priority */}
                     <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
-                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-                            🚨 Critical Gaps (High Security, Low Coverage)
-                        </h2>
-                        {coverageGaps?.critical_gaps?.length ? (
+                        <div className="flex items-start justify-between mb-4">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                🚨 Critical Gaps (High Security, Low Coverage)
+                            </h2>
+                            {coverageGaps?.critical_gaps?.source && (
+                                <span className="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                                    {coverageGaps.critical_gaps.source}
+                                </span>
+                            )}
+                        </div>
+                        {coverageGaps?.critical_gaps?.data?.length ? (
                             <div className="space-y-2">
-                                {coverageGaps.critical_gaps.map((g, i) => (
+                                {coverageGaps.critical_gaps.data.map((g, i) => (
                                     <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 px-4 py-3">
                                         <div>
                                             <p className="font-medium text-white capitalize">
@@ -819,14 +898,54 @@ export default function DevPanelPage() {
                         )}
                     </div>
 
+                    {/* Vehicle Gaps (NEW) */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                    🚗 Vehicles Without Tool Coverage
+                                </h2>
+                                <p className="text-xs text-slate-500 mt-1">{coverageGaps?.vehicle_gaps?.description}</p>
+                            </div>
+                            {coverageGaps?.vehicle_gaps?.source && (
+                                <span className="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                                    {coverageGaps.vehicle_gaps.source}
+                                </span>
+                            )}
+                        </div>
+                        {coverageGaps?.vehicle_gaps?.data?.length ? (
+                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                {coverageGaps.vehicle_gaps.data.slice(0, 15).map((v, i) => (
+                                    <div key={i} className="rounded-lg bg-slate-800/50 px-3 py-2">
+                                        <p className="font-medium text-white capitalize text-sm">
+                                            {v.make} {v.model}
+                                        </p>
+                                        <p className="text-xs text-slate-500">
+                                            {v.year_start === v.year_end ? v.year_start : `${v.year_start}–${v.year_end}`} ({v.year_count} years)
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-500">No vehicle gaps found</p>
+                        )}
+                    </div>
+
                     {/* Makes with Gaps */}
                     <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
-                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-                            🏭 Coverage by Make
-                        </h2>
-                        {coverageGaps?.make_gaps?.length ? (
+                        <div className="flex items-start justify-between mb-4">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                🏭 Coverage by Make
+                            </h2>
+                            {coverageGaps?.make_gaps?.source && (
+                                <span className="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                                    {coverageGaps.make_gaps.source}
+                                </span>
+                            )}
+                        </div>
+                        {coverageGaps?.make_gaps?.data?.length ? (
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                {coverageGaps.make_gaps.map((m, i) => (
+                                {coverageGaps.make_gaps.data.map((m, i) => (
                                     <div key={i} className="rounded-lg border border-eurokeys-border bg-slate-800/30 p-3">
                                         <p className="font-medium text-white capitalize mb-2">{m.make}</p>
                                         <div className="flex justify-between text-xs text-slate-400">
@@ -850,12 +969,19 @@ export default function DevPanelPage() {
 
                     {/* Era Breakdown */}
                     <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
-                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-                            📅 Coverage by Era
-                        </h2>
-                        {coverageGaps?.era_gaps?.length ? (
+                        <div className="flex items-start justify-between mb-4">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                📅 Coverage by Era
+                            </h2>
+                            {coverageGaps?.era_gaps?.source && (
+                                <span className="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                                    {coverageGaps.era_gaps.source}
+                                </span>
+                            )}
+                        </div>
+                        {coverageGaps?.era_gaps?.data?.length ? (
                             <div className="space-y-3">
-                                {coverageGaps.era_gaps.map((e, i) => (
+                                {coverageGaps.era_gaps.data.map((e, i) => (
                                     <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 px-4 py-3">
                                         <div>
                                             <p className="font-medium text-white">{e.era_description}</p>
@@ -877,6 +1003,35 @@ export default function DevPanelPage() {
                             </div>
                         ) : (
                             <p className="text-sm text-slate-500">No era data available</p>
+                        )}
+                    </div>
+
+                    {/* FCC Gaps */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                    📡 Vehicles Without FCC Data
+                                </h2>
+                                <p className="text-xs text-slate-500 mt-1">{coverageGaps?.fcc_gaps?.description}</p>
+                            </div>
+                            {coverageGaps?.fcc_gaps?.source && (
+                                <span className="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                                    {coverageGaps.fcc_gaps.source}
+                                </span>
+                            )}
+                        </div>
+                        {coverageGaps?.fcc_gaps?.data?.length ? (
+                            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                                {coverageGaps.fcc_gaps.data.slice(0, 12).map((v, i) => (
+                                    <div key={i} className="rounded bg-slate-800/50 px-2 py-1 text-sm">
+                                        <span className="text-white capitalize">{v.make}</span>
+                                        <span className="text-slate-400 ml-1">{v.model}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-500">No FCC gaps found</p>
                         )}
                     </div>
                 </div>

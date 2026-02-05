@@ -6189,15 +6189,100 @@ Guidelines:
             LIMIT 20
           `).all();
 
+          // 5. Vehicle gaps: vehicles in the vehicles table with no coverage entries
+          const vehicleGaps = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              v.make,
+              v.model,
+              MIN(v.year_start) as year_start,
+              MAX(v.year_end) as year_end,
+              COUNT(*) as year_count,
+              'vehicles' as source_table
+            FROM vehicles v
+            LEFT JOIN vehicle_coverage vc ON LOWER(vc.make) = LOWER(v.make) 
+              AND LOWER(vc.model) LIKE '%' || LOWER(v.model) || '%'
+            WHERE vc.id IS NULL
+            GROUP BY v.make, v.model
+            ORDER BY v.make, v.model
+            LIMIT 30
+          `).all();
+
+          // 6. FCC gaps: vehicles without FCC ID mappings
+          const fccGaps = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              v.make,
+              v.model,
+              COUNT(*) as year_count,
+              'vehicles vs fcc_ids' as source_table
+            FROM vehicles v
+            LEFT JOIN fcc_ids f ON LOWER(f.make) = LOWER(v.make) 
+              AND LOWER(f.model) LIKE '%' || LOWER(v.model) || '%'
+            WHERE f.id IS NULL
+            GROUP BY v.make, v.model
+            ORDER BY year_count DESC
+            LIMIT 30
+          `).all();
+
+          // 7. Content gaps: vehicles without dossiers
+          const contentGaps = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              v.make,
+              v.model,
+              COUNT(*) as year_count,
+              'vehicles vs dossiers' as source_table
+            FROM vehicles v
+            LEFT JOIN dossiers d ON LOWER(d.make) = LOWER(v.make) 
+              AND LOWER(d.model) LIKE '%' || LOWER(v.model) || '%'
+            WHERE d.id IS NULL
+            GROUP BY v.make, v.model
+            ORDER BY year_count DESC
+            LIMIT 30
+          `).all();
+
           return corsResponse(request, JSON.stringify({
-            platform_gaps: platformGaps.results || [],
-            era_gaps: eraGaps.results || [],
-            make_gaps: makeGaps.results || [],
-            critical_gaps: criticalGaps.results || [],
+            // Data with source metadata
+            platform_gaps: {
+              source: 'platform_security LEFT JOIN vehicle_coverage',
+              description: 'Platforms from glossary with missing tool coverage',
+              data: platformGaps.results || []
+            },
+            era_gaps: {
+              source: 'security_eras LEFT JOIN vehicle_coverage',
+              description: 'Coverage breakdown by security era',
+              data: eraGaps.results || []
+            },
+            make_gaps: {
+              source: 'platform_security LEFT JOIN vehicle_coverage',
+              description: 'Platform coverage summary by manufacturer',
+              data: makeGaps.results || []
+            },
+            critical_gaps: {
+              source: 'platform_security WHERE security_level IN (critical, high)',
+              description: 'High-security platforms needing coverage data',
+              data: criticalGaps.results || []
+            },
+            vehicle_gaps: {
+              source: 'vehicles LEFT JOIN vehicle_coverage',
+              description: 'Known vehicles without any tool coverage entries',
+              data: vehicleGaps.results || []
+            },
+            fcc_gaps: {
+              source: 'vehicles LEFT JOIN fcc_ids',
+              description: 'Vehicles without key/remote FCC ID mappings',
+              data: fccGaps.results || []
+            },
+            content_gaps: {
+              source: 'vehicles LEFT JOIN dossiers',
+              description: 'Vehicles without technical dossier/guide content',
+              data: contentGaps.results || []
+            },
             summary: {
               total_platforms: (platformGaps.results || []).length,
               missing_coverage: (platformGaps.results || []).filter((p: any) => p.gap_status === 'missing').length,
-              thin_coverage: (platformGaps.results || []).filter((p: any) => p.gap_status === 'thin').length
+              thin_coverage: (platformGaps.results || []).filter((p: any) => p.gap_status === 'thin').length,
+              vehicles_without_coverage: (vehicleGaps.results || []).length,
+              vehicles_without_fcc: (fccGaps.results || []).length,
+              vehicles_without_content: (contentGaps.results || []).length
             }
           }));
         } catch (err: any) {
@@ -6388,8 +6473,8 @@ Guidelines:
           const cfResponse = await fetch("https://api.cloudflare.com/client/v4/graphql", {
             method: "POST",
             headers: {
-              "X-Auth-Key": env.CF_ANALYTICS_TOKEN,
-              "X-Auth-Email": env.CF_AUTH_EMAIL,
+              // Use Bearer token auth (API Token) - more modern and secure than Global API Key
+              "Authorization": `Bearer ${env.CF_ANALYTICS_TOKEN}`,
               "Content-Type": "application/json"
             },
             body: JSON.stringify({ query: graphqlQuery })
