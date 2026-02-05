@@ -549,6 +549,35 @@ function AnalyticsView({ stats }: { stats: ReturnType<ReturnType<typeof useJobLo
                     )}
                 </div>
             </div>
+
+            {/* Lead Source Stats */}
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+                <h3 className="text-lg font-bold mb-4">📍 Lead Sources</h3>
+                {Object.keys(stats.referralSources || {}).length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        {[
+                            { key: 'google', label: 'Google', icon: '🔍', color: 'text-blue-400' },
+                            { key: 'yelp', label: 'Yelp', icon: '⭐', color: 'text-red-400' },
+                            { key: 'referral', label: 'Referral', icon: '🤝', color: 'text-green-400' },
+                            { key: 'repeat', label: 'Repeat', icon: '🔄', color: 'text-purple-400' },
+                            { key: 'other', label: 'Other', icon: '📌', color: 'text-gray-400' },
+                        ].map(source => {
+                            const count = (stats.referralSources as Record<string, number>)?.[source.key] || 0;
+                            return (
+                                <div key={source.key} className="text-center p-3 bg-gray-800/50 rounded-xl">
+                                    <div className="text-2xl mb-1">{source.icon}</div>
+                                    <div className={`text-xl font-bold ${source.color}`}>{count}</div>
+                                    <div className="text-xs text-gray-500">{source.label}</div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <p className="text-gray-500 text-sm text-center py-4">
+                        No referral data yet. Add source when logging jobs to track lead performance.
+                    </p>
+                )}
+            </div>
         </div>
     );
 }

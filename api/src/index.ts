@@ -2528,6 +2528,323 @@ export default {
       }
 
       // ==============================================
+      // FLEET SUBSCRIPTION BILLING ENDPOINTS
+      // ==============================================
+
+      // POST /api/fleet/subscription/checkout - Create checkout session for fleet subscription
+      if (path === "/api/fleet/subscription/checkout" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userEmail = (payload as any).email as string;
+          const body: any = await request.json();
+
+          const dispatcherSeats = body.dispatcherSeats || 4;
+          const technicianSeats = body.technicianSeats || 4;
+          const orgName = body.organizationName || 'My Fleet';
+
+          // Price IDs for seat-based pricing (these would be created in Stripe Dashboard)
+          // Using metered/quantity-based pricing: 
+          // - Base: $50/mo
+          // - Technician seats: $25/mo each (min 4)
+          // - Extra dispatcher seats: $5/mo each (4 included in base)
+          const baseCost = 5000; // $50 in cents
+          const techCost = 2500 * technicianSeats; // $25 per tech
+          const extraDispatchers = Math.max(0, dispatcherSeats - 4);
+          const dispatcherCost = 500 * extraDispatchers; // $5 per extra dispatcher
+          const totalMonthly = baseCost + techCost + dispatcherCost;
+
+          // Get or create Stripe customer
+          const user = await env.LOCKSMITH_DB.prepare("SELECT stripe_customer_id, email, name FROM users WHERE id = ?").bind(userId).first<any>();
+          let customerId = user?.stripe_customer_id;
+
+          if (!customerId) {
+            const customerRes = await fetch("https://api.stripe.com/v1/customers", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({
+                email: userEmail || user?.email || '',
+                name: user?.name || '',
+                "metadata[user_id]": userId,
+              }),
+            });
+            const customer = await customerRes.json() as { id: string };
+            customerId = customer.id;
+            await env.LOCKSMITH_DB.prepare("UPDATE users SET stripe_customer_id = ? WHERE id = ?").bind(customerId, userId).run();
+          }
+
+          // Create checkout session with seat quantities
+          const checkoutRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              customer: customerId,
+              mode: "subscription",
+              "line_items[0][price_data][currency]": "usd",
+              "line_items[0][price_data][product_data][name]": `Fleet Dispatch - ${orgName}`,
+              "line_items[0][price_data][product_data][description]": `${technicianSeats} technicians, ${dispatcherSeats} dispatchers`,
+              "line_items[0][price_data][unit_amount]": totalMonthly.toString(),
+              "line_items[0][price_data][recurring][interval]": "month",
+              "line_items[0][quantity]": "1",
+              success_url: body.successUrl || "https://eurokeys.dev/business?fleet_success=true",
+              cancel_url: body.cancelUrl || "https://eurokeys.dev/business?fleet_cancelled=true",
+              "metadata[user_id]": userId,
+              "metadata[org_name]": orgName,
+              "metadata[technician_seats]": technicianSeats.toString(),
+              "metadata[dispatcher_seats]": dispatcherSeats.toString(),
+              "metadata[type]": "fleet_subscription",
+              "subscription_data[metadata][user_id]": userId,
+              "subscription_data[metadata][org_name]": orgName,
+              "subscription_data[metadata][technician_seats]": technicianSeats.toString(),
+              "subscription_data[metadata][dispatcher_seats]": dispatcherSeats.toString(),
+            }),
+          });
+
+          const session = await checkoutRes.json() as { url?: string; error?: { message: string } };
+
+          if (!checkoutRes.ok || session.error) {
+            return corsResponse(request, JSON.stringify({ error: session.error?.message || "Stripe error" }), 500);
+          }
+
+          return corsResponse(request, JSON.stringify({
+            url: session.url,
+            estimatedCost: totalMonthly / 100,
+          }));
+        } catch (err: any) {
+          console.error("/api/fleet/subscription/checkout error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/subscription/update-seats - Update seat counts (triggers proration)
+      if (path === "/api/fleet/subscription/update-seats" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+
+          const newTechSeats = body.technicianSeats;
+          const newDispatcherSeats = body.dispatcherSeats;
+
+          // Get organization
+          const org = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM fleet_organizations WHERE owner_user_id = ?
+          `).bind(userId).first();
+
+          if (!org) {
+            return corsResponse(request, JSON.stringify({ error: "Organization not found" }), 404);
+          }
+
+          const stripeSubId = (org as any).stripe_subscription_id;
+          const stripeCustomerId = (org as any).stripe_customer_id;
+
+          if (!stripeSubId) {
+            return corsResponse(request, JSON.stringify({ error: "No active subscription" }), 400);
+          }
+
+          // Calculate new pricing
+          const baseCost = 5000; // $50
+          const techCost = 2500 * (newTechSeats || (org as any).max_technicians);
+          const extraDispatchers = Math.max(0, (newDispatcherSeats || (org as any).max_dispatchers) - 4);
+          const dispatcherCost = 500 * extraDispatchers;
+          const newTotal = baseCost + techCost + dispatcherCost;
+
+          // Get subscription to find item ID
+          const subRes = await fetch(`https://api.stripe.com/v1/subscriptions/${stripeSubId}`, {
+            headers: { "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}` },
+          });
+          const subscription = await subRes.json() as any;
+
+          if (!subscription.items?.data?.[0]?.id) {
+            return corsResponse(request, JSON.stringify({ error: "Subscription item not found" }), 400);
+          }
+
+          const itemId = subscription.items.data[0].id;
+
+          // Update subscription with new pricing (proration_behavior: create_prorations)
+          const updateRes = await fetch(`https://api.stripe.com/v1/subscriptions/${stripeSubId}`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              [`items[0][id]`]: itemId,
+              [`items[0][price_data][currency]`]: "usd",
+              [`items[0][price_data][product]`]: subscription.items.data[0].price.product,
+              [`items[0][price_data][unit_amount]`]: newTotal.toString(),
+              [`items[0][price_data][recurring][interval]`]: "month",
+              proration_behavior: "create_prorations",
+              [`metadata[technician_seats]`]: (newTechSeats || (org as any).max_technicians).toString(),
+              [`metadata[dispatcher_seats]`]: (newDispatcherSeats || (org as any).max_dispatchers).toString(),
+            }),
+          });
+
+          const updatedSub = await updateRes.json() as any;
+
+          if (!updateRes.ok || updatedSub.error) {
+            return corsResponse(request, JSON.stringify({ error: updatedSub.error?.message || "Failed to update subscription" }), 500);
+          }
+
+          // Update local database
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE fleet_organizations 
+            SET max_technicians = ?, max_dispatchers = ?, monthly_cost = ?, updated_at = ?
+            WHERE id = ?
+          `).bind(
+            newTechSeats || (org as any).max_technicians,
+            newDispatcherSeats || (org as any).max_dispatchers,
+            newTotal,
+            Date.now(),
+            (org as any).id
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            newMonthlyCost: newTotal / 100,
+            technicianSeats: newTechSeats || (org as any).max_technicians,
+            dispatcherSeats: newDispatcherSeats || (org as any).max_dispatchers,
+          }));
+        } catch (err: any) {
+          console.error("/api/fleet/subscription/update-seats error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/fleet/subscription/portal - Get billing portal URL for fleet org
+      if (path === "/api/fleet/subscription/portal" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          // Get organization
+          const org = await env.LOCKSMITH_DB.prepare(`
+            SELECT stripe_customer_id FROM fleet_organizations WHERE owner_user_id = ?
+          `).bind(userId).first();
+
+          if (!org || !(org as any).stripe_customer_id) {
+            return corsResponse(request, JSON.stringify({ error: "No active fleet subscription" }), 400);
+          }
+
+          const portalRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              customer: (org as any).stripe_customer_id,
+              return_url: "https://eurokeys.dev/business",
+            }),
+          });
+
+          const portal = await portalRes.json() as { url?: string; error?: { message: string } };
+
+          if (!portalRes.ok || portal.error) {
+            return corsResponse(request, JSON.stringify({ error: portal.error?.message || "Portal error" }), 500);
+          }
+
+          return corsResponse(request, JSON.stringify({ url: portal.url }));
+        } catch (err: any) {
+          console.error("/api/fleet/subscription/portal error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/subscription/webhook - Handle fleet-specific webhook events
+      // Note: This supplements the main webhook handler to handle fleet subscription creation
+      if (path === "/api/fleet/subscription/webhook" && request.method === "POST") {
+        try {
+          const body = await request.text();
+          const event = JSON.parse(body);
+
+          console.log("Fleet subscription webhook:", event.type);
+
+          if (event.type === "checkout.session.completed") {
+            const session = event.data.object;
+
+            // Only process fleet subscriptions
+            if (session.metadata?.type !== "fleet_subscription") {
+              return corsResponse(request, JSON.stringify({ received: true }));
+            }
+
+            const userId = session.metadata.user_id;
+            const orgName = session.metadata.org_name;
+            const techSeats = parseInt(session.metadata.technician_seats) || 4;
+            const dispatcherSeats = parseInt(session.metadata.dispatcher_seats) || 4;
+            const subscriptionId = session.subscription;
+            const customerId = session.customer;
+
+            const orgId = `org_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const memberId = `member_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const now = Date.now();
+
+            // Calculate cost
+            const baseCost = 5000;
+            const techCost = 2500 * techSeats;
+            const extraDispatchers = Math.max(0, dispatcherSeats - 4);
+            const dispatcherCost = 500 * extraDispatchers;
+            const totalMonthly = baseCost + techCost + dispatcherCost;
+
+            // Get user info
+            const user = await env.LOCKSMITH_DB.prepare("SELECT email, name FROM users WHERE id = ?").bind(userId).first<any>();
+
+            // Create organization
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO fleet_organizations (id, owner_user_id, name, plan, stripe_subscription_id, stripe_customer_id, max_dispatchers, max_technicians, billing_cycle, monthly_cost, status, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              orgId, userId, orgName, 'fleet_pro', subscriptionId, customerId,
+              dispatcherSeats, techSeats, 'monthly', totalMonthly, 'active', now, now
+            ).run();
+
+            // Create owner as member
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO fleet_members (id, organization_id, user_id, role, display_name, email, status, joined_at, created_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              memberId, orgId, userId, 'owner', user?.name || 'Owner', user?.email || '', 'active', now, now
+            ).run();
+          }
+
+          if (event.type === "customer.subscription.deleted") {
+            const subscription = event.data.object;
+
+            // Mark org as cancelled
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE fleet_organizations SET status = 'cancelled', updated_at = ? WHERE stripe_subscription_id = ?
+            `).bind(Date.now(), subscription.id).run();
+          }
+
+          return corsResponse(request, JSON.stringify({ received: true }));
+        } catch (err: any) {
+          console.error("/api/fleet/subscription/webhook error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // RENEWAL DIGEST ENDPOINTS (Proactive Notifications)
       // ==============================================
 
@@ -6463,6 +6780,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         try {
           const make = url.searchParams.get("make")?.toLowerCase() || "";
           const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const year = url.searchParams.get("year") || "";
           const q = url.searchParams.get("q")?.toLowerCase() || "";
           const limit = Math.min(parseInt(url.searchParams.get("limit") || "300", 10) || 300, 1000);
           const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
@@ -7559,6 +7877,93 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
+      // AKS KEY PRICE LOOKUP BY FCC ID
+      // ==============================================
+      // Returns the cost of a key by FCC ID from AKS products
+      if (path === "/api/aks-price") {
+        try {
+          const fccId = url.searchParams.get("fcc")?.toUpperCase().replace(/[-\s]/g, '');
+
+          if (!fccId) {
+            return corsResponse(request, JSON.stringify({ error: "fcc parameter required" }), 400);
+          }
+
+          // Search for matching products - handle FCC IDs that may have variants
+          // Also search aks_products as fallback
+          const sql = `
+            SELECT price, fcc_id, title, condition
+            FROM aks_products_detail
+            WHERE REPLACE(REPLACE(UPPER(fcc_id), '-', ''), ' ', '') LIKE ?
+            ORDER BY 
+              CASE 
+                WHEN condition LIKE '%OEM%' THEN 1
+                WHEN condition LIKE '%Aftermarket%' THEN 2
+                ELSE 3
+              END,
+              price ASC
+            LIMIT 5
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(`%${fccId}%`).all();
+          const products = (result.results || []) as any[];
+
+          if (products.length === 0) {
+            // Try aks_products table as fallback
+            const fallbackSql = `
+              SELECT price, fcc_id, title, condition
+              FROM aks_products
+              WHERE REPLACE(REPLACE(UPPER(fcc_id), '-', ''), ' ', '') LIKE ?
+              LIMIT 5
+            `;
+            const fallbackResult = await env.LOCKSMITH_DB.prepare(fallbackSql).bind(`%${fccId}%`).all();
+            const fallbackProducts = (fallbackResult.results || []) as any[];
+
+            if (fallbackProducts.length === 0) {
+              return corsResponse(request, JSON.stringify({
+                found: false,
+                price: null,
+                products: []
+              }));
+            }
+
+            // Parse price from first match
+            const priceStr = fallbackProducts[0].price;
+            const price = priceStr ? parseFloat(priceStr.replace(/[^0-9.]/g, '')) : null;
+
+            return corsResponse(request, JSON.stringify({
+              found: true,
+              price,
+              source: "aks_products",
+              products: fallbackProducts.map((p: any) => ({
+                fcc_id: p.fcc_id,
+                title: p.title,
+                price: p.price,
+                condition: p.condition
+              }))
+            }));
+          }
+
+          // Parse price from first match (cheapest)
+          const priceStr = products[0].price;
+          const price = priceStr ? parseFloat(priceStr.replace(/[^0-9.]/g, '')) : null;
+
+          return corsResponse(request, JSON.stringify({
+            found: true,
+            price,
+            source: "aks_products_detail",
+            products: products.map((p: any) => ({
+              fcc_id: p.fcc_id,
+              title: p.title,
+              price: p.price,
+              condition: p.condition
+            }))
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // AKS VEHICLE PAGES (lishi, mechanical specs)
       // ==============================================
       // Query aks_vehicle_pages for lishi, code_series, etc.
@@ -7857,7 +8262,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
           }
 
-          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload?.email) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
           }
@@ -7970,7 +8375,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
           }
 
-          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload?.email) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
           }
@@ -8080,7 +8485,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
           }
 
-          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload?.email) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
           }
@@ -8121,7 +8526,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
           }
 
-          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload?.email) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
           }
@@ -8163,7 +8568,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
           }
 
-          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload?.email) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
           }
@@ -8266,7 +8671,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
           }
 
-          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload?.email) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
           }
@@ -8309,7 +8714,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
           }
 
-          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload?.email) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
           }

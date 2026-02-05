@@ -97,23 +97,36 @@ function getKeyThumbnailUrl(fccId: string): string {
     return `https://imagedelivery.net/GiRpfD5lDLey01HWJKJGqg/fcc_${fccId.replace(/[^a-zA-Z0-9]/g, '')}_0/thumbnail`;
 }
 
-// Get historical price for a key from job logs
-// Returns the most recent price, or average if multiple jobs exist
-function getHistoricalPrice(fccId: string | undefined, itemKey: string): number {
+// Get cost of a key from AKS product data (with job history fallback)
+async function getAksPrice(fccId: string | undefined, itemKey: string): Promise<number> {
     if (!fccId && !itemKey) return 0;
 
+    const targetFcc = fccId || itemKey;
+
+    try {
+        // Try AKS API first
+        const response = await fetch(`${API_BASE}/api/aks-price?fcc=${encodeURIComponent(targetFcc)}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.found && data.price && data.price > 0) {
+                return data.price;
+            }
+        }
+    } catch (err) {
+        console.warn('Failed to fetch AKS price:', err);
+    }
+
+    // Fallback to job history
     const jobs = getJobLogsFromStorage();
     const matchingJobs = jobs.filter(job => {
         if (!job.fccId || !job.price || job.price <= 0) return false;
         const jobFcc = job.fccId.toUpperCase().replace(/[-\s]/g, '');
-        const targetFcc = (fccId || '').toUpperCase().replace(/[-\s]/g, '');
-        const targetKey = itemKey.toUpperCase().replace(/[-\s]/g, '');
-        return jobFcc === targetFcc || jobFcc === targetKey;
+        const targetFccNorm = (fccId || '').toUpperCase().replace(/[-\s]/g, '');
+        const targetKeyNorm = itemKey.toUpperCase().replace(/[-\s]/g, '');
+        return jobFcc === targetFccNorm || jobFcc === targetKeyNorm;
     }).sort((a, b) => b.createdAt - a.createdAt);
 
     if (matchingJobs.length === 0) return 0;
-
-    // Return most recent price
     return matchingJobs[0].price;
 }
 
@@ -356,7 +369,7 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
 
 
     // Add inventory item as a line item
-    const addInventoryItem = (item: { itemKey: string; vehicle?: string; fcc_id?: string }) => {
+    const addInventoryItem = async (item: { itemKey: string; vehicle?: string; fcc_id?: string }) => {
         const vehicles = item.vehicle ? mergeVehicleYearRanges(item.vehicle) : [];
 
         // If multiple vehicles, show selection modal
@@ -375,37 +388,37 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
             ? `${vehicles[0]} - ${item.fcc_id || item.itemKey}`
             : item.fcc_id || item.itemKey;
 
-        // Look up historical price for this key
-        const historicalPrice = getHistoricalPrice(item.fcc_id, item.itemKey);
+        // Look up key cost from AKS product data
+        const keyCost = await getAksPrice(item.fcc_id, item.itemKey);
 
         setLineItems((prev) => [
             ...prev,
             {
                 description,
                 quantity: 1,
-                unitPrice: historicalPrice,
-                total: historicalPrice
+                unitPrice: keyCost,
+                total: keyCost
             },
         ]);
         setShowInventoryPicker(false);
     };
 
     // Add inventory item with selected vehicle
-    const addInventoryItemWithVehicle = (vehicle: string) => {
+    const addInventoryItemWithVehicle = async (vehicle: string) => {
         if (!pendingInventoryItem) return;
 
         const description = `${vehicle} - ${pendingInventoryItem.fcc_id || pendingInventoryItem.itemKey}`;
 
-        // Look up historical price for this key
-        const historicalPrice = getHistoricalPrice(pendingInventoryItem.fcc_id, pendingInventoryItem.itemKey);
+        // Look up key cost from AKS product data
+        const keyCost = await getAksPrice(pendingInventoryItem.fcc_id, pendingInventoryItem.itemKey);
 
         setLineItems((prev) => [
             ...prev,
             {
                 description,
                 quantity: 1,
-                unitPrice: historicalPrice,
-                total: historicalPrice
+                unitPrice: keyCost,
+                total: keyCost
             },
         ]);
         setPendingInventoryItem(null);
