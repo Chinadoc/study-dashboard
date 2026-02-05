@@ -10,8 +10,11 @@ import { useRouter, usePathname } from 'next/navigation';
 const SANDBOX_LIMITS = {
     inventoryItems: 3,
     jobs: 2,
-    demoVehicle: '/vehicle/chevrolet/silverado-1500/2021',
+    demoVehicle: '/vehicle/chevrolet/Silverado/2021',
 };
+
+// Storage key for tour state persistence
+const TOUR_STORAGE_KEY = 'eurokeys_tour_state';
 
 // Extended tour with page navigation
 interface GuidedStep {
@@ -37,7 +40,7 @@ const GUIDED_TOUR: GuidedStep[] = [
     // Vehicle Demo 1: US Domestic
     {
         id: 'vehicle-demo-us',
-        page: '/vehicle/chevrolet/silverado-1500/2021',
+        page: '/vehicle/chevrolet/Silverado/2021',
         title: 'US Domestic Example',
         content: 'See comprehensive data for domestic vehicles: key types, FCC IDs, and onboard programming.',
         position: 'center',
@@ -123,7 +126,33 @@ export default function OnboardingFlow() {
     const [isLoading, setIsLoading] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isNavigating, setIsNavigating] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
     const tooltipRef = useRef<HTMLDivElement>(null);
+
+    // Restore tour state from localStorage on mount
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const stored = localStorage.getItem(TOUR_STORAGE_KEY);
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (parsed.currentStep) setCurrentStep(parsed.currentStep);
+                if (typeof parsed.tourIndex === 'number') setTourIndex(parsed.tourIndex);
+            } catch (e) {
+                console.error('Failed to parse tour state:', e);
+            }
+        }
+        setIsInitialized(true);
+    }, []);
+
+    // Persist tour state to localStorage when it changes
+    useEffect(() => {
+        if (!isInitialized) return;
+        localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify({
+            currentStep,
+            tourIndex,
+        }));
+    }, [currentStep, tourIndex, isInitialized]);
 
     // Detect mobile
     useEffect(() => {
@@ -177,6 +206,8 @@ export default function OnboardingFlow() {
     // Try sandbox mode - limited features demo
     const handleTrySandbox = () => {
         activateSandboxMode();
+        // Clear tour state
+        localStorage.removeItem(TOUR_STORAGE_KEY);
         markTourComplete('onboarding');
         completeOnboarding();
         closeWizard();
@@ -184,6 +215,8 @@ export default function OnboardingFlow() {
     };
 
     const handleComplete = () => {
+        // Clear tour state
+        localStorage.removeItem(TOUR_STORAGE_KEY);
         markTourComplete('onboarding');
         completeOnboarding();
         closeWizard();
@@ -206,6 +239,7 @@ export default function OnboardingFlow() {
 
     const handleSkipTour = () => {
         setCurrentStep('trial');
+        setTourIndex(0); // Reset tour index when skipping
     };
 
     const handleContinueToTour = () => {
@@ -278,8 +312,8 @@ export default function OnboardingFlow() {
                 <div
                     ref={tooltipRef}
                     className={`fixed z-[10000] bg-gradient-to-br from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-xl shadow-2xl shadow-amber-500/10 transition-all duration-300 ${isMobile
-                            ? 'left-4 right-4 bottom-[calc(env(safe-area-inset-bottom)+5rem)] p-4 max-h-[30vh] overflow-y-auto'
-                            : 'left-1/2 -translate-x-1/2 bottom-24 p-5 max-w-md w-full'
+                        ? 'left-4 right-4 bottom-[calc(env(safe-area-inset-bottom)+5rem)] p-4 max-h-[30vh] overflow-y-auto'
+                        : 'left-1/2 -translate-x-1/2 bottom-24 p-5 max-w-md w-full'
                         }`}
                 >
                     {/* Step progress bar */}

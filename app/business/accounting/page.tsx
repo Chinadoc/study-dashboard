@@ -74,13 +74,13 @@ export default function AccountingPage() {
         <div className="space-y-6">
             {/* Subtab Navigation */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-2 p-1 bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-x-auto">
+                <div className="flex items-center gap-1 p-1 bg-zinc-900/50 rounded-xl border border-zinc-800">
                     {subtabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveSubTab(tab.id as AccountingSubTab)}
                             className={`
-                                flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all
+                                flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all
                                 ${activeSubTab === tab.id
                                     ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/30'
                                     : 'text-gray-400 hover:text-gray-200 hover:bg-zinc-800/50'
@@ -88,7 +88,7 @@ export default function AccountingPage() {
                             `}
                         >
                             <span>{tab.icon}</span>
-                            <span>{tab.label}</span>
+                            <span className="hidden sm:inline">{tab.label}</span>
                         </button>
                     ))}
                 </div>

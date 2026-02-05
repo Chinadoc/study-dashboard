@@ -68,32 +68,32 @@ export default function BusinessAlerts() {
         const chipContent = (
             <div
                 className={`
-                    flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
-                    whitespace-nowrap flex-shrink-0 min-w-fit
+                    flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium
+                    flex-1 min-w-0
                     transition-all duration-200 active:scale-95
                     ${alert.type === 'warning'
-                        ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-orange-300 border border-orange-500/40 shadow-sm shadow-orange-500/10'
+                        ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-orange-300 border border-orange-500/40'
                         : alert.type === 'success'
-                            ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/10 text-green-300 border border-green-500/40 shadow-sm shadow-green-500/10'
-                            : 'bg-gradient-to-r from-blue-500/20 to-cyan-500/10 text-blue-300 border border-blue-500/40 shadow-sm shadow-blue-500/10'
+                            ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/10 text-green-300 border border-green-500/40'
+                            : 'bg-gradient-to-r from-blue-500/20 to-cyan-500/10 text-blue-300 border border-blue-500/40'
                     }
-                    ${alert.link ? 'hover:scale-[1.02] hover:shadow-md cursor-pointer' : ''}
+                    ${alert.link ? 'hover:scale-[1.02] cursor-pointer' : ''}
                 `}
             >
-                <span className="text-base">{alert.icon}</span>
-                <span>{alert.message}</span>
+                <span className="text-sm flex-shrink-0">{alert.icon}</span>
+                <span className="truncate">{alert.message}</span>
                 {alert.link && (
-                    <span className="text-xs opacity-60 ml-1">→</span>
+                    <span className="text-[10px] opacity-60 flex-shrink-0">→</span>
                 )}
             </div>
         );
 
         return alert.link ? (
-            <Link key={index} href={alert.link} className="flex-shrink-0">
+            <Link key={index} href={alert.link} className="flex-1 min-w-0">
                 {chipContent}
             </Link>
         ) : (
-            <div key={index} className="flex-shrink-0">
+            <div key={index} className="flex-1 min-w-0">
                 {chipContent}
             </div>
         );
@@ -101,22 +101,10 @@ export default function BusinessAlerts() {
 
     return (
         <div className="relative z-10">
-            {/* Horizontal scrollable container with snap points */}
-            <div
-                className="
-                    flex gap-3 overflow-x-auto pb-1
-                    scrollbar-hide snap-x snap-mandatory
-                    -mx-4 px-4 sm:mx-0 sm:px-0
-                "
-                style={{
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                }}
-            >
-                {alerts.slice(0, 3).map((alert, i) => (
-                    <div key={i} className="snap-start">
-                        <AlertChip alert={alert} index={i} />
-                    </div>
+            {/* Flex container - side by side, no scroll */}
+            <div className="flex gap-2">
+                {alerts.slice(0, 2).map((alert, i) => (
+                    <AlertChip key={i} alert={alert} index={i} />
                 ))}
             </div>
 

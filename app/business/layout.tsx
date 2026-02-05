@@ -98,7 +98,7 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                 <div className="border-b border-gray-800 bg-gray-900/50">
                     <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4">
                         {/* Title - Compact on mobile */}
-                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                        <div className="flex items-center justify-between mb-2">
                             <div>
                                 <h1 className="text-xl sm:text-2xl font-black italic">Business Dashboard</h1>
                                 <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Track inventory, jobs, and tool subscriptions.</p>
@@ -106,7 +106,7 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                         </div>
 
                         {/* Monthly Stats Banner - Swipeable on mobile */}
-                        <div className="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-gradient-to-r from-zinc-900/80 to-zinc-800/50 rounded-xl border border-zinc-700/50">
+                        <div className="mb-2 p-2 bg-gradient-to-r from-zinc-900/80 to-zinc-800/50 rounded-xl border border-zinc-700/50">
                             <div
                                 className="flex items-center gap-3 sm:gap-4 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide"
                                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -160,7 +160,7 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                         </div>
 
                         {/* Alerts & Insights */}
-                        <div className="mb-3 sm:mb-4">
+                        <div className="mb-2">
                             <BusinessAlerts />
                         </div>
 
@@ -178,11 +178,11 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                                     role="tab"
                                     aria-selected={activeTab === tab.id}
                                     className={`
-                                    flex items-center justify-center gap-1.5 sm:gap-2 
-                                    px-4 sm:px-5 py-3 sm:py-2.5 
-                                    min-w-[48px] min-h-[48px]
-                                    rounded-xl font-bold text-sm 
-                                    transition-all whitespace-nowrap flex-shrink-0
+                                    flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 
+                                    px-2 sm:px-5 py-2 sm:py-2.5 
+                                    flex-1
+                                    rounded-xl font-medium text-[10px] sm:text-sm 
+                                    transition-all whitespace-nowrap
                                     active:scale-95 cursor-pointer
                                     select-none
                                     ${activeTab === tab.id
@@ -192,8 +192,7 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                                 `}
                                 >
                                     <span className="pointer-events-none">{React.createElement(ICONS[tab.id])}</span>
-                                    {/* Label hidden on mobile (< 640px), visible on sm+ */}
-                                    <span className="hidden sm:inline pointer-events-none">{tab.label}</span>
+                                    <span className="pointer-events-none">{tab.label}</span>
                                 </Link>
                             ))}
                         </nav>
