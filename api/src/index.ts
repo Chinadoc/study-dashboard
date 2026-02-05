@@ -1742,12 +1742,17 @@ export default {
           const userId = payload.sub as string;
 
           const result = await env.LOCKSMITH_DB.prepare(`
-            SELECT id, data, created_at, updated_at FROM fleet_customers WHERE user_id = ? ORDER BY updated_at DESC
+            SELECT id, created_at, updated_at, name, phone, email, address, notes
+            FROM fleet_customers WHERE user_id = ? ORDER BY updated_at DESC
           `).bind(userId).all();
 
           const customers = (result.results || []).map((row: any) => ({
             id: row.id,
-            ...JSON.parse(row.data || '{}'),
+            name: row.name,
+            phone: row.phone,
+            email: row.email,
+            address: row.address,
+            notes: row.notes,
             createdAt: row.created_at,
             updatedAt: row.updated_at
           }));
@@ -1773,18 +1778,18 @@ export default {
 
           if (!customer || !customer.id) return corsResponse(request, JSON.stringify({ error: "Missing customer data or ID" }), 400);
 
+          const now = Date.now();
           await env.LOCKSMITH_DB.prepare(`
-            INSERT INTO fleet_customers (id, user_id, data, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO fleet_customers (id, user_id, created_at, updated_at, name, phone, email, address, notes, synced_at, sync_status, data)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
-              data = excluded.data,
-              updated_at = excluded.updated_at
+              updated_at = excluded.updated_at, name = excluded.name, phone = excluded.phone,
+              email = excluded.email, address = excluded.address, notes = excluded.notes,
+              synced_at = excluded.synced_at, data = excluded.data
           `).bind(
-            customer.id,
-            userId,
-            JSON.stringify(customer),
-            customer.createdAt || Date.now(),
-            Date.now()
+            customer.id, userId, customer.createdAt || now, now,
+            customer.name || null, customer.phone || null, customer.email || null,
+            customer.address || null, customer.notes || null, now, 'synced', JSON.stringify(customer)
           ).run();
 
           return corsResponse(request, JSON.stringify({ success: true, id: customer.id }));
@@ -1832,12 +1837,20 @@ export default {
           const userId = payload.sub as string;
 
           const result = await env.LOCKSMITH_DB.prepare(`
-            SELECT id, data, created_at, updated_at FROM technicians WHERE user_id = ? ORDER BY updated_at DESC
+            SELECT id, created_at, updated_at, name, phone, email, role, commission_rate, hire_date, notes, active
+            FROM technicians WHERE user_id = ? ORDER BY updated_at DESC
           `).bind(userId).all();
 
           const technicians = (result.results || []).map((row: any) => ({
             id: row.id,
-            ...JSON.parse(row.data || '{}'),
+            name: row.name,
+            phone: row.phone,
+            email: row.email,
+            role: row.role,
+            commissionRate: row.commission_rate,
+            hireDate: row.hire_date,
+            notes: row.notes,
+            active: Boolean(row.active),
             createdAt: row.created_at,
             updatedAt: row.updated_at
           }));
@@ -1859,25 +1872,27 @@ export default {
 
           const userId = payload.sub as string;
           const body: any = await request.json();
-          const { technician } = body;
+          const tech = body.technician || body;
 
-          if (!technician || !technician.id) return corsResponse(request, JSON.stringify({ error: "Missing technician data or ID" }), 400);
+          if (!tech || !tech.id) return corsResponse(request, JSON.stringify({ error: "Missing technician data or ID" }), 400);
 
+          const now = Date.now();
           await env.LOCKSMITH_DB.prepare(`
-            INSERT INTO technicians (id, user_id, data, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO technicians (id, user_id, created_at, updated_at, name, phone, email, role, commission_rate, hire_date, notes, active, synced_at, sync_status, data)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
-              data = excluded.data,
-              updated_at = excluded.updated_at
+              updated_at = excluded.updated_at, name = excluded.name, phone = excluded.phone,
+              email = excluded.email, role = excluded.role, commission_rate = excluded.commission_rate,
+              hire_date = excluded.hire_date, notes = excluded.notes, active = excluded.active,
+              synced_at = excluded.synced_at, data = excluded.data
           `).bind(
-            technician.id,
-            userId,
-            JSON.stringify(technician),
-            technician.createdAt || Date.now(),
-            Date.now()
+            tech.id, userId, tech.createdAt || now, now,
+            tech.name || null, tech.phone || null, tech.email || null, tech.role || null,
+            tech.commissionRate || null, tech.hireDate || null, tech.notes || null,
+            tech.active !== false ? 1 : 0, now, 'synced', JSON.stringify(tech)
           ).run();
 
-          return corsResponse(request, JSON.stringify({ success: true, id: technician.id }));
+          return corsResponse(request, JSON.stringify({ success: true, id: tech.id }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
@@ -1922,12 +1937,21 @@ export default {
           const userId = payload.sub as string;
 
           const result = await env.LOCKSMITH_DB.prepare(`
-            SELECT id, data, created_at, updated_at FROM user_licenses WHERE user_id = ? ORDER BY updated_at DESC
+            SELECT id, created_at, updated_at, license_type, license_number, issuing_state,
+              issue_date, expiration_date, auto_renew, notes, reminder_days
+            FROM user_licenses WHERE user_id = ? ORDER BY updated_at DESC
           `).bind(userId).all();
 
           const licenses = (result.results || []).map((row: any) => ({
             id: row.id,
-            ...JSON.parse(row.data || '{}'),
+            type: row.license_type,
+            licenseNumber: row.license_number,
+            issuingState: row.issuing_state,
+            issueDate: row.issue_date,
+            expirationDate: row.expiration_date,
+            autoRenew: Boolean(row.auto_renew),
+            notes: row.notes,
+            reminderDays: row.reminder_days,
             createdAt: row.created_at,
             updatedAt: row.updated_at
           }));
@@ -1953,18 +1977,21 @@ export default {
 
           if (!license || !license.id) return corsResponse(request, JSON.stringify({ error: "Missing license data or ID" }), 400);
 
+          const now = Date.now();
           await env.LOCKSMITH_DB.prepare(`
-            INSERT INTO user_licenses (id, user_id, data, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO user_licenses (id, user_id, created_at, updated_at, license_type, license_number, issuing_state,
+              issue_date, expiration_date, auto_renew, notes, reminder_days, synced_at, sync_status, data)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
-              data = excluded.data,
-              updated_at = excluded.updated_at
+              updated_at = excluded.updated_at, license_type = excluded.license_type, license_number = excluded.license_number,
+              issuing_state = excluded.issuing_state, issue_date = excluded.issue_date, expiration_date = excluded.expiration_date,
+              auto_renew = excluded.auto_renew, notes = excluded.notes, reminder_days = excluded.reminder_days,
+              synced_at = excluded.synced_at, data = excluded.data
           `).bind(
-            license.id,
-            userId,
-            JSON.stringify(license),
-            license.createdAt || Date.now(),
-            Date.now()
+            license.id, userId, license.createdAt || now, now,
+            license.type || null, license.licenseNumber || null, license.issuingState || null,
+            license.issueDate || null, license.expirationDate || null, license.autoRenew ? 1 : 0,
+            license.notes || null, license.reminderDays || null, now, 'synced', JSON.stringify(license)
           ).run();
 
           return corsResponse(request, JSON.stringify({ success: true, id: license.id }));
