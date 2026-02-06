@@ -3,6 +3,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { API_BASE } from '@/lib/config';
 
+// Modular subscription flags
+export interface Subscriptions {
+    images?: boolean;
+    dossiers?: boolean;
+    business_tools?: boolean;
+    dispatcher?: boolean;
+    fleet?: boolean;
+}
+
 export interface User {
     id: string;
     email: string;
@@ -12,6 +21,7 @@ export interface User {
     is_pro?: boolean;
     trial_until?: number;
     created_at?: number;
+    subscriptions?: Subscriptions;
 }
 
 interface AuthContextType {
@@ -22,6 +32,12 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isDeveloper: boolean;
     isPro: boolean;
+    // Modular subscription flags
+    hasImages: boolean;
+    hasDossiers: boolean;
+    hasBusinessTools: boolean;
+    hasDispatcher: boolean;
+    hasFleet: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,6 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     is_pro: data.user.is_pro,
                     trial_until: data.user.trial_until,
                     created_at: data.user.created_at,
+                    subscriptions: data.user.subscriptions || {},
                 };
                 setUser(normalizedUser);
                 localStorage.setItem('eurokeys_user', JSON.stringify(normalizedUser));
@@ -190,6 +207,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [hasMounted, user]);
     const isDeveloper = !!(user && user.is_developer);
 
+    // Modular subscription flags - Pro users get ALL add-ons
+    const subs = user?.subscriptions || {};
+    const hasImages = isPro || !!subs.images;
+    const hasDossiers = isPro || !!subs.dossiers;
+    const hasBusinessTools = isPro || !!subs.business_tools;
+    const hasDispatcher = isPro || !!subs.dispatcher;
+    const hasFleet = isPro || !!subs.fleet;
+
     return (
         <AuthContext.Provider
             value={{
@@ -200,6 +225,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 isAuthenticated: !!user,
                 isDeveloper,
                 isPro,
+                hasImages,
+                hasDossiers,
+                hasBusinessTools,
+                hasDispatcher,
+                hasFleet,
             }}
         >
             {children}

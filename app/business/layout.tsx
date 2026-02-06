@@ -62,82 +62,17 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default function BusinessLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { isPro, login, isAuthenticated } = useAuth();
+    const { hasBusinessTools, login, isAuthenticated } = useAuth();
     const { jobLogs, getJobStats } = useJobLogs();
     const stats = getJobStats();
 
-    // If not Pro, show paywall
-    if (!isPro) {
-        return (
-            <ToastProvider>
-                <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-                    <div className="max-w-lg w-full glass p-8 sm:p-12 text-center border-2 border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-zinc-900 rounded-2xl">
-                        {/* Lock Icon */}
-                        <div className="text-6xl mb-6">🔒</div>
-
-                        {/* Title */}
-                        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                            Business Tools
-                        </h1>
-                        <p className="text-zinc-400 mb-8">
-                            Job logging, inventory, and business analytics require Pro
-                        </p>
-
-                        {/* Pro Benefits */}
-                        <div className="text-left bg-zinc-800/50 rounded-xl p-6 mb-8">
-                            <h3 className="font-bold text-zinc-200 mb-4">Pro includes:</h3>
-                            <ul className="space-y-3 text-sm text-zinc-300">
-                                <li className="flex items-center gap-3">
-                                    <span className="text-green-400">✓</span> Unlimited job logging & tracking
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <span className="text-green-400">✓</span> Inventory management with sync
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <span className="text-green-400">✓</span> Invoice generation & accounting
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <span className="text-green-400">✓</span> AI-powered business insights
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <span className="text-green-400">✓</span> Full vehicle database access
-                                </li>
-                            </ul>
-                        </div>
-
-                        {/* CTA Buttons */}
-                        <button
-                            onClick={() => router.push('/pricing')}
-                            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-xl transition-colors text-lg mb-4"
-                        >
-                            Upgrade to Pro →
-                        </button>
-
-                        {/* Sign in option */}
-                        {!isAuthenticated && (
-                            <button
-                                onClick={() => login()}
-                                className="text-zinc-400 hover:text-white text-sm underline transition-colors"
-                            >
-                                Already have Pro? Sign in
-                            </button>
-                        )}
-
-                        {/* Demo link */}
-                        <div className="border-t border-zinc-800 pt-6 mt-6">
-                            <p className="text-zinc-500 text-sm mb-3">Or explore the free demo vehicle:</p>
-                            <a
-                                href="/vehicle/honda/civic/2018"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-bold transition-colors"
-                            >
-                                🚗 Try 2018 Honda Civic Demo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </ToastProvider>
-        );
-    }
+    // Calculate free tier usage
+    const keysUsed = 0; // Will be calculated from inventory
+    const jobsCompleted = jobLogs.filter(j => j.status === 'completed').length;
+    const FREE_KEYS = 8;
+    const FREE_JOBS = 5;
+    const isNearLimit = !hasBusinessTools && (jobsCompleted >= FREE_JOBS - 1);
+    const isOverLimit = !hasBusinessTools && jobsCompleted >= FREE_JOBS;
 
     // Calculate current month's daily activity for mini calendar
     const today = new Date();
@@ -239,6 +174,31 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                         <div className="mb-2">
                             <BusinessAlerts />
                         </div>
+
+                        {/* Free Tier Limit Banner */}
+                        {!hasBusinessTools && (
+                            <div className={`mb-2 p-3 rounded-xl border text-sm flex items-center justify-between gap-3 flex-wrap ${isOverLimit
+                                    ? 'bg-red-900/30 border-red-500/40 text-red-300'
+                                    : isNearLimit
+                                        ? 'bg-amber-900/30 border-amber-500/40 text-amber-300'
+                                        : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-400'
+                                }`}>
+                                <div className="flex items-center gap-4">
+                                    <span className="font-medium">
+                                        Free Tier: <span className="text-white">{jobsCompleted}/{FREE_JOBS} jobs</span>
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => router.push('/pricing')}
+                                    className={`px-4 py-1.5 rounded-lg font-bold text-xs transition-colors ${isOverLimit
+                                            ? 'bg-red-500 text-white hover:bg-red-400'
+                                            : 'bg-amber-500 text-black hover:bg-amber-400'
+                                        }`}
+                                >
+                                    {isOverLimit ? 'Limit Reached → Upgrade' : 'Get Unlimited →'}
+                                </button>
+                            </div>
+                        )}
 
                         {/* Main Tab Navigation - Icon only on mobile, icon+text on larger screens */}
                         <nav
