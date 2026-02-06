@@ -114,6 +114,7 @@ export default function OnboardingFlow() {
     const [isMobile, setIsMobile] = useState(false);
     const [isNavigating, setIsNavigating] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     // Restore tour state from localStorage on mount
@@ -188,6 +189,7 @@ export default function OnboardingFlow() {
         }
 
         setIsLoading(true);
+        setCheckoutError(null);
         try {
             const token = localStorage.getItem('session_token');
             const res = await fetch(`${API_BASE}/api/stripe/checkout`, {
@@ -200,9 +202,14 @@ export default function OnboardingFlow() {
             const data = await res.json();
             if (data.url) {
                 window.location.href = data.url;
+            } else if (data.error) {
+                setCheckoutError(data.error);
+            } else {
+                setCheckoutError('Unable to start checkout. Please try again.');
             }
         } catch (err) {
             console.error('Checkout error:', err);
+            setCheckoutError('Connection error. Please check your internet and try again.');
         } finally {
             setIsLoading(false);
         }
@@ -224,6 +231,12 @@ export default function OnboardingFlow() {
         localStorage.removeItem(TOUR_STORAGE_KEY);
         markTourComplete('onboarding');
         completeOnboarding();
+        closeWizard();
+    };
+
+    // Close wizard and clear tour state (for X button / early exit)
+    const handleCloseWizard = () => {
+        localStorage.removeItem(TOUR_STORAGE_KEY);
         closeWizard();
     };
 
@@ -497,10 +510,17 @@ export default function OnboardingFlow() {
                     <button
                         onClick={handleStartTrial}
                         disabled={isLoading}
-                        className="w-full px-6 py-3 sm:py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold text-base sm:text-lg rounded-lg transition-colors disabled:opacity-50 mb-4"
+                        className="w-full px-6 py-3 sm:py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold text-base sm:text-lg rounded-lg transition-colors disabled:opacity-50 mb-3"
                     >
                         {isLoading ? 'Loading...' : 'Start 7-Day Free Trial'}
                     </button>
+
+                    {/* Error message */}
+                    {checkoutError && (
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2.5 mb-4">
+                            <p className="text-red-400 text-sm">{checkoutError}</p>
+                        </div>
+                    )}
 
                     {/* Sandbox option */}
                     <div className="border-t border-zinc-800 pt-4">
