@@ -2,9 +2,10 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useJobLogs } from '@/lib/useJobLogs';
 import BusinessAlerts from '@/components/business/BusinessAlerts';
+import { useAuth } from '@/contexts/AuthContext';
 
 import { ToastProvider } from '@/components/ui/Toast';
 import { SyncToastListener } from '@/components/business/SyncToastListener';
@@ -60,8 +61,83 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 
 export default function BusinessLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const { isPro, login, isAuthenticated } = useAuth();
     const { jobLogs, getJobStats } = useJobLogs();
     const stats = getJobStats();
+
+    // If not Pro, show paywall
+    if (!isPro) {
+        return (
+            <ToastProvider>
+                <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+                    <div className="max-w-lg w-full glass p-8 sm:p-12 text-center border-2 border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-zinc-900 rounded-2xl">
+                        {/* Lock Icon */}
+                        <div className="text-6xl mb-6">🔒</div>
+
+                        {/* Title */}
+                        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                            Business Tools
+                        </h1>
+                        <p className="text-zinc-400 mb-8">
+                            Job logging, inventory, and business analytics require Pro
+                        </p>
+
+                        {/* Pro Benefits */}
+                        <div className="text-left bg-zinc-800/50 rounded-xl p-6 mb-8">
+                            <h3 className="font-bold text-zinc-200 mb-4">Pro includes:</h3>
+                            <ul className="space-y-3 text-sm text-zinc-300">
+                                <li className="flex items-center gap-3">
+                                    <span className="text-green-400">✓</span> Unlimited job logging & tracking
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <span className="text-green-400">✓</span> Inventory management with sync
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <span className="text-green-400">✓</span> Invoice generation & accounting
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <span className="text-green-400">✓</span> AI-powered business insights
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <span className="text-green-400">✓</span> Full vehicle database access
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* CTA Buttons */}
+                        <button
+                            onClick={() => router.push('/pricing')}
+                            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-xl transition-colors text-lg mb-4"
+                        >
+                            Upgrade to Pro →
+                        </button>
+
+                        {/* Sign in option */}
+                        {!isAuthenticated && (
+                            <button
+                                onClick={() => login()}
+                                className="text-zinc-400 hover:text-white text-sm underline transition-colors"
+                            >
+                                Already have Pro? Sign in
+                            </button>
+                        )}
+
+                        {/* Demo link */}
+                        <div className="border-t border-zinc-800 pt-6 mt-6">
+                            <p className="text-zinc-500 text-sm mb-3">Or explore the free demo vehicle:</p>
+                            <a
+                                href="/vehicle/honda/civic/2018"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-bold transition-colors"
+                            >
+                                🚗 Try 2018 Honda Civic Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </ToastProvider>
+        );
+    }
 
     // Calculate current month's daily activity for mini calendar
     const today = new Date();
