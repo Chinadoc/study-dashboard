@@ -43,7 +43,7 @@ function JobsPageContent() {
     // Track lead being scheduled (to delete after job creation)
     const [schedulingLead, setSchedulingLead] = useState<PipelineLead | null>(null);
 
-    const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers, clearLocalCache } = useJobLogs();
+    const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
     const { getStats: getPipelineStats, deleteLead } = usePipelineLeads();
     const stats = getJobStats();
 
@@ -281,23 +281,7 @@ function JobsPageContent() {
                     </button>
                 ))}
                 {/* Sync Button - for cross-device sync */}
-                <div className="ml-auto flex-shrink-0 flex gap-2">
-                    <button
-                        onClick={async () => {
-                            if (confirm('Clear all local job data and reload from server? This will fix sync issues but any unsaved local changes will be lost.')) {
-                                const result = await clearLocalCache();
-                                if (result.success) {
-                                    alert(`Cache cleared! Loaded ${result.loaded} jobs from server.`);
-                                } else {
-                                    alert(`Failed to clear cache: ${result.error}`);
-                                }
-                            }
-                        }}
-                        className="py-1.5 px-3 text-xs bg-zinc-800 text-zinc-400 rounded-lg hover:bg-red-900/30 hover:text-red-400 transition-colors"
-                        title="Clear local cache and reload from server"
-                    >
-                        🗑️ Clear Cache
-                    </button>
+                <div className="ml-auto flex-shrink-0">
                     <ForceSyncButton showDetails={false} className="!py-1.5 !px-3 !text-xs" />
                 </div>
             </div>

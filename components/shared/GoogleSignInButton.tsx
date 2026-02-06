@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useFleetPanel } from '@/contexts/FleetPanelContext';
 import { useTeamPanel } from '@/contexts/TeamPanelContext';
+import { useJobLogs } from '@/lib/useJobLogs';
 import Link from 'next/link';
 
 // API base URL - use environment variable or default to production
@@ -25,7 +26,9 @@ export const GoogleSignInButton = () => {
     const { openTeamPanel } = useTeamPanel();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [reputation, setReputation] = useState<ReputationData | null>(null);
+    const [syncingCache, setSyncingCache] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const { clearLocalCache, forceFullSync } = useJobLogs();
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -255,6 +258,51 @@ export const GoogleSignInButton = () => {
                             <span>🎓</span>
                             Take a Tour
                         </button>
+                    </div>
+
+                    {/* Settings Section */}
+                    <div className="border-t border-slate-700 p-2">
+                        <div className="px-3 py-1 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Settings</div>
+                        <button
+                            onClick={async () => {
+                                if (confirm('Clear all cached data and reload from server? This fixes sync issues.')) {
+                                    setSyncingCache(true);
+                                    const result = await clearLocalCache();
+                                    setSyncingCache(false);
+                                    if (result.success) {
+                                        alert(`Cache cleared! Loaded ${result.loaded} jobs.`);
+                                    } else {
+                                        alert(`Failed: ${result.error}`);
+                                    }
+                                }
+                            }}
+                            disabled={syncingCache}
+                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-zinc-700/50 hover:text-white disabled:opacity-50"
+                        >
+                            <span>🗑️</span>
+                            {syncingCache ? 'Clearing...' : 'Clear Cache'}
+                        </button>
+                        <button
+                            onClick={async () => {
+                                setSyncingCache(true);
+                                const result = await forceFullSync();
+                                setSyncingCache(false);
+                                if (result.success) {
+                                    alert(`Synced ${result.synced} jobs to cloud.`);
+                                } else {
+                                    alert(`Sync failed: ${result.error}`);
+                                }
+                            }}
+                            disabled={syncingCache}
+                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white disabled:opacity-50"
+                        >
+                            <span>☁️</span>
+                            {syncingCache ? 'Syncing...' : 'Force Sync All Data'}
+                        </button>
+                    </div>
+
+                    {/* Sign Out */}
+                    <div className="border-t border-slate-700 p-2">
                         <button
                             onClick={logout}
                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"
