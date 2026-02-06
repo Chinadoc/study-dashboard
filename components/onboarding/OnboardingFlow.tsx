@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE } from '@/lib/config';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 // Sandbox limits
 const SANDBOX_LIMITS = {
@@ -107,6 +107,7 @@ export default function OnboardingFlow() {
     const { user, isAuthenticated, login, isPro } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
     const [tourIndex, setTourIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -152,14 +153,23 @@ export default function OnboardingFlow() {
     useEffect(() => {
         if (currentStep === 'guided-tour' && GUIDED_TOUR[tourIndex]) {
             const targetPage = GUIDED_TOUR[tourIndex].page;
-            if (pathname !== targetPage) {
+
+            // Check both actual pathname AND fallback original param (for SPA fallback routes)
+            const originalPath = searchParams?.get('original');
+            const effectivePath = originalPath
+                ? decodeURIComponent(originalPath).replace(/\/$/, '') // Remove trailing slash
+                : pathname;
+            const normalizedTarget = targetPage.replace(/\/$/, '');
+
+            // Only navigate if we're not already on the target page
+            if (!effectivePath?.includes(normalizedTarget)) {
                 setIsNavigating(true);
                 router.push(targetPage);
                 // Give time for navigation
                 setTimeout(() => setIsNavigating(false), 500);
             }
         }
-    }, [currentStep, tourIndex, pathname, router]);
+    }, [currentStep, tourIndex, pathname, searchParams, router]);
 
     // Auto-continue tour after successful sign-in at the gate
     useEffect(() => {
