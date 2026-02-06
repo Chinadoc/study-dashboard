@@ -19,7 +19,7 @@ async function getVideoMap(): Promise<Record<string, CompactVideo[]>> {
     if (cachedVideoMap) return cachedVideoMap;
     if (fetchPromise) return fetchPromise;
 
-    fetchPromise = fetch('/data/vehicle_video_map.json')
+    fetchPromise = fetch('/vehicle-videos.json')
         .then(res => {
             if (!res.ok) throw new Error('Failed to load video map');
             return res.json();
