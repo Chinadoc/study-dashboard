@@ -134,37 +134,23 @@ export default function DispatcherPage() {
         setJobModalOpen(true);
     };
 
+    // Handle lead-to-job conversion - open modal with prefill (same as scheduling)
     const handleConvertLead = (lead: PipelineLead) => {
-        const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'safe', 'other'] as const;
-        const jobType = lead.jobType && validJobTypes.includes(lead.jobType as typeof validJobTypes[number])
-            ? lead.jobType as typeof validJobTypes[number]
-            : 'other';
-
-        addJobLog({
-            vehicle: lead.vehicle || 'Vehicle TBD',
-            jobType,
-            price: lead.estimatedValue || 0,
-            date: lead.followUpDate || new Date().toISOString().split('T')[0],
-            customerName: lead.customerName,
-            customerPhone: lead.customerPhone,
-            notes: `[Pipeline Lead #${lead.id.slice(-6)}]`,
-            status: 'unassigned',
-            source: 'pipeline',
-        } as Omit<JobLog, 'id' | 'createdAt'>);
-
-        setPipelineSuccess(lead.customerName || 'Lead');
-        setTimeout(() => setPipelineSuccess(null), 3000);
+        handleScheduleLead(lead);
     };
 
     const handleJobSubmit = (data: JobFormData) => {
+        const isFromPipeline = !!schedulingLead;
+
         addJobLog({
             vehicle: data.vehicle,
             companyName: data.companyName,
             fccId: data.fccId || undefined,
+            keyType: data.keyType || undefined,
             jobType: data.jobType,
             price: data.price,
             date: data.date,
-            notes: schedulingLead
+            notes: isFromPipeline && schedulingLead
                 ? `[Pipeline Lead #${schedulingLead.id.slice(-6)}] ${data.notes || ''}`
                 : (data.notes || undefined),
             customerName: data.customerName,
@@ -173,8 +159,14 @@ export default function DispatcherPage() {
             fleetId: data.fleetId,
             technicianId: data.technicianId,
             technicianName: data.technicianName,
-            status: 'unassigned',
-            source: 'pipeline',
+            partsCost: data.partsCost,
+            keyCost: data.keyCost,
+            serviceCost: data.serviceCost,
+            milesDriven: data.milesDriven,
+            gasCost: data.gasCost,
+            referralSource: data.referralSource,
+            status: isFromPipeline ? 'unassigned' : (data.status || 'completed'),
+            source: isFromPipeline ? 'pipeline' : 'manual',
         } as Omit<JobLog, 'id' | 'createdAt'>);
 
         if (schedulingLead) {

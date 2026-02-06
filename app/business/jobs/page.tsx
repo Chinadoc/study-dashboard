@@ -18,7 +18,7 @@ import { useFleet } from '@/contexts/FleetContext';
 import ForceSyncButton from '@/components/business/ForceSyncButton';
 import Link from 'next/link';
 
-type JobsSubTab = 'all' | 'dispatch' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
+type JobsSubTab = 'all' | 'pipeline' | 'dispatch' | 'myjobs' | 'calendar' | 'analytics';
 
 // Wrapper to provide Suspense boundary for useSearchParams
 export default function JobsPage() {
@@ -98,8 +98,8 @@ function JobsPageContent() {
         }
     }, [searchParams]);
 
-    // Filter jobs based on subtab - "pending" tab shows claimed and in_progress jobs
-    const pendingJobs = useMemo(() =>
+    // Filter jobs based on subtab - "My Jobs" tab shows claimed and in_progress jobs
+    const myActiveJobs = useMemo(() =>
         jobLogs.filter(j => j.status === 'claimed' || j.status === 'in_progress'),
         [jobLogs]
     );
@@ -157,38 +157,9 @@ function JobsPageContent() {
     const pipelineStats = getPipelineStats();
     const activeLeadsCount = pipelineStats.newLeads + pipelineStats.contactedLeads + pipelineStats.scheduledLeads;
 
-    // Handle lead-to-job conversion - auto-create pending job
+    // Handle lead-to-job conversion - open modal with prefill (same as scheduling)
     const handleConvertLead = (lead: PipelineLead) => {
-        // Map lead jobType to valid JobLog jobType, default to 'other'
-        const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'safe', 'other'] as const;
-        const jobType = lead.jobType && validJobTypes.includes(lead.jobType as typeof validJobTypes[number])
-            ? lead.jobType as typeof validJobTypes[number]
-            : 'other';
-
-        // Map lead source to valid referralSource
-        const validSources = ['google', 'yelp', 'referral', 'repeat', 'other'] as const;
-        const referralSource = lead.source && validSources.includes(lead.source as typeof validSources[number])
-            ? lead.source as typeof validSources[number]
-            : lead.source ? 'other' : undefined;
-
-        addJobLog({
-            vehicle: lead.vehicle || 'Vehicle TBD',
-            jobType,
-            price: lead.estimatedValue || 0,
-            date: lead.followUpDate || new Date().toISOString().split('T')[0],
-            customerName: lead.customerName,
-            customerPhone: lead.customerPhone,
-            notes: lead.notes
-                ? `[Pipeline Lead #${lead.id.slice(-6)}] ${lead.notes}`
-                : `[Pipeline Lead #${lead.id.slice(-6)}]`,
-            referralSource,
-            status: 'unassigned',
-            source: 'pipeline',
-        } as Omit<JobLog, 'id' | 'createdAt'>);
-
-        // Show success feedback
-        setPipelineSuccess(lead.customerName || 'Lead');
-        setTimeout(() => setPipelineSuccess(null), 3000);
+        handleScheduleLead(lead);
     };
 
     // Handle scheduling a lead - opens modal to fill in job details
@@ -250,10 +221,10 @@ function JobsPageContent() {
 
     const subtabs = [
         { id: 'all', label: 'All Jobs', icon: '📝', count: jobLogs.length },
-        { id: 'dispatch', label: 'Dispatch', icon: '🚚', count: unassignedJobs.length > 0 ? unassignedJobs.length : undefined },
         { id: 'pipeline', label: 'Pipeline', icon: '📥', count: activeLeadsCount > 0 ? activeLeadsCount : undefined },
+        { id: 'dispatch', label: 'Dispatch', icon: '🚚', count: unassignedJobs.length > 0 ? unassignedJobs.length : undefined },
+        { id: 'myjobs', label: 'My Jobs', icon: '🛠️', count: myActiveJobs.length > 0 ? myActiveJobs.length : undefined },
         { id: 'calendar', label: 'Calendar', icon: '📅' },
-        { id: 'pending', label: 'Pending', icon: '⏳', count: pendingJobs.length },
         { id: 'analytics', label: 'Analytics', icon: '📊' },
     ];
 
@@ -392,7 +363,7 @@ function JobsPageContent() {
                 </div>
             )}
 
-            {activeSubTab === 'pending' && (
+            {activeSubTab === 'myjobs' && (
                 <div className="space-y-4">
                     <button
                         onClick={() => setJobModalOpen(true)}
@@ -401,9 +372,9 @@ function JobsPageContent() {
                         📝 Log New Job
                     </button>
 
-                    {pendingJobs.length > 0 ? (
+                    {myActiveJobs.length > 0 ? (
                         <div className="bg-gray-900 rounded-xl border border-gray-800 divide-y divide-gray-800">
-                            {pendingJobs.map((job) => (
+                            {myActiveJobs.map((job) => (
                                 <PendingJobCard
                                     key={job.id}
                                     job={job}
@@ -415,8 +386,8 @@ function JobsPageContent() {
                     ) : (
                         <div className="text-center py-12 text-gray-500">
                             <div className="text-4xl mb-3">✅</div>
-                            <p className="font-medium">No pending jobs</p>
-                            <p className="text-sm mt-1">All caught up!</p>
+                            <p className="font-medium">No active jobs</p>
+                            <p className="text-sm mt-1">Claim a job from Dispatch to get started!</p>
                         </div>
                     )}
                 </div>

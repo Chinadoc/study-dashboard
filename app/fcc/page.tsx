@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Tag, { TagType } from '@/components/shared/Tag';
 import { API_BASE, AFFILIATE_TAG } from '@/lib/config';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
-import { addJobLogToStorage } from '@/lib/useJobLogs';
+import { useJobLogs } from '@/lib/useJobLogs';
 import { trackFCCView, trackAffiliateClick, trackEvent } from '@/lib/analytics';
 import { useInventory } from '@/contexts/InventoryContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -158,6 +158,9 @@ function FccContent() {
     // Use shared inventory context
     const { getQuantity, updateQuantity } = useInventory();
 
+    // Use job logs hook for proper sync
+    const { addJobLog } = useJobLogs();
+
     // Wrapper for compatibility with existing usage
     const getStock = useCallback((fccId: string): number => {
         return getQuantity(fccId);
@@ -214,15 +217,29 @@ function FccContent() {
     };
 
     const handleJobSubmit = (job: JobFormData) => {
-        addJobLogToStorage({
+        addJobLog({
             vehicle: job.vehicle,
-            fccId: job.fccId,
-            keyType: job.keyType,
+            companyName: job.companyName,
+            fccId: job.fccId || undefined,
+            keyType: job.keyType || undefined,
             jobType: job.jobType,
             price: job.price,
             date: job.date,
-            notes: job.notes,
-            status: 'completed',
+            notes: job.notes || undefined,
+            customerName: job.customerName,
+            customerPhone: job.customerPhone,
+            customerAddress: job.customerAddress,
+            fleetId: job.fleetId,
+            technicianId: job.technicianId,
+            technicianName: job.technicianName,
+            partsCost: job.partsCost,
+            keyCost: job.keyCost,
+            serviceCost: job.serviceCost,
+            milesDriven: job.milesDriven,
+            gasCost: job.gasCost,
+            referralSource: job.referralSource,
+            status: job.status || 'completed',
+            source: 'manual',
         });
         // Optionally auto-decrement inventory
         if (job.fccId) {
