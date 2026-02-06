@@ -462,7 +462,12 @@ function PendingJobCard({
                     <div className="text-sm text-blue-400">👤 {job.customerName}</div>
                 )}
                 <div className="text-sm text-gray-500">
-                    {new Date(job.date).toLocaleDateString()}
+                    {(() => {
+                        try {
+                            const d = job.date ? new Date(job.date) : null;
+                            return d && !isNaN(d.getTime()) ? d.toLocaleDateString() : '—';
+                        } catch { return '—'; }
+                    })()}
                 </div>
             </div>
             <div className="text-green-400 font-bold">${(job.price ?? 0).toFixed(0)}</div>

@@ -30,6 +30,8 @@ export const GoogleSignInButton = () => {
     const [tourSubmenuOpen, setTourSubmenuOpen] = useState(false);
     const [reputation, setReputation] = useState<ReputationData | null>(null);
     const [syncingCache, setSyncingCache] = useState(false);
+    const [confirmingClear, setConfirmingClear] = useState(false);
+    const [syncFeedback, setSyncFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const { clearLocalCache, forceFullSync } = useJobLogs();
     const { startTour } = useTourContext();
@@ -302,35 +304,59 @@ export const GoogleSignInButton = () => {
                     {/* Settings Section */}
                     <div className="border-t border-slate-700 p-2">
                         <div className="px-3 py-1 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Settings</div>
+                        {syncFeedback && (
+                            <div className={`mx-3 mb-2 px-3 py-2 rounded-lg text-xs font-medium ${syncFeedback.type === 'success'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                }`}>
+                                {syncFeedback.message}
+                            </div>
+                        )}
                         <button
-                            onClick={async () => {
-                                if (confirm('Clear all cached data and reload from server? This fixes sync issues.')) {
-                                    setSyncingCache(true);
-                                    const result = await clearLocalCache();
-                                    setSyncingCache(false);
-                                    if (result.success) {
-                                        alert(`Cache cleared! Loaded ${result.loaded} jobs.`);
-                                    } else {
-                                        alert(`Failed: ${result.error}`);
-                                    }
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                if (!confirmingClear) {
+                                    setConfirmingClear(true);
+                                    // Auto-dismiss confirmation after 3s
+                                    setTimeout(() => setConfirmingClear(false), 3000);
+                                    return;
                                 }
+                                setConfirmingClear(false);
+                                setSyncingCache(true);
+                                setSyncFeedback(null);
+                                const result = await clearLocalCache();
+                                setSyncingCache(false);
+                                setSyncFeedback({
+                                    type: result.success ? 'success' : 'error',
+                                    message: result.success
+                                        ? `✅ Cache cleared! Loaded ${result.loaded} jobs from cloud.`
+                                        : `❌ Failed: ${result.error}`
+                                });
+                                setTimeout(() => setSyncFeedback(null), 5000);
                             }}
                             disabled={syncingCache}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-zinc-700/50 hover:text-white disabled:opacity-50"
+                            className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors disabled:opacity-50 ${confirmingClear
+                                ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 font-semibold'
+                                : 'text-slate-300 hover:bg-zinc-700/50 hover:text-white'
+                                }`}
                         >
-                            <span>🗑️</span>
-                            {syncingCache ? 'Clearing...' : 'Clear Cache'}
+                            <span>{confirmingClear ? '⚠️' : '🗑️'}</span>
+                            {syncingCache ? 'Clearing...' : confirmingClear ? 'Tap again to confirm' : 'Clear Cache'}
                         </button>
                         <button
-                            onClick={async () => {
+                            onClick={async (e) => {
+                                e.stopPropagation();
                                 setSyncingCache(true);
+                                setSyncFeedback(null);
                                 const result = await forceFullSync();
                                 setSyncingCache(false);
-                                if (result.success) {
-                                    alert(`Synced ${result.synced} jobs to cloud.`);
-                                } else {
-                                    alert(`Sync failed: ${result.error}`);
-                                }
+                                setSyncFeedback({
+                                    type: result.success ? 'success' : 'error',
+                                    message: result.success
+                                        ? `☁️ Synced ${result.synced} jobs to cloud.`
+                                        : `❌ Sync failed: ${result.error}`
+                                });
+                                setTimeout(() => setSyncFeedback(null), 5000);
                             }}
                             disabled={syncingCache}
                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white disabled:opacity-50"

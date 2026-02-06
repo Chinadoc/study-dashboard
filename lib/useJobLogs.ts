@@ -398,6 +398,16 @@ export function useJobLogs() {
         }
     }, []);
 
+    const filterValidJobs = useCallback((jobs: JobLog[]): JobLog[] => {
+        const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'safe', 'other'];
+        return jobs.filter(j =>
+            j &&
+            j.id &&
+            typeof j.vehicle === 'string' && j.vehicle.trim() !== '' && j.vehicle !== 'null' &&
+            typeof j.jobType === 'string' && (j.jobType as string) !== 'null' && validJobTypes.includes(j.jobType)
+        );
+    }, []);
+
     // Bidirectional sync: load from both local and cloud, merge, then push local-only to cloud
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -410,7 +420,7 @@ export function useJobLogs() {
             try {
                 const saved = localStorage.getItem(effectiveStorageKey);
                 if (saved) {
-                    localJobs = JSON.parse(saved);
+                    localJobs = filterValidJobs(JSON.parse(saved));
                     setJobLogs(localJobs);
                 }
             } catch (e) {
@@ -439,9 +449,9 @@ export function useJobLogs() {
                 const data = await apiRequest(endpoint);
 
                 if (data?.jobs) {
-                    // 3. Merge local and cloud
-                    const cloudJobs: JobLog[] = data.jobs;
-                    const merged = mergeJobs(localJobs, cloudJobs);
+                    // 3. Merge local and cloud, filtering out malformed entries
+                    const cloudJobs: JobLog[] = filterValidJobs(data.jobs);
+                    const merged = filterValidJobs(mergeJobs(localJobs, cloudJobs));
 
                     setJobLogs(merged);
                     localStorage.setItem(effectiveStorageKey, JSON.stringify(merged));
@@ -512,9 +522,15 @@ export function useJobLogs() {
 
         // Visibility change handler - re-sync when returning to tab
         // This ensures cross-device consistency when user switches back from another device/tab
+        // Throttle to prevent sync storms (especially on mobile Safari where focus fires frequently)
+        let lastSyncAttempt = 0;
+        const SYNC_THROTTLE_MS = 30_000; // 30 seconds minimum between re-syncs
+
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && getAuthToken() && isOnline()) {
+            const now = Date.now();
+            if (document.visibilityState === 'visible' && getAuthToken() && isOnline() && (now - lastSyncAttempt) > SYNC_THROTTLE_MS) {
                 console.log('[Sync] Tab became visible - checking for cloud updates...');
+                lastSyncAttempt = now;
                 // Reset hasSyncedRef to force a full fetch (not delta) on visibility change
                 // This ensures we get all latest data from other devices
                 hasSyncedRef.current = false;
@@ -524,8 +540,10 @@ export function useJobLogs() {
 
         // Focus handler as backup for mobile browsers
         const handleFocus = () => {
-            if (getAuthToken() && isOnline()) {
+            const now = Date.now();
+            if (getAuthToken() && isOnline() && (now - lastSyncAttempt) > SYNC_THROTTLE_MS) {
                 console.log('[Sync] Window focused - checking for cloud updates...');
+                lastSyncAttempt = now;
                 hasSyncedRef.current = false;
                 loadJobs();
             }
@@ -871,12 +889,15 @@ export function useJobLogs() {
             if (log.fccId) {
                 keyCounts[log.fccId] = (keyCounts[log.fccId] || 0) + 1;
             }
-            // Job type breakdown
-            if (!jobsByType[log.jobType]) {
-                jobsByType[log.jobType] = { count: 0, revenue: 0 };
+            // Job type breakdown - guard against null/undefined jobType
+            const jt = log.jobType as string;
+            if (jt && typeof jt === 'string' && jt !== 'null' && jt !== 'undefined') {
+                if (!jobsByType[jt]) {
+                    jobsByType[jt] = { count: 0, revenue: 0 };
+                }
+                jobsByType[jt].count++;
+                jobsByType[jt].revenue += (log.price || 0);
             }
-            jobsByType[log.jobType].count++;
-            jobsByType[log.jobType].revenue += log.price;
 
             // Customer stats
             if (log.customerName) {

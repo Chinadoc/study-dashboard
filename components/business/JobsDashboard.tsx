@@ -507,7 +507,13 @@ function JobCard({
     onGenerateInvoice?: () => void;
 }) {
     const typeInfo = JOB_TYPE_LABELS[job.jobType] || { label: job.jobType, icon: '🔧' };
-    const dateStr = new Date(job.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+    let dateStr = '—';
+    try {
+        const d = job.date ? new Date(job.date) : null;
+        if (d && !isNaN(d.getTime())) {
+            dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+        }
+    } catch { /* Safari strict date parsing */ }
     const status = job.status || 'completed';
     const statusColors = STATUS_COLORS[status] || STATUS_COLORS.completed;
     const totalCosts = (job.partsCost || 0) + (job.keyCost || 0) + (job.gasCost || 0);
@@ -636,7 +642,7 @@ function JobCard({
                     {/* Referral */}
                     {job.referralSource && (
                         <div className="text-xs text-gray-500">
-                            Source: <span className="text-yellow-500 capitalize">{job.referralSource.replace('_', ' ')}</span>
+                            Source: <span className="text-yellow-500 capitalize">{String(job.referralSource || '').replace('_', ' ')}</span>
                         </div>
                     )}
 

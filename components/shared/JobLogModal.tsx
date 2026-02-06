@@ -86,19 +86,19 @@ const REFERRAL_SOURCES = [
     { value: 'other', label: 'Other' },
 ];
 
-const STATUS_OPTIONS: Array<{ value: NonNullable<JobFormData['status']>; label: string }> = [
-    { value: 'appointment', label: 'Appointment' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'in_progress', label: 'In Progress' },
-    { value: 'on_hold', label: 'On Hold' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'pending_close', label: 'Pending Close' },
-    { value: 'pending_cancel', label: 'Pending Cancel' },
-    { value: 'estimate', label: 'Estimate' },
-    { value: 'follow_up', label: 'Follow Up' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'completed', label: 'Completed' },
+const STATUS_OPTIONS: Array<{ value: NonNullable<JobFormData['status']>; label: string; color: string; icon: string }> = [
+    { value: 'completed', label: 'Completed', color: 'green', icon: '✓' },
+    { value: 'in_progress', label: 'In Progress', color: 'blue', icon: '▶' },
+    { value: 'appointment', label: 'Appointment', color: 'purple', icon: '📅' },
+    { value: 'accepted', label: 'Accepted', color: 'emerald', icon: '✓' },
+    { value: 'estimate', label: 'Estimate', color: 'amber', icon: '💰' },
+    { value: 'follow_up', label: 'Follow Up', color: 'orange', icon: '↩' },
+    { value: 'on_hold', label: 'On Hold', color: 'yellow', icon: '⏸' },
+    { value: 'pending', label: 'Pending', color: 'zinc', icon: '⏳' },
+    { value: 'pending_close', label: 'Pending Close', color: 'zinc', icon: '⏳' },
+    { value: 'pending_cancel', label: 'Pending Cancel', color: 'red', icon: '⏳' },
+    { value: 'closed', label: 'Closed', color: 'zinc', icon: '✕' },
+    { value: 'cancelled', label: 'Cancelled', color: 'red', icon: '✕' },
 ];
 
 export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', prefillDate, prefillCustomerName = '', prefillCustomerPhone = '', prefillCustomerAddress = '', prefillNotes = '', prefillPrice, prefillJobType, prefillReferralSource, recentCustomers = [], fleetAccounts }: JobLogModalProps) {
@@ -501,7 +501,41 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         return () => clearTimeout(timeoutId);
     }, [formData.vehicle]);
 
+    // Status color mapping for chips
+    const getStatusColor = (color: string, isSelected: boolean) => {
+        const colors: Record<string, { bg: string; border: string; text: string }> = {
+            green: { bg: 'bg-green-500/20', border: 'border-green-500/50', text: 'text-green-400' },
+            blue: { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-blue-400' },
+            purple: { bg: 'bg-purple-500/20', border: 'border-purple-500/50', text: 'text-purple-400' },
+            emerald: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/50', text: 'text-emerald-400' },
+            amber: { bg: 'bg-amber-500/20', border: 'border-amber-500/50', text: 'text-amber-400' },
+            orange: { bg: 'bg-orange-500/20', border: 'border-orange-500/50', text: 'text-orange-400' },
+            yellow: { bg: 'bg-yellow-500/20', border: 'border-yellow-500/50', text: 'text-yellow-400' },
+            red: { bg: 'bg-red-500/20', border: 'border-red-500/50', text: 'text-red-400' },
+            zinc: { bg: 'bg-zinc-700/30', border: 'border-zinc-600/50', text: 'text-zinc-400' },
+        };
+        const c = colors[color] || colors.zinc;
+        return isSelected
+            ? `${c.bg} ${c.border} ${c.text}`
+            : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:border-zinc-600';
+    };
+
+    // Completeness tracking
+    const requiredFields = [
+        { label: 'Vehicle', filled: !!formData.vehicle?.trim() },
+        { label: 'Company', filled: !!formData.companyName?.trim() },
+        { label: 'Job Type', filled: !!formData.jobType },
+        { label: 'Technician', filled: !!formData.technicianName?.trim() },
+        { label: 'Customer', filled: !!formData.customerName?.trim() },
+        { label: 'Phone', filled: !!formData.customerPhone?.trim() },
+        { label: 'Status', filled: !!formData.status },
+    ];
+    const filledCount = requiredFields.filter(f => f.filled).length;
+    const [showStatusPicker, setShowStatusPicker] = useState(false);
+
     if (!isOpen) return null;
+
+    const currentStatus = STATUS_OPTIONS.find(s => s.value === formData.status) || STATUS_OPTIONS[0];
 
     return (
         <div
@@ -509,618 +543,461 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             onClick={onClose}
         >
             <div
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto"
+                className="bg-zinc-900 border border-zinc-700/50 rounded-2xl w-full max-w-2xl shadow-2xl shadow-black/50 max-h-[92vh] flex flex-col"
                 onClick={e => e.stopPropagation()}
             >
+                {/* Gradient accent bar */}
+                <div className="h-1 bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 rounded-t-2xl" />
+
                 {/* Header */}
-                <div className="flex justify-between items-center p-5 border-b border-zinc-800 sticky top-0 bg-zinc-900 z-10">
-                    <h2 className="text-xl font-bold flex items-center gap-2">
-                        <span className="text-2xl">📝</span>
-                        Log Job
-                    </h2>
+                <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-800/80">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center">
+                            <span className="text-lg">📋</span>
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-white">New Job</h2>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <div className="flex gap-0.5">
+                                    {requiredFields.map((f, i) => (
+                                        <div
+                                            key={i}
+                                            className={`w-1.5 h-1.5 rounded-full transition-colors ${f.filled ? 'bg-amber-400' : 'bg-zinc-700'}`}
+                                            title={`${f.label}: ${f.filled ? '✓' : 'Required'}`}
+                                        />
+                                    ))}
+                                </div>
+                                <span className="text-[10px] text-zinc-500">{filledCount}/{requiredFields.length}</span>
+                            </div>
+                        </div>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-all hover:scale-105 text-zinc-400 hover:text-white"
                     >
                         ✕
                     </button>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                    {/* Vehicle */}
-                    <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                            Vehicle <span className="text-red-400">*</span>
-                            {loadingFcc && <span className="ml-2 text-yellow-500 animate-pulse">⏳ Finding keys...</span>}
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="2023 Toyota Camry"
-                            value={formData.vehicle}
-                            onChange={e => setFormData(prev => ({ ...prev, vehicle: e.target.value }))}
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
-                            required
-                        />
-                    </div>
-
-                    {/* FCC ID / Key */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                                FCC ID
-                                <button
-                                    type="button"
-                                    onClick={() => lookupFccIds()}
-                                    disabled={loadingFcc || !formData.vehicle.trim()}
-                                    className="ml-2 text-zinc-400 hover:text-zinc-300 disabled:text-zinc-600 text-xs normal-case font-medium"
-                                    title="Suggest FCC IDs for vehicle"
-                                >
-                                    {loadingFcc ? '⏳' : '🔍'}
-                                </button>
-                                <a
-                                    href={`/fcc?search=${encodeURIComponent(formData.fccId || '')}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => {
-                                        if (!formData.fccId.trim()) {
-                                            e.preventDefault();
-                                            return;
-                                        }
-                                    }}
-                                    className={`ml-1 text-xs normal-case font-medium ${formData.fccId.trim() ? 'text-yellow-500 hover:text-yellow-400 cursor-pointer' : 'text-zinc-600 cursor-not-allowed'}`}
-                                    title={formData.fccId.trim() ? 'Open FCC page in new tab' : 'Enter an FCC ID first'}
-                                >
-                                    Lookup
-                                </a>
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="HYQ14FBA"
-                                value={formData.fccId}
-                                onChange={e => setFormData(prev => ({ ...prev, fccId: e.target.value }))}
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 font-mono text-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
-                            />
-                            {/* FCC Suggestions with Images */}
-                            {fccSuggestions.length > 0 && showFccPicker && (
-                                <div className="mt-2 relative">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-xs text-zinc-400">Select key:</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => { setShowFccPicker(false); setFccSuggestions([]); }}
-                                            className="text-xs text-zinc-500 hover:text-zinc-400"
-                                        >
-                                            ✕ Close
-                                        </button>
-                                    </div>
-                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-zinc-700">
-                                        {fccSuggestions.map((s, i) => (
-                                            <button
-                                                key={i}
-                                                type="button"
-                                                onClick={() => {
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        fccId: s.fcc_id,
-                                                        keyType: s.key_type || prev.keyType,
-                                                        keyCost: s.price || prev.keyCost
-                                                    }));
-                                                    setFccSuggestions([]);
-                                                    setShowFccPicker(false);
-                                                }}
-                                                className="flex-shrink-0 w-24 bg-zinc-800 border border-zinc-700 rounded-xl p-2 hover:border-yellow-500/50 hover:bg-zinc-750 transition-all"
-                                            >
-                                                {s.image_url ? (
-                                                    <img
-                                                        src={s.image_url}
-                                                        alt={s.fcc_id}
-                                                        className="w-full h-16 object-contain rounded-lg bg-zinc-900 mb-1"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-16 bg-zinc-900 rounded-lg flex items-center justify-center text-2xl mb-1">
-                                                        🔑
-                                                    </div>
-                                                )}
-                                                <div className="text-xs font-mono text-yellow-500 truncate">{s.fcc_id}</div>
-                                                <div className="text-xs text-zinc-500">{s.key_type}</div>
-                                                {s.price && <div className="text-xs text-green-500">${s.price}</div>}
-                                            </button>
-                                        ))}
-                                    </div>
+                {/* Community Tips Banner */}
+                {communityTips.length > 0 && (
+                    <div className="mx-6 mt-4 p-3 bg-gradient-to-r from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-xl">
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs">💡</span>
+                            <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Community Tips</span>
+                        </div>
+                        <div className="space-y-1">
+                            {communityTips.map((tip, i) => (
+                                <div key={i} className="text-xs text-zinc-400 line-clamp-1">
+                                    <span className="text-purple-400">•</span> {tip.content}
+                                    <span className="text-zinc-600 ml-1">— {tip.user_name}</span>
                                 </div>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                                Key Type
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Smart Key"
-                                value={formData.keyType}
-                                onChange={e => setFormData(prev => ({ ...prev, keyType: e.target.value }))}
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
-                            />
+                            ))}
                         </div>
                     </div>
+                )}
 
-                    {/* Job Type - Now 4x2 grid */}
-                    <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                            Job Description <span className="text-red-400">*</span>
-                        </label>
+                {/* Validation Error */}
+                {validationError && (
+                    <div className="mx-6 mt-3 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-2.5 flex items-center gap-2">
+                        <span>⚠️</span> {validationError}
+                    </div>
+                )}
+
+                {/* Scrollable Form Body */}
+                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-zinc-700">
+
+                    {/* ─── SECTION: Vehicle & Key ─── */}
+                    <div className="bg-zinc-800/30 border border-zinc-700/40 rounded-xl p-4 space-y-3">
+                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                            🚗 Vehicle & Key
+                            {loadingFcc && <span className="text-yellow-500 animate-pulse normal-case font-medium">Finding keys...</span>}
+                        </div>
+
+                        {/* Vehicle input */}
+                        <div>
+                            <input
+                                type="text"
+                                placeholder="2023 Toyota Camry"
+                                value={formData.vehicle}
+                                onChange={e => setFormData(prev => ({ ...prev, vehicle: e.target.value }))}
+                                className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/40 text-white placeholder-zinc-600 transition-all"
+                                required
+                            />
+                        </div>
+
+                        {/* FCC ID & Key Type row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    FCC ID
+                                    <button
+                                        type="button"
+                                        onClick={() => lookupFccIds()}
+                                        disabled={loadingFcc || !formData.vehicle.trim()}
+                                        className="text-zinc-500 hover:text-amber-400 disabled:text-zinc-700 transition-colors"
+                                        title="Suggest FCC IDs"
+                                    >
+                                        {loadingFcc ? '⏳' : '🔍'}
+                                    </button>
+                                    <a
+                                        href={`/fcc?search=${encodeURIComponent(formData.fccId || '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => { if (!formData.fccId.trim()) e.preventDefault(); }}
+                                        className={`text-[10px] normal-case font-medium ${formData.fccId.trim() ? 'text-amber-500 hover:text-amber-400' : 'text-zinc-700 cursor-not-allowed'}`}
+                                    >
+                                        Lookup
+                                    </a>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="HYQ14FBA"
+                                    value={formData.fccId}
+                                    onChange={e => setFormData(prev => ({ ...prev, fccId: e.target.value }))}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 font-mono text-amber-400 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder-zinc-600 transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Key Type</label>
+                                <input
+                                    type="text"
+                                    placeholder="Smart Key"
+                                    value={formData.keyType}
+                                    onChange={e => setFormData(prev => ({ ...prev, keyType: e.target.value }))}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder-zinc-600 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* FCC Key Picker Carousel */}
+                        {fccSuggestions.length > 0 && showFccPicker && (
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Select key type:</span>
+                                    <button type="button" onClick={() => { setShowFccPicker(false); setFccSuggestions([]); }} className="text-xs text-zinc-500 hover:text-zinc-400">✕</button>
+                                </div>
+                                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-zinc-700">
+                                    {fccSuggestions.map((s, i) => (
+                                        <button
+                                            key={i}
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData(prev => ({ ...prev, fccId: s.fcc_id, keyType: s.key_type || prev.keyType, keyCost: s.price || prev.keyCost }));
+                                                setFccSuggestions([]); setShowFccPicker(false);
+                                            }}
+                                            className="flex-shrink-0 w-24 bg-zinc-900/60 border border-zinc-700 rounded-xl p-2 hover:border-amber-500/40 hover:bg-zinc-800/60 transition-all group"
+                                        >
+                                            {s.image_url ? (
+                                                <img src={s.image_url} alt={s.fcc_id} className="w-full h-14 object-contain rounded-lg bg-zinc-900 mb-1 group-hover:scale-105 transition-transform" />
+                                            ) : (
+                                                <div className="w-full h-14 bg-zinc-900 rounded-lg flex items-center justify-center text-xl mb-1">🔑</div>
+                                            )}
+                                            <div className="text-[10px] font-mono text-amber-400 truncate">{s.fcc_id}</div>
+                                            <div className="text-[10px] text-zinc-500 truncate">{s.key_type}</div>
+                                            {s.price && <div className="text-[10px] text-green-500">${s.price}</div>}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ─── SECTION: Job Details ─── */}
+                    <div className="bg-zinc-800/30 border border-zinc-700/40 rounded-xl p-4 space-y-3">
+                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">🔧 Job Details</div>
+
+                        {/* Job Type Grid */}
                         <div className="grid grid-cols-4 gap-2">
                             {JOB_TYPES.map(type => (
                                 <button
                                     key={type.value}
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, jobType: type.value as JobFormData['jobType'] }))}
-                                    className={`p-2 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 ${formData.jobType === type.value
-                                        ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-500'
-                                        : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600'
+                                    className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 hover:scale-[1.02] ${formData.jobType === type.value
+                                        ? 'bg-amber-500/15 border-amber-500/50 text-amber-400 shadow-md shadow-amber-500/10'
+                                        : 'bg-zinc-900/40 border-zinc-700/50 text-zinc-400 hover:border-zinc-600 hover:bg-zinc-800/40'
                                         }`}
                                 >
                                     <span className="text-lg">{type.icon}</span>
-                                    <span className="truncate w-full text-center">{type.label}</span>
+                                    <span className="truncate w-full text-center text-[10px]">{type.label}</span>
                                 </button>
                             ))}
                         </div>
-                    </div>
 
-                    {/* Company */}
-                    <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                            Company <span className="text-red-400">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Prolocksmith Orlando"
-                            value={formData.companyName || ''}
-                            onChange={e => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                            required
-                        />
-                    </div>
-
-                    {/* Community Tips Panel */}
-                    {(communityTips.length > 0 || loadingTips) && (
-                        <div className="p-3 bg-gradient-to-r from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-xl">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm">💡</span>
-                                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
-                                    Community Tips
-                                </span>
-                                {loadingTips && (
-                                    <span className="text-xs text-zinc-500 animate-pulse">Loading...</span>
-                                )}
-                            </div>
-                            {communityTips.length > 0 && (
-                                <div className="space-y-2">
-                                    {communityTips.map((tip, i) => (
-                                        <div key={i} className="text-sm text-zinc-300">
-                                            <span className="text-purple-400">•</span>{' '}
-                                            <span className="line-clamp-2">{tip.content}</span>
-                                            <span className="text-xs text-zinc-500 ml-1">
-                                                — {tip.user_name} ({tip.score > 0 ? '+' : ''}{tip.score})
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {validationError && (
-                        <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2">
-                            {validationError}
-                        </div>
-                    )}
-
-                    {/* Price & Date */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {/* Company */}
                         <div>
-                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                                Price ($)
-                            </label>
+                            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Company</label>
                             <input
-                                type="number"
-                                placeholder="150"
-                                min="0"
-                                step="0.01"
-                                value={formData.price || ''}
-                                onChange={e => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-green-400 font-bold"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                                Date
-                            </label>
-                            <input
-                                type="date"
-                                value={formData.date}
-                                onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                                Status <span className="text-red-400">*</span>
-                            </label>
-                            <select
-                                value={formData.status || 'completed'}
-                                onChange={e => setFormData(prev => ({ ...prev, status: e.target.value as JobFormData['status'] }))}
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
+                                type="text"
+                                placeholder="Prolocksmith Orlando"
+                                value={formData.companyName || ''}
+                                onChange={e => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                                className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder-zinc-600 transition-all"
                                 required
-                            >
-                                {STATUS_OPTIONS.map(option => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                            />
                         </div>
-                    </div>
 
-                    {/* Optional Sections Toggle */}
-                    <div className="flex gap-2 flex-wrap">
-                        <button
-                            type="button"
-                            onClick={() => setShowCustomerInfo(!showCustomerInfo)}
-                            className={`text-xs px-3 py-1.5 rounded-full border transition-all ${showCustomerInfo
-                                ? 'bg-blue-500/20 border-blue-500/50 text-blue-400'
-                                : 'bg-zinc-800 border-zinc-700 text-zinc-500 hover:border-zinc-600'
-                                }`}
-                        >
-                            👤 Customer Info
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowCostTracking(!showCostTracking)}
-                            className={`text-xs px-3 py-1.5 rounded-full border transition-all ${showCostTracking
-                                ? 'bg-green-500/20 border-green-500/50 text-green-400'
-                                : 'bg-zinc-800 border-zinc-700 text-zinc-500 hover:border-zinc-600'
-                                }`}
-                        >
-                            💰 Cost Tracking
-                        </button>
-                    </div>
 
-                    {/* Fleet Account Selector */}
-                    {availableFleets.length > 0 && (
-                        <div className="p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
-                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                                🚗 Link Fleet Account
-                            </label>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                                {availableFleets.slice(0, 4).map(fleet => (
-                                    <button
-                                        key={fleet.id}
-                                        type="button"
-                                        onClick={() => handleFleetSelect(fleet.id)}
-                                        className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${formData.fleetId === fleet.id
-                                            ? 'bg-blue-500/30 border-blue-500/60 text-blue-300'
-                                            : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600'
-                                            }`}
-                                    >
-                                        🚗 {fleet.name}
-                                        {fleet.vehicles.length > 0 && (
-                                            <span className="ml-1 text-zinc-500">({fleet.vehicles.length})</span>
-                                        )}
+                        {/* Price & Date row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">💲 Price</label>
+                                <input type="number" placeholder="150" min="0" step="0.01"
+                                    value={formData.price || ''}
+                                    onChange={e => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 text-green-400 font-bold placeholder-zinc-600" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">📅 Date</label>
+                                <input type="date" value={formData.date}
+                                    onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+                            </div>
+                        </div>
+                        {/* Status Chips */}
+                        <div>
+                            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Status</label>
+                            <div className="flex flex-wrap gap-1.5">
+                                {STATUS_OPTIONS.map(opt => (
+                                    <button key={opt.value} type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, status: opt.value }))}
+                                        className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${formData.status === opt.value
+                                            ? getStatusColor(opt.color, true)
+                                            : 'bg-zinc-900/40 border-zinc-700/50 text-zinc-500 hover:border-zinc-600'}`}>
+                                        {opt.icon} {opt.label}
                                     </button>
                                 ))}
                             </div>
-                            {availableFleets.length > 4 && (
-                                <select
-                                    value={formData.fleetId || ''}
-                                    onChange={(e) => handleFleetSelect(e.target.value)}
-                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                >
-                                    <option value="">Select fleet account...</option>
-                                    {availableFleets.map(fleet => (
-                                        <option key={fleet.id} value={fleet.id}>
-                                            {fleet.name} ({fleet.vehicles.length} vehicles)
-                                        </option>
-                                    ))}
-                                </select>
-                            )}
-                            {formData.fleetId && (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setFormData(prev => ({ ...prev, fleetId: '' }));
-                                    }}
-                                    className="mt-2 text-xs text-zinc-500 hover:text-zinc-400"
-                                >
-                                    ✕ Clear fleet selection
-                                </button>
-                            )}
                         </div>
-                    )}
+                    </div>
 
-                    {/* Technician Assignment */}
-                    <div className="p-4 bg-green-950/30 rounded-xl border border-green-900/30">
-                        <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
-                            👷 Technician <span className="text-red-400">*</span>
-                        </label>
-                        {technicians.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-3">
-                                {technicians.map(tech => (
-                                    <button
-                                        key={tech.id}
-                                        type="button"
-                                        onClick={() => setFormData(prev => {
-                                            const selected = prev.technicianId === tech.id;
-                                            const clearName = selected && prev.technicianName === tech.name;
-                                            return {
-                                                ...prev,
-                                                technicianId: selected ? '' : tech.id,
-                                                technicianName: clearName ? '' : tech.name,
-                                            };
-                                        })}
-                                        className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${formData.technicianId === tech.id
-                                            ? 'bg-green-500/30 border-green-500/60 text-green-300'
-                                            : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600'
-                                            }`}
-                                    >
-                                        👷 {tech.name}
-                                        {tech.role && <span className="ml-1 text-zinc-500">({tech.role})</span>}
+                    {/* ─── SECTION: Customer ─── */}
+                    <div className="bg-zinc-800/30 border border-zinc-700/40 rounded-xl p-4 space-y-3">
+                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">👤 Customer</div>
+                        {recentCustomers.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                                {recentCustomers.slice(0, 5).map((customer, i) => (
+                                    <button key={i} type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, customerName: customer.name, customerPhone: customer.phone || prev.customerPhone, customerAddress: customer.address || prev.customerAddress, referralSource: 'repeat' as const }))}
+                                        className="text-[10px] px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition-colors border border-blue-500/20">
+                                        ⚡ {customer.name}
                                     </button>
                                 ))}
                             </div>
                         )}
-                        <input
-                            type="text"
-                            placeholder={technicians.length > 0 ? 'Technician name (or pick above)' : 'Technician name'}
-                            value={formData.technicianName || ''}
-                            onChange={e => setFormData(prev => ({ ...prev, technicianName: e.target.value }))}
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/30"
-                            required
-                        />
-                    </div>
-
-                    {/* Customer Info Section */}
-                    {showCustomerInfo && (
-                        <div className="space-y-3 p-4 bg-blue-950/30 rounded-xl border border-blue-900/30">
-                            {/* Quick-fill from recent customers */}
-                            {recentCustomers.length > 0 && (
-                                <div>
-                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                        ⚡ Quick Fill
-                                    </label>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {recentCustomers.slice(0, 5).map((customer, i) => (
-                                            <button
-                                                key={i}
-                                                type="button"
-                                                onClick={() => setFormData(prev => ({
-                                                    ...prev,
-                                                    customerName: customer.name,
-                                                    customerPhone: customer.phone || prev.customerPhone,
-                                                    customerAddress: customer.address || prev.customerAddress,
-                                                    referralSource: 'repeat'
-                                                }))}
-                                                className="text-xs px-2.5 py-1.5 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors border border-blue-500/30"
-                                            >
-                                                👤 {customer.name}
-                                            </button>
-                                        ))}
-                                    </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Name</label>
+                                <input type="text" placeholder="John Smith" value={formData.customerName || ''}
+                                    onChange={e => { setFormData(prev => ({ ...prev, customerName: e.target.value })); setCustomerSaved(false); }}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 placeholder-zinc-600" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Phone</label>
+                                <input type="tel" placeholder="555-123-4567" value={formData.customerPhone || ''}
+                                    onChange={e => { setFormData(prev => ({ ...prev, customerPhone: e.target.value })); setCustomerSaved(false); }}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 placeholder-zinc-600" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="col-span-2">
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Address</label>
+                                <input type="text" placeholder="123 Main St, City, ST" value={formData.customerAddress || ''}
+                                    onChange={e => { setFormData(prev => ({ ...prev, customerAddress: e.target.value })); setCustomerSaved(false); }}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 placeholder-zinc-600" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Referral</label>
+                                <select value={formData.referralSource || ''}
+                                    onChange={e => setFormData(prev => ({ ...prev, referralSource: e.target.value as JobFormData['referralSource'] || undefined }))}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+                                    <option value="">Select...</option>
+                                    {REFERRAL_SOURCES.map(source => (<option key={source.value} value={source.value}>{source.label}</option>))}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            {availableFleets.length > 0 && (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] text-zinc-500">Fleet:</span>
+                                    {availableFleets.slice(0, 3).map(fleet => (
+                                        <button key={fleet.id} type="button" onClick={() => handleFleetSelect(fleet.id)}
+                                            className={`text-[10px] px-2 py-1 rounded-lg border transition-all ${formData.fleetId === fleet.id ? 'bg-blue-500/20 border-blue-500/40 text-blue-400' : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:border-zinc-600'}`}>
+                                            🚗 {fleet.name}
+                                        </button>
+                                    ))}
+                                    {formData.fleetId && (<button type="button" onClick={() => setFormData(prev => ({ ...prev, fleetId: '' }))} className="text-[10px] text-zinc-600 hover:text-zinc-400">✕</button>)}
                                 </div>
                             )}
-                            <div>
-                                <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                    Customer Name <span className="text-red-400">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="John Smith"
-                                    value={formData.customerName || ''}
-                                    onChange={e => {
-                                        setFormData(prev => ({ ...prev, customerName: e.target.value }));
-                                        setCustomerSaved(false);
-                                    }}
-                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                    required
-                                />
+                            <div className="ml-auto flex items-center gap-2">
+                                {canSaveCustomer && (<button type="button" onClick={handleSaveCustomer} className="text-[10px] text-green-400 hover:text-green-300 flex items-center gap-1">💾 Save Customer</button>)}
+                                {customerSaved && <span className="text-[10px] text-zinc-500">✓ Saved</span>}
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                        Phone <span className="text-red-400">*</span>
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        placeholder="555-123-4567"
-                                        value={formData.customerPhone || ''}
-                                        onChange={e => {
-                                            setFormData(prev => ({ ...prev, customerPhone: e.target.value }));
-                                            setCustomerSaved(false);
-                                        }}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                        Referral
-                                    </label>
-                                    <select
-                                        value={formData.referralSource || ''}
-                                        onChange={e => setFormData(prev => ({ ...prev, referralSource: e.target.value as JobFormData['referralSource'] || undefined }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                    >
-                                        <option value="">Select...</option>
-                                        {REFERRAL_SOURCES.map(source => (
-                                            <option key={source.value} value={source.value}>{source.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                    Address
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="123 Main St, City, ST"
-                                    value={formData.customerAddress || ''}
-                                    onChange={e => {
-                                        setFormData(prev => ({ ...prev, customerAddress: e.target.value }));
-                                        setCustomerSaved(false);
-                                    }}
-                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                />
-                            </div>
+                        </div>
+                    </div>
 
-                            {/* Add Customer Button */}
-                            <div className="flex items-center gap-2 pt-2">
-                                {canSaveCustomer && (
-                                    <button
-                                        type="button"
-                                        onClick={handleSaveCustomer}
-                                        className="text-sm text-green-400 hover:text-green-300 flex items-center gap-1"
-                                    >
-                                        👤 Save to My Customers
+                    {/* ─── SECTION: Technician ─── */}
+                    <div className="bg-zinc-800/30 border border-zinc-700/40 rounded-xl p-4 space-y-3">
+                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">👷 Technician</div>
+                        {technicians.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {technicians.map(tech => (
+                                    <button key={tech.id} type="button"
+                                        onClick={() => setFormData(prev => {
+                                            const selected = prev.technicianId === tech.id;
+                                            return { ...prev, technicianId: selected ? '' : tech.id, technicianName: (selected && prev.technicianName === tech.name) ? '' : tech.name };
+                                        })}
+                                        className={`text-xs px-3 py-1.5 rounded-lg border transition-all hover:scale-[1.02] ${formData.technicianId === tech.id ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'bg-zinc-900/40 border-zinc-700/50 text-zinc-400 hover:border-zinc-600'}`}>
+                                        👷 {tech.name}{tech.role && <span className="ml-1 text-zinc-500 text-[10px]">({tech.role})</span>}
                                     </button>
-                                )}
-                                {customerSaved && (
-                                    <span className="text-sm text-zinc-500 flex items-center gap-1">
-                                        ✓ Customer saved
+                                ))}
+                            </div>
+                        )}
+                        <input type="text" placeholder={technicians.length > 0 ? 'Or type a name...' : 'Technician name'}
+                            value={formData.technicianName || ''}
+                            onChange={e => setFormData(prev => ({ ...prev, technicianName: e.target.value }))}
+                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 placeholder-zinc-600" required />
+                    </div>
+
+
+                    {/* ─── SECTION: Costs & Profit (collapsible) ─── */}
+                    <div className="bg-zinc-800/30 border border-zinc-700/40 rounded-xl overflow-hidden">
+                        <button type="button" onClick={() => setShowCostTracking(!showCostTracking)}
+                            className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-800/50 transition-all">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">💰 Costs & Profit</span>
+                                {(formData.price || 0) > 0 && (
+                                    <span className={`text-xs font-black ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                        ${profit.toFixed(0)} profit
                                     </span>
                                 )}
                             </div>
-                        </div>
-                    )}
-
-                    {/* Cost Tracking Section */}
-                    {showCostTracking && (
-                        <div className="space-y-3 p-4 bg-green-950/30 rounded-xl border border-green-900/30">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2">
-                                        🔑 Key Cost ($)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="45"
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.keyCost || ''}
-                                        onChange={e => setFormData(prev => ({ ...prev, keyCost: parseFloat(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30 text-yellow-400 font-bold"
-                                    />
-                                    <div className="text-[10px] text-zinc-500 mt-1">From AKS pricing</div>
+                            <span className={`text-zinc-500 text-xs transition-transform ${showCostTracking ? 'rotate-180' : ''}`}>▼</span>
+                        </button>
+                        {showCostTracking && (
+                            <div className="px-4 pb-4 space-y-3 border-t border-zinc-700/30">
+                                <div className="grid grid-cols-2 gap-3 pt-3">
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">🔑 Key Cost</label>
+                                        <input type="number" placeholder="45" min="0" step="0.01"
+                                            value={formData.keyCost || ''}
+                                            onChange={e => setFormData(prev => ({ ...prev, keyCost: parseFloat(e.target.value) || 0 }))}
+                                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/30 text-yellow-400 font-bold placeholder-zinc-600" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">⚙️ Service Cost</label>
+                                        <input type="number" placeholder="75" min="0" step="0.01"
+                                            value={formData.serviceCost || ''}
+                                            onChange={e => setFormData(prev => ({ ...prev, serviceCost: parseFloat(e.target.value) || 0 }))}
+                                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-purple-400 font-bold placeholder-zinc-600" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">⛽ Miles Driven</label>
+                                        <input type="number" placeholder="25" min="0" step="1"
+                                            value={formData.milesDriven || ''}
+                                            onChange={e => {
+                                                const miles = parseFloat(e.target.value) || 0;
+                                                const gasCost = Math.round(miles * 0.117 * 100) / 100;
+                                                setFormData(prev => ({ ...prev, milesDriven: miles, gasCost }));
+                                            }}
+                                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-blue-400 font-bold placeholder-zinc-600" />
+                                        <div className="text-[10px] text-zinc-600 mt-1">= ${((formData.milesDriven || 0) * 0.117).toFixed(2)} gas</div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">🔧 Parts Cost</label>
+                                        <input type="number" placeholder="0" min="0" step="0.01"
+                                            value={formData.partsCost || ''}
+                                            onChange={e => setFormData(prev => ({ ...prev, partsCost: parseFloat(e.target.value) || 0 }))}
+                                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 text-orange-400 font-bold placeholder-zinc-600" />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">
-                                        ⚙️ Service Cost ($)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="75"
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.serviceCost || ''}
-                                        onChange={e => setFormData(prev => ({ ...prev, serviceCost: parseFloat(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-purple-400 font-bold"
-                                    />
-                                    <div className="text-[10px] text-zinc-500 mt-1">Labor charge</div>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                        ⛽ Miles Driven
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="25"
-                                        min="0"
-                                        step="1"
-                                        value={formData.milesDriven || ''}
-                                        onChange={e => {
-                                            const miles = parseFloat(e.target.value) || 0;
-                                            // Calculate gas cost: $3.50/gallon at 30mpg = $0.117/mile
-                                            const gasCost = Math.round(miles * 0.117 * 100) / 100;
-                                            setFormData(prev => ({ ...prev, milesDriven: miles, gasCost }));
-                                        }}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-blue-400 font-bold"
-                                    />
-                                    <div className="text-[10px] text-zinc-500 mt-1">= ${((formData.milesDriven || 0) * 0.117).toFixed(2)} gas (30mpg @ $3.50)</div>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
-                                        🔧 Other Parts ($)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="0"
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.partsCost || ''}
-                                        onChange={e => setFormData(prev => ({ ...prev, partsCost: parseFloat(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-orange-400 font-bold"
-                                    />
-                                    <div className="text-[10px] text-zinc-500 mt-1">Blades, batteries, etc.</div>
+                                {/* Live Profit Calculator */}
+                                <div className="bg-zinc-900/60 rounded-xl p-3 flex justify-between items-center border border-zinc-700/30">
+                                    <div className="text-xs">
+                                        <span className="text-zinc-500">Costs: </span>
+                                        <span className="text-red-400 font-bold">${totalCosts.toFixed(2)}</span>
+                                    </div>
+                                    <div className="text-base">
+                                        <span className="text-zinc-500">Profit: </span>
+                                        <span className={`font-black ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                            ${profit.toFixed(2)}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            {/* Profit Summary */}
-                            <div className="bg-zinc-800/50 rounded-lg p-3 flex justify-between items-center">
-                                <div className="text-sm">
-                                    <span className="text-zinc-500">Total Costs: </span>
-                                    <span className="text-red-400 font-bold">${totalCosts.toFixed(2)}</span>
-                                </div>
-                                <div className="text-lg">
-                                    <span className="text-zinc-500">Profit: </span>
-                                    <span className={`font-black ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                        ${profit.toFixed(2)}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
-                    {/* Notes */}
-                    <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                            Notes (optional)
-                        </label>
+                    {/* ─── SECTION: Notes ─── */}
+                    <div className="bg-zinc-800/30 border border-zinc-700/40 rounded-xl p-4 space-y-2">
+                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">📝 Notes</label>
                         <textarea
                             placeholder="Customer notes, issues, etc..."
                             value={formData.notes}
                             onChange={e => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                             rows={2}
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30 resize-none"
+                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder-zinc-600 resize-none transition-all"
                         />
                     </div>
 
-                    {/* Submit */}
-                    <div className="flex gap-2">
-                        <button
-                            type="submit"
-                            className="flex-1 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black py-4 rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all shadow-lg shadow-yellow-500/20"
-                        >
-                            Log Job ✓
-                        </button>
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                // Temporarily override status to 'unassigned' for dispatch
-                                setFormData(prev => ({ ...prev, status: 'unassigned' }));
-                                // Submit after state update via a microtask
-                                setTimeout(() => {
-                                    const form = (e.target as HTMLElement).closest('form');
-                                    if (form) form.requestSubmit();
-                                }, 0);
-                            }}
-                            className="px-4 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl hover:from-blue-500 hover:to-blue-400 transition-all shadow-lg shadow-blue-500/20 whitespace-nowrap text-sm"
-                            title="Save and send to the Dispatch queue for technician assignment"
-                        >
-                            🚚 Dispatch
-                        </button>
-                    </div>
+                    {/* Community Tips (inline) */}
+                    {communityTips.length > 0 && (
+                        <div className="bg-purple-500/5 border border-purple-500/15 rounded-xl p-3">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs">💡</span>
+                                <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Community Tips</span>
+                            </div>
+                            <div className="space-y-1">
+                                {communityTips.slice(0, 3).map((tip, i) => (
+                                    <div key={i} className="text-xs text-zinc-400 flex gap-1.5">
+                                        <span className="text-purple-400 shrink-0">•</span>
+                                        <span className="line-clamp-1">{tip.content}</span>
+                                        <span className="text-zinc-600 shrink-0">— {tip.user_name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Validation Error */}
+                    {validationError && (
+                        <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-2.5 flex items-center gap-2">
+                            <span>⚠️</span> {validationError}
+                        </div>
+                    )}
+
                 </form>
+
+                {/* ─── STICKY FOOTER ─── */}
+                <div className="px-6 py-4 border-t border-zinc-800/80 bg-zinc-900/95 backdrop-blur-sm flex gap-3 rounded-b-2xl">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const form = document.querySelector('form') as HTMLFormElement;
+                            if (form) form.requestSubmit();
+                        }}
+                        className="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-black py-3.5 rounded-xl hover:from-amber-400 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 text-sm"
+                    >
+                        ✓ Log Job
+                    </button>
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            setFormData(prev => ({ ...prev, status: 'unassigned' }));
+                            setTimeout(() => {
+                                const form = document.querySelector('form') as HTMLFormElement;
+                                if (form) form.requestSubmit();
+                            }, 0);
+                        }}
+                        className="px-5 py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl hover:from-blue-500 hover:to-blue-400 transition-all shadow-lg shadow-blue-500/20 text-sm"
+                        title="Save and send to the Dispatch queue"
+                    >
+                        🚚 Dispatch
+                    </button>
+                </div>
             </div>
         </div>
     );
 }
+
