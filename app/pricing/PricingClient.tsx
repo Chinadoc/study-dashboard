@@ -216,7 +216,7 @@ export default function PricingClient() {
                     {/* Trust badges */}
                     <div className="flex justify-center gap-6 mt-6 text-zinc-500 text-sm">
                         <span>🔒 Secure checkout</span>
-                        <span>💳 Powered by Stripe</span>
+                        <span>💳 Powered by Square</span>
                     </div>
                 </div>
 
