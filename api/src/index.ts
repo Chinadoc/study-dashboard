@@ -1078,6 +1078,14 @@ export default {
           const userId = payload.sub as string;
           const job = await request.json() as any;
 
+          // Validate required fields to prevent null jobs in D1
+          if (!job.vehicle || String(job.vehicle).trim() === '' || String(job.vehicle) === 'null') {
+            return corsResponse(request, JSON.stringify({ error: "vehicle is required" }), 400);
+          }
+          if (!job.jobType || String(job.jobType) === 'null') {
+            return corsResponse(request, JSON.stringify({ error: "jobType is required" }), 400);
+          }
+
           // Generate ID if not provided
           const jobId = job.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
           const createdAt = job.createdAt || Date.now();
@@ -1177,8 +1185,17 @@ export default {
 
           // Batch insert/update all jobs into individual columns
           let synced = 0;
+          let skipped = 0;
           const serverTime = Date.now();
           for (const job of jobs) {
+            // Skip malformed jobs — prevent null entries in D1
+            if (!job.vehicle || String(job.vehicle).trim() === '' || String(job.vehicle) === 'null' ||
+              !job.jobType || String(job.jobType) === 'null') {
+              console.warn('[sync] Skipping invalid job:', job.id, 'vehicle:', job.vehicle, 'jobType:', job.jobType);
+              skipped++;
+              continue;
+            }
+
             const jobId = job.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
             const createdAt = job.createdAt || serverTime;
             const updatedAt = job.updatedAt || serverTime;
@@ -1233,6 +1250,7 @@ export default {
           return corsResponse(request, JSON.stringify({
             success: true,
             synced,
+            skipped,
             serverTime
           }), 200);
         } catch (err: any) {
