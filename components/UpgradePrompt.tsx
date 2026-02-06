@@ -103,13 +103,15 @@ export default function UpgradePrompt({
 
                 <p className="text-zinc-400 text-sm mb-4">
                     {remainingCount
-                        ? `${remainingCount} more ${itemType} available with Pro`
+                        ? `${remainingCount} more ${itemType} available with ${itemType === 'content' ? 'Pro' : 'this add-on'}`
                         : 'Get full access to all premium features'
                     }
                 </p>
 
                 <div className="mb-4">
-                    <span className="text-3xl font-bold text-white">$25</span>
+                    <span className="text-3xl font-bold text-white">
+                        ${itemType === 'business' ? '10' : itemType === 'content' ? '25' : '5'}
+                    </span>
                     <span className="text-zinc-400 text-sm">/month</span>
                 </div>
 

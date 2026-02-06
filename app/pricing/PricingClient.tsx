@@ -60,12 +60,12 @@ const ADD_ONS: AddOn[] = [
 ];
 
 const PRO_FEATURES = [
-    { emoji: '📝', text: 'Basic job logging & tracking' },
-    { emoji: '📦', text: 'Inventory management' },
-    { emoji: '🔍', text: 'Vehicle database access' },
-    { emoji: '👥', text: 'Share credentials with your team (up to 3)' },
-    { emoji: '⚡', text: 'Early access to new features' },
-    { emoji: '🎯', text: 'Priority support' },
+    { emoji: '🚗', text: 'Full vehicle database (800+ models)' },
+    { emoji: '📦', text: 'Unlimited job logging & inventory' },
+    { emoji: '📚', text: 'All 230+ technical dossiers' },
+    { emoji: '📷', text: '1800+ technical images & diagrams' },
+    { emoji: '🤖', text: 'AI-powered business insights' },
+    { emoji: '🔑', text: 'FCC ID lookup (500+ entries)' },
 ];
 
 export default function PricingClient() {

@@ -935,16 +935,16 @@ export default function VehicleDetailClient() {
                         <h3 className="font-bold text-zinc-200 mb-4">Pro includes:</h3>
                         <ul className="space-y-3 text-sm text-zinc-300">
                             <li className="flex items-center gap-3">
-                                <span className="text-green-400">✓</span> Full access to all 15,000+ vehicle pages
+                                <span className="text-green-400">✓</span> Full access to all 800+ vehicle models
                             </li>
                             <li className="flex items-center gap-3">
-                                <span className="text-green-400">✓</span> Complete FCC ID database (500+ entries)
+                                <span className="text-green-400">✓</span> FCC ID database (500+ entries)
                             </li>
                             <li className="flex items-center gap-3">
-                                <span className="text-green-400">✓</span> Unlimited job logging & inventory tracking
+                                <span className="text-green-400">✓</span> 230+ technical dossiers
                             </li>
                             <li className="flex items-center gap-3">
-                                <span className="text-green-400">✓</span> AI-powered business insights
+                                <span className="text-green-400">✓</span> Unlimited job logging & inventory
                             </li>
                         </ul>
                     </div>

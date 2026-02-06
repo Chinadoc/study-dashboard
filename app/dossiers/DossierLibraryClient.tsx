@@ -579,18 +579,26 @@ export default function DossierLibraryClient() {
 
                         <div className="card-actions">
                           <button
-                            className="btn btn-primary"
-                            onClick={() => openDossier(dossier)}
+                            className={`btn ${isLocked ? 'btn-secondary' : 'btn-primary'}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (isLocked) {
+                                setShowUpgradeModal(true);
+                              } else {
+                                openDossier(dossier);
+                              }
+                            }}
                           >
-                            Open
+                            {isLocked ? '🔒 Unlock' : 'Open'}
                           </button>
                           <button
                             className="btn btn-secondary"
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setExpandedDossier(
                                 expandedDossier === dossier.id ? null : dossier.id
-                              )
-                            }
+                              );
+                            }}
                           >
                             {expandedDossier === dossier.id ? 'Hide' : 'Sections'}
                           </button>
