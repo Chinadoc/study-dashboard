@@ -10,6 +10,7 @@ import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import DossierReferences from '@/components/vehicle/DossierReferences';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
+import VideoEmbed from '@/components/vehicle/VideoEmbed';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
 import FloatingCommentTab from '@/components/FloatingCommentTab';
@@ -1059,6 +1060,9 @@ export default function VehicleDetailClient() {
                             }}
                         />
                     </div>
+
+                    {/* Related YouTube Video */}
+                    <VideoEmbed make={make} model={model} year={year} />
 
                     {/* Key Configuration Cards with R2 images */}
                     <div id="section-keyConfigs">

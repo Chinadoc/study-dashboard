@@ -577,6 +577,17 @@ export function useJobLogs() {
     }, []);
 
     const addJobLog = useCallback((log: Omit<JobLog, 'id' | 'createdAt'>): JobLog => {
+        // Validation: require valid jobType and vehicle
+        const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'safe', 'other'];
+        if (!log.jobType || !validJobTypes.includes(log.jobType)) {
+            console.warn('[JobLog] Invalid jobType, defaulting to other:', log.jobType);
+            log = { ...log, jobType: 'other' };
+        }
+        if (!log.vehicle || log.vehicle.trim() === '') {
+            console.warn('[JobLog] Missing vehicle, using Unknown');
+            log = { ...log, vehicle: 'Unknown' };
+        }
+
         const newLog: JobLog = {
             ...log,
             id: generateId(),
@@ -897,6 +908,66 @@ export function useJobLogs() {
         }
     }, []);
 
+    // Clear local cache and fetch fresh from cloud
+    // This is useful when localStorage has stale/corrupt data
+    const clearLocalCache = useCallback(async (): Promise<{ success: boolean; loaded: number; error?: string }> => {
+        const token = getAuthToken();
+        if (!token) {
+            return { success: false, loaded: 0, error: 'Not authenticated' };
+        }
+
+        setSyncStatus('syncing');
+
+        try {
+            console.log('[ClearCache] Clearing local job data and fetching fresh from cloud...');
+
+            // Clear localStorage job data
+            localStorage.removeItem(effectiveStorageKey);
+
+            // Clear any pending sync queue items for jobs
+            const queue = getQueue();
+            queue.filter(op => op.entityType === 'job').forEach(op => {
+                removeFromQueue(op.id, 'job');
+            });
+
+            // Reset sync state
+            updateSyncState({ lastCloudSync: 0, pendingCount: 0 });
+            hasSyncedRef.current = false;
+
+            // Fetch fresh from cloud
+            const data = await apiRequest('/api/jobs');
+
+            if (data?.jobs) {
+                // Filter out any malformed jobs from cloud
+                const validJobs = data.jobs.filter((j: JobLog) =>
+                    j.id && j.vehicle && j.jobType && String(j.jobType) !== 'null'
+                );
+
+                setJobLogs(validJobs);
+                localStorage.setItem(effectiveStorageKey, JSON.stringify(validJobs));
+
+                updateSyncState({ lastCloudSync: data.serverTime || Date.now() });
+                hasSyncedRef.current = true;
+                setSyncStatus('synced');
+
+                console.log(`[ClearCache] Loaded ${validJobs.length} valid jobs from cloud`);
+                return { success: true, loaded: validJobs.length };
+            } else {
+                setJobLogs([]);
+                setSyncStatus('synced');
+                return { success: true, loaded: 0 };
+            }
+        } catch (e) {
+            console.error('[ClearCache] Failed:', e);
+            setSyncStatus('error');
+            return {
+                success: false,
+                loaded: 0,
+                error: e instanceof Error ? e.message : 'Unknown error'
+            };
+        }
+    }, []);
+
     return {
         jobLogs,
         loading,
@@ -909,6 +980,7 @@ export function useJobLogs() {
         getJobStats,
         getRecentCustomers,
         forceFullSync,
+        clearLocalCache,
     };
 }
 
