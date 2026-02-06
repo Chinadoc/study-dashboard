@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { AnalyticsProvider } from '@/contexts/AnalyticsProvider';
@@ -30,7 +30,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
                                             <TeamPanelProvider>
                                                 {children}
                                                 <InventoryLoginPrompt />
-                                                <OnboardingFlow />
+                                                <Suspense fallback={null}>
+                                                    <OnboardingFlow />
+                                                </Suspense>
                                                 <FleetPanelWrapper />
                                                 <TeamPanelWrapper />
                                             </TeamPanelProvider>
