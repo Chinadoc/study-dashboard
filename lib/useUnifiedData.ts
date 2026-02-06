@@ -36,6 +36,7 @@ function normalizeFcc(fcc: string): string {
  * Handles: "2020 Toyota Camry", "Toyota Camry 2020", "Toyota Camry"
  */
 function parseVehicle(vehicleStr: string): { year?: number; make: string; model: string } {
+    if (!vehicleStr) return { make: '', model: '' };
     const parts = vehicleStr.trim().split(/\s+/);
 
     // Find year - could be at start or end
@@ -379,7 +380,7 @@ export function useUnifiedData(): UnifiedData {
         jobLogs
             .filter(job => new Date(job.date) >= ninetyDaysAgo && job.vehicle)
             .forEach(job => {
-                const vehicle = job.vehicle!.trim();
+                const vehicle = (job.vehicle || '').trim();
                 const existing = vehicleCounts.get(vehicle);
                 if (existing) {
                     existing.count++;

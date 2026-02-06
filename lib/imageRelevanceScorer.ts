@@ -13,6 +13,8 @@ export interface ImageClassification {
     description?: string;
     tags?: string[];
     suggested_years?: string[];
+    r2_key?: string;
+    url?: string;
     classification?: {
         make?: string;
         model?: string;
@@ -262,12 +264,24 @@ export function filterRelevantImages(
 ): (ImageClassification & { relevance: RelevanceScore })[] {
     const { minScore = 15, maxResults = 25 } = options;
 
-    return images
+    const scored = images
         .map(img => ({
             ...img,
             relevance: scoreImageRelevance(img, vehicle)
         }))
         .filter(img => img.relevance.score >= minScore)
-        .sort((a, b) => b.relevance.score - a.relevance.score)
-        .slice(0, maxResults);
+        .sort((a, b) => b.relevance.score - a.relevance.score);
+
+    // Deduplicate by r2_key, then filename, then description
+    const seen = new Set<string>();
+    const deduped = scored.filter(img => {
+        const key = img.r2_key || img.filename || img.description || '';
+        if (!key || !seen.has(key)) {
+            if (key) seen.add(key);
+            return true;
+        }
+        return false;
+    });
+
+    return deduped.slice(0, maxResults);
 }

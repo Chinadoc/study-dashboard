@@ -386,9 +386,21 @@ async function resolveFleetAccess(
         `SELECT role FROM fleet_members WHERE organization_id = ? AND user_id = ? AND status = 'active'`
       ).bind(requestedOrgId, userId).first<any>();
 
-      if (!member) return null;
-      organizationId = requestedOrgId;
-      role = member.role;
+      if (!member) {
+        // Developers get implicit owner access to any org
+        const userRow = await env.LOCKSMITH_DB.prepare(
+          `SELECT is_developer, email FROM users WHERE id = ?`
+        ).bind(userId).first<any>();
+        if (userRow && (userRow.is_developer || isDeveloper(userRow.email, env.DEV_EMAILS))) {
+          organizationId = requestedOrgId;
+          role = 'owner';
+        } else {
+          return null;
+        }
+      } else {
+        organizationId = requestedOrgId;
+        role = member.role;
+      }
     }
   } else {
     const ownerOrg = await env.LOCKSMITH_DB.prepare(
@@ -403,9 +415,24 @@ async function resolveFleetAccess(
         `SELECT organization_id, role FROM fleet_members WHERE user_id = ? AND status = 'active' ORDER BY created_at ASC LIMIT 1`
       ).bind(userId).first<any>();
 
-      if (!member) return null;
-      organizationId = member.organization_id;
-      role = member.role;
+      if (member) {
+        organizationId = member.organization_id;
+        role = member.role;
+      } else {
+        // Developers get implicit owner access to the first org in the system
+        const userRow = await env.LOCKSMITH_DB.prepare(
+          `SELECT is_developer, email FROM users WHERE id = ?`
+        ).bind(userId).first<any>();
+        if (userRow && (userRow.is_developer || isDeveloper(userRow.email, env.DEV_EMAILS))) {
+          const firstOrg = await env.LOCKSMITH_DB.prepare(
+            `SELECT id FROM fleet_organizations ORDER BY created_at ASC LIMIT 1`
+          ).bind().first<any>();
+          if (firstOrg) {
+            organizationId = firstOrg.id;
+            role = 'owner';
+          }
+        }
+      }
     }
   }
 

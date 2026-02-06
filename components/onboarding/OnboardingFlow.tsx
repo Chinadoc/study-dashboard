@@ -181,38 +181,19 @@ export default function OnboardingFlow() {
         }
     }, [currentStep, isAuthenticated]);
 
-    // Start trial via Stripe checkout
-    const handleStartTrial = async () => {
+    // Start trial via pricing page
+    const handleStartTrial = () => {
         if (!isAuthenticated) {
             login();
             return;
         }
-
-        setIsLoading(true);
-        setCheckoutError(null);
-        try {
-            const token = localStorage.getItem('session_token');
-            const res = await fetch(`${API_BASE}/api/square/checkout`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await res.json();
-            if (data.url) {
-                window.location.href = data.url;
-            } else if (data.error) {
-                setCheckoutError(data.error);
-            } else {
-                setCheckoutError('Unable to start checkout. Please try again.');
-            }
-        } catch (err) {
-            console.error('Checkout error:', err);
-            setCheckoutError('Connection error. Please check your internet and try again.');
-        } finally {
-            setIsLoading(false);
-        }
+        // Route to pricing page where user can choose Pro + add-ons
+        router.push('/pricing');
+        // Clear tour state and close wizard
+        localStorage.removeItem(TOUR_STORAGE_KEY);
+        markTourComplete('onboarding');
+        completeOnboarding();
+        closeWizard();
     };
 
     // Try sandbox mode - limited features demo

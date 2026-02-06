@@ -530,11 +530,11 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
                     {/* Vehicle */}
                     <div>
-                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                                Vehicle <span className="text-red-400">*</span>
-                                {loadingFcc && <span className="ml-2 text-yellow-500 animate-pulse">⏳ Finding keys...</span>}
-                            </label>
-                            <input
+                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                            Vehicle <span className="text-red-400">*</span>
+                            {loadingFcc && <span className="ml-2 text-yellow-500 animate-pulse">⏳ Finding keys...</span>}
+                        </label>
+                        <input
                             type="text"
                             placeholder="2023 Toyota Camry"
                             value={formData.vehicle}
@@ -1095,12 +1095,30 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     </div>
 
                     {/* Submit */}
-                    <button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black py-4 rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all shadow-lg shadow-yellow-500/20"
-                    >
-                        Log Job ✓
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            type="submit"
+                            className="flex-1 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black py-4 rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all shadow-lg shadow-yellow-500/20"
+                        >
+                            Log Job ✓
+                        </button>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                // Temporarily override status to 'unassigned' for dispatch
+                                setFormData(prev => ({ ...prev, status: 'unassigned' }));
+                                // Submit after state update via a microtask
+                                setTimeout(() => {
+                                    const form = (e.target as HTMLElement).closest('form');
+                                    if (form) form.requestSubmit();
+                                }, 0);
+                            }}
+                            className="px-4 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl hover:from-blue-500 hover:to-blue-400 transition-all shadow-lg shadow-blue-500/20 whitespace-nowrap text-sm"
+                            title="Save and send to the Dispatch queue for technician assignment"
+                        >
+                            🚚 Dispatch
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

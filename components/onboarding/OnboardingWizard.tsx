@@ -59,31 +59,14 @@ export default function OnboardingWizard() {
 
     if (!showWizard) return null;
 
-    const handleStartTrial = async () => {
+    const handleStartTrial = () => {
         if (!isAuthenticated) {
             login();
             return;
         }
-
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('session_token');
-            const res = await fetch(`${API_BASE}/api/square/checkout`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await res.json();
-            if (data.url) {
-                window.location.href = data.url;
-            }
-        } catch (err) {
-            console.error('Checkout error:', err);
-        } finally {
-            setIsLoading(false);
-        }
+        // Route to pricing page where user can choose Pro + add-ons
+        window.location.href = '/pricing';
+        completeOnboarding();
     };
 
     const renderStep = () => {

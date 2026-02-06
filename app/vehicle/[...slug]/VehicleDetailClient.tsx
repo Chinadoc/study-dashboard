@@ -1006,6 +1006,10 @@ export default function VehicleDetailClient() {
                 platform={header.platform}
                 architecture={header.immobilizer_system}
                 canFd={header.can_fd_required === 1 || header.can_fd_required === true}
+                specs={{
+                    fccId: fullSpecs.fccId,
+                    chipType: fullSpecs.chipType,
+                }}
             />
 
             {/* Quick Log Job Button - Prefills vehicle data */}

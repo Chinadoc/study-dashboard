@@ -465,7 +465,7 @@ function PendingJobCard({
                     {new Date(job.date).toLocaleDateString()}
                 </div>
             </div>
-            <div className="text-green-400 font-bold">${job.price.toFixed(0)}</div>
+            <div className="text-green-400 font-bold">${(job.price ?? 0).toFixed(0)}</div>
             <div className="flex gap-2">
                 <button
                     onClick={onComplete}

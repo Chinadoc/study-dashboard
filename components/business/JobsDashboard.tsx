@@ -92,7 +92,7 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
             // Search filter
             const searchLower = searchQuery.toLowerCase();
             const matchesSearch = !searchQuery ||
-                job.vehicle.toLowerCase().includes(searchLower) ||
+                (job.vehicle || '').toLowerCase().includes(searchLower) ||
                 (job.customerName?.toLowerCase().includes(searchLower)) ||
                 (job.fccId?.toLowerCase().includes(searchLower)) ||
                 (job.notes?.toLowerCase().includes(searchLower));

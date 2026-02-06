@@ -157,12 +157,12 @@ export default function LeadCard({
                                 📅 Schedule Job
                             </button>
                         )}
-                        {lead.status === 'scheduled' && (
+                        {lead.status !== 'lost' && (
                             <button
                                 onClick={onConvertToJob}
                                 className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-yellow-500/30 to-amber-500/30 text-yellow-400 hover:from-yellow-500/40 hover:to-amber-500/40 transition-colors"
                             >
-                                ✅ Convert to Job
+                                🚚 Send to Dispatch
                             </button>
                         )}
                         {lead.status !== 'lost' && (

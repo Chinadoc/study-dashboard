@@ -815,22 +815,23 @@ export function useJobLogs() {
             return updated;
         });
 
-        if (timelineEvent) {
+        const eventToAppend = timelineEvent as (NonNullable<typeof timelineEvent> | null);
+        if (eventToAppend) {
             const now = Date.now();
             appendFleetTimelineEvent({
-                eventType: timelineEvent.eventType,
+                eventType: eventToAppend.eventType,
                 eventSource: 'system',
                 jobId: id,
-                status: timelineEvent.status,
-                companyName: timelineEvent.companyName,
-                technicianId: timelineEvent.technicianId,
-                technicianName: timelineEvent.technicianName,
-                customerName: timelineEvent.customerName,
-                customerPhone: timelineEvent.customerPhone,
-                customerAddress: timelineEvent.customerAddress,
-                details: timelineEvent.details,
+                status: eventToAppend.status,
+                companyName: eventToAppend.companyName,
+                technicianId: eventToAppend.technicianId,
+                technicianName: eventToAppend.technicianName,
+                customerName: eventToAppend.customerName,
+                customerPhone: eventToAppend.customerPhone,
+                customerAddress: eventToAppend.customerAddress,
+                details: eventToAppend.details,
                 occurredAt: now,
-                payload: timelineEvent.payload,
+                payload: eventToAppend.payload,
             }).catch(() => { });
         }
     }, [saveJob]);

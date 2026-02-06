@@ -3,8 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { EditModeToggle } from '@/components/admin';
-// ReadinessBadge removed - tool coverage logic to be reimplemented later
-import LogJobButton from './LogJobButton';
 
 interface VehicleHeaderProps {
     make: string;
@@ -119,13 +117,13 @@ export default function VehicleHeader({
 
                     {/* Quick Actions */}
                     <div className="hidden md:flex items-center gap-2">
-                        <LogJobButton
-                            make={make}
-                            model={model}
-                            year={year}
-                            fccId={specs.fccId}
-                            variant="primary"
-                        />
+                        <a
+                            href={`/business/jobs?action=log&vehicle=${encodeURIComponent(`${year} ${make} ${model}`)}&fcc=${encodeURIComponent(specs.fccId || '')}&keyType=${encodeURIComponent(specs.chipType || '')}`}
+                            className="px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white"
+                        >
+                            <span>📝</span>
+                            <span>Log Job</span>
+                        </a>
                     </div>
                 </div>
             </div>
