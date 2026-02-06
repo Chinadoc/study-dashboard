@@ -27,59 +27,59 @@ interface GuidedStep {
     emoji: string;
 }
 
-// Simplified 6-step tour
+// Realistic workflow tour: Browse → Vehicle → FCC → Inventory → Jobs → Dashboard
 const GUIDED_TOUR: GuidedStep[] = [
-    // Browse page - Vehicle Search
+    // Step 1: Browse page - Vehicle Search
     {
         id: 'browse-intro',
         page: '/browse',
         title: 'Browse Vehicles',
-        content: 'Search any make, model, or year. This is your main database for key programming info.',
+        content: 'Search any make, model, or year to find key programming info.',
         position: 'center',
         emoji: '🔍',
     },
-    // Vehicle Demo: Honda Civic 2018 (the ONLY free demo)
+    // Step 2: Vehicle Demo - Honda Civic 2018 (free demo)
     {
         id: 'vehicle-demo',
         page: '/vehicle/honda/civic/2018',
         title: 'Honda Civic 2018',
-        content: 'Explore complete key data: FCC IDs, transponder chips, frequencies, and programming steps.',
+        content: 'View key specs, FCC IDs, chips, and programming steps. Click "Add to Inventory" to save keys.',
         position: 'center',
         emoji: '🚗',
     },
-    // FCC Database
+    // Step 3: FCC ID Database (first 3 free, rest paywalled)
     {
         id: 'fcc-database',
         page: '/fcc',
         title: 'FCC ID Lookup',
-        content: 'Look up any remote by FCC ID to find compatible vehicles and replacement parts.',
+        content: 'Look up any remote by FCC ID. The first 3 results are free—click "+" to add to inventory.',
         position: 'center',
         emoji: '📡',
     },
-    // Business Mode - Jobs
-    {
-        id: 'business-jobs',
-        page: '/business/jobs',
-        title: 'Job Logging',
-        content: 'Track every job: customer info, vehicle, parts used, and revenue.',
-        position: 'center',
-        emoji: '📋',
-    },
-    // Business Mode - Inventory
+    // Step 4: Inventory - where saved keys appear
     {
         id: 'business-inventory',
         page: '/business/inventory',
-        title: 'Inventory Management',
-        content: 'Keep track of your key blanks, remotes, and supplies.',
+        title: 'Your Inventory',
+        content: 'Keys you add from FCC or vehicle pages show up here. Track stock levels and costs.',
         position: 'center',
         emoji: '📦',
     },
-    // Business Mode - Dashboard/Stats
+    // Step 5: Jobs - log a job using inventory
+    {
+        id: 'business-jobs',
+        page: '/business/jobs',
+        title: 'Log a Job',
+        content: 'Click "Log Job" to record customer info, vehicle, parts used, and revenue. Try it now!',
+        position: 'center',
+        emoji: '📋',
+    },
+    // Step 6: Dashboard - see your business stats
     {
         id: 'business-dashboard',
         page: '/business',
         title: 'Business Dashboard',
-        content: 'See your stats at a glance: revenue, job counts, AI insights, and upcoming work.',
+        content: 'Track revenue, job counts, and AI insights all in one place.',
         position: 'center',
         emoji: '📊',
     },
