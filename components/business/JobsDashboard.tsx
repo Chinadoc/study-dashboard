@@ -41,6 +41,39 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
     const [importStatus, setImportStatus] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Bulk delete mode
+    const [bulkMode, setBulkMode] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const selectAllFiltered = () => {
+        setSelectedIds(new Set(filteredJobs.map(j => j.id)));
+    };
+
+    const selectNullJobs = () => {
+        setSelectedIds(new Set(jobLogs.filter(j => !j.jobType).map(j => j.id)));
+    };
+
+    const clearSelection = () => {
+        setSelectedIds(new Set());
+    };
+
+    const deleteSelected = () => {
+        if (selectedIds.size === 0) return;
+        if (!confirm(`Delete ${selectedIds.size} jobs? This cannot be undone.`)) return;
+        selectedIds.forEach(id => onDeleteJob(id));
+        setSelectedIds(new Set());
+        setBulkMode(false);
+    };
+
     // Load fleet accounts for badge display
     const [fleetAccounts, setFleetAccounts] = useState<FleetAccount[]>([]);
     useEffect(() => {
@@ -363,18 +396,46 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
 
             {/* Jobs List */}
             <div className="bg-gray-900 rounded-xl border border-gray-800">
-                <div className="p-4 border-b border-gray-800 flex justify-between items-center">
-                    <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider">
-                        Jobs ({filteredJobs.length})
-                    </h3>
-                    {searchQuery || filterJobType !== 'all' || filterStatus !== 'all' ? (
-                        <button
-                            onClick={() => { setSearchQuery(''); setFilterJobType('all'); setFilterStatus('all'); }}
-                            className="text-xs text-yellow-500 hover:text-yellow-400"
-                        >
-                            Clear filters
-                        </button>
-                    ) : null}
+                <div className="p-4 border-b border-gray-800">
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider">
+                            Jobs ({filteredJobs.length})
+                        </h3>
+                        <div className="flex items-center gap-2">
+                            {searchQuery || filterJobType !== 'all' || filterStatus !== 'all' ? (
+                                <button
+                                    onClick={() => { setSearchQuery(''); setFilterJobType('all'); setFilterStatus('all'); }}
+                                    className="text-xs text-yellow-500 hover:text-yellow-400"
+                                >
+                                    Clear filters
+                                </button>
+                            ) : null}
+                            <button
+                                onClick={() => { setBulkMode(!bulkMode); setSelectedIds(new Set()); }}
+                                className={`text-xs px-3 py-1 rounded-lg transition-colors ${bulkMode
+                                    ? 'bg-red-500/30 text-red-400 border border-red-500/30'
+                                    : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                                    }`}
+                            >
+                                {bulkMode ? '✕ Cancel' : '🗑️ Bulk Delete'}
+                            </button>
+                        </div>
+                    </div>
+                    {bulkMode && (
+                        <div className="flex flex-wrap items-center gap-2 p-3 bg-red-950/30 border border-red-900/30 rounded-lg">
+                            <span className="text-sm text-red-400">{selectedIds.size} selected</span>
+                            <button onClick={selectAllFiltered} className="text-xs px-2 py-1 bg-zinc-800 rounded hover:bg-zinc-700">Select All Visible</button>
+                            <button onClick={selectNullJobs} className="text-xs px-2 py-1 bg-orange-600/30 text-orange-400 rounded hover:bg-orange-600/40">Select Null/Empty Jobs</button>
+                            <button onClick={clearSelection} className="text-xs px-2 py-1 bg-zinc-800 rounded hover:bg-zinc-700">Clear</button>
+                            <button
+                                onClick={deleteSelected}
+                                disabled={selectedIds.size === 0}
+                                className="text-xs px-3 py-1 bg-red-600 text-white rounded font-bold hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
+                            >
+                                Delete {selectedIds.size} Jobs
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {filteredJobs.length > 0 ? (
@@ -383,17 +444,30 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
                             const fleet = job.fleetId ? fleetAccounts.find(f => f.id === job.fleetId) : undefined;
                             const tech = job.technicianId ? technicians.find(t => t.id === job.technicianId) : undefined;
                             return (
-                                <JobCard
-                                    key={job.id}
-                                    job={job}
-                                    fleetName={fleet?.name}
-                                    technicianName={tech?.name}
-                                    expanded={expandedJobId === job.id}
-                                    onToggle={() => toggleJobExpand(job.id)}
-                                    onDelete={() => onDeleteJob(job.id)}
-                                    onMarkComplete={() => markComplete(job)}
-                                    onGenerateInvoice={onGenerateInvoice ? () => onGenerateInvoice(job) : undefined}
-                                />
+                                <div key={job.id} className="flex items-center">
+                                    {bulkMode && (
+                                        <div className="pl-4 pr-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedIds.has(job.id)}
+                                                onChange={() => toggleSelect(job.id)}
+                                                className="w-5 h-5 accent-red-500 cursor-pointer"
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <JobCard
+                                            job={job}
+                                            fleetName={fleet?.name}
+                                            technicianName={tech?.name}
+                                            expanded={expandedJobId === job.id && !bulkMode}
+                                            onToggle={() => !bulkMode && toggleJobExpand(job.id)}
+                                            onDelete={() => onDeleteJob(job.id)}
+                                            onMarkComplete={() => markComplete(job)}
+                                            onGenerateInvoice={onGenerateInvoice ? () => onGenerateInvoice(job) : undefined}
+                                        />
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>
