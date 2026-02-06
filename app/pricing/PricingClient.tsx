@@ -49,12 +49,12 @@ const ADD_ONS: AddOn[] = [
     },
     {
         id: 'business-insights',
-        name: 'Business Insights',
+        name: 'Business Tools',
         emoji: '📊',
-        description: 'Advanced business analytics & documents',
-        monthlyPrice: 10,
-        yearlyPrice: 60,
-        features: ['Receipt & invoice generation', 'Tax reports', 'Revenue analytics'],
+        description: 'Complete business management suite',
+        monthlyPrice: 20,
+        yearlyPrice: 180,
+        features: ['Unlimited job logging', 'Invoice generation', 'Revenue analytics', 'Inventory management'],
         color: 'from-amber-500 to-amber-600'
     }
 ];

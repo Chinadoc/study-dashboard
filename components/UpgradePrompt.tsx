@@ -110,7 +110,7 @@ export default function UpgradePrompt({
 
                 <div className="mb-4">
                     <span className="text-3xl font-bold text-white">
-                        ${itemType === 'business' ? '10' : itemType === 'content' ? '25' : '5'}
+                        ${itemType === 'business' ? '20' : itemType === 'content' ? '25' : '5'}
                     </span>
                     <span className="text-zinc-400 text-sm">/month</span>
                 </div>
