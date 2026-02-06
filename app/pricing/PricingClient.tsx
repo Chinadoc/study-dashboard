@@ -85,7 +85,7 @@ export default function PricingClient() {
         setIsLoading(true);
         try {
             const token = localStorage.getItem('session_token');
-            const res = await fetch(`${API_BASE}/api/stripe/checkout`, {
+            const res = await fetch(`${API_BASE}/api/square/checkout`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -14,6 +14,11 @@ export interface Env {
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   STRIPE_PRICE_ID: string;
+  // Square API
+  SQUARE_ACCESS_TOKEN?: string;
+  SQUARE_LOCATION_ID?: string;
+  SQUARE_SUBSCRIPTION_PLAN_ID?: string;
+  SQUARE_WEBHOOK_SIGNATURE_KEY?: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   JWT_SECRET: string;
@@ -894,6 +899,159 @@ export default {
         } catch (err: any) {
           console.error("/api/stripe/checkout error:", err);
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // SQUARE SUBSCRIPTION ENDPOINTS
+      // ==============================================
+
+      // POST /api/square/checkout - Create Square Checkout Payment Link
+      if (path === "/api/square/checkout" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userEmail = payload.email as string;
+
+          if (!env.SQUARE_ACCESS_TOKEN || !env.SQUARE_LOCATION_ID || !env.SQUARE_SUBSCRIPTION_PLAN_ID) {
+            return corsResponse(request, JSON.stringify({ error: "Square not configured" }), 500);
+          }
+
+          // Get or create Square customer
+          const user = await env.LOCKSMITH_DB.prepare("SELECT square_customer_id FROM users WHERE id = ?").bind(userId).first<any>();
+
+          let customerId = user?.square_customer_id;
+
+          if (!customerId) {
+            // Create Square customer
+            const customerRes = await fetch("https://connect.squareup.com/v2/customers", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
+                "Content-Type": "application/json",
+                "Square-Version": "2024-01-18",
+              },
+              body: JSON.stringify({
+                idempotency_key: `eurokeys-cust-${userId}`,
+                email_address: userEmail,
+                reference_id: userId,
+              }),
+            });
+            const customerData = await customerRes.json() as any;
+            if (customerData.errors) {
+              return corsResponse(request, JSON.stringify({ error: customerData.errors[0]?.detail || "Customer creation failed" }), 400);
+            }
+            customerId = customerData.customer?.id;
+
+            // Save customer ID to DB
+            await env.LOCKSMITH_DB.prepare("UPDATE users SET square_customer_id = ? WHERE id = ?").bind(customerId, userId).run();
+          }
+
+          // Create checkout payment link for subscription
+          const origin = request.headers.get("Origin") || "https://eurokeys.app";
+          const checkoutRes = await fetch("https://connect.squareup.com/v2/online-checkout/payment-links", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
+              "Content-Type": "application/json",
+              "Square-Version": "2024-01-18",
+            },
+            body: JSON.stringify({
+              idempotency_key: `eurokeys-checkout-${userId}-${Date.now()}`,
+              quick_pay: {
+                name: "Euro Keys Pro",
+                price_money: {
+                  amount: 2500, // $25.00
+                  currency: "USD",
+                },
+                location_id: env.SQUARE_LOCATION_ID,
+              },
+              checkout_options: {
+                redirect_url: `${origin}/pricing?success=true`,
+                subscription_plan_id: env.SQUARE_SUBSCRIPTION_PLAN_ID,
+              },
+              pre_populated_data: {
+                buyer_email: userEmail,
+              },
+            }),
+          });
+          const checkoutData = await checkoutRes.json() as any;
+
+          if (checkoutData.errors) {
+            console.error("Square checkout error:", checkoutData.errors);
+            return corsResponse(request, JSON.stringify({ error: checkoutData.errors[0]?.detail || "Checkout failed" }), 400);
+          }
+
+          const checkoutUrl = checkoutData.payment_link?.url || checkoutData.payment_link?.long_url;
+          if (!checkoutUrl) {
+            return corsResponse(request, JSON.stringify({ error: "No checkout URL returned" }), 500);
+          }
+
+          return corsResponse(request, JSON.stringify({ url: checkoutUrl }));
+        } catch (err: any) {
+          console.error("/api/square/checkout error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/square/webhook - Handle Square webhook events
+      if (path === "/api/square/webhook" && request.method === "POST") {
+        try {
+          const body = await request.text();
+          const event = JSON.parse(body);
+
+          // Log for debugging
+          console.log("Square webhook received:", event.type);
+
+          // Handle subscription events
+          if (event.type === "subscription.created" || event.type === "subscription.updated") {
+            const subscription = event.data?.object?.subscription;
+            const customerId = subscription?.customer_id;
+
+            if (customerId && subscription?.status === "ACTIVE") {
+              // Find user by square_customer_id and upgrade to Pro
+              await env.LOCKSMITH_DB.prepare(
+                "UPDATE users SET is_pro = 1, subscription_status = 'active', subscription_provider = 'square' WHERE square_customer_id = ?"
+              ).bind(customerId).run();
+              console.log("User upgraded to Pro via Square:", customerId);
+            }
+          }
+
+          if (event.type === "subscription.canceled" || event.type === "subscription.deactivated") {
+            const subscription = event.data?.object?.subscription;
+            const customerId = subscription?.customer_id;
+
+            if (customerId) {
+              // Downgrade user
+              await env.LOCKSMITH_DB.prepare(
+                "UPDATE users SET is_pro = 0, subscription_status = 'canceled' WHERE square_customer_id = ?"
+              ).bind(customerId).run();
+              console.log("User downgraded via Square:", customerId);
+            }
+          }
+
+          // Handle invoice/payment events (for subscription renewals)
+          if (event.type === "invoice.payment_made") {
+            const invoice = event.data?.object?.invoice;
+            const customerId = invoice?.primary_recipient?.customer_id;
+
+            if (customerId) {
+              // Ensure user is still Pro
+              await env.LOCKSMITH_DB.prepare(
+                "UPDATE users SET is_pro = 1, subscription_status = 'active' WHERE square_customer_id = ?"
+              ).bind(customerId).run();
+            }
+          }
+
+          return new Response("OK", { status: 200 });
+        } catch (err: any) {
+          console.error("/api/square/webhook error:", err);
+          return new Response("Webhook error", { status: 500 });
         }
       }
 
@@ -11079,6 +11237,43 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             matches
           }));
         } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // Vehicle Description endpoint - serves AI-generated descriptions for vehicles
+      if (path === "/api/vehicle-description") {
+        try {
+          const make = url.searchParams.get("make") || "";
+          const model = url.searchParams.get("model") || "";
+
+          if (!make || !model) {
+            return corsResponse(request, JSON.stringify({ error: "Missing make or model parameter" }), 400);
+          }
+
+          // Query D1 for the description
+          const key = `${make}|${model}`;
+          const result = await env.LOCKSMITH_DB.prepare(
+            `SELECT description, generated FROM vehicle_descriptions WHERE vehicle_key = ?`
+          ).bind(key).first<{ description: string; generated: string }>();
+
+          if (result) {
+            return corsResponse(request, JSON.stringify({
+              make,
+              model,
+              description: result.description,
+              generated: result.generated
+            }));
+          } else {
+            return corsResponse(request, JSON.stringify({
+              make,
+              model,
+              description: null,
+              message: "No description available for this vehicle"
+            }));
+          }
+        } catch (err: any) {
+          console.error('/api/vehicle-description error:', err);
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
       }

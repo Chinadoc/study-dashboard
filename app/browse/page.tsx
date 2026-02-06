@@ -81,6 +81,9 @@ function BrowsePageContent() {
     } | null>(null);
     const [loadingPreview, setLoadingPreview] = useState(false);
 
+    // AI-generated vehicle description
+    const [vehicleDescription, setVehicleDescription] = useState<string | null>(null);
+
     // Mobile detection
     const [isMobile, setIsMobile] = useState(false);
 
@@ -164,6 +167,29 @@ function BrowsePageContent() {
             }
         }
         fetchYears();
+    }, [selectedModel, selectedMake]);
+
+    // Fetch AI-generated description when make/model is selected
+    useEffect(() => {
+        if (!selectedModel || !selectedMake || typeof window === 'undefined') {
+            setVehicleDescription(null);
+            return;
+        }
+
+        let cancelled = false;
+        async function fetchDescription() {
+            try {
+                const res = await fetch(`${API_BASE}/api/vehicle-description?make=${encodeURIComponent(selectedMake!)}&model=${encodeURIComponent(selectedModel!)}`);
+                const data = await res.json();
+                if (!cancelled && data.description) {
+                    setVehicleDescription(data.description);
+                }
+            } catch (error) {
+                console.error('Failed to fetch description:', error);
+            }
+        }
+        fetchDescription();
+        return () => { cancelled = true; };
     }, [selectedModel, selectedMake]);
 
     // Fetch preview summary when year is selected (for instant preview card)
@@ -595,7 +621,16 @@ function BrowsePageContent() {
                                                                 <span className="text-gray-300 truncate">{[...new Set(previewSummary.fccIds)].slice(0, 2).join(', ')}</span>
                                                             </div>
                                                         )}
-
+                                                        {/* AI-Generated Vehicle Description */}
+                                                        {vehicleDescription && (
+                                                            <div className="mt-3 p-3 rounded-lg bg-gradient-to-br from-purple-900/20 to-indigo-900/20 border border-purple-500/20">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <span className="text-purple-400">✨</span>
+                                                                    <span className="text-purple-300 text-xs font-medium">AI Insight</span>
+                                                                </div>
+                                                                <p className="text-gray-300 text-xs leading-relaxed">{vehicleDescription}</p>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ) : null}
                                             </>
