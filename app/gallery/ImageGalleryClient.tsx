@@ -5,7 +5,7 @@ import imageManifest from '@/public/data/image_gallery_manifest.json';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePrompt from '@/components/UpgradePrompt';
 
-const FREE_IMAGE_LIMIT = 10;
+const FREE_IMAGE_LIMIT = 4;
 
 interface GalleryImage {
   filename: string;
@@ -33,7 +33,7 @@ const YEAR_TAGS = [
 ];
 
 export default function ImageGalleryClient() {
-  const { isPro } = useAuth();
+  const { hasImages } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
@@ -74,7 +74,7 @@ export default function ImageGalleryClient() {
 
       const targetImage = currentSourceImages[newIndex];
       const globalIdx = filteredImgs.indexOf(targetImage);
-      const isLocked = !isPro && globalIdx >= FREE_IMAGE_LIMIT;
+      const isLocked = !hasImages && globalIdx >= FREE_IMAGE_LIMIT;
 
       if (!isLocked) {
         setCurrentImageIndex(newIndex);
@@ -648,7 +648,7 @@ export default function ImageGalleryClient() {
                 {sourceImages.map((image, idx) => {
                   // Calculate global index for gating
                   const globalIdx = filteredImages.indexOf(image);
-                  const isLocked = !isPro && globalIdx >= FREE_IMAGE_LIMIT;
+                  const isLocked = !hasImages && globalIdx >= FREE_IMAGE_LIMIT;
 
                   return (
                     <div
@@ -698,7 +698,7 @@ export default function ImageGalleryClient() {
       )}
 
       {/* Show upgrade prompt if there are more images than free limit */}
-      {!isPro && filteredImages.length > FREE_IMAGE_LIMIT && (
+      {!hasImages && filteredImages.length > FREE_IMAGE_LIMIT && (
         <div style={{ marginTop: '2rem' }}>
           <UpgradePrompt
             itemType="images"

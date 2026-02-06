@@ -26,7 +26,7 @@ interface VisualReferencesProps {
 const R2_PROXY = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
 
 export default function VisualReferences({ images }: VisualReferencesProps) {
-    const { isPro } = useAuth();
+    const { hasImages } = useAuth();
     const [modalImage, setModalImage] = useState<ImageReference | null>(null);
     const [showAll, setShowAll] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -65,7 +65,7 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {displayedImages.map((img, index) => {
                     const imageUrl = getImageUrl(img);
-                    const isLocked = !isPro && index >= FREE_VEHICLE_IMAGE_LIMIT;
+                    const isLocked = !hasImages && index >= FREE_VEHICLE_IMAGE_LIMIT;
 
                     return (
                         <div
@@ -135,7 +135,7 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
             </div>
 
             {/* Show upgrade prompt for locked images */}
-            {!isPro && images.length > FREE_VEHICLE_IMAGE_LIMIT && (
+            {!hasImages && images.length > FREE_VEHICLE_IMAGE_LIMIT && (
                 <div className="mt-4">
                     <UpgradePrompt
                         itemType="images"

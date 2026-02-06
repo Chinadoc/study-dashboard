@@ -10,6 +10,7 @@ import { trackFCCView, trackAffiliateClick, trackEvent } from '@/lib/analytics';
 import { useInventory } from '@/contexts/InventoryContext';
 import { useAuth } from '@/contexts/AuthContext';
 import OwnedBadge from '@/components/shared/OwnedBadge';
+import TourBanner from '@/components/onboarding/TourBanner';
 
 // Free tier limits
 const FREE_FCC_LIMIT = 3;
@@ -116,6 +117,28 @@ function VehiclesPopover({
     );
 }
 
+/**
+ * Extract a clean "YEAR Make Model" vehicle name from the raw FCC vehicles string.
+ * Raw format: "Dodge Ram (2013-2013),Dodge Ram (2014-2014),Lexus ES350 (2009-2009),..."
+ * Returns: "2013 Dodge Ram" (uses the first entry, extracts the start year)
+ */
+function cleanVehicleName(raw: string): string {
+    if (!raw) return '';
+    const first = raw.split(',')[0]?.trim() || '';
+    if (!first) return '';
+
+    // Match "Make Model (StartYear-EndYear)" or "Make Model (Year)"
+    const match = first.match(/^(.+?)\s*\((\d{4})(?:-\d{4})?\)\s*$/);
+    if (match) {
+        const makeModel = match[1].trim();
+        const year = match[2];
+        return `${year} ${makeModel}`;
+    }
+
+    // If no year-range pattern, return as-is (already clean)
+    return first;
+}
+
 function FccContent() {
     const [data, setData] = useState<FccRow[]>([]);
     const [loading, setLoading] = useState(true);
@@ -199,6 +222,7 @@ function FccContent() {
             price: job.price,
             date: job.date,
             notes: job.notes,
+            status: 'completed',
         });
         // Optionally auto-decrement inventory
         if (job.fccId) {
@@ -287,6 +311,7 @@ function FccContent() {
 
     return (
         <div className="space-y-8 py-6">
+            <TourBanner tourId="fcc-power-user" storageKey="eurokeys_fcc_first_visit" />
             {/* Header with View Toggle */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -775,7 +800,7 @@ function FccContent() {
                 onClose={() => { setJobModalOpen(false); setSelectedFcc(null); }}
                 onSubmit={handleJobSubmit}
                 prefillFccId={selectedFcc?.fcc_id || ''}
-                prefillVehicle={selectedFcc?.vehicles.split(',')[0]?.trim() || ''}
+                prefillVehicle={cleanVehicleName(selectedFcc?.vehicles || '')}
             />
         </div>
     );

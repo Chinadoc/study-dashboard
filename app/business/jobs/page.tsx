@@ -16,6 +16,7 @@ import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import { getTechniciansFromStorage, Technician } from '@/lib/technicianTypes';
 import { useFleet } from '@/contexts/FleetContext';
 import ForceSyncButton from '@/components/business/ForceSyncButton';
+import Link from 'next/link';
 
 type JobsSubTab = 'all' | 'dispatch' | 'calendar' | 'pending' | 'pipeline' | 'analytics';
 
@@ -115,6 +116,7 @@ function JobsPageContent() {
 
         addJobLog({
             vehicle: data.vehicle,
+            companyName: data.companyName,
             fccId: data.fccId || undefined,
             keyType: data.keyType || undefined,
             jobType: data.jobType,
@@ -126,6 +128,9 @@ function JobsPageContent() {
             customerName: data.customerName,
             customerPhone: data.customerPhone,
             customerAddress: data.customerAddress,
+            fleetId: data.fleetId,
+            technicianId: data.technicianId,
+            technicianName: data.technicianName,
             partsCost: data.partsCost,
             keyCost: data.keyCost,
             serviceCost: data.serviceCost,
@@ -284,6 +289,16 @@ function JobsPageContent() {
                 <div className="ml-auto flex-shrink-0">
                     <ForceSyncButton showDetails={false} className="!py-1.5 !px-3 !text-xs" />
                 </div>
+            </div>
+
+            <div className="flex justify-end">
+                <Link
+                    href="/business/timeline"
+                    className="inline-flex items-center gap-2 px-3 py-2 text-xs sm:text-sm bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 rounded-lg text-emerald-300 transition-colors"
+                >
+                    <span>📞</span>
+                    <span>Open Fleet Ops Timeline</span>
+                </Link>
             </div>
 
             {/* AI Insight Card */}

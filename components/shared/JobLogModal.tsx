@@ -32,6 +32,7 @@ interface JobLogModalProps {
 
 export interface JobFormData {
     vehicle: string;
+    companyName?: string;
     fccId: string;
     keyType: string;
     jobType: 'add_key' | 'akl' | 'remote' | 'blade' | 'rekey' | 'lockout' | 'other';
@@ -43,13 +44,28 @@ export interface JobFormData {
     customerAddress?: string;
     fleetId?: string;          // Link to fleet account
     technicianId?: string;     // Assigned technician
+    technicianName?: string;   // Assigned technician name
     partsCost?: number;
     keyCost?: number;     // Cost of key/fob from AKS pricing
     serviceCost?: number; // Labor/service charge
     milesDriven?: number; // Miles driven for gas calculation
     gasCost?: number;     // Auto-calculated from miles (3.5$/gal at 30mpg = $0.117/mile)
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
-    status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+    status?:
+    | 'appointment'
+    | 'accepted'
+    | 'in_progress'
+    | 'on_hold'
+    | 'closed'
+    | 'cancelled'
+    | 'pending_close'
+    | 'pending_cancel'
+    | 'estimate'
+    | 'follow_up'
+    | 'pending'
+    | 'completed'
+    | 'unassigned'
+    | 'claimed';
 }
 
 const JOB_TYPES = [
@@ -70,8 +86,23 @@ const REFERRAL_SOURCES = [
     { value: 'other', label: 'Other' },
 ];
 
+const STATUS_OPTIONS: Array<{ value: NonNullable<JobFormData['status']>; label: string }> = [
+    { value: 'appointment', label: 'Appointment' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'on_hold', label: 'On Hold' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'pending_close', label: 'Pending Close' },
+    { value: 'pending_cancel', label: 'Pending Cancel' },
+    { value: 'estimate', label: 'Estimate' },
+    { value: 'follow_up', label: 'Follow Up' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'completed', label: 'Completed' },
+];
+
 export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', prefillDate, prefillCustomerName = '', prefillCustomerPhone = '', prefillCustomerAddress = '', prefillNotes = '', prefillPrice, prefillJobType, prefillReferralSource, recentCustomers = [], fleetAccounts }: JobLogModalProps) {
-    const [showCustomerInfo, setShowCustomerInfo] = useState(false);
+    const [showCustomerInfo, setShowCustomerInfo] = useState(true);
     const [showCostTracking, setShowCostTracking] = useState(false);
     const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: number; button_count?: number; image_url?: string }>>([]);
     const [loadingFcc, setLoadingFcc] = useState(false);
@@ -100,6 +131,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
     // Fleet customers management for saving customers
     const { addCustomer: addFleetCustomer, customerExists } = useFleetCustomers();
     const [customerSaved, setCustomerSaved] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Determine valid job type from prefill
     const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'other'] as const;
@@ -115,6 +147,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
 
     const [formData, setFormData] = useState<JobFormData>({
         vehicle: prefillVehicle,
+        companyName: '',
         fccId: prefillFccId,
         keyType: '',
         jobType: initialJobType,
@@ -125,6 +158,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         customerPhone: prefillCustomerPhone,
         customerAddress: prefillCustomerAddress,
         fleetId: '',
+        technicianName: '',
         partsCost: 0,
         keyCost: 0,
         serviceCost: 0,
@@ -155,6 +189,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             setFormData(prev => ({
                 ...prev,
                 fleetId: fleet.id,
+                companyName: fleet.name || prev.companyName,
                 customerName: fleet.name,
                 customerPhone: fleet.phone || prev.customerPhone,
                 customerAddress: fleet.address || prev.customerAddress,
@@ -253,10 +288,28 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        const missing: string[] = [];
+        if (!formData.vehicle?.trim()) missing.push('Vehicle');
+        if (!formData.companyName?.trim()) missing.push('Company');
+        if (!formData.jobType?.trim()) missing.push('Job Description');
+        if (!formData.technicianName?.trim()) missing.push('Technician');
+        if (!formData.customerName?.trim()) missing.push('Customer Name');
+        if (!formData.customerPhone?.trim()) missing.push('Customer Phone');
+        if (!formData.status?.trim()) missing.push('Status');
+
+        if (missing.length > 0) {
+            setValidationError(`Required fields: ${missing.join(', ')}`);
+            if (!showCustomerInfo) setShowCustomerInfo(true);
+            return;
+        }
+
+        setValidationError(null);
         onSubmit(formData);
         // Reset form
         setFormData({
             vehicle: '',
+            companyName: '',
             fccId: '',
             keyType: '',
             jobType: 'add_key',
@@ -267,6 +320,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             customerPhone: '',
             customerAddress: '',
             fleetId: '',
+            technicianName: '',
             partsCost: 0,
             keyCost: 0,
             gasCost: 0,
@@ -476,11 +530,11 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
                     {/* Vehicle */}
                     <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                            Vehicle *
-                            {loadingFcc && <span className="ml-2 text-yellow-500 animate-pulse">⏳ Finding keys...</span>}
-                        </label>
-                        <input
+                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                Vehicle <span className="text-red-400">*</span>
+                                {loadingFcc && <span className="ml-2 text-yellow-500 animate-pulse">⏳ Finding keys...</span>}
+                            </label>
+                            <input
                             type="text"
                             placeholder="2023 Toyota Camry"
                             value={formData.vehicle}
@@ -594,7 +648,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     {/* Job Type - Now 4x2 grid */}
                     <div>
                         <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                            Job Type
+                            Job Description <span className="text-red-400">*</span>
                         </label>
                         <div className="grid grid-cols-4 gap-2">
                             {JOB_TYPES.map(type => (
@@ -612,6 +666,21 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                 </button>
                             ))}
                         </div>
+                    </div>
+
+                    {/* Company */}
+                    <div>
+                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                            Company <span className="text-red-400">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Prolocksmith Orlando"
+                            value={formData.companyName || ''}
+                            onChange={e => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                            required
+                        />
                     </div>
 
                     {/* Community Tips Panel */}
@@ -642,8 +711,14 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                         </div>
                     )}
 
+                    {validationError && (
+                        <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2">
+                            {validationError}
+                        </div>
+                    )}
+
                     {/* Price & Date */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
                                 Price ($)
@@ -668,6 +743,23 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                 onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
                             />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                Status <span className="text-red-400">*</span>
+                            </label>
+                            <select
+                                value={formData.status || 'completed'}
+                                onChange={e => setFormData(prev => ({ ...prev, status: e.target.value as JobFormData['status'] }))}
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
+                                required
+                            >
+                                {STATUS_OPTIONS.map(option => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
@@ -699,7 +791,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     {availableFleets.length > 0 && (
                         <div className="p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                                🚗 Fleet Account (optional)
+                                🚗 Link Fleet Account
                             </label>
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {availableFleets.slice(0, 4).map(fleet => (
@@ -748,20 +840,25 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     )}
 
                     {/* Technician Assignment */}
-                    {technicians.length > 0 && (
-                        <div className="p-4 bg-green-950/30 rounded-xl border border-green-900/30">
-                            <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
-                                👷 Assign Technician (optional)
-                            </label>
-                            <div className="flex flex-wrap gap-2">
+                    <div className="p-4 bg-green-950/30 rounded-xl border border-green-900/30">
+                        <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
+                            👷 Technician <span className="text-red-400">*</span>
+                        </label>
+                        {technicians.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-3">
                                 {technicians.map(tech => (
                                     <button
                                         key={tech.id}
                                         type="button"
-                                        onClick={() => setFormData(prev => ({
-                                            ...prev,
-                                            technicianId: prev.technicianId === tech.id ? '' : tech.id
-                                        }))}
+                                        onClick={() => setFormData(prev => {
+                                            const selected = prev.technicianId === tech.id;
+                                            const clearName = selected && prev.technicianName === tech.name;
+                                            return {
+                                                ...prev,
+                                                technicianId: selected ? '' : tech.id,
+                                                technicianName: clearName ? '' : tech.name,
+                                            };
+                                        })}
                                         className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${formData.technicianId === tech.id
                                             ? 'bg-green-500/30 border-green-500/60 text-green-300'
                                             : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600'
@@ -772,8 +869,16 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                     </button>
                                 ))}
                             </div>
-                        </div>
-                    )}
+                        )}
+                        <input
+                            type="text"
+                            placeholder={technicians.length > 0 ? 'Technician name (or pick above)' : 'Technician name'}
+                            value={formData.technicianName || ''}
+                            onChange={e => setFormData(prev => ({ ...prev, technicianName: e.target.value }))}
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                            required
+                        />
+                    </div>
 
                     {/* Customer Info Section */}
                     {showCustomerInfo && (
@@ -806,7 +911,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                             )}
                             <div>
                                 <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                    Customer Name
+                                    Customer Name <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -817,12 +922,13 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                         setCustomerSaved(false);
                                     }}
                                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                    required
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                        Phone
+                                        Phone <span className="text-red-400">*</span>
                                     </label>
                                     <input
                                         type="tel"
@@ -833,6 +939,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                             setCustomerSaved(false);
                                         }}
                                         className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                        required
                                     />
                                 </div>
                                 <div>

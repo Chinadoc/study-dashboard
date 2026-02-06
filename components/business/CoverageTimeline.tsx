@@ -18,6 +18,13 @@ interface ToolCoverageDetail {
     cables: string[];
 }
 
+// Tool-specific coverage entry (from enriched data)
+interface ToolSpecificCoverage {
+    status: string;
+    confidence: string;
+    notes: string;
+}
+
 interface VehicleCoverage {
     make: string;
     model: string;
@@ -31,22 +38,44 @@ interface VehicleCoverage {
     chips: string[];
     flags: Array<{ tool: string; year: number; reason: string }>;
     dossierMentions: number;
+    toolCoverage?: Record<string, ToolSpecificCoverage>;
 }
 
 // Type assertion for JSON import
-const COVERAGE_DATA = vehicleCoverageData.vehicles as unknown as VehicleCoverage[];
+const COVERAGE_DATA = (vehicleCoverageData as { vehicles: VehicleCoverage[] }).vehicles;
 
 const TOOLS = ['autel', 'smartPro', 'lonsdor', 'vvdi'] as const;
 const TOOL_LABELS: Record<string, string> = {
+    // Families
     autel: 'Autel (All)',
-    autel_im508s: 'Autel IM508S',
-    autel_im608: 'Autel IM608',
-    autel_im608_pro: 'Autel IM608 Pro',
-    autel_im608_pro2: 'Autel IM608 Pro II',
-    smartPro: 'Smart Pro',
-    lonsdor: 'Lonsdor K518',
-    vvdi: 'VVDI/Xhorse',
+    smartPro: 'Smart Pro (All)',
+    lonsdor: 'Lonsdor (All)',
+    vvdi: 'VVDI/Xhorse (All)',
     all: 'All Tools',
+    // Autel models
+    autel_im508s: 'IM508S',
+    autel_im608: 'IM608',
+    autel_im608_pro: 'IM608 Pro',
+    autel_im608_pro2: 'IM608 Pro II',
+    // OBDStar models
+    obdstar_x300_mini: 'X300 Mini',
+    obdstar_x300_pro4: 'X300 Pro4',
+    obdstar_x300_dp_plus: 'X300 DP+',
+    obdstar_g3: 'Key Master G3',
+    // Lonsdor models
+    lonsdor_k518s: 'K518S',
+    lonsdor_k518ise: 'K518ISE',
+    lonsdor_k518_pro: 'K518 Pro',
+    // Xhorse models
+    xhorse_mini_obd: 'Mini OBD',
+    xhorse_keytool_max: 'Key Tool Max',
+    xhorse_vvdi2: 'VVDI2',
+    xhorse_keytool_plus: 'Key Tool Plus',
+    // Smart Pro / AutoProPAD models
+    smart_pro_tcode: 'T-Code',
+    smart_pro: 'AD100',
+    autopropad_basic: 'APP Basic',
+    autopropad: 'AutoProPAD',
 };
 
 function getCoverageLevel(status: string): 'full' | 'partial' | 'none' | 'unknown' {
@@ -159,9 +188,15 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
         'xhorse_keytool_plus': 'vvdi',
     }), []);
 
-    // Check if owned tools cover a vehicle
+    // Check if owned tools cover a vehicle (using new toolCoverage schema)
     const hasToolForVehicle = (v: VehicleCoverage): boolean => {
         return ownedToolIds.some(toolId => {
+            // First try tool-specific coverage
+            if (v.toolCoverage?.[toolId]) {
+                const level = getCoverageLevel(v.toolCoverage[toolId].status);
+                return level === 'full' || level === 'partial';
+            }
+            // Fallback to family coverage
             const toolKey = toolIdToKey[toolId];
             if (!toolKey) return false;
             const level = getCoverageLevel(v[toolKey]?.status || '');
@@ -169,25 +204,14 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
         });
     };
 
+    // Check if selectedTool is a specific tool ID (not a family)
+    const isSpecificTool = (tool: string): boolean => {
+        return !TOOLS.includes(tool as any) && tool !== 'all';
+    };
+
     // Timeline view data computation
     const timelineData = useMemo(() => {
-        const data: Record<string, Record<number, { level: 'full' | 'partial' | 'none' | 'unknown', models: string[], status: string }>> = {};
-
-        // Determine which tools to check based on selection
-        let toolsToCheck: readonly string[] = [];
-        if (selectedTool === 'all') {
-            toolsToCheck = TOOLS;
-        } else if (TOOLS.includes(selectedTool as any)) {
-            toolsToCheck = [selectedTool];
-        } else {
-            // It's a specific tool ID, map to category
-            const category = toolIdToKey[selectedTool];
-            if (category) {
-                toolsToCheck = [category];
-            } else {
-                toolsToCheck = ['autel']; // Fallback
-            }
-        }
+        const data: Record<string, Record<number, { level: 'full' | 'partial' | 'none' | 'unknown', models: string[], status: string, notes?: string }>> = {};
 
         makes.forEach(make => {
             data[make] = {};
@@ -202,10 +226,35 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
                     let bestLevel: 'full' | 'partial' | 'none' | 'unknown' = 'unknown';
                     const models = [...new Set(records.map(r => r.model))];
                     const statuses: string[] = [];
+                    let notes = '';
 
                     records.forEach(r => {
-                        toolsToCheck.forEach(tool => {
-                            const toolKey = tool as 'autel' | 'smartPro' | 'lonsdor' | 'vvdi';
+                        if (selectedTool === 'all') {
+                            // Check all tool families
+                            TOOLS.forEach(tool => {
+                                const toolData = r[tool];
+                                const status = toolData?.status || '';
+                                if (status) statuses.push(`${TOOL_LABELS[tool]}: ${status}`);
+                                const level = getCoverageLevel(status);
+                                if (level === 'full') bestLevel = 'full';
+                                else if (level === 'partial' && bestLevel !== 'full') bestLevel = 'partial';
+                                else if (level === 'none' && bestLevel === 'unknown') bestLevel = 'none';
+                            });
+                        } else if (isSpecificTool(selectedTool)) {
+                            // Use tool-specific coverage from toolCoverage
+                            const toolCov = r.toolCoverage?.[selectedTool];
+                            if (toolCov) {
+                                const status = toolCov.status;
+                                if (status) statuses.push(`${TOOL_LABELS[selectedTool] || selectedTool}: ${status}`);
+                                notes = toolCov.notes || '';
+                                const level = getCoverageLevel(status);
+                                if (level === 'full') bestLevel = 'full';
+                                else if (level === 'partial' && bestLevel !== 'full') bestLevel = 'partial';
+                                else if (level === 'none' && bestLevel === 'unknown') bestLevel = 'none';
+                            }
+                        } else {
+                            // It's a tool family
+                            const toolKey = selectedTool as 'autel' | 'smartPro' | 'lonsdor' | 'vvdi';
                             const toolData = r[toolKey];
                             const status = toolData?.status || '';
                             if (status) statuses.push(`${TOOL_LABELS[toolKey]}: ${status}`);
@@ -213,13 +262,14 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
                             if (level === 'full') bestLevel = 'full';
                             else if (level === 'partial' && bestLevel !== 'full') bestLevel = 'partial';
                             else if (level === 'none' && bestLevel === 'unknown') bestLevel = 'none';
-                        });
+                        }
                     });
 
                     data[make][year] = {
                         level: bestLevel,
                         models,
-                        status: statuses.length > 0 ? statuses.join('\n') : 'No tool data'
+                        status: statuses.length > 0 ? statuses.join('\n') : 'No tool data',
+                        notes,
                     };
                 }
             });
@@ -322,26 +372,35 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
             {/* Timeline Grid */}
             <div className="bg-gray-900/30 border border-gray-800 rounded-2xl overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full" style={{ minWidth: `${130 + years.length * 40}px` }}>
+                    <table className="w-full border-separate border-spacing-0" style={{ minWidth: `${100 + years.length * 28}px` }}>
                         <thead>
                             <tr className="bg-gray-900/70 border-b border-gray-800">
-                                <th className="sticky left-0 z-20 w-32 p-3 font-bold text-gray-400 text-left bg-gray-900 border-r border-gray-800">
+                                <th className="sticky left-0 z-20 min-w-[80px] sm:min-w-[120px] p-2 sm:p-3 font-bold text-gray-400 text-left bg-gray-900 border-r border-gray-800 text-xs sm:text-sm">
                                     Make
                                 </th>
-                                {years.map(year => (
-                                    <th
-                                        key={year}
-                                        className={`w-10 p-2 text-center text-xs font-medium ${year % 5 === 0 ? 'text-white bg-gray-800/50' : 'text-gray-500'}`}
-                                    >
-                                        {year % 5 === 0 ? year.toString().slice(-2) : '·'}
-                                    </th>
-                                ))}
+                                {years.map((year, idx) => {
+                                    // On mobile, show label every 3 years; on desktop every 5
+                                    const showLabel = year % 5 === 0;
+                                    const isDecade = year % 10 === 0;
+                                    return (
+                                        <th
+                                            key={year}
+                                            className={`min-w-[24px] sm:min-w-[32px] p-0.5 sm:p-1 text-center text-[10px] sm:text-xs font-medium
+                                                ${isDecade ? 'text-white font-bold' : showLabel ? 'text-gray-300' : 'text-gray-600'}
+                                                ${isDecade ? 'bg-gray-800/70' : showLabel ? 'bg-gray-800/30' : ''}
+                                            `}
+                                        >
+                                            {/* Show '90, '95, '00 etc. for decades/5yr marks, dots for others */}
+                                            {isDecade ? `'${year.toString().slice(-2)}` : showLabel ? year.toString().slice(-2) : ''}
+                                        </th>
+                                    );
+                                })}
                             </tr>
                         </thead>
                         <tbody>
                             {makes.map(make => (
                                 <tr key={make} className="border-b border-gray-800/50 hover:bg-gray-800/20">
-                                    <td className="sticky left-0 z-10 w-32 p-3 font-medium text-white bg-gray-950 border-r border-gray-800">
+                                    <td className="sticky left-0 z-10 min-w-[80px] sm:min-w-[120px] p-2 sm:p-3 font-medium text-white bg-gray-950 border-r border-gray-800 text-xs sm:text-sm truncate">
                                         {make}
                                     </td>
                                     {years.map(year => {
@@ -357,23 +416,26 @@ export default function CoverageTimeline({ initialMyCoverage = true }: CoverageT
                                         const hasTool = showMyCoverage && vehicleRecords.some(v => hasToolForVehicle(v));
                                         const hasKey = showMyCoverage && hasKeyForVehicle(make, models[0] || '', year);
 
+                                        // Decade markers get subtle background highlight
+                                        const isDecade = year % 10 === 0;
+
                                         return (
                                             <td
                                                 key={year}
-                                                className="w-10 p-1 text-center"
+                                                className={`min-w-[24px] sm:min-w-[32px] p-0.5 sm:p-1 text-center ${isDecade ? 'bg-gray-800/20' : ''}`}
                                                 title={`${make} ${year}\n${models.length > 0 ? `Models: ${models.join(', ')}\n` : ''}${status}${hasTool ? '\n🔧 Tool available' : ''}${hasKey ? '\n🔑 Key in stock' : ''}`}
                                             >
-                                                <div className="relative w-6 h-6 mx-auto">
+                                                <div className="relative w-5 h-5 sm:w-6 sm:h-6 mx-auto">
                                                     <div
-                                                        className={`w-6 h-6 rounded-sm ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-md' : 'opacity-30'} cursor-pointer transition-transform hover:scale-125 ${showMyCoverage && hasTool ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-gray-950' : ''}`}
+                                                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-sm ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-md' : 'opacity-30'} cursor-pointer transition-transform hover:scale-125 ${showMyCoverage && hasTool ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-gray-950' : ''}`}
                                                     />
                                                     {showMyCoverage && hasKey && (
-                                                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-gray-950 flex items-center justify-center text-[8px]">
+                                                        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-blue-500 rounded-full border border-gray-950 flex items-center justify-center text-[6px] sm:text-[8px]">
                                                             🔑
                                                         </div>
                                                     )}
                                                     {showMyCoverage && hasTool && hasKey && (
-                                                        <div className="absolute -bottom-1 -right-1 text-[10px]">⭐</div>
+                                                        <div className="absolute -bottom-1 -right-1 text-[8px] sm:text-[10px]">⭐</div>
                                                     )}
                                                 </div>
                                             </td>

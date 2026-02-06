@@ -8,6 +8,7 @@ import { getLowStockItems } from '@/lib/inventoryTypes';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import BusinessInsightsPanel from '@/components/business/BusinessInsightsPanel';
 import ForceSyncButton from '@/components/business/ForceSyncButton';
+import TourBanner from '@/components/onboarding/TourBanner';
 
 export default function BusinessDashboard() {
     const { jobLogs, getJobStats } = useJobLogs();
@@ -74,6 +75,9 @@ export default function BusinessDashboard() {
 
     return (
         <div className="min-h-screen bg-eurokeys-dark p-4 space-y-4">
+            {/* Business Tour Banner */}
+            <TourBanner tourId="business-tools" storageKey="eurokeys_business_first_visit" />
+
             {/* Today's Overview */}
             <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
                 <h2 className="text-sm font-medium text-gray-400 mb-3">Today&apos;s Overview</h2>
@@ -193,7 +197,7 @@ export default function BusinessDashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Link
                     href="/business/jobs"
                     className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-500/30 hover:border-yellow-500/50 transition-all"
@@ -212,6 +216,16 @@ export default function BusinessDashboard() {
                     <div>
                         <div className="font-bold text-blue-300">Inventory</div>
                         <div className="text-xs text-gray-400">Manage stock</div>
+                    </div>
+                </Link>
+                <Link
+                    href="/business/timeline"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 hover:border-emerald-500/50 transition-all"
+                >
+                    <span className="text-2xl">📞</span>
+                    <div>
+                        <div className="font-bold text-emerald-300">Ops Timeline</div>
+                        <div className="text-xs text-gray-400">Calls, dispatch, recordings</div>
                     </div>
                 </Link>
             </div>

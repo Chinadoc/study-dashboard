@@ -16,6 +16,7 @@ import {
 import { syncEvents } from './syncEvents';
 import { addChecksum, findCorruptedItems } from './checksum';
 import { getUserScopedKey, getCurrentUserId } from './sync/syncUtils';
+import { appendFleetTimelineEvent } from './fleetOpsTimeline';
 
 // API base URL - use environment variable or default to production
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
@@ -38,6 +39,7 @@ export interface JobLog {
     customerAddress?: string;
 
     // Fleet linking
+    companyName?: string;   // Dispatch company/branch label
     fleetId?: string;       // ID of the associated fleet account
 
     // Technician assignment
@@ -45,7 +47,21 @@ export interface JobLog {
     technicianName?: string; // Denormalized for display
 
     // Dispatch workflow status
-    status: 'unassigned' | 'claimed' | 'in_progress' | 'completed' | 'cancelled' | 'pending';
+    status:
+    | 'unassigned'
+    | 'claimed'
+    | 'in_progress'
+    | 'completed'
+    | 'cancelled'
+    | 'pending'
+    | 'appointment'
+    | 'accepted'
+    | 'on_hold'
+    | 'closed'
+    | 'pending_close'
+    | 'pending_cancel'
+    | 'estimate'
+    | 'follow_up';
 
     // Dispatch timestamps (for aging calculations)
     claimedAt?: number;      // When tech claimed/was assigned
@@ -175,7 +191,22 @@ export function useJobLogs() {
             price: typeof job.price === 'number' ? job.price : 0,
             date: job.date || new Date().toISOString().split('T')[0],
             createdAt: job.createdAt || Date.now(),
-            status: (['unassigned', 'claimed', 'in_progress', 'completed', 'cancelled', 'pending'].includes(job.status as string)
+            status: ([
+                'unassigned',
+                'claimed',
+                'in_progress',
+                'completed',
+                'cancelled',
+                'pending',
+                'appointment',
+                'accepted',
+                'on_hold',
+                'closed',
+                'pending_close',
+                'pending_cancel',
+                'estimate',
+                'follow_up'
+            ].includes(job.status as string)
                 ? job.status
                 : 'completed') as JobLog['status'],
             ...job,
@@ -600,6 +631,29 @@ export function useJobLogs() {
         setJobLogs(prev => [newLog, ...prev]);
         saveJob(newLog, true);
 
+        // Append immutable timeline event for fleet ops visibility.
+        appendFleetTimelineEvent({
+            eventType: 'job_created',
+            eventSource: 'system',
+            jobId: newLog.id,
+            status: newLog.status,
+            companyName: newLog.companyName || newLog.fleetId || undefined,
+            technicianId: newLog.technicianId,
+            technicianName: newLog.technicianName,
+            customerName: newLog.customerName,
+            customerPhone: newLog.customerPhone,
+            customerAddress: newLog.customerAddress,
+            details: `${newLog.jobType.replace('_', ' ')} job created`,
+            occurredAt: newLog.updatedAt || Date.now(),
+            payload: {
+                vehicle: newLog.vehicle,
+                price: newLog.price,
+                source: newLog.source,
+            },
+        }).catch(() => {
+            // Timeline logging is best-effort; never block local dispatch flow.
+        });
+
         return newLog;
     }, [saveJob]);
 
@@ -610,6 +664,27 @@ export function useJobLogs() {
 
         // Optimistic update - remove immediately
         setJobLogs(prev => prev.filter(log => log.id !== id));
+
+        if (deletedJob) {
+            appendFleetTimelineEvent({
+                eventType: 'job_deleted',
+                eventSource: 'system',
+                jobId: deletedJob.id,
+                status: deletedJob.status,
+                companyName: deletedJob.companyName || deletedJob.fleetId || undefined,
+                technicianId: deletedJob.technicianId,
+                technicianName: deletedJob.technicianName,
+                customerName: deletedJob.customerName,
+                customerPhone: deletedJob.customerPhone,
+                customerAddress: deletedJob.customerAddress,
+                details: 'Job deleted',
+                occurredAt: Date.now(),
+                payload: {
+                    vehicle: deletedJob.vehicle,
+                    source: deletedJob.source,
+                },
+            }).catch(() => { });
+        }
 
         // Remove from localStorage
         const updated = originalJobs.filter(j => j.id !== id);
@@ -662,7 +737,23 @@ export function useJobLogs() {
     }, []);
 
     const updateJobLog = useCallback((id: string, updates: Partial<Omit<JobLog, 'id' | 'createdAt'>>) => {
+        let timelineEvent:
+            | {
+                eventType: string;
+                status?: string;
+                details: string;
+                payload: Record<string, unknown>;
+                companyName?: string;
+                technicianId?: string;
+                technicianName?: string;
+                customerName?: string;
+                customerPhone?: string;
+                customerAddress?: string;
+            }
+            | null = null;
+
         setJobLogs(prev => {
+            const original = prev.find(log => log.id === id);
             const updated = prev.map(log =>
                 log.id === id
                     ? {
@@ -678,10 +769,70 @@ export function useJobLogs() {
             const updatedJob = updated.find(j => j.id === id);
             if (updatedJob) {
                 saveJob(updatedJob, false);
+
+                if (original) {
+                    const statusChanged = typeof updates.status === 'string' && updates.status !== original.status;
+                    const technicianChanged = typeof updates.technicianId === 'string' && updates.technicianId !== original.technicianId;
+
+                    if (statusChanged) {
+                        timelineEvent = {
+                            eventType: 'status_changed',
+                            status: updatedJob.status,
+                            details: `Status changed from ${original.status} to ${updatedJob.status}`,
+                            companyName: updatedJob.companyName || updatedJob.fleetId,
+                            technicianId: updatedJob.technicianId,
+                            technicianName: updatedJob.technicianName,
+                            customerName: updatedJob.customerName,
+                            customerPhone: updatedJob.customerPhone,
+                            customerAddress: updatedJob.customerAddress,
+                            payload: {
+                                previousStatus: original.status,
+                                nextStatus: updatedJob.status,
+                                source: updatedJob.source,
+                            },
+                        };
+                    } else if (technicianChanged) {
+                        timelineEvent = {
+                            eventType: 'technician_assigned',
+                            status: updatedJob.status,
+                            details: `Technician assigned: ${updatedJob.technicianName || updatedJob.technicianId || 'Unknown'}`,
+                            companyName: updatedJob.companyName || updatedJob.fleetId,
+                            technicianId: updatedJob.technicianId,
+                            technicianName: updatedJob.technicianName,
+                            customerName: updatedJob.customerName,
+                            customerPhone: updatedJob.customerPhone,
+                            customerAddress: updatedJob.customerAddress,
+                            payload: {
+                                previousTechnicianId: original.technicianId || null,
+                                nextTechnicianId: updatedJob.technicianId || null,
+                                source: updatedJob.source,
+                            },
+                        };
+                    }
+                }
             }
 
             return updated;
         });
+
+        if (timelineEvent) {
+            const now = Date.now();
+            appendFleetTimelineEvent({
+                eventType: timelineEvent.eventType,
+                eventSource: 'system',
+                jobId: id,
+                status: timelineEvent.status,
+                companyName: timelineEvent.companyName,
+                technicianId: timelineEvent.technicianId,
+                technicianName: timelineEvent.technicianName,
+                customerName: timelineEvent.customerName,
+                customerPhone: timelineEvent.customerPhone,
+                customerAddress: timelineEvent.customerAddress,
+                details: timelineEvent.details,
+                occurredAt: now,
+                payload: timelineEvent.payload,
+            }).catch(() => { });
+        }
     }, [saveJob]);
 
     const getJobStats = useCallback((): JobStats => {
@@ -742,9 +893,21 @@ export function useJobLogs() {
             }
 
             // Status counting
-            if (log.status === 'pending' || log.status === 'in_progress' || log.status === 'unassigned' || log.status === 'claimed') {
+            if (
+                log.status === 'pending' ||
+                log.status === 'in_progress' ||
+                log.status === 'unassigned' ||
+                log.status === 'claimed' ||
+                log.status === 'appointment' ||
+                log.status === 'accepted' ||
+                log.status === 'on_hold' ||
+                log.status === 'pending_close' ||
+                log.status === 'pending_cancel' ||
+                log.status === 'estimate' ||
+                log.status === 'follow_up'
+            ) {
                 pendingJobs++;
-            } else if (log.status === 'completed') {
+            } else if (log.status === 'completed' || log.status === 'closed') {
                 completedJobs++;
             }
 

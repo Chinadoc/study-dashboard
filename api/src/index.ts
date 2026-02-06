@@ -13,7 +13,11 @@ export interface Env {
   ASSETS_BUCKET: R2Bucket;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
-  STRIPE_PRICE_ID: string;
+  STRIPE_PRICE_ID: string;  // Pro tier ($25/mo)
+  STRIPE_PRICE_DOSSIERS?: string;  // $5/mo
+  STRIPE_PRICE_IMAGES?: string;  // $5/mo
+  STRIPE_PRICE_CALCULATOR?: string;  // $5/mo
+  STRIPE_PRICE_BUSINESS_TOOLS?: string;  // $20/mo (includes dispatcher)
   // Square API
   SQUARE_ACCESS_TOKEN?: string;
   SQUARE_LOCATION_ID?: string;
@@ -30,6 +34,8 @@ export interface Env {
   CF_ANALYTICS_TOKEN?: string;  // Cloudflare Global API Key
   CF_ZONE_ID?: string;          // Cloudflare Zone ID for eurokeys.app
   CF_AUTH_EMAIL?: string;       // Cloudflare account email for API auth
+  TWILIO_TIMELINE_WEBHOOK_SECRET?: string;
+  POWERDISPATCH_TIMELINE_WEBHOOK_SECRET?: string;
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
@@ -278,6 +284,310 @@ function generateRandomCode(): string {
   return code;
 }
 
+const FLEET_MANAGER_ROLES = new Set(['owner', 'dispatcher']);
+const OPS_WORKFLOW_STATUSES = new Set([
+  'appointment',
+  'accepted',
+  'in_progress',
+  'on_hold',
+  'closed',
+  'cancelled',
+  'pending_close',
+  'pending_cancel',
+  'estimate',
+  'follow_up',
+  'unassigned',
+  'claimed',
+  'pending',
+  'completed',
+]);
+
+function normalizePhone(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const digits = trimmed.replace(/[^\d+]/g, '');
+  return digits || trimmed;
+}
+
+function normalizeWorkflowStatus(status: unknown): string | null {
+  if (typeof status !== 'string') return null;
+  const normalized = status.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  if (!normalized) return null;
+  return OPS_WORKFLOW_STATUSES.has(normalized) ? normalized : normalized;
+}
+
+function parseTimestamp(value: unknown, fallback = Date.now()): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    const asNumber = Number(value);
+    if (Number.isFinite(asNumber) && asNumber > 0) return asNumber;
+    const asDate = Date.parse(value);
+    if (!Number.isNaN(asDate)) return asDate;
+  }
+  return fallback;
+}
+
+async function parseBodyFlexible(request: Request): Promise<any> {
+  const contentType = (request.headers.get('content-type') || '').toLowerCase();
+  if (contentType.includes('application/json')) {
+    return await request.json().catch(() => ({}));
+  }
+
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    const raw = await request.text();
+    const params = new URLSearchParams(raw);
+    const obj: Record<string, string> = {};
+    params.forEach((value, key) => {
+      obj[key] = value;
+    });
+    return obj;
+  }
+
+  if (contentType.includes('multipart/form-data')) {
+    const form = await request.formData();
+    const obj: Record<string, string> = {};
+    form.forEach((value, key) => {
+      obj[key] = String(value);
+    });
+    return obj;
+  }
+
+  const raw = await request.text();
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+async function resolveFleetAccess(
+  env: Env,
+  userId: string,
+  requestedOrgId?: string | null,
+  requireManagerRole = true
+): Promise<{ organizationId: string; role: string } | null> {
+  let organizationId: string | null = null;
+  let role: string | null = null;
+
+  if (requestedOrgId) {
+    const org = await env.LOCKSMITH_DB.prepare(
+      `SELECT id, owner_user_id FROM fleet_organizations WHERE id = ?`
+    ).bind(requestedOrgId).first<any>();
+
+    if (!org) return null;
+
+    if (org.owner_user_id === userId) {
+      organizationId = org.id;
+      role = 'owner';
+    } else {
+      const member = await env.LOCKSMITH_DB.prepare(
+        `SELECT role FROM fleet_members WHERE organization_id = ? AND user_id = ? AND status = 'active'`
+      ).bind(requestedOrgId, userId).first<any>();
+
+      if (!member) return null;
+      organizationId = requestedOrgId;
+      role = member.role;
+    }
+  } else {
+    const ownerOrg = await env.LOCKSMITH_DB.prepare(
+      `SELECT id FROM fleet_organizations WHERE owner_user_id = ? ORDER BY created_at ASC LIMIT 1`
+    ).bind(userId).first<any>();
+
+    if (ownerOrg) {
+      organizationId = ownerOrg.id;
+      role = 'owner';
+    } else {
+      const member = await env.LOCKSMITH_DB.prepare(
+        `SELECT organization_id, role FROM fleet_members WHERE user_id = ? AND status = 'active' ORDER BY created_at ASC LIMIT 1`
+      ).bind(userId).first<any>();
+
+      if (!member) return null;
+      organizationId = member.organization_id;
+      role = member.role;
+    }
+  }
+
+  if (!organizationId || !role) return null;
+  if (requireManagerRole && !FLEET_MANAGER_ROLES.has(role)) return null;
+
+  return { organizationId, role };
+}
+
+async function resolveOrgFromProviderLine(
+  env: Env,
+  provider: string,
+  toNumber?: string | null,
+  extension?: string | null
+): Promise<string | null> {
+  if (!toNumber && !extension) return null;
+
+  const normalizedTo = normalizePhone(toNumber || '') || '';
+  const normalizedExt = typeof extension === 'string' ? extension.trim() : '';
+
+  let result: any = null;
+  if (normalizedTo && normalizedExt) {
+    result = await env.LOCKSMITH_DB.prepare(`
+      SELECT organization_id
+      FROM fleet_ops_provider_lines
+      WHERE provider = ? AND phone_number = ? AND extension = ?
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `).bind(provider, normalizedTo, normalizedExt).first();
+  }
+
+  if (!result && normalizedTo) {
+    result = await env.LOCKSMITH_DB.prepare(`
+      SELECT organization_id
+      FROM fleet_ops_provider_lines
+      WHERE provider = ? AND phone_number = ?
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `).bind(provider, normalizedTo).first();
+  }
+
+  if (!result && normalizedExt) {
+    result = await env.LOCKSMITH_DB.prepare(`
+      SELECT organization_id
+      FROM fleet_ops_provider_lines
+      WHERE provider = ? AND extension = ?
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `).bind(provider, normalizedExt).first();
+  }
+
+  return (result as any)?.organization_id || null;
+}
+
+async function mirrorRecordingToR2(
+  env: Env,
+  sourceUrl: string,
+  organizationId: string,
+  eventId: string,
+  requestOrigin: string
+): Promise<{ recordingR2Key: string | null; playbackUrl: string | null }> {
+  try {
+    const res = await fetch(sourceUrl);
+    if (!res.ok) {
+      return { recordingR2Key: null, playbackUrl: null };
+    }
+
+    const contentType = res.headers.get('content-type') || 'audio/mpeg';
+    const ext = contentType.includes('wav') ? 'wav'
+      : contentType.includes('ogg') ? 'ogg'
+        : contentType.includes('mp4') ? 'mp4'
+          : 'mp3';
+
+    const datePart = new Date().toISOString().slice(0, 10);
+    const key = `fleet-recordings/${organizationId}/${datePart}/${eventId}.${ext}`;
+    const data = await res.arrayBuffer();
+
+    await env.ASSETS_BUCKET.put(key, data, {
+      httpMetadata: {
+        contentType,
+      },
+    });
+
+    return {
+      recordingR2Key: key,
+      playbackUrl: `${requestOrigin}/api/r2/${encodeURIComponent(key)}`,
+    };
+  } catch {
+    return { recordingR2Key: null, playbackUrl: null };
+  }
+}
+
+async function appendFleetOpsEvent(
+  env: Env,
+  request: Request,
+  organizationId: string,
+  input: Record<string, any>,
+  opts?: { isImported?: boolean; defaultSource?: string; actorUserId?: string | null }
+): Promise<{ inserted: boolean; duplicate: boolean; id: string }> {
+  const now = Date.now();
+  const eventId = typeof input.id === 'string' && input.id.trim()
+    ? input.id.trim()
+    : `opsevt_${now}_${Math.random().toString(36).slice(2, 9)}`;
+
+  const occurredAt = parseTimestamp(input.occurredAt ?? input.timestamp ?? input.eventTime, now);
+  const eventType = typeof input.eventType === 'string' && input.eventType.trim() ? input.eventType.trim() : 'event';
+  const eventSource = (typeof input.eventSource === 'string' && input.eventSource.trim()
+    ? input.eventSource.trim().toLowerCase()
+    : (opts?.defaultSource || 'manual'));
+
+  let recordingUrl = typeof input.recordingUrl === 'string' ? input.recordingUrl.trim() : null;
+  let recordingR2Key = typeof input.recordingR2Key === 'string' ? input.recordingR2Key.trim() : null;
+  let playbackUrl = typeof input.playbackUrl === 'string' ? input.playbackUrl.trim() : null;
+
+  const mirrorToR2 = input.mirrorToR2 !== false && !!recordingUrl && !recordingR2Key;
+  if (mirrorToR2 && recordingUrl) {
+    const requestOrigin = new URL(request.url).origin;
+    const mirrored = await mirrorRecordingToR2(env, recordingUrl, organizationId, eventId, requestOrigin);
+    if (mirrored.recordingR2Key) recordingR2Key = mirrored.recordingR2Key;
+    if (mirrored.playbackUrl) playbackUrl = mirrored.playbackUrl;
+  }
+
+  const status = normalizeWorkflowStatus(input.status);
+  const fromNumber = normalizePhone(input.fromNumber ?? input.from ?? input.caller);
+  const toNumber = normalizePhone(input.toNumber ?? input.to ?? input.callee);
+  const providerEventId = typeof input.providerEventId === 'string'
+    ? input.providerEventId.trim()
+    : (typeof input.eventId === 'string' ? input.eventId.trim() : null);
+
+  try {
+    await env.LOCKSMITH_DB.prepare(`
+      INSERT INTO fleet_ops_timeline_events (
+        id, organization_id, user_id, job_id, job_reference,
+        event_type, event_source, provider_event_id, provider_call_id, provider_conference_id, provider_recording_id,
+        from_number, to_number, duration_seconds, recording_url, recording_r2_key, playback_url, transcript,
+        status, company_name, technician_id, technician_name, customer_name, customer_phone, customer_address,
+        map_query, details, payload_json, is_imported, created_at, occurred_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      eventId,
+      organizationId,
+      opts?.actorUserId || input.userId || null,
+      input.jobId || null,
+      input.jobReference || null,
+      eventType,
+      eventSource,
+      providerEventId || null,
+      input.providerCallId || input.callId || null,
+      input.providerConferenceId || input.conferenceId || null,
+      input.providerRecordingId || input.recordingId || null,
+      fromNumber,
+      toNumber,
+      typeof input.durationSeconds === 'number' ? input.durationSeconds : (input.duration ? Number(input.duration) || null : null),
+      recordingUrl || null,
+      recordingR2Key || null,
+      playbackUrl || null,
+      input.transcript || null,
+      status || null,
+      input.companyName || null,
+      input.technicianId || null,
+      input.technicianName || null,
+      input.customerName || null,
+      normalizePhone(input.customerPhone) || null,
+      input.customerAddress || null,
+      input.mapQuery || input.customerAddress || null,
+      input.details || input.message || null,
+      JSON.stringify(input.payload ?? input.raw ?? input ?? {}),
+      opts?.isImported ? 1 : 0,
+      now,
+      occurredAt
+    ).run();
+
+    return { inserted: true, duplicate: false, id: eventId };
+  } catch (err: any) {
+    const msg = (err?.message || '').toLowerCase();
+    if (msg.includes('unique') && msg.includes('provider_event_id')) {
+      return { inserted: false, duplicate: true, id: eventId };
+    }
+    throw err;
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
@@ -478,10 +788,88 @@ export default {
             user.is_developer = true;
           }
 
+          // Populate subscriptions object from addon_trials table
+          if (user) {
+            const now = Date.now();
+            const trials = await env.LOCKSMITH_DB.prepare(
+              "SELECT addon_id, trial_expires_at, converted_at, canceled_at FROM addon_trials WHERE user_id = ?"
+            ).bind(user.id).all();
+
+            const subscriptions: Record<string, boolean> = {};
+            for (const trial of (trials.results || [])) {
+              const t = trial as any;
+              // User has access if: active trial (not expired, not converted) OR converted and not canceled
+              const hasActiveTrial = t.trial_expires_at > now && !t.converted_at && !t.canceled_at;
+              const hasActiveSubscription = t.converted_at && !t.canceled_at;
+              if (hasActiveTrial || hasActiveSubscription) {
+                subscriptions[t.addon_id] = true;
+              }
+            }
+
+            // Developers get full access to everything - no payment needed
+            if (user.is_developer) {
+              subscriptions.images = true;
+              subscriptions.dossiers = true;
+              subscriptions.business_tools = true;
+              subscriptions.dispatcher = true;
+              subscriptions.fleet = true;
+              user.is_pro = true;
+            }
+
+            user.subscriptions = subscriptions;
+          }
+
           return corsResponse(request, JSON.stringify({ user }), 200);
         } catch (err: any) {
           console.error('/api/user error:', err);
           return corsResponse(request, JSON.stringify({ user: null, error: err.message }), 200);
+        }
+      }
+
+      // GET /api/user/trials - Get user's add-on trial status
+      if (path === "/api/user/trials" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const now = Date.now();
+
+          // Get all trial records for this user
+          const trials = await env.LOCKSMITH_DB.prepare(
+            "SELECT addon_id, trial_started_at, trial_expires_at, converted_at, canceled_at FROM addon_trials WHERE user_id = ?"
+          ).bind(userId).all();
+
+          const usedTrials: string[] = [];
+          const activeTrials: string[] = [];
+          const subscribedAddons: string[] = [];
+
+          for (const trial of trials.results || []) {
+            const t = trial as any;
+            usedTrials.push(t.addon_id);
+
+            // Active trial = trial not expired and not yet converted
+            if (t.trial_expires_at > now && !t.converted_at) {
+              activeTrials.push(t.addon_id);
+            }
+
+            // Subscribed = converted and not canceled
+            if (t.converted_at && !t.canceled_at) {
+              subscribedAddons.push(t.addon_id);
+            }
+          }
+
+          return corsResponse(request, JSON.stringify({
+            usedTrials,      // Add-ons that have already had a trial (can't trial again)
+            activeTrials,    // Add-ons currently in trial period
+            subscribedAddons // Add-ons with active paid subscription
+          }), 200);
+        } catch (err: any) {
+          console.error('/api/user/trials error:', err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
       }
 
@@ -842,6 +1230,31 @@ export default {
           const userId = payload.sub as string;
           const userEmail = payload.email as string;
 
+          // Parse request body for add-on selection
+          const body = await request.json().catch(() => ({})) as { addOnId?: string };
+          const addOnId = body.addOnId || 'pro';
+
+          // Map add-on IDs to price IDs
+          const priceMap: Record<string, string | undefined> = {
+            'pro': env.STRIPE_PRICE_ID,
+            'dossiers': env.STRIPE_PRICE_DOSSIERS,
+            'images': env.STRIPE_PRICE_IMAGES,
+            'calculator': env.STRIPE_PRICE_CALCULATOR,
+            'business_tools': env.STRIPE_PRICE_BUSINESS_TOOLS,
+          };
+
+          const selectedPriceId = priceMap[addOnId];
+          if (!selectedPriceId) {
+            return corsResponse(request, JSON.stringify({ error: `Unknown add-on: ${addOnId}` }), 400);
+          }
+
+          // Check if user has already used a trial for this add-on
+          const existingTrial = await env.LOCKSMITH_DB.prepare(
+            "SELECT id FROM addon_trials WHERE user_id = ? AND addon_id = ?"
+          ).bind(userId, addOnId).first();
+
+          const eligibleForTrial = !existingTrial;
+
           // Get or create Stripe customer
           const user = await env.LOCKSMITH_DB.prepare("SELECT stripe_customer_id FROM users WHERE id = ?").bind(userId).first<any>();
 
@@ -870,24 +1283,36 @@ export default {
             await env.LOCKSMITH_DB.prepare("UPDATE users SET stripe_customer_id = ? WHERE id = ?").bind(customerId, userId).run();
           }
 
-          // Create checkout session with 7-day trial
+          // Create checkout session
           const origin = request.headers.get("Origin") || "https://eurokeys.app";
+          const checkoutParams = new URLSearchParams({
+            "customer": customerId,
+            "mode": "subscription",
+            "line_items[0][price]": selectedPriceId,
+            "line_items[0][quantity]": "1",
+            "success_url": `${origin}/pricing?success=true`,
+            "cancel_url": `${origin}/pricing?canceled=true`,
+            "metadata[user_id]": userId,
+            "metadata[add_on_id]": addOnId,
+            "metadata[is_trial]": eligibleForTrial ? "true" : "false",
+            // CRITICAL: Pass add_on_id to subscription metadata so it persists
+            // across subscription lifecycle events (updated, deleted)
+            "subscription_data[metadata][add_on_id]": addOnId,
+            "subscription_data[metadata][user_id]": userId,
+          });
+
+          // Add 7-day trial ONLY if user hasn't used a trial for this add-on before
+          if (eligibleForTrial) {
+            checkoutParams.append("subscription_data[trial_period_days]", "7");
+          }
+
           const checkoutRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
               "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: new URLSearchParams({
-              "customer": customerId,
-              "mode": "subscription",
-              "line_items[0][price]": env.STRIPE_PRICE_ID,
-              "line_items[0][quantity]": "1",
-              "subscription_data[trial_period_days]": "7",
-              "success_url": `${origin}/pricing?success=true`,
-              "cancel_url": `${origin}/pricing?canceled=true`,
-              "metadata[user_id]": userId,
-            }),
+            body: checkoutParams,
           });
           const session = await checkoutRes.json() as any;
 
@@ -895,7 +1320,16 @@ export default {
             return corsResponse(request, JSON.stringify({ error: session.error.message }), 400);
           }
 
-          return corsResponse(request, JSON.stringify({ url: session.url }));
+          // Record trial usage immediately (prevents race conditions)
+          if (eligibleForTrial) {
+            const now = Date.now();
+            const trialExpires = now + (7 * 24 * 60 * 60 * 1000); // 7 days from now
+            await env.LOCKSMITH_DB.prepare(
+              "INSERT OR IGNORE INTO addon_trials (user_id, addon_id, trial_started_at, trial_expires_at) VALUES (?, ?, ?, ?)"
+            ).bind(userId, addOnId, now, trialExpires).run();
+          }
+
+          return corsResponse(request, JSON.stringify({ url: session.url, eligibleForTrial }));
         } catch (err: any) {
           console.error("/api/stripe/checkout error:", err);
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -1107,44 +1541,114 @@ export default {
           const event = JSON.parse(body);
           console.log("Stripe webhook event:", event.type);
 
+          // Helper: find user ID from Stripe customer ID
+          const findUserByCustomer = async (customerId: string) => {
+            const row = await env.LOCKSMITH_DB.prepare(
+              "SELECT id FROM users WHERE stripe_customer_id = ?"
+            ).bind(customerId).first<any>();
+            return row?.id || null;
+          };
+
           // Handle subscription events
           if (event.type === "checkout.session.completed") {
             const session = event.data.object;
             const customerId = session.customer;
+            const addOnId = session.metadata?.add_on_id || "pro";
+            const subscriptionId = session.subscription;
+            const userId = await findUserByCustomer(customerId);
 
-            // Find user by customer ID and update is_pro
-            await env.LOCKSMITH_DB.prepare(`
-              UPDATE users SET is_pro = 1, subscription_status = 'active' 
-              WHERE stripe_customer_id = ?
-            `).bind(customerId).run();
+            if (userId) {
+              const now = Date.now();
 
-            console.log("User upgraded to Pro:", customerId);
+              if (addOnId === "pro") {
+                // Pro subscription — set is_pro flag
+                await env.LOCKSMITH_DB.prepare(`
+                  UPDATE users SET is_pro = 1, subscription_status = 'active' 
+                  WHERE id = ?
+                `).bind(userId).run();
+                console.log("User upgraded to Pro:", userId);
+              } else {
+                // Add-on subscription — update addon_trials with conversion data
+                await env.LOCKSMITH_DB.prepare(`
+                  UPDATE addon_trials 
+                  SET converted_at = ?, stripe_subscription_id = ?
+                  WHERE user_id = ? AND addon_id = ?
+                `).bind(now, subscriptionId, userId, addOnId).run();
+
+                // If no existing trial row (shouldn't happen, but safety net)
+                const existing = await env.LOCKSMITH_DB.prepare(
+                  "SELECT id FROM addon_trials WHERE user_id = ? AND addon_id = ?"
+                ).bind(userId, addOnId).first();
+                if (!existing) {
+                  await env.LOCKSMITH_DB.prepare(`
+                    INSERT INTO addon_trials (user_id, addon_id, trial_started_at, trial_expires_at, converted_at, stripe_subscription_id)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                  `).bind(userId, addOnId, now, now, now, subscriptionId).run();
+                }
+
+                console.log("Add-on activated:", userId, addOnId);
+              }
+            }
           }
 
           if (event.type === "customer.subscription.updated") {
             const subscription = event.data.object;
             const customerId = subscription.customer;
-            const status = subscription.status; // active, trialing, past_due, canceled, etc.
+            const status = subscription.status; // active, trialing, past_due, canceled
+            const subscriptionId = subscription.id;
+            const addOnId = subscription.metadata?.add_on_id || "pro";
+            const userId = await findUserByCustomer(customerId);
 
-            const isPro = status === "active" || status === "trialing";
-            await env.LOCKSMITH_DB.prepare(`
-              UPDATE users SET is_pro = ?, subscription_status = ? 
-              WHERE stripe_customer_id = ?
-            `).bind(isPro ? 1 : 0, status, customerId).run();
+            if (userId) {
+              const isActive = status === "active" || status === "trialing";
 
-            console.log("Subscription updated:", customerId, status);
+              if (addOnId === "pro") {
+                await env.LOCKSMITH_DB.prepare(`
+                  UPDATE users SET is_pro = ?, subscription_status = ? 
+                  WHERE id = ?
+                `).bind(isActive ? 1 : 0, status, userId).run();
+              } else {
+                // For add-ons: if going active, clear canceled_at; if going inactive, set it
+                if (isActive) {
+                  const now = Date.now();
+                  await env.LOCKSMITH_DB.prepare(`
+                    UPDATE addon_trials 
+                    SET canceled_at = NULL, converted_at = COALESCE(converted_at, ?), stripe_subscription_id = ?
+                    WHERE user_id = ? AND addon_id = ?
+                  `).bind(now, subscriptionId, userId, addOnId).run();
+                } else {
+                  await env.LOCKSMITH_DB.prepare(`
+                    UPDATE addon_trials SET canceled_at = ?
+                    WHERE user_id = ? AND addon_id = ?
+                  `).bind(Date.now(), userId, addOnId).run();
+                }
+              }
+
+              console.log("Subscription updated:", userId, addOnId, status);
+            }
           }
 
           if (event.type === "customer.subscription.deleted") {
             const subscription = event.data.object;
             const customerId = subscription.customer;
+            const addOnId = subscription.metadata?.add_on_id || "pro";
+            const userId = await findUserByCustomer(customerId);
 
-            await env.LOCKSMITH_DB.prepare(`
-              UPDATE users SET is_pro = 0, subscription_status = 'canceled' 
-              WHERE stripe_customer_id = ?
-            `).bind(customerId).run();
+            if (userId) {
+              if (addOnId === "pro") {
+                await env.LOCKSMITH_DB.prepare(`
+                  UPDATE users SET is_pro = 0, subscription_status = 'canceled' 
+                  WHERE id = ?
+                `).bind(userId).run();
+              } else {
+                await env.LOCKSMITH_DB.prepare(`
+                  UPDATE addon_trials SET canceled_at = ?
+                  WHERE user_id = ? AND addon_id = ?
+                `).bind(Date.now(), userId, addOnId).run();
+              }
 
-            console.log("Subscription canceled:", customerId);
+              console.log("Subscription deleted:", userId, addOnId);
+            }
           }
 
           return new Response(JSON.stringify({ received: true }), { status: 200 });
@@ -1607,6 +2111,134 @@ export default {
       }
 
       // ==============================================
+      // CALL CENTER LEAD INTAKE
+      // ==============================================
+
+      // POST /api/call-center/lead - Create a pipeline lead from call center intake
+      if (path === "/api/call-center/lead" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const callerUserId = payload.sub as string;
+          const body: any = await request.json().catch(() => ({}));
+          const leadInput = body.lead || body;
+          const fleetOwnerId = body.fleetOwnerId as string | undefined;
+
+          const customerName = leadInput?.customerName || leadInput?.name;
+          const customerPhone = leadInput?.customerPhone || leadInput?.phone;
+          if (!customerName || !customerPhone) {
+            return corsResponse(request, JSON.stringify({ error: "customerName and customerPhone are required" }), 400);
+          }
+
+          let targetUserId = callerUserId;
+
+          // If submitting to another fleet owner, verify access via fleet membership/ownership.
+          if (fleetOwnerId && fleetOwnerId !== callerUserId) {
+            const ownerOrg = await env.LOCKSMITH_DB.prepare(`
+              SELECT id FROM fleet_organizations WHERE owner_user_id = ? LIMIT 1
+            `).bind(fleetOwnerId).first<any>();
+
+            if (!ownerOrg?.id) {
+              return corsResponse(request, JSON.stringify({ error: "Fleet owner organization not found" }), 404);
+            }
+
+            const hasAccess = await env.LOCKSMITH_DB.prepare(`
+              SELECT id FROM fleet_members
+              WHERE organization_id = ? AND user_id = ? AND status = 'active'
+              LIMIT 1
+            `).bind(ownerOrg.id, callerUserId).first<any>();
+
+            if (!hasAccess) {
+              return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+            }
+
+            targetUserId = fleetOwnerId;
+          }
+
+          const now = Date.now();
+          const leadId = leadInput.id || `lead_${now}_${Math.random().toString(36).slice(2, 9)}`;
+          const vehicle = leadInput.vehicle ||
+            [leadInput.vehicleYear, leadInput.vehicleMake, leadInput.vehicleModel].filter(Boolean).join(' ') ||
+            'TBD';
+
+          const normalizedLead = {
+            id: leadId,
+            customerName,
+            customerPhone,
+            customerEmail: leadInput.customerEmail || null,
+            vehicle,
+            jobType: leadInput.jobType || null,
+            estimatedValue: leadInput.estimatedValue || null,
+            status: leadInput.status || 'new',
+            lostReason: leadInput.lostReason || null,
+            source: leadInput.source || 'call_center',
+            notes: leadInput.notes ? `[Call Center] ${leadInput.notes}` : '[Call Center Lead]',
+            followUpDate: leadInput.followUpDate || null,
+            urgency: leadInput.urgency || null,
+            customerAddress: leadInput.customerAddress || null,
+            createdAt: now,
+            updatedAt: now,
+          };
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pipeline_leads (
+              id, user_id, created_at, updated_at,
+              customer_name, customer_phone, customer_email,
+              vehicle, job_type, estimated_value, status, lost_reason,
+              source, notes, follow_up_date, synced_at, sync_status, data
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              updated_at = excluded.updated_at,
+              customer_name = excluded.customer_name,
+              customer_phone = excluded.customer_phone,
+              customer_email = excluded.customer_email,
+              vehicle = excluded.vehicle,
+              job_type = excluded.job_type,
+              estimated_value = excluded.estimated_value,
+              status = excluded.status,
+              lost_reason = excluded.lost_reason,
+              source = excluded.source,
+              notes = excluded.notes,
+              follow_up_date = excluded.follow_up_date,
+              synced_at = excluded.synced_at,
+              sync_status = excluded.sync_status,
+              data = excluded.data
+          `).bind(
+            leadId,
+            targetUserId,
+            normalizedLead.createdAt,
+            normalizedLead.updatedAt,
+            normalizedLead.customerName,
+            normalizedLead.customerPhone,
+            normalizedLead.customerEmail,
+            normalizedLead.vehicle,
+            normalizedLead.jobType,
+            normalizedLead.estimatedValue,
+            normalizedLead.status,
+            normalizedLead.lostReason,
+            normalizedLead.source,
+            normalizedLead.notes,
+            normalizedLead.followUpDate,
+            now,
+            'synced',
+            JSON.stringify(normalizedLead)
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            id: leadId,
+            lead: normalizedLead,
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // PIPELINE LEADS ENDPOINTS (Cloud Sync)
       // ==============================================
 
@@ -1662,8 +2294,8 @@ export default {
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
-          const body: any = await request.json();
-          const { lead } = body;
+          const body: any = await request.json().catch(() => ({}));
+          const lead = body?.lead || body;
 
           if (!lead || !lead.id) return corsResponse(request, JSON.stringify({ error: "Missing lead data or ID" }), 400);
 
@@ -1720,8 +2352,8 @@ export default {
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
-          const body: any = await request.json();
-          const { id } = body;
+          const body: any = await request.json().catch(() => ({}));
+          const id = body?.id || url.searchParams.get('id');
 
           if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
 
@@ -1803,8 +2435,8 @@ export default {
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
-          const body: any = await request.json();
-          const { invoice } = body;
+          const body: any = await request.json().catch(() => ({}));
+          const invoice = body?.invoice || body;
 
           if (!invoice || !invoice.id) return corsResponse(request, JSON.stringify({ error: "Missing invoice data or ID" }), 400);
 
@@ -1872,8 +2504,8 @@ export default {
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
-          const body: any = await request.json();
-          const { id } = body;
+          const body: any = await request.json().catch(() => ({}));
+          const id = body?.id || url.searchParams.get('id');
 
           if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
 
@@ -2999,6 +3631,565 @@ export default {
           return corsResponse(request, JSON.stringify({ received: true }));
         } catch (err: any) {
           console.error("/api/fleet/subscription/webhook error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // FLEET OPS TIMELINE (Dispatch/Call/Recording Activity)
+      // ==============================================
+
+      // GET /api/fleet/ops/timeline - Fetch append-only timeline events for a fleet org
+      if (path === "/api/fleet/ops/timeline" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const userId = payload.sub as string;
+
+          const requestedOrgId = url.searchParams.get('organizationId') || url.searchParams.get('orgId');
+          const access = await resolveFleetAccess(env, userId, requestedOrgId, true);
+          if (!access) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          const now = Date.now();
+          const defaultFrom = now - (24 * 60 * 60 * 1000);
+          const from = parseTimestamp(url.searchParams.get('from'), defaultFrom);
+          const to = parseTimestamp(url.searchParams.get('to'), now);
+          const limit = Math.max(10, Math.min(500, Number(url.searchParams.get('limit')) || 200));
+
+          const jobId = url.searchParams.get('jobId')?.trim();
+          const status = normalizeWorkflowStatus(url.searchParams.get('status'));
+          const source = url.searchParams.get('source')?.trim().toLowerCase();
+          const company = url.searchParams.get('company')?.trim().toLowerCase();
+          const technician = url.searchParams.get('technician')?.trim().toLowerCase();
+          const search = url.searchParams.get('search')?.trim().toLowerCase();
+
+          let query = `
+            SELECT
+              id, organization_id, user_id, job_id, job_reference,
+              event_type, event_source, provider_event_id, provider_call_id, provider_conference_id, provider_recording_id,
+              from_number, to_number, duration_seconds, recording_url, recording_r2_key, playback_url, transcript,
+              status, company_name, technician_id, technician_name, customer_name, customer_phone, customer_address,
+              map_query, details, payload_json, is_imported, created_at, occurred_at
+            FROM fleet_ops_timeline_events
+            WHERE organization_id = ? AND occurred_at >= ? AND occurred_at <= ?
+          `;
+          const params: any[] = [access.organizationId, from, to];
+
+          if (jobId) {
+            query += ` AND (job_id = ? OR job_reference = ?)`;
+            params.push(jobId, jobId);
+          }
+          if (status) {
+            query += ` AND status = ?`;
+            params.push(status);
+          }
+          if (source) {
+            query += ` AND event_source = ?`;
+            params.push(source);
+          }
+          if (company) {
+            query += ` AND LOWER(COALESCE(company_name, '')) LIKE ?`;
+            params.push(`%${company}%`);
+          }
+          if (technician) {
+            query += ` AND (
+              LOWER(COALESCE(technician_name, '')) LIKE ?
+              OR LOWER(COALESCE(technician_id, '')) LIKE ?
+            )`;
+            params.push(`%${technician}%`, `%${technician}%`);
+          }
+          if (search) {
+            query += ` AND (
+              LOWER(COALESCE(details, '')) LIKE ?
+              OR LOWER(COALESCE(customer_name, '')) LIKE ?
+              OR LOWER(COALESCE(customer_phone, '')) LIKE ?
+              OR LOWER(COALESCE(provider_call_id, '')) LIKE ?
+              OR LOWER(COALESCE(provider_conference_id, '')) LIKE ?
+              OR LOWER(COALESCE(job_reference, '')) LIKE ?
+            )`;
+            const wildcard = `%${search}%`;
+            params.push(wildcard, wildcard, wildcard, wildcard, wildcard, wildcard);
+          }
+
+          query += ` ORDER BY occurred_at DESC, created_at DESC LIMIT ?`;
+          params.push(limit);
+
+          const result = await env.LOCKSMITH_DB.prepare(query).bind(...params).all();
+          const events = (result.results || []).map((row: any) => ({
+            id: row.id,
+            organizationId: row.organization_id,
+            userId: row.user_id,
+            jobId: row.job_id,
+            jobReference: row.job_reference,
+            eventType: row.event_type,
+            eventSource: row.event_source,
+            providerEventId: row.provider_event_id,
+            providerCallId: row.provider_call_id,
+            providerConferenceId: row.provider_conference_id,
+            providerRecordingId: row.provider_recording_id,
+            fromNumber: row.from_number,
+            toNumber: row.to_number,
+            durationSeconds: row.duration_seconds,
+            recordingUrl: row.recording_url,
+            recordingR2Key: row.recording_r2_key,
+            playbackUrl: row.playback_url,
+            transcript: row.transcript,
+            status: row.status,
+            companyName: row.company_name,
+            technicianId: row.technician_id,
+            technicianName: row.technician_name,
+            customerName: row.customer_name,
+            customerPhone: row.customer_phone,
+            customerAddress: row.customer_address,
+            mapQuery: row.map_query,
+            details: row.details,
+            payload: row.payload_json ? JSON.parse(row.payload_json) : null,
+            isImported: !!row.is_imported,
+            createdAt: row.created_at,
+            occurredAt: row.occurred_at,
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            organizationId: access.organizationId,
+            role: access.role,
+            from,
+            to,
+            count: events.length,
+            events,
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/ops/timeline/events - Append timeline events (manual/system)
+      if (path === "/api/fleet/ops/timeline/events" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const userId = payload.sub as string;
+
+          const body: any = await request.json().catch(() => ({}));
+          const requestedOrgId = body.organizationId || body.orgId || url.searchParams.get('organizationId') || url.searchParams.get('orgId');
+          const access = await resolveFleetAccess(env, userId, requestedOrgId, false);
+          if (!access) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          const rawEvents = Array.isArray(body.events)
+            ? body.events
+            : (body.event ? [body.event] : [body]);
+
+          const events = rawEvents.filter((e: any) => e && typeof e === 'object');
+          if (events.length === 0) {
+            return corsResponse(request, JSON.stringify({ error: "No events provided" }), 400);
+          }
+
+          let inserted = 0;
+          let duplicates = 0;
+          const eventIds: string[] = [];
+
+          for (const event of events) {
+            const result = await appendFleetOpsEvent(env, request, access.organizationId, event, {
+              defaultSource: event.eventSource || 'manual',
+              actorUserId: userId,
+            });
+            if (result.inserted) inserted++;
+            if (result.duplicate) duplicates++;
+            eventIds.push(result.id);
+          }
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            organizationId: access.organizationId,
+            inserted,
+            duplicates,
+            eventIds,
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/fleet/ops/provider-lines - List line mappings (manager-only)
+      if (path === "/api/fleet/ops/provider-lines" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const userId = payload.sub as string;
+
+          const requestedOrgId = url.searchParams.get('organizationId') || url.searchParams.get('orgId');
+          const access = await resolveFleetAccess(env, userId, requestedOrgId, true);
+          if (!access) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, organization_id, provider, phone_number, extension, label, created_at, updated_at
+            FROM fleet_ops_provider_lines
+            WHERE organization_id = ?
+            ORDER BY provider ASC, updated_at DESC
+          `).bind(access.organizationId).all();
+
+          const lines = (result.results || []).map((row: any) => ({
+            id: row.id,
+            organizationId: row.organization_id,
+            provider: row.provider,
+            phoneNumber: row.phone_number,
+            extension: row.extension,
+            label: row.label,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+          }));
+
+          return corsResponse(request, JSON.stringify({ success: true, lines }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/ops/provider-lines - Upsert line mapping (manager-only)
+      if (path === "/api/fleet/ops/provider-lines" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const userId = payload.sub as string;
+
+          const body: any = await request.json().catch(() => ({}));
+          const requestedOrgId = body.organizationId || body.orgId || url.searchParams.get('organizationId') || url.searchParams.get('orgId');
+          const access = await resolveFleetAccess(env, userId, requestedOrgId, true);
+          if (!access) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          const provider = typeof body.provider === 'string' ? body.provider.trim().toLowerCase() : '';
+          if (!provider) return corsResponse(request, JSON.stringify({ error: "provider is required" }), 400);
+
+          const phoneNumber = normalizePhone(body.phoneNumber || body.phone_number || body.toNumber) || null;
+          const extension = typeof body.extension === 'string' ? body.extension.trim() : null;
+          if (!phoneNumber && !extension) {
+            return corsResponse(request, JSON.stringify({ error: "phoneNumber or extension is required" }), 400);
+          }
+
+          const now = Date.now();
+          const id = body.id || `line_${now}_${Math.random().toString(36).slice(2, 9)}`;
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO fleet_ops_provider_lines (
+              id, organization_id, provider, phone_number, extension, label, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              provider = excluded.provider,
+              phone_number = excluded.phone_number,
+              extension = excluded.extension,
+              label = excluded.label,
+              updated_at = excluded.updated_at
+          `).bind(
+            id,
+            access.organizationId,
+            provider,
+            phoneNumber,
+            extension,
+            body.label || null,
+            now,
+            now
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            line: {
+              id,
+              organizationId: access.organizationId,
+              provider,
+              phoneNumber,
+              extension,
+              label: body.label || null,
+              updatedAt: now,
+            },
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/fleet/ops/provider-lines - Delete line mapping (manager-only)
+      if (path === "/api/fleet/ops/provider-lines" && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const userId = payload.sub as string;
+
+          const body: any = await request.json().catch(() => ({}));
+          const id = body.id || url.searchParams.get('id');
+          if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
+
+          const requestedOrgId = body.organizationId || body.orgId || url.searchParams.get('organizationId') || url.searchParams.get('orgId');
+          const access = await resolveFleetAccess(env, userId, requestedOrgId, true);
+          if (!access) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          await env.LOCKSMITH_DB.prepare(`
+            DELETE FROM fleet_ops_provider_lines WHERE id = ? AND organization_id = ?
+          `).bind(id, access.organizationId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/ops/import - Bulk import timeline records (manager-only)
+      if (path === "/api/fleet/ops/import" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const userId = payload.sub as string;
+
+          const body: any = await request.json().catch(() => ({}));
+          const requestedOrgId = body.organizationId || body.orgId || url.searchParams.get('organizationId') || url.searchParams.get('orgId');
+          const access = await resolveFleetAccess(env, userId, requestedOrgId, true);
+          if (!access) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          const provider = (body.provider || 'import').toString().toLowerCase();
+          const rows = Array.isArray(body.events) ? body.events
+            : Array.isArray(body.items) ? body.items
+              : Array.isArray(body.rows) ? body.rows
+                : Array.isArray(body.data) ? body.data
+                  : [];
+
+          if (!rows.length) {
+            return corsResponse(request, JSON.stringify({ error: "No rows to import" }), 400);
+          }
+
+          const normalizeImportedRow = (row: any): Record<string, any> => {
+            if (provider === 'twilio') {
+              return {
+                eventType: row.eventType || row.StatusCallbackEvent || (row.RecordingSid ? 'recording_created' : 'call_updated'),
+                eventSource: 'twilio',
+                providerEventId: row.providerEventId || row.EventSid || row.event_id || null,
+                providerCallId: row.providerCallId || row.CallSid || row.call_sid || row.callId || null,
+                providerConferenceId: row.providerConferenceId || row.ConferenceSid || row.conference_sid || null,
+                providerRecordingId: row.providerRecordingId || row.RecordingSid || row.recording_sid || null,
+                recordingUrl: row.recordingUrl || row.RecordingUrl || row.recording_url || null,
+                fromNumber: row.fromNumber || row.From || row.from || null,
+                toNumber: row.toNumber || row.To || row.to || null,
+                durationSeconds: Number(row.durationSeconds || row.Duration || row.duration || 0) || null,
+                status: row.status || row.CallStatus || row.jobStatus || null,
+                details: row.details || row.message || row.EventType || row.StatusCallbackEvent || 'Imported Twilio event',
+                occurredAt: row.occurredAt || row.Timestamp || row.timestamp || row.created_at || row.eventTime || Date.now(),
+                jobId: row.jobId || row.job_id || null,
+                jobReference: row.jobReference || row.job_reference || row.jobCode || null,
+                companyName: row.companyName || row.company || null,
+                technicianId: row.technicianId || row.techId || null,
+                technicianName: row.technicianName || row.technician || null,
+                customerName: row.customerName || row.customer || null,
+                customerPhone: row.customerPhone || row.customer_phone || null,
+                customerAddress: row.customerAddress || row.address || null,
+                payload: row,
+              };
+            }
+
+            if (provider === 'powerdispatch') {
+              return {
+                eventType: row.eventType || row.type || row.event || 'event',
+                eventSource: 'powerdispatch',
+                providerEventId: row.providerEventId || row.eventId || row.id || null,
+                providerCallId: row.providerCallId || row.callId || row.call_id || null,
+                providerConferenceId: row.providerConferenceId || row.conferenceId || row.conference_id || null,
+                providerRecordingId: row.providerRecordingId || row.recordingId || row.recording_id || null,
+                recordingUrl: row.recordingUrl || row.recording_url || null,
+                fromNumber: row.fromNumber || row.from || row.caller || null,
+                toNumber: row.toNumber || row.to || row.callee || null,
+                durationSeconds: Number(row.durationSeconds || row.duration || 0) || null,
+                status: row.status || row.jobStatus || null,
+                details: row.details || row.message || row.description || 'Imported PowerDispatch event',
+                occurredAt: row.occurredAt || row.timestamp || row.created_at || Date.now(),
+                jobId: row.jobId || row.job_id || null,
+                jobReference: row.jobReference || row.job_reference || row.jobCode || null,
+                companyName: row.companyName || row.company || null,
+                technicianId: row.technicianId || row.techId || null,
+                technicianName: row.technicianName || row.technician || null,
+                customerName: row.customerName || row.customer || null,
+                customerPhone: row.customerPhone || row.customer_phone || null,
+                customerAddress: row.customerAddress || row.address || null,
+                payload: row,
+              };
+            }
+
+            return {
+              ...row,
+              eventSource: row.eventSource || provider,
+              eventType: row.eventType || row.type || 'event',
+              occurredAt: row.occurredAt || row.timestamp || row.created_at || Date.now(),
+              payload: row.payload ?? row,
+            };
+          };
+
+          let inserted = 0;
+          let duplicates = 0;
+          const eventIds: string[] = [];
+          for (const row of rows) {
+            const normalized = normalizeImportedRow(row);
+            const result = await appendFleetOpsEvent(env, request, access.organizationId, normalized, {
+              isImported: true,
+              defaultSource: normalized.eventSource || provider,
+              actorUserId: userId,
+            });
+            if (result.inserted) inserted++;
+            if (result.duplicate) duplicates++;
+            eventIds.push(result.id);
+          }
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            imported: inserted,
+            duplicates,
+            total: rows.length,
+            organizationId: access.organizationId,
+            eventIds,
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/ops/webhook/twilio - Twilio call/recording webhook ingest
+      if (path === "/api/fleet/ops/webhook/twilio" && request.method === "POST") {
+        try {
+          const expectedSecret = env.TWILIO_TIMELINE_WEBHOOK_SECRET;
+          if (expectedSecret) {
+            const providedSecret = request.headers.get('x-webhook-secret')
+              || request.headers.get('x-timeline-secret')
+              || request.headers.get('x-powerdispatch-secret')
+              || request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+            if (providedSecret !== expectedSecret) {
+              return corsResponse(request, JSON.stringify({ error: "Unauthorized webhook" }), 401);
+            }
+          }
+
+          const body: any = await parseBodyFlexible(request);
+          const explicitOrgId = body.organizationId || body.orgId || body.fleetOrgId || body.fleet_id || null;
+          const extension = body.extension || body.Extension || body.to_extension || null;
+          const toNumber = body.toNumber || body.To || body.to || null;
+          const resolvedOrgId = explicitOrgId || await resolveOrgFromProviderLine(env, 'twilio', toNumber, extension);
+          if (!resolvedOrgId) {
+            return corsResponse(request, JSON.stringify({ error: "organizationId required or line mapping missing" }), 400);
+          }
+
+          const twilioEvent = {
+            eventType: body.eventType || body.StatusCallbackEvent || body.EventType || (body.RecordingSid ? 'recording_created' : 'call_updated'),
+            eventSource: 'twilio',
+            providerEventId: body.providerEventId || body.EventSid || null,
+            providerCallId: body.providerCallId || body.CallSid || null,
+            providerConferenceId: body.providerConferenceId || body.ConferenceSid || null,
+            providerRecordingId: body.providerRecordingId || body.RecordingSid || null,
+            recordingUrl: body.recordingUrl || body.RecordingUrl || body.RecordingUrlHttps || null,
+            fromNumber: body.fromNumber || body.From || body.from || null,
+            toNumber: body.toNumber || body.To || body.to || null,
+            durationSeconds: Number(body.durationSeconds || body.Duration || body.CallDuration || 0) || null,
+            status: body.status || body.CallStatus || body.jobStatus || null,
+            details: body.details || body.message || body.StatusCallbackEvent || body.EventType || 'Twilio webhook event',
+            occurredAt: body.occurredAt || body.Timestamp || body.timestamp || Date.now(),
+            jobId: body.jobId || body.job_id || null,
+            jobReference: body.jobReference || body.job_reference || body.jobCode || null,
+            companyName: body.companyName || body.company || null,
+            technicianId: body.technicianId || body.techId || null,
+            technicianName: body.technicianName || body.technician || null,
+            customerName: body.customerName || body.customer || null,
+            customerPhone: body.customerPhone || body.customer_phone || null,
+            customerAddress: body.customerAddress || body.address || null,
+            mirrorToR2: true,
+            payload: body,
+          };
+
+          const result = await appendFleetOpsEvent(env, request, resolvedOrgId, twilioEvent, {
+            defaultSource: 'twilio',
+            actorUserId: null,
+          });
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            organizationId: resolvedOrgId,
+            eventId: result.id,
+            duplicate: result.duplicate,
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/fleet/ops/webhook/powerdispatch - PowerDispatch webhook ingest
+      if (path === "/api/fleet/ops/webhook/powerdispatch" && request.method === "POST") {
+        try {
+          const expectedSecret = env.POWERDISPATCH_TIMELINE_WEBHOOK_SECRET;
+          if (expectedSecret) {
+            const providedSecret = request.headers.get('x-webhook-secret')
+              || request.headers.get('x-timeline-secret')
+              || request.headers.get('x-powerdispatch-secret')
+              || request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+            if (providedSecret !== expectedSecret) {
+              return corsResponse(request, JSON.stringify({ error: "Unauthorized webhook" }), 401);
+            }
+          }
+
+          const body: any = await parseBodyFlexible(request);
+          const explicitOrgId = body.organizationId || body.orgId || body.fleetOrgId || body.fleet_id || null;
+          const extension = body.extension || body.to_extension || body.toExt || null;
+          const toNumber = body.toNumber || body.to || body.callee || null;
+          const resolvedOrgId = explicitOrgId || await resolveOrgFromProviderLine(env, 'powerdispatch', toNumber, extension);
+          if (!resolvedOrgId) {
+            return corsResponse(request, JSON.stringify({ error: "organizationId required or line mapping missing" }), 400);
+          }
+
+          const powerDispatchEvent = {
+            eventType: body.eventType || body.type || body.event || 'event',
+            eventSource: 'powerdispatch',
+            providerEventId: body.providerEventId || body.eventId || body.id || null,
+            providerCallId: body.providerCallId || body.callId || body.call_id || null,
+            providerConferenceId: body.providerConferenceId || body.conferenceId || body.conference_id || null,
+            providerRecordingId: body.providerRecordingId || body.recordingId || body.recording_id || null,
+            recordingUrl: body.recordingUrl || body.recording_url || null,
+            fromNumber: body.fromNumber || body.from || body.caller || null,
+            toNumber: body.toNumber || body.to || body.callee || null,
+            durationSeconds: Number(body.durationSeconds || body.duration || 0) || null,
+            status: body.status || body.jobStatus || null,
+            details: body.details || body.message || body.description || 'PowerDispatch webhook event',
+            occurredAt: body.occurredAt || body.timestamp || body.created_at || Date.now(),
+            jobId: body.jobId || body.job_id || null,
+            jobReference: body.jobReference || body.job_reference || body.jobCode || null,
+            companyName: body.companyName || body.company || null,
+            technicianId: body.technicianId || body.techId || null,
+            technicianName: body.technicianName || body.technician || null,
+            customerName: body.customerName || body.customer || null,
+            customerPhone: body.customerPhone || body.customer_phone || null,
+            customerAddress: body.customerAddress || body.address || null,
+            mirrorToR2: true,
+            payload: body,
+          };
+
+          const result = await appendFleetOpsEvent(env, request, resolvedOrgId, powerDispatchEvent, {
+            defaultSource: 'powerdispatch',
+            actorUserId: null,
+          });
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            organizationId: resolvedOrgId,
+            eventId: result.id,
+            duplicate: result.duplicate,
+          }));
+        } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
       }
@@ -7282,8 +8473,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           if (token) {
             try {
               const payload = await verifyInternalToken(token, env.JWT_SECRET);
-              userId = payload.sub;
-              displayName = payload.name || displayName;
+              if (payload) {
+                userId = payload.sub as any;
+                displayName = (payload.name as string) || displayName;
+              }
             } catch (_) { }
           }
 
@@ -7322,6 +8515,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let userId;
           try {
             const payload = await verifyInternalToken(token, env.JWT_SECRET);
+            if (!payload) {
+              return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+            }
             userId = payload.sub;
           } catch (_) {
             return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
@@ -7392,6 +8588,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let userId, userEmail;
           try {
             const payload = await verifyInternalToken(token, env.JWT_SECRET);
+            if (!payload) {
+              return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+            }
             userId = payload.sub;
             userEmail = payload.email;
           } catch (_) {
@@ -7408,7 +8607,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
 
           const isOwner = comment.user_id === userId;
-          const isAdmin = isDeveloper(userEmail || "", env.DEV_EMAILS);
+          const isAdmin = isDeveloper(typeof userEmail === 'string' ? userEmail : "", env.DEV_EMAILS);
 
           if (!isOwner && !isAdmin) {
             return corsResponse(request, JSON.stringify({ error: "Not authorized" }), 403);
@@ -12633,9 +13832,24 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    ctx.waitUntil(runAIAnalysis(env));
+    ctx.waitUntil(Promise.all([
+      runAIAnalysis(env),
+      pruneFleetOpsTimeline(env),
+    ]));
   }
 };
+
+async function pruneFleetOpsTimeline(env: Env) {
+  try {
+    const cutoff = Date.now() - (365 * 24 * 60 * 60 * 1000);
+    await env.LOCKSMITH_DB.prepare(`
+      DELETE FROM fleet_ops_timeline_events
+      WHERE occurred_at < ?
+    `).bind(cutoff).run();
+  } catch (e: any) {
+    console.error("Ops timeline retention prune error:", e?.message || e);
+  }
+}
 
 async function runAIAnalysis(env: Env) {
   try {

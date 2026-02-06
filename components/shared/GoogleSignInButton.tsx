@@ -6,6 +6,8 @@ import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useFleetPanel } from '@/contexts/FleetPanelContext';
 import { useTeamPanel } from '@/contexts/TeamPanelContext';
 import { useJobLogs } from '@/lib/useJobLogs';
+import { useTourContext } from '@/components/onboarding/TourProvider';
+import { TOUR_REGISTRY } from '@/lib/tourRegistry';
 import Link from 'next/link';
 
 // API base URL - use environment variable or default to production
@@ -25,10 +27,12 @@ export const GoogleSignInButton = () => {
     const { openFleetPanel } = useFleetPanel();
     const { openTeamPanel } = useTeamPanel();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [tourSubmenuOpen, setTourSubmenuOpen] = useState(false);
     const [reputation, setReputation] = useState<ReputationData | null>(null);
     const [syncingCache, setSyncingCache] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const { clearLocalCache, forceFullSync } = useJobLogs();
+    const { startTour } = useTourContext();
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -245,19 +249,54 @@ export const GoogleSignInButton = () => {
                             <span>👥</span>
                             Team Manager
                         </button>
-                        <button
-                            onClick={() => {
-                                setDropdownOpen(false);
-                                // Clear tour state to restart from beginning
-                                localStorage.removeItem('eurokeys_tour_state');
-                                localStorage.removeItem('eurokeys_onboarding');
-                                openWizard();
-                            }}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-amber-500/20 hover:text-white"
-                        >
-                            <span>🎓</span>
-                            Take a Tour
-                        </button>
+                        <div>
+                            <button
+                                onClick={() => setTourSubmenuOpen(!tourSubmenuOpen)}
+                                className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-amber-500/20 hover:text-white"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <span>🎓</span>
+                                    Take a Tour
+                                </span>
+                                <svg
+                                    className={`h-3 w-3 text-slate-500 transition-transform ${tourSubmenuOpen ? 'rotate-180' : ''}`}
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            {tourSubmenuOpen && (
+                                <div className="ml-4 mt-1 space-y-0.5">
+                                    {Object.values(TOUR_REGISTRY).map(tour => (
+                                        <button
+                                            key={tour.id}
+                                            onClick={() => {
+                                                setDropdownOpen(false);
+                                                setTourSubmenuOpen(false);
+                                                startTour(tour.id);
+                                            }}
+                                            className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-purple-500/20 hover:text-white"
+                                        >
+                                            <span>{tour.icon}</span>
+                                            <span>{tour.label}</span>
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => {
+                                            setDropdownOpen(false);
+                                            setTourSubmenuOpen(false);
+                                            localStorage.removeItem('eurokeys_tour_state');
+                                            localStorage.removeItem('eurokeys_onboarding');
+                                            openWizard();
+                                        }}
+                                        className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-amber-500/20 hover:text-white"
+                                    >
+                                        <span>🔄</span>
+                                        <span>Full Onboarding Replay</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Settings Section */}

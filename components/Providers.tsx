@@ -13,6 +13,7 @@ import { TeamPanelProvider } from '@/contexts/TeamPanelContext';
 import { FleetProvider } from '@/contexts/FleetContext';
 import InventoryLoginPrompt from '@/components/shared/InventoryLoginPrompt';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import { TourProvider } from '@/components/onboarding/TourProvider';
 import FleetPanelWrapper from '@/components/business/FleetPanelWrapper';
 import TeamPanelWrapper from '@/components/business/TeamPanelWrapper';
 
@@ -26,17 +27,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
                             <GoalProvider>
                                 <AdminModeProvider>
                                     <OnboardingProvider>
-                                        <FleetPanelProvider>
-                                            <TeamPanelProvider>
-                                                {children}
-                                                <InventoryLoginPrompt />
-                                                <Suspense fallback={null}>
-                                                    <OnboardingFlow />
-                                                </Suspense>
-                                                <FleetPanelWrapper />
-                                                <TeamPanelWrapper />
-                                            </TeamPanelProvider>
-                                        </FleetPanelProvider>
+                                        <TourProvider>
+                                            <FleetPanelProvider>
+                                                <TeamPanelProvider>
+                                                    {children}
+                                                    <InventoryLoginPrompt />
+                                                    <Suspense fallback={null}>
+                                                        <OnboardingFlow />
+                                                    </Suspense>
+                                                    <FleetPanelWrapper />
+                                                    <TeamPanelWrapper />
+                                                </TeamPanelProvider>
+                                            </FleetPanelProvider>
+                                        </TourProvider>
                                     </OnboardingProvider>
                                 </AdminModeProvider>
                             </GoalProvider>

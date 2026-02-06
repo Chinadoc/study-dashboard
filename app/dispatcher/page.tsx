@@ -11,6 +11,7 @@ import MyJobsView from '@/components/business/MyJobsView';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { getTechniciansFromStorage, Technician } from '@/lib/technicianTypes';
 import { useFleet } from '@/contexts/FleetContext';
+import TourBanner from '@/components/onboarding/TourBanner';
 
 type DispatcherTab = 'pipeline' | 'dispatch' | 'my-jobs';
 
@@ -158,6 +159,7 @@ export default function DispatcherPage() {
     const handleJobSubmit = (data: JobFormData) => {
         addJobLog({
             vehicle: data.vehicle,
+            companyName: data.companyName,
             fccId: data.fccId || undefined,
             jobType: data.jobType,
             price: data.price,
@@ -168,6 +170,9 @@ export default function DispatcherPage() {
             customerName: data.customerName,
             customerPhone: data.customerPhone,
             customerAddress: data.customerAddress,
+            fleetId: data.fleetId,
+            technicianId: data.technicianId,
+            technicianName: data.technicianName,
             status: 'unassigned',
             source: 'pipeline',
         } as Omit<JobLog, 'id' | 'createdAt'>);
@@ -251,8 +256,8 @@ export default function DispatcherPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as DispatcherTab)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
-                                        ? 'bg-purple-600 text-white'
-                                        : 'text-gray-400 hover:text-white hover:bg-zinc-800'
+                                    ? 'bg-purple-600 text-white'
+                                    : 'text-gray-400 hover:text-white hover:bg-zinc-800'
                                     }`}
                             >
                                 <span>{tab.icon}</span>
@@ -271,6 +276,9 @@ export default function DispatcherPage() {
 
             {/* Content */}
             <div className="max-w-4xl mx-auto px-4 py-6">
+                <div className="mb-4">
+                    <TourBanner tourId="fleet-manager" storageKey="eurokeys_fleet_first_visit" />
+                </div>
                 {/* Success notification */}
                 {pipelineSuccess && (
                     <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-200

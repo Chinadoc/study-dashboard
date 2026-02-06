@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import TourBanner from '@/components/onboarding/TourBanner';
 
 // ============================================================================
 // Types
@@ -252,6 +253,7 @@ export default function CallCenterPage() {
             </header>
 
             <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+                <TourBanner tourId="call-center" storageKey="eurokeys_callcenter_first_visit" />
                 {/* Tab Navigation */}
                 <div className="flex gap-2 bg-slate-800/60 p-1 rounded-xl border border-slate-700/50">
                     {[

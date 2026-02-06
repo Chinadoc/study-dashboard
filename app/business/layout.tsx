@@ -41,17 +41,25 @@ const SubscriptionsIcon = () => (
     </svg>
 );
 
+const TimelineIcon = () => (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6M5.25 7.5h13.5M6.75 3.75h10.5A2.25 2.25 0 0119.5 6v12a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 18V6a2.25 2.25 0 012.25-2.25z" />
+    </svg>
+);
+
 const ICONS: Record<string, React.FC> = {
     inventory: InventoryIcon,
     jobs: JobsIcon,
     accounting: AccountingIcon,
     tools: ToolsIcon,
     subscriptions: SubscriptionsIcon,
+    timeline: TimelineIcon,
 };
 
 const BUSINESS_TABS = [
     { id: 'inventory', label: 'Inventory', href: '/business/inventory' },
     { id: 'jobs', label: 'Jobs', href: '/business/jobs' },
+    { id: 'timeline', label: 'Timeline', href: '/business/timeline' },
     { id: 'accounting', label: 'Accounting', href: '/business/accounting' },
     { id: 'tools', label: 'Tools', href: '/business/tools' },
     { id: 'subscriptions', label: 'Subscriptions', href: '/business/subscriptions' },
@@ -70,7 +78,7 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
     const keysUsed = 0; // Will be calculated from inventory
     const jobsCompleted = jobLogs.filter(j => j.status === 'completed').length;
     const FREE_KEYS = 8;
-    const FREE_JOBS = 5;
+    const FREE_JOBS = 1;
     const isNearLimit = !hasBusinessTools && (jobsCompleted >= FREE_JOBS - 1);
     const isOverLimit = !hasBusinessTools && jobsCompleted >= FREE_JOBS;
 
@@ -178,10 +186,10 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                         {/* Free Tier Limit Banner */}
                         {!hasBusinessTools && (
                             <div className={`mb-2 p-3 rounded-xl border text-sm flex items-center justify-between gap-3 flex-wrap ${isOverLimit
-                                    ? 'bg-red-900/30 border-red-500/40 text-red-300'
-                                    : isNearLimit
-                                        ? 'bg-amber-900/30 border-amber-500/40 text-amber-300'
-                                        : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-400'
+                                ? 'bg-red-900/30 border-red-500/40 text-red-300'
+                                : isNearLimit
+                                    ? 'bg-amber-900/30 border-amber-500/40 text-amber-300'
+                                    : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-400'
                                 }`}>
                                 <div className="flex items-center gap-4">
                                     <span className="font-medium">
@@ -191,8 +199,8 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                                 <button
                                     onClick={() => router.push('/pricing')}
                                     className={`px-4 py-1.5 rounded-lg font-bold text-xs transition-colors ${isOverLimit
-                                            ? 'bg-red-500 text-white hover:bg-red-400'
-                                            : 'bg-amber-500 text-black hover:bg-amber-400'
+                                        ? 'bg-red-500 text-white hover:bg-red-400'
+                                        : 'bg-amber-500 text-black hover:bg-amber-400'
                                         }`}
                                 >
                                     {isOverLimit ? 'Limit Reached → Upgrade' : 'Get Unlimited →'}
@@ -246,5 +254,4 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
         </ToastProvider>
     );
 }
-
 

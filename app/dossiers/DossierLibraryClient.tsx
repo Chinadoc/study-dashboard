@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import dossierManifest from '@/data/dossier_manifest.json';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import TourBanner from '@/components/onboarding/TourBanner';
 
 const FREE_DOSSIER_LIMIT = 3;
 
@@ -90,7 +91,7 @@ const formatYearRange = (years: number[]): string => {
 };
 
 export default function DossierLibraryClient() {
-  const { isPro } = useAuth();
+  const { hasDossiers } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedMake, setSelectedMake] = useState('All Makes');
@@ -459,6 +460,10 @@ export default function DossierLibraryClient() {
         <p className="subtitle">{dossiers.length} Technical Documents</p>
       </div>
 
+      <div style={{ marginBottom: '1rem' }}>
+        <TourBanner tourId="knowledge-deep-dive" storageKey="eurokeys_dossier_first_visit" />
+      </div>
+
       <div className="stats">
         <div className="stat">
           <div className="stat-value">{filteredDossiers.length}</div>
@@ -538,7 +543,7 @@ export default function DossierLibraryClient() {
                 <div className="dossier-grid">
                   {makeDossiers.map((dossier) => {
                     const currentIndex = globalIndex++;
-                    const isLocked = !isPro && currentIndex >= FREE_DOSSIER_LIMIT;
+                    const isLocked = !hasDossiers && currentIndex >= FREE_DOSSIER_LIMIT;
 
                     return (
                       <div
@@ -630,7 +635,7 @@ export default function DossierLibraryClient() {
           })()}
 
           {/* Show upgrade prompt if there are more dossiers than free limit */}
-          {!isPro && filteredDossiers.length > FREE_DOSSIER_LIMIT && (
+          {!hasDossiers && filteredDossiers.length > FREE_DOSSIER_LIMIT && (
             <div style={{ marginTop: '2rem' }}>
               <UpgradePrompt
                 itemType="dossiers"

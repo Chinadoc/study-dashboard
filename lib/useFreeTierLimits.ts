@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 // Free tier limits for Business Tools add-on
 export const FREE_TIER_LIMITS = {
     keys: 8,
-    jobs: 5,
+    jobs: 1,
 };
 
 export interface FreeTierStatus {
