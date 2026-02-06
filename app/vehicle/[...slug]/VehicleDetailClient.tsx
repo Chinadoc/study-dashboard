@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import VehicleHeader from '@/components/vehicle/VehicleHeader';
 import VehicleSpecs from '@/components/vehicle/VehicleSpecs';
 import CommentSection from '@/components/CommentSection';
@@ -18,7 +18,10 @@ import VehicleSidebar from '@/components/layout/VehicleSidebar';
 import { API_BASE } from '@/lib/config';
 import { trackVehicleView } from '@/lib/analytics';
 import { filterRelevantImages } from '@/lib/imageRelevanceScorer';
+import { useAuth } from '@/contexts/AuthContext';
 
+// Demo vehicle that's free for all users
+const DEMO_VEHICLE = { make: 'honda', model: 'civic', year: 2018 };
 // Transform products_by_type from API into KeyConfig[] for KeyCards
 function transformProductsByType(pbt: Record<string, any>): any[] {
     if (!pbt || Object.keys(pbt).length === 0) return [];
@@ -359,6 +362,10 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
 export default function VehicleDetailClient() {
     const pathname = usePathname() ?? '';
     const searchParams = useSearchParams();
+    const router = useRouter();
+
+    // Get Pro status from auth
+    const { isPro, login, isAuthenticated } = useAuth();
 
     // Check for 'original' query param from 404 redirect, otherwise use pathname
     const originalPath = searchParams?.get('original') || pathname;
@@ -368,6 +375,14 @@ export default function VehicleDetailClient() {
     const make = segments[1] ? decodeURIComponent(segments[1]) : '';
     const model = segments[2] ? decodeURIComponent(segments[2]) : '';
     const year = segments[3] ? parseInt(segments[3], 10) : 0;
+
+    // Check if this is the free demo vehicle
+    const isDemoVehicle = make.toLowerCase() === DEMO_VEHICLE.make
+        && model.toLowerCase() === DEMO_VEHICLE.model
+        && year === DEMO_VEHICLE.year;
+
+    // User can access if Pro OR if viewing demo vehicle
+    const canAccess = isPro || isDemoVehicle;
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -898,6 +913,74 @@ export default function VehicleDetailClient() {
 
     // General pearls = those not routed anywhere specific
     const generalPearls = pearlsList.filter((p: any) => !allRoutedPearlIds.has(p.id));
+
+    // Show paywall overlay for non-Pro users on non-demo vehicles
+    if (!canAccess) {
+        return (
+            <div className="container mx-auto px-4 py-12 max-w-2xl">
+                <div className="glass p-8 sm:p-12 text-center border-2 border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-zinc-900">
+                    {/* Lock Icon */}
+                    <div className="text-6xl mb-6">🔒</div>
+
+                    {/* Vehicle Title */}
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                        {year} {make} {model}
+                    </h1>
+                    <p className="text-zinc-400 mb-8">
+                        This vehicle data is available with Pro
+                    </p>
+
+                    {/* Pro Benefits */}
+                    <div className="text-left bg-zinc-800/50 rounded-xl p-6 mb-8">
+                        <h3 className="font-bold text-zinc-200 mb-4">Pro includes:</h3>
+                        <ul className="space-y-3 text-sm text-zinc-300">
+                            <li className="flex items-center gap-3">
+                                <span className="text-green-400">✓</span> Full access to all 15,000+ vehicle pages
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <span className="text-green-400">✓</span> Complete FCC ID database (500+ entries)
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <span className="text-green-400">✓</span> Unlimited job logging & inventory tracking
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <span className="text-green-400">✓</span> AI-powered business insights
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* CTA Buttons */}
+                    <button
+                        onClick={() => router.push('/pricing')}
+                        className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-xl transition-colors text-lg mb-4"
+                    >
+                        Upgrade to Pro →
+                    </button>
+
+                    {/* Sign in option */}
+                    {!isAuthenticated && (
+                        <button
+                            onClick={() => login()}
+                            className="text-zinc-400 hover:text-white text-sm underline transition-colors mb-6"
+                        >
+                            Already have Pro? Sign in
+                        </button>
+                    )}
+
+                    {/* Demo vehicle option */}
+                    <div className="border-t border-zinc-800 pt-6 mt-2">
+                        <p className="text-zinc-500 text-sm mb-3">Or explore the free demo vehicle:</p>
+                        <a
+                            href={`/vehicle/${DEMO_VEHICLE.make}/${DEMO_VEHICLE.model}/${DEMO_VEHICLE.year}`}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-bold transition-colors"
+                        >
+                            🚗 Try 2018 Honda Civic Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-6 max-w-7xl">

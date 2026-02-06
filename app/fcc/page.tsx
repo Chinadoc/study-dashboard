@@ -8,7 +8,11 @@ import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { addJobLogToStorage } from '@/lib/useJobLogs';
 import { trackFCCView, trackAffiliateClick, trackEvent } from '@/lib/analytics';
 import { useInventory } from '@/contexts/InventoryContext';
+import { useAuth } from '@/contexts/AuthContext';
 import OwnedBadge from '@/components/shared/OwnedBadge';
+
+// Free tier limits
+const FREE_FCC_LIMIT = 3;
 
 interface FccRow {
     fcc_id: string;
@@ -124,6 +128,9 @@ function FccContent() {
     const [selectedFcc, setSelectedFcc] = useState<FccRow | null>(null);
     const searchParams = useSearchParams();
     const router = useRouter();
+
+    // Get Pro status from auth
+    const { isPro, login, isAuthenticated } = useAuth();
 
     // Use shared inventory context
     const { getQuantity, updateQuantity } = useInventory();
@@ -264,6 +271,15 @@ function FccContent() {
         });
     }, [data, search, keyType, searchParams]);
 
+    // Limit results for non-Pro users
+    const displayData = useMemo(() => {
+        if (isPro) return filteredData;
+        return filteredData.slice(0, FREE_FCC_LIMIT);
+    }, [filteredData, isPro]);
+
+    // Count locked results for paywall display
+    const lockedCount = isPro ? 0 : Math.max(0, filteredData.length - FREE_FCC_LIMIT);
+
     // Reset to page 1 when filters change
     useEffect(() => {
         setCurrentPage(1);
@@ -381,7 +397,7 @@ function FccContent() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
+                                {displayData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
                                     const stock = getStock(row.fcc_id);
                                     return (
                                         <tr key={row.fcc_id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
@@ -446,13 +462,30 @@ function FccContent() {
                                         </tr>
                                     );
                                 })}
+                                {/* Paywall Row */}
+                                {lockedCount > 0 && (
+                                    <tr className="bg-gradient-to-r from-amber-900/20 to-zinc-900">
+                                        <td colSpan={7} className="px-6 py-6 text-center">
+                                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                                <span className="text-2xl">🔒</span>
+                                                <span className="text-zinc-300 font-medium">+{lockedCount} more FCC IDs available with Pro</span>
+                                                <button
+                                                    onClick={() => router.push('/pricing')}
+                                                    className="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg transition-colors"
+                                                >
+                                                    Upgrade →
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
 
                     {/* Mobile List View - Stacked Cards */}
                     <div className="md:hidden divide-y divide-zinc-800">
-                        {filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
+                        {displayData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
                             const stock = getStock(row.fcc_id);
                             return (
                                 <div key={row.fcc_id} className="p-4">
@@ -523,6 +556,19 @@ function FccContent() {
                                 </div>
                             );
                         })}
+                        {/* Mobile Paywall Card */}
+                        {lockedCount > 0 && (
+                            <div className="p-6 text-center bg-gradient-to-b from-amber-900/20 to-zinc-900">
+                                <span className="text-3xl block mb-3">🔒</span>
+                                <p className="text-zinc-300 font-medium mb-4">+{lockedCount} more FCC IDs with Pro</p>
+                                <button
+                                    onClick={() => router.push('/pricing')}
+                                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition-colors"
+                                >
+                                    Upgrade to Pro →
+                                </button>
+                            </div>
+                        )}
                     </div>
                     {filteredData.length > ITEMS_PER_PAGE && (
                         <div className="p-4 flex items-center justify-between border-t border-zinc-800">
@@ -554,7 +600,7 @@ function FccContent() {
             ) : (
                 /* CARD VIEW */
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
+                    {displayData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
                         const currentKeyType = getKeyType(row);
                         const stock = getStock(row.fcc_id);
                         return (
@@ -652,6 +698,37 @@ function FccContent() {
                             </div>
                         );
                     })}
+
+                    {/* Paywall Card - shown when there are locked results */}
+                    {lockedCount > 0 && (
+                        <div className="glass relative flex flex-col h-full overflow-hidden border-2 border-dashed border-amber-500/30 bg-gradient-to-br from-amber-900/10 to-zinc-900">
+                            <div className="h-32 bg-zinc-800/30 flex items-center justify-center">
+                                <span className="text-5xl">🔒</span>
+                            </div>
+                            <div className="p-6 flex flex-col flex-1 items-center justify-center text-center">
+                                <h3 className="text-xl font-bold text-white mb-2">
+                                    +{lockedCount} More FCC IDs
+                                </h3>
+                                <p className="text-zinc-400 text-sm mb-6">
+                                    Unlock the complete database with Pro
+                                </p>
+                                <button
+                                    onClick={() => router.push('/pricing')}
+                                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition-colors"
+                                >
+                                    Upgrade to Pro →
+                                </button>
+                                {!isAuthenticated && (
+                                    <button
+                                        onClick={() => login()}
+                                        className="mt-3 text-zinc-400 hover:text-white text-sm underline transition-colors"
+                                    >
+                                        Already have Pro? Sign in
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
