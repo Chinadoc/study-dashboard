@@ -207,13 +207,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [hasMounted, user]);
     const isDeveloper = !!(user && user.is_developer);
 
-    // Modular subscription flags - Pro users get ALL add-ons
+    // Modular subscription flags - Add-ons are SEPARATE from Pro
     const subs = user?.subscriptions || {};
-    const hasImages = isPro || !!subs.images;
-    const hasDossiers = isPro || !!subs.dossiers;
-    const hasBusinessTools = isPro || !!subs.business_tools;
-    const hasDispatcher = isPro || !!subs.dispatcher;
-    const hasFleet = isPro || !!subs.fleet;
+    const hasImages = !!subs.images;  // Full image access requires add-on
+    const hasDossiers = !!subs.dossiers;  // Dossiers require add-on
+    const hasBusinessTools = !!subs.business_tools;  // Business tools require add-on
+    const hasDispatcher = !!subs.dispatcher;
+    const hasFleet = !!subs.fleet;
 
     return (
         <AuthContext.Provider

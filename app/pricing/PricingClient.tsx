@@ -61,11 +61,9 @@ const ADD_ONS: AddOn[] = [
 
 const PRO_FEATURES = [
     { emoji: '🚗', text: 'Full vehicle database (800+ models)' },
-    { emoji: '📦', text: 'Unlimited job logging & inventory' },
-    { emoji: '📚', text: 'All 230+ technical dossiers' },
-    { emoji: '📷', text: '1800+ technical images & diagrams' },
-    { emoji: '🤖', text: 'AI-powered business insights' },
     { emoji: '🔑', text: 'FCC ID lookup (500+ entries)' },
+    { emoji: '📷', text: 'Limited technical images' },
+    { emoji: '🎯', text: 'Priority support' },
 ];
 
 export default function PricingClient() {
