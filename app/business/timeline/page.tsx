@@ -119,6 +119,7 @@ function formatDuration(seconds?: number | null): string {
 export default function FleetOpsTimelinePage() {
     const { loading, isFleetMember, role, organization } = useFleet();
     const isManager = role === 'owner' || role === 'dispatcher';
+    const roleLabel = role ? role.replace(/_/g, ' ') : null;
 
     const now = Date.now();
     const startOfDay = useMemo(() => {
@@ -303,11 +304,52 @@ export default function FleetOpsTimelinePage() {
 
     if (!isFleetMember || !isManager) {
         return (
-            <AccessDenied
-                requiredRole={['owner', 'dispatcher']}
-                title="Fleet Ops Timeline"
-                message="This page is available to fleet managers and dispatchers."
-            />
+            <div className="space-y-6">
+                <AccessDenied
+                    requiredRole={['owner', 'dispatcher']}
+                    title="Fleet Ops Timeline"
+                    message="This page is available to fleet managers and dispatchers."
+                />
+
+                <div className="max-w-2xl mx-auto bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 sm:p-5">
+                    <h3 className="text-white font-bold text-lg">How To Get Access</h3>
+                    {roleLabel && (
+                        <div className="mt-1 text-sm text-zinc-400">
+                            Current role: <span className="text-zinc-200 capitalize">{roleLabel}</span>
+                        </div>
+                    )}
+
+                    {!isFleetMember ? (
+                        <ol className="mt-3 list-decimal pl-5 space-y-2 text-sm text-zinc-300">
+                            <li>Open your profile menu (top-right) and click `Team Manager`.</li>
+                            <li>Create or join a fleet organization.</li>
+                            <li>Have the owner invite you as a `Dispatcher` (or use the owner account).</li>
+                            <li>Accept the invite link, then refresh this page.</li>
+                        </ol>
+                    ) : (
+                        <ol className="mt-3 list-decimal pl-5 space-y-2 text-sm text-zinc-300">
+                            <li>Ask your fleet owner to open `Team Manager`.</li>
+                            <li>Change your role to `Dispatcher`.</li>
+                            <li>Refresh this page after the role update.</li>
+                        </ol>
+                    )}
+
+                    <div className="mt-4 flex gap-2 flex-wrap">
+                        <a
+                            href="/business"
+                            className="px-3 py-2 text-sm bg-zinc-800 border border-zinc-700 rounded-lg hover:bg-zinc-700"
+                        >
+                            Open Business
+                        </a>
+                        <a
+                            href="/dispatcher"
+                            className="px-3 py-2 text-sm bg-blue-600 rounded-lg hover:bg-blue-500 text-white"
+                        >
+                            Open Dispatcher
+                        </a>
+                    </div>
+                </div>
+            </div>
         );
     }
 
