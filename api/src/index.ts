@@ -674,7 +674,7 @@ export default {
           const existingUser = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(googleUser.id).first<any>();
 
           if (!existingUser) {
-            const trialUntil = Date.now() + (14 * 24 * 60 * 60 * 1000); // 14 days trial
+            const trialUntil = Date.now() + (24 * 60 * 60 * 1000); // 24 hours free preview
             await env.LOCKSMITH_DB.prepare(
               "INSERT INTO users (id, email, name, picture, created_at, trial_until) VALUES (?, ?, ?, ?, ?, ?)"
             ).bind(googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now(), trialUntil).run();
@@ -747,7 +747,7 @@ export default {
           const existingUser = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<any>();
 
           if (!existingUser) {
-            const trialUntil = Date.now() + (14 * 24 * 60 * 60 * 1000); // 14 days trial
+            const trialUntil = Date.now() + (24 * 60 * 60 * 1000); // 24 hours free preview
             await env.LOCKSMITH_DB.prepare(
               "INSERT INTO users (id, email, name, picture, created_at, trial_until, visitor_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
             ).bind(userId, email, name, picture, Date.now(), trialUntil, visitor_id || null).run();
@@ -1315,7 +1315,7 @@ export default {
               },
               body: new URLSearchParams({
                 email: userEmail,
-                metadata: { user_id: userId } as any,
+                "metadata[user_id]": userId,
               }),
             });
             const customer = await customerRes.json() as any;

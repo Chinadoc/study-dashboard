@@ -46,16 +46,18 @@ function queryD1(sql: string): any[] {
 }
 
 function executeD1(sql: string): void {
-  const cleaned = sql.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-  const escaped = cleaned.replace(/"/g, '\\"');
+  const tmpFile = path.join(tmpdir(), `vi_exec_${Date.now()}_${tmpCounter++}.sql`);
   try {
+    writeFileSync(tmpFile, sql);
     execSync(
-      `npx wrangler d1 execute locksmith-db --remote --command="${escaped}"`,
+      `npx wrangler d1 execute locksmith-db --remote --file=${tmpFile}`,
       { cwd: API_DIR, maxBuffer: 10 * 1024 * 1024, timeout: 120000, stdio: ['pipe', 'pipe', 'pipe'] }
     );
   } catch (err: any) {
     console.error(`❌ Execute failed: ${sql.substring(0, 100)}...`);
     console.error(err.stderr?.toString()?.substring(0, 500));
+  } finally {
+    try { unlinkSync(tmpFile); } catch { }
   }
 }
 
@@ -283,7 +285,7 @@ async function main() {
       ${sqlEscape(buttonConsensus.value)}, ${sqlEscape(finalBattery)},
       ${sqlEscape(null)},
       ${sqlEscape(finalLishi)}, ${sqlEscape(finalKeyway)},
-      ${finalSpaces || 'NULL'}, ${finalDepths || 'NULL'}, ${finalMacs || 'NULL'},
+      ${sqlEscape(finalSpaces)}, ${sqlEscape(finalDepths)}, ${sqlEscape(finalMacs)},
       ${sqlEscape(finalCodeSeries)},
       ${keyTypes.length}, ${hasVariance},
       CURRENT_TIMESTAMP
@@ -423,15 +425,15 @@ async function main() {
     UPDATE vehicle_intelligence
     SET description = vd.description
     FROM vehicle_descriptions vd
-    WHERE vd.vehicle_key = LOWER(vehicle_intelligence.make) || '_' || LOWER(REPLACE(vehicle_intelligence.model, ' ', '_'))
+    WHERE vd.vehicle_key = vehicle_intelligence.make || '|' || vehicle_intelligence.model
   `);
-  // Try alternate key format too
+  // Try lowercase match too
   executeD1(`
     UPDATE vehicle_intelligence
     SET description = vd.description
     FROM vehicle_descriptions vd
     WHERE vehicle_intelligence.description IS NULL
-      AND vd.vehicle_key = LOWER(vehicle_intelligence.make) || '_' || LOWER(vehicle_intelligence.model)
+      AND LOWER(vd.vehicle_key) = LOWER(vehicle_intelligence.make) || '|' || LOWER(vehicle_intelligence.model)
   `);
   const descCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE description IS NOT NULL`);
   console.log(`   ✅ ${descCount[0]?.cnt || 0} vehicles have descriptions`);

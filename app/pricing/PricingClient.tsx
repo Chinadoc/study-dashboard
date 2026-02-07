@@ -233,22 +233,26 @@ export default function PricingClient() {
                             // Check if user is on a free trial (has trial_until but is_pro is false)
                             const isOnTrial = user?.trial_until && user.trial_until > Date.now() && !user.is_pro;
                             const trialEnd = user?.trial_until ?? 0;
-                            const trialDaysLeft = isOnTrial ? Math.ceil((trialEnd - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+                            const msLeft = isOnTrial ? trialEnd - Date.now() : 0;
+                            const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
+                            const timeLabel = hoursLeft > 24
+                                ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? 's' : ''}`
+                                : `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''}`;
                             const isPaidPro = !!user?.is_pro;
 
                             if (isOnTrial) {
                                 return (
                                     <div className="space-y-3">
                                         <div className="text-center p-3 bg-amber-900/30 border border-amber-500/30 rounded-lg">
-                                            <span className="text-amber-400 font-semibold">⏳ Free Trial — {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''} remaining</span>
-                                            <p className="text-zinc-500 text-xs mt-1">Subscribe to keep access after your trial ends</p>
+                                            <span className="text-amber-400 font-semibold">⏳ Free Preview — {timeLabel} remaining</span>
+                                            <p className="text-zinc-500 text-xs mt-1">Start your 7-day free trial with card to keep access</p>
                                         </div>
                                         <button
                                             onClick={() => handleSubscribe('pro')}
                                             disabled={isLoading || loading}
                                             className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
                                         >
-                                            {loadingAddon === 'pro' ? 'Loading...' : 'Subscribe Now — $25/mo'}
+                                            {loadingAddon === 'pro' ? 'Loading...' : 'Start 7-Day Free Trial'}
                                         </button>
                                     </div>
                                 );

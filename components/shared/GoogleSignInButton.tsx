@@ -164,6 +164,30 @@ export const GoogleSignInButton = () => {
                         <p className="text-sm text-slate-400">{user.email}</p>
                     </div>
 
+                    {/* Trial Countdown */}
+                    {(() => {
+                        const isOnTrial = user.trial_until && user.trial_until > Date.now() && !user.is_pro && !isDeveloper;
+                        if (!isOnTrial) return null;
+                        const msLeft = user.trial_until! - Date.now();
+                        const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
+                        const timeLabel = hoursLeft > 24
+                            ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? 's' : ''} left`
+                            : `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''} left`;
+                        return (
+                            <Link
+                                href="/pricing"
+                                onClick={() => setDropdownOpen(false)}
+                                className="block border-b border-slate-700 px-4 py-3 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs text-amber-400 font-semibold">⏳ Free Preview</span>
+                                    <span className="text-xs text-amber-300 font-bold">{timeLabel}</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 mt-0.5">Subscribe for full access →</p>
+                            </Link>
+                        );
+                    })()}
+
                     {/* Reputation Section */}
                     <div className="border-b border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-2">
