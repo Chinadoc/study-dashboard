@@ -469,6 +469,102 @@ async function main() {
   `);
 
   // ============================================================
+  // STEP 3b: Per-Tool Coverage from tool_coverage table (23K rows)
+  // ============================================================
+  console.log('\n🔧 Step 3b: Aggregating per-tool coverage from tool_coverage table...');
+
+  // Read all vehicle_intelligence IDs with their make/model/years
+  const viVehicles = queryD1(`
+    SELECT id, make, model, year_start, year_end FROM vehicle_intelligence
+  `);
+
+  console.log(`   Matching ${viVehicles.length} vehicles against 23,712 tool_coverage rows...`);
+
+  // Process per-make to stay within D1 limits
+  const viByMake: Record<string, any[]> = {};
+  for (const v of viVehicles) {
+    const m = v.make;
+    if (!viByMake[m]) viByMake[m] = [];
+    viByMake[m].push(v);
+  }
+
+  const toolJsonBatches: string[] = [];
+  let currentTcBatch: string[] = [];
+  let matchedCount = 0;
+
+  const makes = Object.keys(viByMake);
+  for (let mi = 0; mi < makes.length; mi++) {
+    const make = makes[mi];
+    const vehicles = viByMake[make];
+    process.stdout.write(`   Make ${mi + 1}/${makes.length}: ${make}      \r`);
+
+    // Get all tool_coverage rows for this make
+    const tcRows = queryD1(`
+      SELECT tool_id, make, model, year_start, year_end, status, confidence, notes
+      FROM tool_coverage
+      WHERE make = '${make.replace(/'/g, "''")}'
+    `);
+
+    if (tcRows.length === 0) continue;
+
+    // Group by model for fast lookup
+    const tcByModel: Record<string, any[]> = {};
+    for (const tc of tcRows) {
+      const key = (tc.model || '').toLowerCase();
+      if (!tcByModel[key]) tcByModel[key] = [];
+      tcByModel[key].push(tc);
+    }
+
+    for (const v of vehicles) {
+      const modelKey = (v.model || '').toLowerCase();
+      const modelRows = tcByModel[modelKey] || [];
+
+      // Find matching tool_coverage rows (year overlap)
+      const matching = modelRows.filter((tc: any) =>
+        v.year_start <= tc.year_end && v.year_end >= tc.year_start
+      );
+
+      if (matching.length === 0) continue;
+
+      // Build per-tool JSON: { tool_id: { status, notes } }
+      const toolJson: Record<string, { status: string; confidence: string; notes: string }> = {};
+      for (const tc of matching) {
+        // If multiple year ranges match for same tool, take the best status
+        const existing = toolJson[tc.tool_id];
+        if (!existing || (tc.status === 'Yes' && existing.status !== 'Yes')) {
+          toolJson[tc.tool_id] = {
+            status: tc.status || '',
+            confidence: tc.confidence || 'medium',
+            notes: tc.notes || '',
+          };
+        }
+      }
+
+      const jsonStr = JSON.stringify(toolJson).replace(/'/g, "''");
+      currentTcBatch.push(`UPDATE vehicle_intelligence SET tool_coverage_json = '${jsonStr}' WHERE id = ${v.id}`);
+      matchedCount++;
+
+      if (currentTcBatch.length >= 25) {
+        toolJsonBatches.push(currentTcBatch.join(';\n'));
+        currentTcBatch = [];
+      }
+    }
+  }
+  if (currentTcBatch.length > 0) {
+    toolJsonBatches.push(currentTcBatch.join(';\n'));
+  }
+
+  console.log(`\n   Matched ${matchedCount} vehicles, writing in ${toolJsonBatches.length} batches...`);
+  for (let i = 0; i < toolJsonBatches.length; i++) {
+    process.stdout.write(`   Batch ${i + 1}/${toolJsonBatches.length}\r`);
+    executeD1(toolJsonBatches[i]);
+  }
+  console.log('');
+
+  const toolJsonCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE tool_coverage_json IS NOT NULL`);
+  console.log(`   ✅ ${toolJsonCount[0]?.cnt || 0} vehicles have per-tool coverage JSON (19 tools each)`);
+
+  // ============================================================
   // STEP 4: Enrich with EEPROM data
   // ============================================================
   console.log('\n🔧 Step 4: Enriching with EEPROM data...');

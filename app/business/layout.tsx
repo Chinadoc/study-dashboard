@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useJobLogs } from '@/lib/useJobLogs';
@@ -73,6 +73,27 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
     const { hasBusinessTools, login, isAuthenticated } = useAuth();
     const { jobLogs, getJobStats } = useJobLogs();
     const stats = getJobStats();
+    const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+    const handleBusinessCheckout = async () => {
+        if (!isAuthenticated) { login(); return; }
+        setCheckoutLoading(true);
+        try {
+            const token = localStorage.getItem('session_token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev'}/api/stripe/checkout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ addOnId: 'business_tools' }),
+            });
+            const data = await res.json();
+            if (data.url) window.location.href = data.url;
+            else alert('Failed to start checkout. Please try again.');
+        } catch {
+            alert('Failed to start checkout. Please try again.');
+        } finally {
+            setCheckoutLoading(false);
+        }
+    };
 
     // Calculate free tier usage
     const keysUsed = 0; // Will be calculated from inventory
@@ -203,13 +224,14 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                                     </span>
                                 </div>
                                 <button
-                                    onClick={() => router.push('/pricing')}
-                                    className={`px-4 py-1.5 rounded-lg font-bold text-xs transition-colors ${isOverLimit
+                                    onClick={handleBusinessCheckout}
+                                    disabled={checkoutLoading}
+                                    className={`px-4 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50 ${isOverLimit
                                         ? 'bg-red-500 text-white hover:bg-red-400'
                                         : 'bg-amber-500 text-black hover:bg-amber-400'
                                         }`}
                                 >
-                                    {isOverLimit ? 'Limit Reached → Upgrade' : 'Get Unlimited →'}
+                                    {checkoutLoading ? 'Loading...' : isOverLimit ? 'Upgrade → Free Trial' : 'Get Unlimited →'}
                                 </button>
                             </div>
                         )}
