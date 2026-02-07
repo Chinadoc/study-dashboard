@@ -229,30 +229,58 @@ export default function PricingClient() {
                         </ul>
 
                         {/* CTA Button */}
-                        {isPro ? (
-                            <div className="space-y-3">
-                                <div className="text-center p-3 bg-green-900/30 border border-green-500/30 rounded-lg">
-                                    <span className="text-green-400 font-semibold">✓ You're a Pro member</span>
-                                </div>
-                                <button
-                                    onClick={handleManageSubscription}
-                                    disabled={isLoading || loading}
-                                    className="w-full py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    {isLoading ? 'Loading...' : 'Manage Subscription'}
-                                </button>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => handleSubscribe('pro')}
-                                disabled={isLoading || loading}
-                                className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
-                            >
-                                {loadingAddon === 'pro' ? 'Loading...' :
-                                    isAuthenticated ? (canTrial('pro') ? 'Start 7-Day Free Trial' : 'Subscribe to Pro') :
-                                        'Sign In to Get Started'}
-                            </button>
-                        )}
+                        {(() => {
+                            // Check if user is on a free trial (has trial_until but is_pro is false)
+                            const isOnTrial = user?.trial_until && user.trial_until > Date.now() && !user.is_pro;
+                            const trialEnd = user?.trial_until ?? 0;
+                            const trialDaysLeft = isOnTrial ? Math.ceil((trialEnd - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+                            const isPaidPro = !!user?.is_pro;
+
+                            if (isOnTrial) {
+                                return (
+                                    <div className="space-y-3">
+                                        <div className="text-center p-3 bg-amber-900/30 border border-amber-500/30 rounded-lg">
+                                            <span className="text-amber-400 font-semibold">⏳ Free Trial — {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''} remaining</span>
+                                            <p className="text-zinc-500 text-xs mt-1">Subscribe to keep access after your trial ends</p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleSubscribe('pro')}
+                                            disabled={isLoading || loading}
+                                            className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
+                                        >
+                                            {loadingAddon === 'pro' ? 'Loading...' : 'Subscribe Now — $25/mo'}
+                                        </button>
+                                    </div>
+                                );
+                            } else if (isPaidPro) {
+                                return (
+                                    <div className="space-y-3">
+                                        <div className="text-center p-3 bg-green-900/30 border border-green-500/30 rounded-lg">
+                                            <span className="text-green-400 font-semibold">✓ You're a Pro member</span>
+                                        </div>
+                                        <button
+                                            onClick={handleManageSubscription}
+                                            disabled={isLoading || loading}
+                                            className="w-full py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                                        >
+                                            {isLoading ? 'Loading...' : 'Manage Subscription'}
+                                        </button>
+                                    </div>
+                                );
+                            } else {
+                                return (
+                                    <button
+                                        onClick={() => handleSubscribe('pro')}
+                                        disabled={isLoading || loading}
+                                        className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
+                                    >
+                                        {loadingAddon === 'pro' ? 'Loading...' :
+                                            isAuthenticated ? (canTrial('pro') ? 'Start 7-Day Free Trial' : 'Subscribe to Pro') :
+                                                'Sign In to Get Started'}
+                                    </button>
+                                );
+                            }
+                        })()}
                     </div>
 
                     {/* Trust badges */}
@@ -337,8 +365,8 @@ export default function PricingClient() {
                                             onClick={() => handleSubscribe(addon.id)}
                                             disabled={isLoading || loading}
                                             className={`w-full py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 ${trialAvailable
-                                                    ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white'
-                                                    : 'bg-zinc-700 hover:bg-zinc-600 text-white'
+                                                ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white'
+                                                : 'bg-zinc-700 hover:bg-zinc-600 text-white'
                                                 }`}
                                         >
                                             {loadingAddon === addon.id ? 'Loading...' :

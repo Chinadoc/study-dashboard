@@ -182,7 +182,7 @@ async function main() {
   // Query bitting specs from aks_vehicles
   console.log('📥 Querying bitting specs from aks_vehicles...');
   const bittingSpecs = queryD1(`
-    SELECT page_id, mechanical_key, transponder_key, lishi_tool, chip_type as v_chip,
+    SELECT page_id, mechanical_key, transponder_key, lishi_tool, chip_type,
            code_series, spaces, depths, macs
     FROM aks_vehicles
   `);
@@ -192,27 +192,34 @@ async function main() {
   }
   console.log(`   Found ${bittingSpecs.length} bitting spec entries`);
 
-  // Query all product linkages
-  console.log('📥 Querying product linkages...');
-  const productLinks = queryD1(`
-    SELECT vp.make, vp.model, vp.year, 
-           p.product_type, p.fcc_id, p.buttons, p.oem_part_number,
-           p.battery as p_battery, p.frequency as p_frequency, p.title,
-           d.chip as d_chip, d.keyway as d_keyway, d.battery as d_battery,
-           d.frequency as d_frequency, d.fcc_id as d_fcc
-    FROM aks_vehicle_products vp
-    JOIN aks_products p ON vp.product_page_id = p.page_id
-    LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
-  `);
+  // Query product linkages per-make (178K total rows, paginated to avoid D1 response size limits)
+  console.log('📥 Querying product linkages per make...');
+  const distinctMakes = queryD1(`SELECT DISTINCT make FROM aks_vehicle_products WHERE make IS NOT NULL`);
+  console.log(`   ${distinctMakes.length} makes to process`);
 
-  // Group products by make+model
   const productsByVehicle = new Map<string, any[]>();
-  for (const pl of productLinks) {
-    const key = `${pl.make?.toLowerCase()}|${pl.model?.toLowerCase()}`;
-    if (!productsByVehicle.has(key)) productsByVehicle.set(key, []);
-    productsByVehicle.get(key)!.push(pl);
+  let totalProductLinks = 0;
+
+  for (const { make: pMake } of distinctMakes) {
+    const links = queryD1(`
+      SELECT vp.make, vp.model, vp.year, 
+             p.product_type, p.fcc_id, p.buttons, p.oem_part_number,
+             p.battery as p_battery, p.frequency as p_frequency, p.title,
+             d.chip as d_chip, d.keyway as d_keyway, d.battery as d_battery,
+             d.frequency as d_frequency, d.fcc_id as d_fcc
+      FROM aks_vehicle_products vp
+      JOIN aks_products p ON vp.product_page_id = p.page_id
+      LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
+      WHERE vp.make = '${pMake.replace(/'/g, "''")}'
+    `);
+    for (const pl of links) {
+      const key = `${pl.make?.toLowerCase()}|${pl.model?.toLowerCase()}`;
+      if (!productsByVehicle.has(key)) productsByVehicle.set(key, []);
+      productsByVehicle.get(key)!.push(pl);
+    }
+    totalProductLinks += links.length;
   }
-  console.log(`   Found ${productLinks.length} product links across ${productsByVehicle.size} vehicles`);
+  console.log(`   Found ${totalProductLinks} product links across ${productsByVehicle.size} vehicles`);
 
   // ============================================================
   // STEP 1b: Build INSERT statements with consensus logic
