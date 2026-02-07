@@ -73,42 +73,69 @@ export default function DispatcherPage() {
     const unassignedJobs = useMemo(() => jobLogs.filter(j => j.status === 'unassigned'), [jobLogs]);
 
     // Paywall check - require dispatcher add-on OR full business tools
+    const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+    const handleDispatcherCheckout = async () => {
+        if (!isAuthenticated) { login(); return; }
+        setCheckoutLoading(true);
+        try {
+            const token = localStorage.getItem('session_token');
+            const res = await fetch(`${(process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev')}/api/stripe/checkout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ addOnId: 'business_tools' }),
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert('Failed to start checkout. Please try again.');
+            }
+        } catch {
+            alert('Failed to start checkout. Please try again.');
+        } finally {
+            setCheckoutLoading(false);
+        }
+    };
+
     if (!hasDispatcher && !hasBusinessTools) {
         return (
             <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
                 <div className="max-w-lg w-full p-8 sm:p-12 text-center border-2 border-purple-500/30 bg-gradient-to-br from-purple-900/20 to-zinc-900 rounded-2xl">
-                    <div className="text-6xl mb-6">📡</div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                    <div className="text-5xl mb-4">📡</div>
+                    <h1 className="text-2xl font-bold text-white mb-2">
                         Dispatcher Dashboard
                     </h1>
-                    <p className="text-zinc-400 mb-8">
+                    <p className="text-zinc-400 text-sm mb-6">
                         Manage leads and dispatch jobs to your technicians
                     </p>
 
-                    <div className="text-left bg-zinc-800/50 rounded-xl p-6 mb-8">
-                        <h3 className="font-bold text-zinc-200 mb-4">Dispatcher add-on ($5/mo):</h3>
-                        <ul className="space-y-3 text-sm text-zinc-300">
-                            <li className="flex items-center gap-3">
-                                <span className="text-purple-400">✓</span> Pipeline lead management
+                    <div className="text-left bg-zinc-800/50 rounded-xl p-5 mb-6">
+                        <h3 className="font-bold text-zinc-200 text-sm mb-3">Business Suite ($20/mo) includes:</h3>
+                        <ul className="space-y-2 text-sm text-zinc-300">
+                            <li className="flex items-center gap-2">
+                                <span className="text-purple-400 text-xs">✓</span> Pipeline lead management
                             </li>
-                            <li className="flex items-center gap-3">
-                                <span className="text-purple-400">✓</span> Dispatch queue for technicians
+                            <li className="flex items-center gap-2">
+                                <span className="text-purple-400 text-xs">✓</span> Dispatch queue for technicians
                             </li>
-                            <li className="flex items-center gap-3">
-                                <span className="text-purple-400">✓</span> Real-time job assignment
+                            <li className="flex items-center gap-2">
+                                <span className="text-purple-400 text-xs">✓</span> Real-time job assignment
                             </li>
-                            <li className="flex items-center gap-3">
-                                <span className="text-purple-400">✓</span> Track technician workload
+                            <li className="flex items-center gap-2">
+                                <span className="text-purple-400 text-xs">✓</span> Unlimited job logging & invoicing
                             </li>
                         </ul>
                     </div>
 
                     <button
-                        onClick={() => router.push('/pricing')}
-                        className="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold py-4 rounded-xl transition-colors text-lg mb-4"
+                        onClick={handleDispatcherCheckout}
+                        disabled={checkoutLoading}
+                        className="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold py-3.5 rounded-xl transition-colors text-base mb-3 disabled:opacity-50"
                     >
-                        Add Dispatcher → $5/mo
+                        {checkoutLoading ? 'Loading...' : 'Start 7-Day Free Trial'}
                     </button>
+                    <p className="text-zinc-600 text-xs mb-4">Then $20/mo • Cancel anytime</p>
 
                     {!isAuthenticated && (
                         <button
