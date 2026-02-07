@@ -203,7 +203,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Compute isPro only after mount to avoid hydration mismatch from Date.now()
     const isPro = useMemo(() => {
         if (!hasMounted || !user) return false;
-        return !!(user.is_pro || (user.trial_until && user.trial_until > Date.now() / 1000));
+        return !!(user.is_pro || (user.trial_until && user.trial_until > Date.now()));
     }, [hasMounted, user]);
     const isDeveloper = !!(user && user.is_developer);
 
