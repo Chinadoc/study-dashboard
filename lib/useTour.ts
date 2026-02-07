@@ -83,12 +83,18 @@ export function useTour(): TourState {
         const normalizedPath = pathname?.replace(/\/$/, '') || '';
         const targetPath = step.page.replace(/\/$/, '');
 
+        // If we're already on the right page, clear navigating state.
+        // This avoids getting stuck in "..." if a previous timeout cleanup ran
+        // before it could reset state.
+        if (normalizedPath === targetPath) {
+            setIsNavigating(false);
+            return;
+        }
+
         // Check if we need to navigate (simple path matching)
         if (normalizedPath !== targetPath) {
             setIsNavigating(true);
             router.push(step.page);
-            const timer = setTimeout(() => setIsNavigating(false), 600);
-            return () => clearTimeout(timer);
         }
     }, [tourId, stepIndex, steps, pathname, router]);
 
