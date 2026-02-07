@@ -611,19 +611,23 @@ async function main() {
   // ============================================================
   console.log('\n🔧 Step 6: Computing counts and alerts...');
 
-  // Pearl count (try vehicle_pearls first, fall back to refined_pearls)
-  try {
-    executeD1(`
-      UPDATE vehicle_intelligence
-      SET pearl_count = COALESCE((
-        SELECT COUNT(*) FROM refined_pearls rp
-        WHERE LOWER(rp.make) = LOWER(vehicle_intelligence.make)
-          AND LOWER(rp.model) LIKE '%' || LOWER(vehicle_intelligence.model) || '%'
-      ), 0)
-    `);
-  } catch { /* table may not exist */ }
+  // Pearl count from vehicle_pearls — model-specific only (exclude 'General' make-wide)
+  executeD1(`
+    UPDATE vehicle_intelligence
+    SET pearl_count = COALESCE((
+      SELECT COUNT(*) FROM vehicle_pearls vp
+      WHERE LOWER(vp.make) = LOWER(vehicle_intelligence.make)
+        AND LOWER(vp.model) = LOWER(vehicle_intelligence.model)
+        AND vp.model != 'General'
+        AND vp.year_start <= vehicle_intelligence.year_end
+        AND vp.year_end >= vehicle_intelligence.year_start
+    ), 0)
+  `);
 
-  // Walkthrough availability
+  const pearlStats = queryD1(`SELECT COUNT(*) as has_pearls, SUM(pearl_count) as total FROM vehicle_intelligence WHERE pearl_count > 0`);
+  console.log(`   ✅ ${pearlStats[0]?.has_pearls || 0} vehicles have pearls (${pearlStats[0]?.total || 0} total)`);
+
+  // Walkthrough availability from walkthroughs_v2 (214 rows)
   try {
     executeD1(`
       UPDATE vehicle_intelligence
@@ -631,12 +635,17 @@ async function main() {
         SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
         FROM walkthroughs_v2 w
         WHERE LOWER(w.make) = LOWER(vehicle_intelligence.make)
-          AND LOWER(w.model) LIKE '%' || LOWER(vehicle_intelligence.model) || '%'
+          AND LOWER(w.model) = LOWER(vehicle_intelligence.model)
+          AND w.year_start <= vehicle_intelligence.year_end
+          AND w.year_end >= vehicle_intelligence.year_start
       ), 0)
     `);
   } catch { /* table may not exist */ }
 
-  // Critical alerts
+  const wtStats = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE has_walkthrough = 1`);
+  console.log(`   ✅ ${wtStats[0]?.cnt || 0} vehicles have walkthroughs`);
+
+  // Critical alerts from locksmith_alerts (60 rows)
   try {
     executeD1(`
       UPDATE vehicle_intelligence

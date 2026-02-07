@@ -740,6 +740,9 @@ export default function VehicleDetailClient() {
         macs: specs.macs,
         codeSeries: specs.code_series,
         mechanicalSource: specs.mechanical_source,
+        bittingSource: specs.bitting_source,
+        transponderKey: specs.transponder_key,
+        mechanicalKey: specs.mechanical_key,
     };
 
     // Map walkthroughs to procedures format

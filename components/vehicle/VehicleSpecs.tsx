@@ -37,6 +37,8 @@ interface VehicleSpecsProps {
         frequency?: string;
         battery?: string;
         keyway?: string;
+        transponderKey?: string;
+        mechanicalKey?: string;
         lishi?: string;
         lishiSource?: string;
         spaces?: number;
@@ -44,6 +46,7 @@ interface VehicleSpecsProps {
         macs?: number;
         codeSeries?: string;
         mechanicalSource?: string | null;
+        bittingSource?: string | null;
     };
     make?: string;
     year?: number;
@@ -189,6 +192,24 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                         value={specs.keyway}
                     />
                 )}
+
+                {/* Transponder Key */}
+                {specs.transponderKey && specs.transponderKey !== 'N/A' && (
+                    <SpecItem
+                        label="Transponder Key"
+                        value={specs.transponderKey}
+                        icon="🔑"
+                    />
+                )}
+
+                {/* Mechanical Key */}
+                {specs.mechanicalKey && specs.mechanicalKey !== 'N/A' && (
+                    <SpecItem
+                        label="Mechanical Key"
+                        value={specs.mechanicalKey}
+                        icon="🗝️"
+                    />
+                )}
             </div>
 
             {/* Bitting Specs Row */}
@@ -198,9 +219,9 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                         <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
                             Bitting Specifications
                         </span>
-                        {specs.mechanicalSource === 'vehicles' && (
+                        {(specs.mechanicalSource === 'vehicles' || specs.bittingSource === 'inferred') && (
                             <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-400 border border-amber-700/30">
-                                ⚠️ May be inaccurate
+                                {specs.bittingSource === 'inferred' ? '⚠️ Inferred (not from AKS scrape)' : '⚠️ May be inaccurate'}
                             </span>
                         )}
                     </div>

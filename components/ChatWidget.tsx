@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { useJobLogs, type JobLog } from '@/lib/useJobLogs';
 
 // API base URL - use environment variable or default to production
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
@@ -34,6 +35,186 @@ interface ChatResponse {
   error?: string;
 }
 
+type ParsedJobCommand =
+  | { handled: false }
+  | { handled: true; ok: false; message: string }
+  | { handled: true; ok: true; payload: Omit<JobLog, 'id' | 'createdAt'> };
+
+const JOB_LOG_PREFIX = /^\s*(?:\/)?(?:log|add|create)\s+job\b[:\-]?\s*/i;
+
+function normalizeFieldName(field: string): string {
+  return field.toLowerCase().replace(/[\s_-]+/g, '');
+}
+
+function pickField(fields: Record<string, string>, aliases: string[]): string | undefined {
+  for (const alias of aliases) {
+    const value = fields[normalizeFieldName(alias)];
+    if (value) return value;
+  }
+  return undefined;
+}
+
+function parseAmount(value?: string): number {
+  if (!value) return 0;
+  const cleaned = value.replace(/[$,]/g, '');
+  const match = cleaned.match(/-?\d+(\.\d+)?/);
+  if (!match) return 0;
+  const amount = Number(match[0]);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function normalizeDate(value?: string): string {
+  const today = new Date().toISOString().split('T')[0];
+  if (!value) return today;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return today;
+  return parsed.toISOString().split('T')[0];
+}
+
+function normalizeJobType(value?: string): JobLog['jobType'] {
+  if (!value) return 'other';
+  const normalized = value.toLowerCase().trim().replace(/[\s_-]+/g, '');
+  if (normalized === 'addkey' || normalized === 'spare' || normalized === 'sparekey' || normalized === 'duplicate') return 'add_key';
+  if (normalized === 'akl' || normalized === 'allkeyslost' || normalized === 'allkeys' || normalized === 'lostkeys') return 'akl';
+  if (normalized === 'remote' || normalized === 'remoteonly' || normalized === 'fob' || normalized === 'keyfob') return 'remote';
+  if (normalized === 'blade' || normalized === 'bladecut') return 'blade';
+  if (normalized === 'rekey' || normalized === 'rekeying') return 'rekey';
+  if (normalized === 'lockout' || normalized === 'unlock') return 'lockout';
+  if (normalized === 'safe' || normalized === 'safeopening') return 'safe';
+  return 'other';
+}
+
+function normalizeStatus(value?: string): JobLog['status'] {
+  if (!value) return 'completed';
+  const normalized = value.toLowerCase().trim().replace(/[\s_-]+/g, '');
+  if (normalized === 'inprogress' || normalized === 'started') return 'in_progress';
+  if (normalized === 'hold' || normalized === 'onhold') return 'on_hold';
+  if (normalized === 'pendingclose') return 'pending_close';
+  if (normalized === 'pendingcancel') return 'pending_cancel';
+  if (normalized === 'unassign') return 'unassigned';
+  if (normalized === 'claim') return 'claimed';
+
+  const validStatuses: JobLog['status'][] = [
+    'unassigned',
+    'claimed',
+    'in_progress',
+    'completed',
+    'cancelled',
+    'pending',
+    'appointment',
+    'accepted',
+    'on_hold',
+    'closed',
+    'pending_close',
+    'pending_cancel',
+    'estimate',
+    'follow_up',
+  ];
+
+  return validStatuses.includes(normalized as JobLog['status'])
+    ? (normalized as JobLog['status'])
+    : 'completed';
+}
+
+function parseJobCommand(input: string): ParsedJobCommand {
+  const commandMatch = input.match(JOB_LOG_PREFIX);
+  if (!commandMatch) return { handled: false };
+
+  const body = input.slice(commandMatch[0].length).trim();
+  if (!body) {
+    return {
+      handled: true,
+      ok: false,
+      message: 'Use: log job: vehicle=2019 Honda Civic; job=akl; price=280; customer=John Doe; phone=555-111-2222',
+    };
+  }
+
+  const fields: Record<string, string> = {};
+
+  if (body.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(body) as Record<string, unknown>;
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return {
+          handled: true,
+          ok: false,
+          message: 'JSON must be an object. Example: log job: {"vehicle":"2019 Honda Civic","job":"akl","price":280}',
+        };
+      }
+      Object.entries(parsed).forEach(([key, rawValue]) => {
+        if (rawValue === null || rawValue === undefined) return;
+        fields[normalizeFieldName(key)] = String(rawValue).trim();
+      });
+    } catch {
+      return {
+        handled: true,
+        ok: false,
+        message: 'Invalid JSON format. Example: log job: {"vehicle":"2019 Honda Civic","job":"akl","price":280}',
+      };
+    }
+  } else {
+    const segments = body.split(';').map(part => part.trim()).filter(Boolean);
+    segments.forEach(segment => {
+      const eqIndex = segment.indexOf('=');
+      const colonIndex = segment.indexOf(':');
+      let splitIndex = -1;
+
+      if (eqIndex >= 0 && colonIndex >= 0) splitIndex = Math.min(eqIndex, colonIndex);
+      else splitIndex = Math.max(eqIndex, colonIndex);
+
+      if (splitIndex <= 0) return;
+
+      const key = segment.slice(0, splitIndex).trim();
+      const value = segment.slice(splitIndex + 1).trim();
+      if (!key || !value) return;
+      fields[normalizeFieldName(key)] = value;
+    });
+
+    // Allow "log job: 2019 Honda Civic" as shorthand vehicle-only input.
+    if (segments.length === 1 && Object.keys(fields).length === 0) {
+      fields.vehicle = body;
+    }
+  }
+
+  const vehicle = pickField(fields, ['vehicle', 'car', 'auto']);
+  if (!vehicle) {
+    return {
+      handled: true,
+      ok: false,
+      message: 'Vehicle is required. Example: log job: vehicle=2019 Honda Civic; job=akl; price=280',
+    };
+  }
+
+  const payload: Omit<JobLog, 'id' | 'createdAt'> = {
+    vehicle: vehicle.trim(),
+    jobType: normalizeJobType(pickField(fields, ['job', 'jobType', 'type', 'service'])),
+    price: parseAmount(pickField(fields, ['price', 'amount', 'total'])),
+    date: normalizeDate(pickField(fields, ['date'])),
+    status: normalizeStatus(pickField(fields, ['status'])),
+    source: 'manual',
+  };
+
+  const notes = pickField(fields, ['notes', 'note', 'details']);
+  const customerName = pickField(fields, ['customer', 'customerName', 'name']);
+  const customerPhone = pickField(fields, ['phone', 'customerPhone']);
+  const customerAddress = pickField(fields, ['address', 'customerAddress']);
+  const companyName = pickField(fields, ['company', 'companyName', 'business', 'shop']);
+  const technicianName = pickField(fields, ['technician', 'tech', 'technicianName']);
+  const fccId = pickField(fields, ['fcc', 'fccId']);
+  const keyType = pickField(fields, ['keyType', 'key']);
+
+  if (notes) payload.notes = notes;
+  if (customerName) payload.customerName = customerName;
+  if (customerPhone) payload.customerPhone = customerPhone;
+  if (customerAddress) payload.customerAddress = customerAddress;
+  if (companyName) payload.companyName = companyName;
+  if (technicianName) payload.technicianName = technicianName;
+  if (fccId) payload.fccId = fccId;
+  if (keyType) payload.keyType = keyType;
+
+  return { handled: true, ok: true, payload };
+}
+
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -43,6 +224,7 @@ export default function ChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const { addJobLog } = useJobLogs();
 
   // Auto-detect vehicle context from URL (e.g., /vehicle/bmw/5-series)
   const getVehicleContextFromUrl = (): { make?: string; model?: string } | null => {
@@ -81,8 +263,41 @@ export default function ChatWidget() {
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
-    setIsLoading(true);
     setError(null);
+
+    const parsedJobCommand = parseJobCommand(userMessage.content);
+    if (parsedJobCommand.handled) {
+      if (!parsedJobCommand.ok) {
+        setMessages(prev => [...prev, {
+          id: `msg_${Date.now()}`,
+          role: 'assistant',
+          content: parsedJobCommand.message,
+          timestamp: new Date(),
+        }]);
+        return;
+      }
+
+      try {
+        const newJob = addJobLog(parsedJobCommand.payload);
+        const displayPrice = Number.isFinite(newJob.price) ? newJob.price.toFixed(2) : '0.00';
+        setMessages(prev => [...prev, {
+          id: `msg_${Date.now()}`,
+          role: 'assistant',
+          content: `Job logged successfully.\nVehicle: ${newJob.vehicle}\nType: ${newJob.jobType}\nPrice: $${displayPrice}\nStatus: ${newJob.status}\n\nOpen /business/jobs to review or edit this entry.`,
+          timestamp: new Date(),
+        }]);
+      } catch {
+        setMessages(prev => [...prev, {
+          id: `msg_${Date.now()}`,
+          role: 'assistant',
+          content: 'I could not log that job. Please try again or open /business/jobs to log it manually.',
+          timestamp: new Date(),
+        }]);
+      }
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const vehicleContext = getVehicleContextFromUrl();
@@ -169,8 +384,10 @@ export default function ChatWidget() {
                   <li>Key programming procedures</li>
                   <li>Chip types and FCC IDs</li>
                   <li>Tool recommendations</li>
+                  <li>Quick job logging commands</li>
                 </ul>
                 <p className="chat-example">Try: "What system is the 2014 BMW 5 series?"</p>
+                <p className="chat-example">Log job: "log job: vehicle=2019 Honda Civic; job=akl; price=280; customer=John Doe"</p>
               </div>
             )}
 
@@ -216,7 +433,7 @@ export default function ChatWidget() {
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about a vehicle..."
+              placeholder="Ask a question or type: log job: vehicle=..."
               className="chat-input"
               disabled={isLoading}
             />

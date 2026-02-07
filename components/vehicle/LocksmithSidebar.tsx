@@ -6,6 +6,8 @@ interface SidebarProps {
     specs: {
         battery?: string;
         keyway?: string;
+        transponderKey?: string;
+        mechanicalKey?: string;
         canFdRequired?: boolean;
     };
     platform?: string;
@@ -15,9 +17,10 @@ interface SidebarProps {
 }
 
 export default function LocksmithSidebar({ specs, platform, architecture, gotchaText, proTipText }: SidebarProps) {
+    const bladeValue = specs.keyway || specs.transponderKey || specs.mechanicalKey;
     const buyList = [
         { name: `Battery: ${specs.battery || 'CR2032'}`, icon: '🔋', desc: 'Required for all remotes' },
-        { name: `Blade: ${specs.keyway || 'MAZ24'}`, icon: '🔑', desc: 'Emergency physical bypass' },
+        ...(bladeValue ? [{ name: `Blade: ${bladeValue}`, icon: '🔑', desc: 'Emergency physical bypass' }] : []),
     ];
 
     if (specs.canFdRequired) {

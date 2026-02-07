@@ -10206,6 +10206,56 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
+      // R2 IMAGE UPLOAD - Temporary endpoint for AKS image migration
+      // ==============================================
+      // Accepts POST with image binary, stores in R2, updates DB
+      // Remove this endpoint after migration is complete
+      if (path === "/api/r2-upload" && request.method === "POST") {
+        try {
+          const authKey = url.searchParams.get("key");
+          if (authKey !== "aks-migrate-2026") {
+            return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          }
+
+          const itemNumber = url.searchParams.get("item");
+          const r2Key = url.searchParams.get("r2key");
+          if (!itemNumber || !r2Key) {
+            return corsResponse(request, JSON.stringify({ error: "item and r2key required" }), 400);
+          }
+
+          // Get binary body
+          const imageData = await request.arrayBuffer();
+          if (!imageData || imageData.byteLength === 0) {
+            return corsResponse(request, JSON.stringify({ error: "Empty body" }), 400);
+          }
+
+          // Determine content type
+          const ext = r2Key.split('.').pop()?.toLowerCase() || 'jpg';
+          const contentTypes: Record<string, string> = {
+            'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+            'gif': 'image/gif', 'webp': 'image/webp'
+          };
+          const contentType = contentTypes[ext] || 'image/jpeg';
+
+          // Upload to R2
+          await env.ASSETS_BUCKET.put(r2Key, imageData, {
+            httpMetadata: { contentType }
+          });
+
+          // Update database
+          await env.LOCKSMITH_DB.prepare(
+            "UPDATE aks_products_detail SET image_r2_key = ? WHERE item_number = ?"
+          ).bind(r2Key, itemNumber).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true, item: itemNumber, r2Key, size: imageData.byteLength
+          }), 200);
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // R2 IMAGE PROXY - Serve images from R2 bucket
       // ==============================================
       // Proxies requests to /api/r2/{key} to the R2 bucket
@@ -11826,7 +11876,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             });
           }
 
-          // 2. Get vehicles table data (Priority 3 - fallback for immobilizer, platform, etc.)
+          // 2. Get vehicles table data (LOWEST PRIORITY - DEPRECATED, scheduled for removal)
+          // TODO: Remove vehicles table dependency entirely once vehicle_intelligence is fully populated
+          // This table contains many low-confidence legacy_import rows with incorrect data
           let vehicleData: any = null;
           const vehicleQuery = year
             ? `SELECT * FROM vehicles WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND year_start <= ? AND (year_end IS NULL OR year_end >= ?) LIMIT 1`
@@ -12027,7 +12079,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
 
           // 5. Build combined response with priority rules
-          // Priority: enrichments (0) > AKS (1) > VYP (2) > vehicles (3)
+          // Priority: enrichments (0) > AKS vehicles (1) > VYP (2) > vehicles (3 - DEPRECATED, lowest priority)
+          // NOTE: The vehicles table is scheduled for deletion. Do NOT add new dependencies on it.
           const response: any = {
             query: { make, model, year },
             data_sources: {
@@ -12037,30 +12090,31 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               aks_products: Object.keys(productsByType).length > 0
             },
 
-            // Header data (enrichments override vehicles)
+            // Header data — Priority: enrichments > aks_vehicles > vyp > vehicles (DEPRECATED)
             header: {
-              make: vehicleData?.make || make,
+              make: aksVehicleData?.make_model?.split(' ')[0] || vehicleData?.make || make,
               model: vehicleData?.model || model,
               year: year,
               year_range: vehicleData ? { start: vehicleData.year_start, end: vehicleData.year_end } : null,
-              // Priority 0: enrichments override
-              immobilizer_system: enrichmentData?.immobilizer_system || vehicleData?.immobilizer_system || null,
-              platform: enrichmentData?.platform || vehicleData?.platform || null,
+              // Priority: enrichments > vehicles (DEPRECATED fallback)
+              immobilizer_system: enrichmentData?.immobilizer_system || vehicleData?.immobilizer_system || null, // vehicles DEPRECATED
+              platform: enrichmentData?.platform || vehicleData?.platform || null, // vehicles DEPRECATED
               protocol_type: enrichmentData?.protocol_type || null,
               security_gateway: enrichmentData?.security_gateway || null,
-              key_type: vehicleData?.key_type || null,
-              can_fd_required: enrichmentData?.can_fd_required ?? vehicleData?.can_fd_required ?? false,
+              key_type: vehicleData?.key_type || null, // vehicles DEPRECATED
+              can_fd_required: enrichmentData?.can_fd_required ?? vehicleData?.can_fd_required ?? false, // vehicles DEPRECATED
               adapter_type: enrichmentData?.adapter_type ?? vehicleData?.adapter_type ??
                 (enrichmentData?.can_fd_required || vehicleData?.can_fd_required ? 'CAN FD' : 'None'),
               online_required: enrichmentData?.online_required ?? false,
+              // DEPRECATED: architecture_tags from vehicles table are often wrong (e.g. Catera shows GM PK3)
               architecture_tags: vehicleData?.architecture_tags_json ? JSON.parse(vehicleData.architecture_tags_json) : []
             },
 
-            // Specs data - Priority: enrichments > AKS vehicles > VYP > vehicles
+            // Specs data - Priority: enrichments > AKS vehicles > VYP > vehicles (DEPRECATED)
             specs: {
-              // Priority: enrichments > AKS vehicles (38% lishi) > VYP > vehicles
-              lishi: enrichmentData?.lishi || aksVehicleData?.lishi_tool || vypData?.lishi || vehicleData?.lishi_tool || null,
-              lishi_source: enrichmentData?.lishi ? "enrichments" : (aksVehicleData?.lishi_tool ? "aks_vehicles" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles" : null))),
+              // Priority: enrichments > AKS vehicles > VYP > vehicles (DEPRECATED - often wrong, e.g. HU100 for Catera)
+              lishi: enrichmentData?.lishi || aksVehicleData?.lishi_tool || vypData?.lishi || vehicleData?.lishi_tool || null, // vehicles DEPRECATED
+              lishi_source: enrichmentData?.lishi ? "enrichments" : (aksVehicleData?.lishi_tool ? "aks_vehicles" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles_deprecated" : null))),
 
               // Bitting specs - Priority: AKS vehicles (74.5%) > VYP > vehicles
               spaces: parseInt(aksVehicleData?.spaces, 10) || parseInt(vypData?.spaces, 10) || vehicleData?.spaces || null,
@@ -12068,6 +12122,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               macs: parseInt(aksVehicleData?.macs, 10) || parseInt(vypData?.macs, 10) || vehicleData?.macs || null,
               // Track source for accuracy/debugging
               mechanical_source: aksVehicleData?.spaces ? "aks_vehicles" : (vypData?.spaces ? "vyp" : (vehicleData?.spaces ? "vehicles" : null)),
+              bitting_source: aksVehicleData?.spaces ? (aksVehicleData?.bitting_source || 'unknown') : (vypData?.spaces ? 'scraped' : null),
               code_series: aksVehicleData?.code_series || vypData?.code_series || vehicleData?.code_series || null,
               mechanical_key: aksVehicleData?.mechanical_key || vypData?.mechanical_key || vehicleData?.mechanical_spec || null,
               transponder_key: aksVehicleData?.transponder_key || vypData?.transponder_key || vehicleData?.blade_type || null,
@@ -12075,12 +12130,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               keyway: enrichmentData?.keyway || aksVehicleData?.mechanical_key || aksConsensus.keyway || vehicleData?.keyway || null,
               keyway_source: enrichmentData?.keyway ? "enrichments" : (aksVehicleData?.mechanical_key ? "aks_vehicles" : (aksConsensus.keyway ? "aks_products" : (vehicleData?.keyway ? "vehicles" : null))),
 
-              // Priority: enrichments (override) > AKS (primary hardware authority) > vehicles (fallback)
-              chip: enrichmentData?.chip || aksConsensus.chip || vehicleData?.chip || null,
-              frequency: enrichmentData?.frequency || aksConsensus.frequency || vehicleData?.frequency || null,
-              battery: enrichmentData?.battery || aksConsensus.battery || vehicleData?.battery || null,
-              buttons: vehicleData?.buttons || null,
-              fcc_id: enrichmentData?.fcc_id || aksConsensus.fcc_id || vehicleData?.fcc_id || null,
+              // Priority: enrichments (override) > AKS (primary hardware authority) > vehicles (DEPRECATED fallback)
+              chip: enrichmentData?.chip || aksConsensus.chip || vehicleData?.chip || null, // vehicles DEPRECATED
+              frequency: enrichmentData?.frequency || aksConsensus.frequency || vehicleData?.frequency || null, // vehicles DEPRECATED
+              battery: enrichmentData?.battery || aksConsensus.battery || vehicleData?.battery || null, // vehicles DEPRECATED
+              buttons: vehicleData?.buttons || null, // vehicles DEPRECATED
+              fcc_id: enrichmentData?.fcc_id || aksConsensus.fcc_id || vehicleData?.fcc_id || null, // vehicles DEPRECATED
 
               // Transition year variance detection (60% Mode Rule)
               hasVariance: aksConsensus.hasVariance,
@@ -12118,7 +12173,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             // Tools (Lishi) matched by keyway
             aks_tools: aksTools.length > 0 ? aksTools : null,
 
-            // Programming info from vehicles table
+            // Programming info from vehicles table (DEPRECATED - migrate to vehicle_intelligence)
             programming: vehicleData ? {
               method: vehicleData.programming_method,
               pin_required: !!vehicleData.pin_required,
@@ -12128,7 +12183,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               prog_tools: vehicleData.prog_tools
             } : null,
 
-            // Counts for UI badges
+            // Counts for UI badges (DEPRECATED - relies on vehicles table)
             counts: {
               pearls: vehicleData?.pearl_count || 0,
               alerts: vehicleData?.alert_count || 0,

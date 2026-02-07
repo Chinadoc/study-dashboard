@@ -133,6 +133,12 @@ export interface JobStats {
 
 const STORAGE_KEY = 'eurokeys_job_logs';
 const SYNCED_KEY = 'eurokeys_jobs_synced';
+const JOBS_UPDATED_EVENT = 'eurokeys:jobs-updated';
+
+function emitJobsUpdatedEvent() {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(new Event(JOBS_UPDATED_EVENT));
+}
 
 function generateId(): string {
     return `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -169,6 +175,19 @@ export interface ConflictItem {
     id: string;
     local: JobLog;
     cloud: JobLog;
+}
+
+interface JobTimelineEvent {
+    eventType: string;
+    status?: string;
+    details: string;
+    payload: Record<string, unknown>;
+    companyName?: string;
+    technicianId?: string;
+    technicianName?: string;
+    customerName?: string;
+    customerPhone?: string;
+    customerAddress?: string;
 }
 
 export function useJobLogs() {
@@ -330,6 +349,7 @@ export function useJobLogs() {
         const updated = allJobs.filter(j => !resolutions.some(r => r.id === j.id));
         const final = [...resolved, ...updated];
         localStorage.setItem(effectiveStorageKey, JSON.stringify(final));
+        emitJobsUpdatedEvent();
 
         // Sync pending ones to cloud
         const pending = resolved.filter(j => j.syncStatus === 'pending');
@@ -430,6 +450,45 @@ export function useJobLogs() {
         });
     }, []);
 
+    // Keep multiple hook instances in sync (e.g., Chat widget + Jobs page).
+    const refreshFromLocalStorage = useCallback(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const saved = localStorage.getItem(effectiveStorageKey);
+            if (!saved) {
+                setJobLogs([]);
+                return;
+            }
+            const parsed = JSON.parse(saved);
+            const valid = Array.isArray(parsed) ? filterValidJobs(parsed) : [];
+            setJobLogs(valid);
+        } catch (e) {
+            console.error('Failed to refresh local jobs:', e);
+        }
+    }, [effectiveStorageKey, filterValidJobs]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const handleJobsUpdated = () => {
+            refreshFromLocalStorage();
+        };
+
+        const handleStorage = (event: StorageEvent) => {
+            if (event.key === effectiveStorageKey) {
+                refreshFromLocalStorage();
+            }
+        };
+
+        window.addEventListener(JOBS_UPDATED_EVENT, handleJobsUpdated);
+        window.addEventListener('storage', handleStorage);
+
+        return () => {
+            window.removeEventListener(JOBS_UPDATED_EVENT, handleJobsUpdated);
+            window.removeEventListener('storage', handleStorage);
+        };
+    }, [effectiveStorageKey, refreshFromLocalStorage]);
+
     // Bidirectional sync: load from both local and cloud, merge, then push local-only to cloud
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -477,6 +536,7 @@ export function useJobLogs() {
 
                     setJobLogs(merged);
                     localStorage.setItem(effectiveStorageKey, JSON.stringify(merged));
+                    emitJobsUpdatedEvent();
 
                     // 4. Find local-only jobs that need to sync
                     const cloudIds = new Set(cloudJobs.map(j => j.id));
@@ -502,6 +562,7 @@ export function useJobLogs() {
                         }));
                         setJobLogs(synced);
                         localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
+                        emitJobsUpdatedEvent();
                     }
 
                     hasSyncedRef.current = true;
@@ -603,6 +664,7 @@ export function useJobLogs() {
             current.unshift(jobWithChecksum);
         }
         localStorage.setItem(effectiveStorageKey, JSON.stringify(current));
+        emitJobsUpdatedEvent();
         updateSyncState({ lastLocalModified: Date.now() });
 
         // Save to cloud if authenticated and online
@@ -618,6 +680,7 @@ export function useJobLogs() {
                     j.id === job.id ? { ...j, syncStatus: 'synced' as const, syncedAt: Date.now() } : j
                 );
                 localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
+                emitJobsUpdatedEvent();
                 updateSyncState({ lastCloudSync: Date.now() });
                 setSyncStatus('synced');
             } catch (e) {
@@ -729,6 +792,7 @@ export function useJobLogs() {
         // Remove from localStorage
         const updated = originalJobs.filter(j => j.id !== id);
         localStorage.setItem(effectiveStorageKey, JSON.stringify(updated));
+        emitJobsUpdatedEvent();
         updateSyncState({ lastLocalModified: Date.now() });
 
         // Rollback function
@@ -737,6 +801,7 @@ export function useJobLogs() {
                 const current = getJobLogsFromStorage();
                 current.unshift(deletedJob);
                 localStorage.setItem(effectiveStorageKey, JSON.stringify(current));
+                emitJobsUpdatedEvent();
                 setJobLogs(prev => [deletedJob, ...prev]);
             }
         };
@@ -777,20 +842,7 @@ export function useJobLogs() {
     }, []);
 
     const updateJobLog = useCallback((id: string, updates: Partial<Omit<JobLog, 'id' | 'createdAt'>>) => {
-        let timelineEvent:
-            | {
-                eventType: string;
-                status?: string;
-                details: string;
-                payload: Record<string, unknown>;
-                companyName?: string;
-                technicianId?: string;
-                technicianName?: string;
-                customerName?: string;
-                customerPhone?: string;
-                customerAddress?: string;
-            }
-            | null = null;
+        let timelineEvent: JobTimelineEvent | null = null;
 
         setJobLogs(prev => {
             const original = prev.find(log => log.id === id);
@@ -855,7 +907,7 @@ export function useJobLogs() {
             return updated;
         });
 
-        const eventToAppend = timelineEvent as (NonNullable<typeof timelineEvent> | null);
+        const eventToAppend = timelineEvent as JobTimelineEvent | null;
         if (eventToAppend) {
             const now = Date.now();
             appendFleetTimelineEvent({
@@ -1064,6 +1116,7 @@ export function useJobLogs() {
                 if (data?.jobs) {
                     setJobLogs(data.jobs);
                     localStorage.setItem(effectiveStorageKey, JSON.stringify(data.jobs));
+                    emitJobsUpdatedEvent();
                     updateSyncState({ lastCloudSync: data.serverTime || Date.now() });
                 }
                 setSyncStatus('synced');
@@ -1093,6 +1146,7 @@ export function useJobLogs() {
             }));
             setJobLogs(synced);
             localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
+            emitJobsUpdatedEvent();
 
             // Update sync state
             updateSyncState({
@@ -1130,6 +1184,7 @@ export function useJobLogs() {
 
             // Clear localStorage job data
             localStorage.removeItem(effectiveStorageKey);
+            emitJobsUpdatedEvent();
 
             // Clear any pending sync queue items for jobs
             const queue = getQueue();
@@ -1152,6 +1207,7 @@ export function useJobLogs() {
 
                 setJobLogs(validJobs);
                 localStorage.setItem(effectiveStorageKey, JSON.stringify(validJobs));
+                emitJobsUpdatedEvent();
 
                 updateSyncState({ lastCloudSync: data.serverTime || Date.now() });
                 hasSyncedRef.current = true;
