@@ -1365,15 +1365,6 @@ export default {
             return corsResponse(request, JSON.stringify({ error: session.error.message }), 400);
           }
 
-          // Record trial usage immediately (prevents race conditions)
-          if (eligibleForTrial) {
-            const now = Date.now();
-            const trialExpires = now + (7 * 24 * 60 * 60 * 1000); // 7 days from now
-            await env.LOCKSMITH_DB.prepare(
-              "INSERT OR IGNORE INTO addon_trials (user_id, addon_id, trial_started_at, trial_expires_at) VALUES (?, ?, ?, ?)"
-            ).bind(userId, addOnId, now, trialExpires).run();
-          }
-
           return corsResponse(request, JSON.stringify({ url: session.url, eligibleForTrial }));
         } catch (err: any) {
           console.error("/api/stripe/checkout error:", err);
@@ -1620,15 +1611,17 @@ export default {
                   WHERE user_id = ? AND addon_id = ?
                 `).bind(now, subscriptionId, userId, addOnId).run();
 
-                // If no existing trial row (shouldn't happen, but safety net)
+                // If no existing trial row, create one (this is the primary path now)
                 const existing = await env.LOCKSMITH_DB.prepare(
                   "SELECT id FROM addon_trials WHERE user_id = ? AND addon_id = ?"
                 ).bind(userId, addOnId).first();
                 if (!existing) {
+                  const isTrial = session.metadata?.is_trial === 'true';
+                  const trialExpires = isTrial ? now + (7 * 24 * 60 * 60 * 1000) : now;
                   await env.LOCKSMITH_DB.prepare(`
                     INSERT INTO addon_trials (user_id, addon_id, trial_started_at, trial_expires_at, converted_at, stripe_subscription_id)
                     VALUES (?, ?, ?, ?, ?, ?)
-                  `).bind(userId, addOnId, now, now, now, subscriptionId).run();
+                  `).bind(userId, addOnId, now, trialExpires, now, subscriptionId).run();
                 }
 
                 console.log("Add-on activated:", userId, addOnId);
