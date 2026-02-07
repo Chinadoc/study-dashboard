@@ -2,11 +2,12 @@
 
 /**
  * Tool Coverage Utility
- * Maps user's owned tools to vehicle coverage from unified_vehicle_coverage.json
+ * Maps user's owned tools to vehicle coverage via D1 API
  */
 
-import vehicleCoverageData from '@/src/data/unified_vehicle_coverage.json';
 import { loadBusinessProfile, AVAILABLE_TOOLS, ToolInfo } from '@/lib/businessTypes';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
 
 // Coverage data types
 interface ToolCoverageDetail {
@@ -21,33 +22,14 @@ interface ToolCoverageDetail {
     cables: string[];
 }
 
-interface VehicleCoverageRecord {
-    make: string;
-    model: string;
-    yearStart: number;
-    yearEnd: number;
-    autel: ToolCoverageDetail;
-    smartPro: ToolCoverageDetail;
-    lonsdor: ToolCoverageDetail;
-    vvdi: ToolCoverageDetail;
-    platform: string;
-    chips: string[];
-    flags: Array<{ tool: string; year: number; reason: string }>;
-    dossierMentions: number;
-}
-
-// Type assertion for the JSON data
-const COVERAGE_DATA = (vehicleCoverageData as { vehicles: VehicleCoverageRecord[] }).vehicles || [];
-
 // Map tool IDs from businessTypes to coverage categories
-// Brand models all use their respective baseline data (derived coverage can be added per-brand)
-const TOOL_ID_TO_COVERAGE: Record<string, keyof Pick<VehicleCoverageRecord, 'autel' | 'smartPro' | 'lonsdor' | 'vvdi'>> = {
+const TOOL_ID_TO_COVERAGE: Record<string, string> = {
     // Autel
     'autel_im508s': 'autel',
     'autel_im608': 'autel',
     'autel_im608_pro': 'autel',
     'autel_im608_pro2': 'autel',
-    // OBDStar (uses autel baseline - similar coverage)
+    // OBDStar
     'obdstar_x300_mini': 'autel',
     'obdstar_x300_pro4': 'autel',
     'obdstar_x300_dp_plus': 'autel',
@@ -69,7 +51,6 @@ const TOOL_ID_TO_COVERAGE: Record<string, keyof Pick<VehicleCoverageRecord, 'aut
 };
 
 // Coverage categories with display info
-// Note: When filtering by specific Autel model, use AUTEL_MODEL_TIERS from autelModelCoverage.ts
 const COVERAGE_TOOLS = [
     { key: 'autel' as const, name: 'Autel (All)', icon: '🔴', color: 'red' },
     { key: 'smartPro' as const, name: 'Smart Pro', icon: '⚪', color: 'gray' },
@@ -85,7 +66,7 @@ export interface VehicleToolCoverage {
     status: string;
     confidence: string;
     isOwned: boolean;
-    ownedToolName?: string;  // e.g., "Autel IM608 Pro II"
+    ownedToolName?: string;
     limitations: Array<{
         category: string;
         label: string;
@@ -122,7 +103,90 @@ const LIMITATION_LABELS: Record<string, string> = {
 };
 
 /**
- * Get vehicle coverage for a specific vehicle
+ * Get vehicle coverage for a specific vehicle via D1 API
+ */
+export async function getVehicleCoverageAsync(
+    make: string,
+    model: string,
+    year: number
+): Promise<VehicleCoverageResult> {
+    const profile = loadBusinessProfile();
+    const ownedToolIds = profile.tools || [];
+
+    try {
+        const resp = await fetch(
+            `${API_BASE}/api/vehicle-coverage/infer?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`
+        );
+
+        if (!resp.ok) {
+            return getEmptyResult(ownedToolIds);
+        }
+
+        const data = await resp.json() as {
+            make: string;
+            model: string;
+            year: number;
+            chips: string[];
+            coverage: Record<string, {
+                status: string;
+                confidence: string;
+                source: string;
+                limitations: Array<any>;
+                cables: string[];
+                inferred_from_chips: string[];
+            }>;
+        };
+
+        if (!data.coverage || Object.keys(data.coverage).length === 0) {
+            return getEmptyResult(ownedToolIds);
+        }
+
+        const ownedCategories = new Set(
+            ownedToolIds.map(id => TOOL_ID_TO_COVERAGE[id]).filter(Boolean)
+        );
+
+        const tools: VehicleToolCoverage[] = COVERAGE_TOOLS.map(tool => {
+            const cov = data.coverage[tool.key];
+            const isOwned = ownedCategories.has(tool.key);
+
+            return {
+                ...tool,
+                status: cov?.status || '',
+                confidence: cov?.confidence || 'unknown',
+                isOwned,
+                ownedToolName: isOwned ? getOwnedToolName(ownedToolIds, tool.key) : undefined,
+                limitations: (cov?.limitations || []).map((lim: any) => ({
+                    category: lim.category || '',
+                    label: LIMITATION_LABELS[lim.category] || lim.category || '',
+                    cables: lim.cables || [],
+                })),
+                cables: cov?.cables || [],
+                flags: [],
+            };
+        });
+
+        return {
+            found: true,
+            vehicle: {
+                make: data.make,
+                model: data.model,
+                yearStart: data.year,
+                yearEnd: data.year,
+                platform: '',
+                chips: data.chips || [],
+            },
+            tools,
+            dossierMentions: 0,
+        };
+    } catch (err) {
+        console.error('Failed to fetch vehicle coverage:', err);
+        return getEmptyResult(ownedToolIds);
+    }
+}
+
+/**
+ * Synchronous wrapper that returns empty result immediately
+ * For backward compatibility — callers should migrate to getVehicleCoverageAsync
  */
 export function getVehicleCoverage(
     make: string,
@@ -131,85 +195,23 @@ export function getVehicleCoverage(
 ): VehicleCoverageResult {
     const profile = loadBusinessProfile();
     const ownedToolIds = profile.tools || [];
+    return getEmptyResult(ownedToolIds);
+}
 
-    // Find matching vehicle in coverage data
-    const normalizedMake = make.trim().toLowerCase();
-    const normalizedModel = model.trim().toLowerCase();
-
-    const vehicle = COVERAGE_DATA.find(v => {
-        const vMake = v.make.toLowerCase();
-        const vModel = v.model.toLowerCase();
-        return (
-            vMake === normalizedMake &&
-            (vModel === normalizedModel || vModel.includes(normalizedModel) || normalizedModel.includes(vModel)) &&
-            year >= v.yearStart && year <= v.yearEnd
-        );
-    });
-
-    if (!vehicle) {
-        // Return empty result with all tools as unknown
-        return {
-            found: false,
-            tools: COVERAGE_TOOLS.map(tool => ({
-                ...tool,
-                status: '',
-                confidence: 'unknown',
-                isOwned: ownedToolIds.some(id => TOOL_ID_TO_COVERAGE[id] === tool.key),
-                ownedToolName: getOwnedToolName(ownedToolIds, tool.key),
-                limitations: [],
-                cables: [],
-                flags: [],
-            })),
-            dossierMentions: 0,
-        };
-    }
-
-    // Map owned tool IDs to coverage categories
-    const ownedCategories = new Set(
-        ownedToolIds.map(id => TOOL_ID_TO_COVERAGE[id]).filter(Boolean)
-    );
-
-    // Build coverage result for each tool
-    const tools: VehicleToolCoverage[] = COVERAGE_TOOLS.map(tool => {
-        const coverage = vehicle[tool.key];
-        const isOwned = ownedCategories.has(tool.key);
-
-        // Get flags specific to this tool
-        const toolFlags = vehicle.flags
-            .filter(f => f.tool === tool.key)
-            .map(f => ({ year: f.year, reason: f.reason }));
-
-        // Parse limitations
-        const limitations = (coverage.limitations || []).map(lim => ({
-            category: lim.category,
-            label: LIMITATION_LABELS[lim.category] || lim.category,
-            cables: lim.cables || [],
-        }));
-
-        return {
-            ...tool,
-            status: coverage.status || '',
-            confidence: coverage.confidence || 'unknown',
-            isOwned,
-            ownedToolName: isOwned ? getOwnedToolName(ownedToolIds, tool.key) : undefined,
-            limitations,
-            cables: coverage.cables || [],
-            flags: toolFlags,
-        };
-    });
-
+function getEmptyResult(ownedToolIds: string[]): VehicleCoverageResult {
     return {
-        found: true,
-        vehicle: {
-            make: vehicle.make,
-            model: vehicle.model,
-            yearStart: vehicle.yearStart,
-            yearEnd: vehicle.yearEnd,
-            platform: vehicle.platform,
-            chips: vehicle.chips,
-        },
-        tools,
-        dossierMentions: vehicle.dossierMentions,
+        found: false,
+        tools: COVERAGE_TOOLS.map(tool => ({
+            ...tool,
+            status: '',
+            confidence: 'unknown',
+            isOwned: ownedToolIds.some(id => TOOL_ID_TO_COVERAGE[id] === tool.key),
+            ownedToolName: getOwnedToolName(ownedToolIds, tool.key),
+            limitations: [],
+            cables: [],
+            flags: [],
+        })),
+        dossierMentions: 0,
     };
 }
 
@@ -227,11 +229,19 @@ function getOwnedToolName(ownedToolIds: string[], coverageKey: string): string |
 }
 
 /**
- * Check if user owns any tools that cover a specific vehicle
+ * Check if user owns any tools that cover a specific vehicle (async)
+ */
+export async function hasOwnedCoverageAsync(make: string, model: string, year: number): Promise<boolean> {
+    const result = await getVehicleCoverageAsync(make, model, year);
+    return result.tools.some(t => t.isOwned && t.status);
+}
+
+/**
+ * Synchronous check — for backward compatibility, always returns false
+ * Callers should migrate to hasOwnedCoverageAsync
  */
 export function hasOwnedCoverage(make: string, model: string, year: number): boolean {
-    const result = getVehicleCoverage(make, model, year);
-    return result.tools.some(t => t.isOwned && t.status);
+    return false;
 }
 
 /**

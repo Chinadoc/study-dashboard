@@ -9557,6 +9557,178 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
+      // TOOL COVERAGE (Enriched per-tool data from D1)
+      // ==============================================
+
+      // Heatmap endpoint: returns aggregated make×year grid for a specific tool
+      if (path === "/api/tool-coverage/heatmap") {
+        try {
+          const toolId = url.searchParams.get("tool") || "";
+          const toolFamily = url.searchParams.get("family") || "";
+
+          if (!toolId && !toolFamily) {
+            return corsResponse(request, JSON.stringify({ error: "tool or family parameter required" }), 400);
+          }
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          if (toolId) {
+            conditions.push("tool_id = ?");
+            params.push(toolId);
+          } else if (toolFamily) {
+            conditions.push("tool_family = ?");
+            params.push(toolFamily);
+          }
+
+          const sql = `
+            SELECT make, model, year_start, year_end, status, confidence, notes, tier, chips, platform
+            FROM tool_coverage
+            WHERE ${conditions.join(" AND ")}
+            ORDER BY make, model, year_start
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+          const rows = (result.results || []) as any[];
+
+          // Aggregate into make → year → status grid
+          const makes: Record<string, Record<string, { status: string; count: number; models: string[] }>> = {};
+          const allMakes: Record<string, { total: number; full: number; limited: number; none: number }> = {};
+
+          for (const r of rows) {
+            if (!makes[r.make]) {
+              makes[r.make] = {};
+              allMakes[r.make] = { total: 0, full: 0, limited: 0, none: 0 };
+            }
+
+            const stats = allMakes[r.make];
+            stats.total++;
+
+            if (r.status === 'Yes') stats.full++;
+            else if (r.status === 'Limited') stats.limited++;
+            else stats.none++;
+
+            // Fill year slots
+            for (let y = r.year_start; y <= r.year_end; y++) {
+              const yStr = String(y);
+              if (!makes[r.make][yStr]) {
+                makes[r.make][yStr] = { status: 'none', count: 0, models: [] };
+              }
+              const cell = makes[r.make][yStr];
+              cell.count++;
+              if (r.model && !cell.models.includes(r.model)) {
+                cell.models.push(r.model);
+              }
+              // Upgrade status: full > limited > none
+              if (r.status === 'Yes') {
+                cell.status = 'full';
+              } else if (r.status === 'Limited' && cell.status !== 'full') {
+                cell.status = 'partial';
+              }
+            }
+          }
+
+          return corsResponse(request, JSON.stringify({
+            tool_id: toolId || toolFamily,
+            total_records: rows.length,
+            makes,
+            summary: allMakes
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // Compare two tools side by side for a make
+      if (path === "/api/tool-coverage/compare") {
+        try {
+          const toolsParam = url.searchParams.get("tools") || "";
+          const make = url.searchParams.get("make") || "";
+
+          if (!toolsParam) {
+            return corsResponse(request, JSON.stringify({ error: "tools parameter required (comma-separated)" }), 400);
+          }
+
+          const tools = toolsParam.split(",").map((t: string) => t.trim()).filter(Boolean);
+          if (tools.length < 2) {
+            return corsResponse(request, JSON.stringify({ error: "at least 2 tools required" }), 400);
+          }
+
+          const placeholders = tools.map(() => "?").join(",");
+          const params: (string | number)[] = [...tools];
+
+          let whereClause = `tool_id IN (${placeholders})`;
+          if (make) {
+            whereClause += " AND LOWER(make) = ?";
+            params.push(make.toLowerCase());
+          }
+
+          const sql = `
+            SELECT tool_id, make, model, year_start, year_end, status, tier, confidence, notes
+            FROM tool_coverage
+            WHERE ${whereClause}
+            ORDER BY make, model, year_start, tool_id
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+          const rows = (result.results || []) as any[];
+
+          // Group by vehicle key
+          const vehicles: Record<string, Record<string, any>> = {};
+          for (const r of rows) {
+            const key = `${r.make}|${r.model}|${r.year_start}-${r.year_end}`;
+            if (!vehicles[key]) {
+              vehicles[key] = { make: r.make, model: r.model, year_start: r.year_start, year_end: r.year_end, tools: {} };
+            }
+            vehicles[key].tools[r.tool_id] = {
+              status: r.status,
+              tier: r.tier,
+              confidence: r.confidence,
+              notes: r.notes
+            };
+          }
+
+          // Find differences
+          const differences = Object.values(vehicles).filter((v: any) => {
+            const statuses = Object.values(v.tools).map((t: any) => t.status);
+            return new Set(statuses).size > 1;
+          });
+
+          return corsResponse(request, JSON.stringify({
+            tools,
+            make: make || "all",
+            total_vehicles: Object.keys(vehicles).length,
+            differences_count: differences.length,
+            differences: differences.slice(0, 200),
+            all_vehicles: Object.values(vehicles).slice(0, 500)
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // List available tools from tool_coverage
+      if (path === "/api/tool-coverage/tools") {
+        try {
+          const sql = `
+            SELECT tool_id, tool_family, tier, COUNT(*) as vehicle_count,
+                   SUM(CASE WHEN status = 'Yes' THEN 1 ELSE 0 END) as full_count,
+                   SUM(CASE WHEN status = 'Limited' THEN 1 ELSE 0 END) as limited_count
+            FROM tool_coverage
+            GROUP BY tool_id, tool_family, tier
+            ORDER BY tool_family, tier
+          `;
+          const result = await env.LOCKSMITH_DB.prepare(sql).all();
+
+          return corsResponse(request, JSON.stringify({
+            tools: result.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // VEHICLE COVERAGE MAP (Tool compatibility)
       // ==============================================
       // List all vehicle coverage with optional filters

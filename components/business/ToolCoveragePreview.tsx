@@ -1,19 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import vehicleCoverageData from '@/src/data/unified_vehicle_coverage.json';
-import { getAutelTier, isVehicleCoveredByAutelModel, AUTEL_MODEL_TIERS } from '@/lib/autelModelCoverage';
+import React, { useMemo, useEffect, useState } from 'react';
+import { getAutelTier, AUTEL_MODEL_TIERS } from '@/lib/autelModelCoverage';
 
-interface VehicleRecord {
-    make: string;
-    yearStart: number;
-    yearEnd: number;
-    platform: string;
-    autel: { status: string; limitations: Array<{ category: string }> };
-    smartPro: { status: string };
-    lonsdor: { status: string };
-    vvdi: { status: string };
-}
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
 
 interface ToolCoveragePreviewProps {
     toolId: string;
@@ -34,47 +24,57 @@ const PREVIEW_MAKES = [
     'Jeep', 'RAM', 'Nissan', 'Hyundai'
 ];
 
-type CoverageKey = 'autel' | 'smartPro' | 'lonsdor' | 'vvdi';
-
-const TOOL_TO_KEY: Record<string, CoverageKey> = {
-    // Autel
-    'autel_im508s': 'autel',
-    'autel_im608': 'autel',
-    'autel_im608_pro': 'autel',
-    'autel_im608_pro2': 'autel',
-    // OBDStar
-    'obdstar_x300_mini': 'autel',
-    'obdstar_x300_pro4': 'autel',
-    'obdstar_x300_dp_plus': 'autel',
-    'obdstar_g3': 'autel',
-    // Lonsdor
-    'lonsdor_k518s': 'lonsdor',
-    'lonsdor_k518ise': 'lonsdor',
-    'lonsdor_k518_pro': 'lonsdor',
-    // Xhorse
-    'xhorse_mini_obd': 'vvdi',
-    'xhorse_keytool_max': 'vvdi',
-    'xhorse_vvdi2': 'vvdi',
-    'xhorse_keytool_plus': 'vvdi',
-    // AutoProPAD / Smart Pro
-    'autopropad_basic': 'smartPro',
-    'autopropad': 'smartPro',
-    'smart_pro_tcode': 'smartPro',
-    'smart_pro': 'smartPro',
+// Map tool IDs to families for API calls
+const TOOL_TO_FAMILY: Record<string, string> = {
+    autel_im508s: 'autel', autel_im608: 'autel', autel_im608_pro: 'autel', autel_im608_pro2: 'autel',
+    obdstar_x300_mini: 'autel', obdstar_x300_pro4: 'autel', obdstar_x300_dp_plus: 'autel', obdstar_g3: 'autel',
+    smart_pro_tcode: 'smartPro', smart_pro: 'smartPro', autopropad_basic: 'smartPro', autopropad: 'smartPro',
+    lonsdor_k518s: 'lonsdor', lonsdor_k518ise: 'lonsdor', lonsdor_k518_pro: 'lonsdor',
+    xhorse_mini_obd: 'vvdi', xhorse_keytool_max: 'vvdi', xhorse_vvdi2: 'vvdi', xhorse_keytool_plus: 'vvdi',
 };
 
+interface HeatmapCell {
+    status: string;
+    count: number;
+    models: string[];
+}
+
+interface HeatmapResponse {
+    makes: Record<string, Record<string, HeatmapCell>>;
+    summary: Record<string, { total: number; full: number; limited: number; none: number }>;
+    total_records: number;
+}
+
 export default function ToolCoveragePreview({ toolId, className = '' }: ToolCoveragePreviewProps) {
-    const vehicles = (vehicleCoverageData as { vehicles: VehicleRecord[] }).vehicles || [];
-    const coverageKey = TOOL_TO_KEY[toolId] || 'autel';
+    const [heatmapData, setHeatmapData] = useState<HeatmapResponse | null>(null);
+    const [loading, setLoading] = useState(true);
     const isAutelModel = toolId.startsWith('autel_');
     const autelTier = isAutelModel ? getAutelTier(toolId) : null;
 
-    // Calculate coverage grid
+    // Fetch heatmap data for this tool
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const resp = await fetch(`${API_BASE}/api/tool-coverage/heatmap?tool=${toolId}`);
+                if (resp.ok) {
+                    setHeatmapData(await resp.json());
+                }
+            } catch (err) {
+                console.error('Failed to fetch tool coverage preview:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [toolId]);
+
+    // Calculate coverage grid from API data
     const { grid, stats } = useMemo(() => {
         const gridData: Record<string, Record<string, 'yes' | 'partial' | 'no' | 'unknown'>> = {};
         let totalCovered = 0;
         let totalPartial = 0;
-        let totalVehicles = 0;
+        let totalCells = 0;
 
         // Initialize grid
         for (const make of PREVIEW_MAKES) {
@@ -84,46 +84,38 @@ export default function ToolCoveragePreview({ toolId, className = '' }: ToolCove
             }
         }
 
-        // Process vehicles
-        for (const vehicle of vehicles) {
-            if (!PREVIEW_MAKES.includes(vehicle.make)) continue;
+        if (!heatmapData?.makes) {
+            return {
+                grid: gridData,
+                stats: { covered: 0, partial: 0, total: 0, percent: 0 }
+            };
+        }
 
-            // Find which bucket this vehicle belongs to
+        // Process heatmap data into bucket grid
+        for (const make of PREVIEW_MAKES) {
+            const makeData = heatmapData.makes[make];
+            if (!makeData) continue;
+
             for (const bucket of YEAR_BUCKETS) {
-                if (vehicle.yearEnd >= bucket.start && vehicle.yearStart <= bucket.end) {
-                    totalVehicles++;
+                totalCells++;
+                let bestStatus: 'yes' | 'partial' | 'no' | 'unknown' = 'unknown';
 
-                    let status = '';
-                    if (isAutelModel && autelTier) {
-                        // Use derived coverage for Autel models
-                        const result = isVehicleCoveredByAutelModel(
-                            toolId,
-                            vehicle.autel.status,
-                            vehicle.platform,
-                            vehicle.autel.limitations,
-                            vehicle.yearEnd
-                        );
-                        status = result.status;
-                    } else {
-                        // Use baseline coverage
-                        status = vehicle[coverageKey]?.status || '';
-                    }
+                for (let year = bucket.start; year <= bucket.end; year++) {
+                    const cell = makeData[String(year)];
+                    if (!cell) continue;
 
-                    const statusLower = status.toLowerCase();
-                    const currentValue = gridData[vehicle.make][bucket.label];
-
-                    // Upgrade cell status (yes > partial > no > unknown)
-                    if (statusLower.includes('yes') && currentValue !== 'yes') {
-                        gridData[vehicle.make][bucket.label] = 'yes';
-                        totalCovered++;
-                    } else if ((statusLower.includes('partial') || statusLower.includes('check')) &&
-                        currentValue !== 'yes' && currentValue !== 'partial') {
-                        gridData[vehicle.make][bucket.label] = 'partial';
-                        totalPartial++;
-                    } else if (statusLower.includes('no') && currentValue === 'unknown') {
-                        gridData[vehicle.make][bucket.label] = 'no';
+                    if (cell.status === 'full' && bestStatus !== 'yes') {
+                        bestStatus = 'yes';
+                    } else if (cell.status === 'partial' && bestStatus !== 'yes') {
+                        bestStatus = 'partial';
+                    } else if (cell.status === 'none' && bestStatus === 'unknown') {
+                        bestStatus = 'no';
                     }
                 }
+
+                gridData[make][bucket.label] = bestStatus;
+                if (bestStatus === 'yes') totalCovered++;
+                else if (bestStatus === 'partial') totalPartial++;
             }
         }
 
@@ -132,13 +124,13 @@ export default function ToolCoveragePreview({ toolId, className = '' }: ToolCove
             stats: {
                 covered: totalCovered,
                 partial: totalPartial,
-                total: totalVehicles,
-                percent: totalVehicles > 0
-                    ? Math.round(((totalCovered + totalPartial * 0.5) / totalVehicles) * 100)
+                total: totalCells,
+                percent: totalCells > 0
+                    ? Math.round(((totalCovered + totalPartial * 0.5) / totalCells) * 100)
                     : 0
             }
         };
-    }, [vehicles, toolId, coverageKey, isAutelModel, autelTier]);
+    }, [heatmapData]);
 
     const getCellColor = (status: 'yes' | 'partial' | 'no' | 'unknown') => {
         switch (status) {
@@ -148,6 +140,21 @@ export default function ToolCoveragePreview({ toolId, className = '' }: ToolCove
             default: return 'bg-gray-600';
         }
     };
+
+    if (loading) {
+        return (
+            <div className={`${className}`}>
+                <div className="animate-pulse space-y-1">
+                    <div className="grid gap-[1px]" style={{ gridTemplateColumns: '1fr repeat(3, 16px)' }}>
+                        {Array.from({ length: 24 }).map((_, i) => (
+                            <div key={i} className="h-2 bg-gray-700/50 rounded-[1px]" />
+                        ))}
+                    </div>
+                    <div className="h-2 bg-gray-700/30 rounded w-16" />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`${className}`}>
