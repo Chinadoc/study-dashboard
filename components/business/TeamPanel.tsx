@@ -200,8 +200,8 @@ function OverviewTab({
                             key={tech.id}
                             onClick={() => onSelectTech(tech)}
                             className={`p-3 rounded-xl border cursor-pointer transition-all hover:scale-[1.01] ${tech.active
-                                    ? 'bg-zinc-800 border-zinc-700 hover:border-green-500/50'
-                                    : 'bg-zinc-800/50 border-zinc-700/50 opacity-60'
+                                ? 'bg-zinc-800 border-zinc-700 hover:border-green-500/50'
+                                : 'bg-zinc-800/50 border-zinc-700/50 opacity-60'
                                 }`}
                         >
                             <div className="flex items-center justify-between mb-2">
@@ -286,9 +286,9 @@ function PerformanceTab({
                             <div className="h-2 bg-zinc-700 rounded-full overflow-hidden">
                                 <div
                                     className={`h-full rounded-full transition-all ${index === 0 ? 'bg-gradient-to-r from-yellow-500 to-amber-400' :
-                                            index === 1 ? 'bg-gradient-to-r from-slate-400 to-zinc-300' :
-                                                index === 2 ? 'bg-gradient-to-r from-orange-600 to-amber-600' :
-                                                    'bg-green-500'
+                                        index === 1 ? 'bg-gradient-to-r from-slate-400 to-zinc-300' :
+                                            index === 2 ? 'bg-gradient-to-r from-orange-600 to-amber-600' :
+                                                'bg-green-500'
                                         }`}
                                     style={{ width: `${(stats.thisMonthRevenue / maxRevenue) * 100}%` }}
                                 />
@@ -511,7 +511,7 @@ function TechDetailModal({
     const stats = getTechnicianStats(tech.id, jobLogs);
     const recentJobs = jobLogs
         .filter(j => j.technicianId === tech.id)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .sort((a, b) => { try { return new Date(b.date).getTime() - new Date(a.date).getTime(); } catch { return 0; } })
         .slice(0, 5);
 
     return (

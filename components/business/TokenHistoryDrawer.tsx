@@ -141,8 +141,8 @@ export default function TokenHistoryDrawer({
                                 <button
                                     onClick={() => setEntryType('purchase')}
                                     className={`flex-1 py-2 rounded-lg font-medium text-sm transition-colors ${entryType === 'purchase'
-                                            ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                            : 'bg-gray-800 text-gray-400'
+                                        ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                        : 'bg-gray-800 text-gray-400'
                                         }`}
                                 >
                                     + Purchase
@@ -150,8 +150,8 @@ export default function TokenHistoryDrawer({
                                 <button
                                     onClick={() => setEntryType('usage')}
                                     className={`flex-1 py-2 rounded-lg font-medium text-sm transition-colors ${entryType === 'usage'
-                                            ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                                            : 'bg-gray-800 text-gray-400'
+                                        ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                                        : 'bg-gray-800 text-gray-400'
                                         }`}
                                 >
                                     − Usage
@@ -230,10 +230,7 @@ export default function TokenHistoryDrawer({
                                         </div>
                                     </div>
                                     <div className="text-xs text-gray-500">
-                                        {new Date(entry.date).toLocaleDateString('en-US', {
-                                            month: 'short',
-                                            day: 'numeric'
-                                        })}
+                                        {(() => { try { const d = entry.date ? new Date(entry.date) : null; return d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'; } catch { return '—'; } })()}
                                     </div>
                                 </div>
                             ))}
