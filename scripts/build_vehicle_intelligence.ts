@@ -357,6 +357,7 @@ async function main() {
   // ============================================================
   console.log('\n🔧 Step 3: Enriching with tool coverage...');
 
+  // Phase 1: Direct vehicle_coverage table matches
   const toolUpdates = [
     { column: 'autel_status', families: "'autel'" },
     { column: 'smartpro_status', families: "'smartpro','smart pro','smart_pro'" },
@@ -377,6 +378,80 @@ async function main() {
     `);
   }
 
+  const directCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE autel_status IS NOT NULL`);
+  console.log(`   Phase 1 (direct): ${directCount[0]?.cnt || 0} vehicles with Autel data`);
+
+  // Phase 2: Chip-based inference — fill NULL coverage from chip_type
+  // Maps chip patterns in chip_type to family support levels
+  // From CHIP_FAMILY_SUPPORT matrix in enrich_coverage_v2.py
+  const chipInferences: { chipPattern: string; autel: string; smartpro: string; lonsdor: string; vvdi: string }[] = [
+    { chipPattern: '%ID46%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%ID47%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%ID48%', autel: 'Yes', smartpro: 'Limited', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%PCF7935%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%Philips 46%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%Philips 47%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%Philips 44%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%Tex 4D%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%G Chip%', autel: 'Yes', smartpro: 'Yes', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%H Chip%', autel: 'Yes', smartpro: 'Limited', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%8A%', autel: 'Yes', smartpro: 'Limited', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%4A%', autel: 'Yes', smartpro: 'Limited', lonsdor: 'Yes', vvdi: 'Yes' },
+    { chipPattern: '%MQB%', autel: 'Limited', smartpro: 'Limited', lonsdor: 'Limited', vvdi: 'Limited' },
+    { chipPattern: '%Megamos 48%', autel: 'Yes', smartpro: 'Limited', lonsdor: 'Yes', vvdi: 'Yes' },
+  ];
+
+  for (const ci of chipInferences) {
+    const cols = [
+      { col: 'autel_status', val: ci.autel },
+      { col: 'smartpro_status', val: ci.smartpro },
+      { col: 'lonsdor_status', val: ci.lonsdor },
+      { col: 'vvdi_status', val: ci.vvdi },
+    ];
+    for (const { col, val } of cols) {
+      executeD1(`
+        UPDATE vehicle_intelligence
+        SET ${col} = '${val} (inferred)'
+        WHERE ${col} IS NULL
+          AND chip_type LIKE '${ci.chipPattern}'
+      `);
+    }
+  }
+
+  const chipCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE autel_status IS NOT NULL`);
+  console.log(`   Phase 2 (chip inference): ${chipCount[0]?.cnt || 0} vehicles with Autel data (+${(chipCount[0]?.cnt || 0) - (directCount[0]?.cnt || 0)} inferred)`);
+
+  // Phase 3: Make-based fallback for remaining NULLs
+  // From MAKE_FAMILY_FALLBACK in enrich_coverage_v2.py
+  const makeFallbacks: { makes: string[]; smartpro: string; lonsdor: string }[] = [
+    { makes: ['Honda', 'Acura', 'Nissan', 'Infiniti', 'Mazda', 'Subaru', 'Mitsubishi', 'Suzuki', 'Scion'], smartpro: 'Yes', lonsdor: 'Yes' },
+    { makes: ['Hyundai', 'Kia'], smartpro: 'Yes', lonsdor: 'Yes' },
+    { makes: ['Ford', 'Lincoln', 'Chevrolet', 'GMC', 'Buick', 'Cadillac', 'Dodge', 'Chrysler', 'Jeep', 'RAM'], smartpro: 'Yes', lonsdor: 'Yes' },
+    { makes: ['Toyota', 'Lexus'], smartpro: 'Limited', lonsdor: 'Yes' },
+    { makes: ['Genesis'], smartpro: 'Limited', lonsdor: 'Limited' },
+    { makes: ['Volkswagen', 'Audi', 'BMW', 'Mercedes-Benz', 'Volvo', 'Porsche', 'Jaguar', 'Land Rover', 'Mini'], smartpro: 'Limited', lonsdor: 'Limited' },
+    { makes: ['Fiat', 'Saab'], smartpro: 'Yes', lonsdor: 'Yes' },
+    { makes: ['Alfa Romeo', 'Maserati'], smartpro: 'Limited', lonsdor: 'Limited' },
+  ];
+
+  for (const mf of makeFallbacks) {
+    const makeList = mf.makes.map(m => `'${m}'`).join(',');
+    executeD1(`
+      UPDATE vehicle_intelligence
+      SET smartpro_status = CASE WHEN smartpro_status IS NULL THEN '${mf.smartpro} (inferred)' ELSE smartpro_status END,
+          lonsdor_status = CASE WHEN lonsdor_status IS NULL THEN '${mf.lonsdor} (inferred)' ELSE lonsdor_status END
+      WHERE make IN (${makeList})
+        AND (smartpro_status IS NULL OR lonsdor_status IS NULL)
+    `);
+  }
+
+  const finalCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE autel_status IS NOT NULL`);
+  const smartProCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE smartpro_status IS NOT NULL`);
+  const lonsdorCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE lonsdor_status IS NOT NULL`);
+  const vvdiCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE vvdi_status IS NOT NULL`);
+  console.log(`   Phase 3 (make fallback): SmartPro=${smartProCount[0]?.cnt || 0}, Lonsdor=${lonsdorCount[0]?.cnt || 0}`);
+  console.log(`   Final: Autel=${finalCount[0]?.cnt || 0}, SmartPro=${smartProCount[0]?.cnt || 0}, Lonsdor=${lonsdorCount[0]?.cnt || 0}, VVDI=${vvdiCount[0]?.cnt || 0}`);
+
   // AKL supported
   executeD1(`
     UPDATE vehicle_intelligence
@@ -392,9 +467,6 @@ async function main() {
       ELSE vehicle_intelligence.akl_supported
     END
   `);
-
-  const coverageCount = queryD1(`SELECT COUNT(*) as cnt FROM vehicle_intelligence WHERE autel_status IS NOT NULL`);
-  console.log(`   ✅ ${coverageCount[0]?.cnt || 0} vehicles have Autel coverage data`);
 
   // ============================================================
   // STEP 4: Enrich with EEPROM data

@@ -126,282 +126,303 @@ export const GoogleSignInButton = () => {
     const rank = reputation ? getRankDisplay(reputation.rank_level) : getRankDisplay(1);
 
     return (
-        <div ref={containerRef} className="relative">
-            <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 rounded-full bg-slate-800 py-1 pl-1 pr-3 transition-colors hover:bg-slate-700"
-            >
-                {/* Avatar */}
-                {user.picture ? (
-                    <img
-                        src={user.picture}
-                        alt={user.name}
-                        className="h-8 w-8 rounded-full object-cover"
-                    />
-                ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-eurokeys-purple text-xs font-bold text-white">
-                        {initials}
-                    </div>
-                )}
-                <span className="text-sm text-slate-300">{user.name.split(' ')[0]}</span>
-                {/* Dropdown arrow */}
-                <svg
-                    className={`h-4 w-4 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+        <div className="flex items-center gap-2">
+            {/* Inline trial badge - visible in navbar */}
+            {(() => {
+                const isOnTrial = user.trial_until && user.trial_until > Date.now() && !user.is_pro && !isDeveloper;
+                if (!isOnTrial) return null;
+                const msLeft = user.trial_until! - Date.now();
+                const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
+                const timeLabel = hoursLeft > 24
+                    ? `${Math.ceil(hoursLeft / 24)}d`
+                    : `${hoursLeft}h`;
+                return (
+                    <Link
+                        href="/pricing"
+                        className="hidden sm:flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs font-semibold text-amber-400 hover:bg-amber-500/25 transition-colors"
+                    >
+                        <span>⏳</span>
+                        <span>{timeLabel} left</span>
+                    </Link>
+                );
+            })()}
+            <div ref={containerRef} className="relative">
+                <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="flex items-center gap-2 rounded-full bg-slate-800 py-1 pl-1 pr-3 transition-colors hover:bg-slate-700"
                 >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
+                    {/* Avatar */}
+                    {user.picture ? (
+                        <img
+                            src={user.picture}
+                            alt={user.name}
+                            className="h-8 w-8 rounded-full object-cover"
+                        />
+                    ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-eurokeys-purple text-xs font-bold text-white">
+                            {initials}
+                        </div>
+                    )}
+                    <span className="text-sm text-slate-300">{user.name.split(' ')[0]}</span>
+                    {/* Dropdown arrow */}
+                    <svg
+                        className={`h-4 w-4 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
 
-            {/* Dropdown Menu - SOLID background */}
-            {dropdownOpen && (
-                <div className="absolute right-0 top-12 z-50 w-64 rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
-                    {/* User Info */}
-                    <div className="border-b border-slate-700 p-4">
-                        <p className="font-medium text-white">{user.name}</p>
-                        <p className="text-sm text-slate-400">{user.email}</p>
-                    </div>
+                {/* Dropdown Menu - SOLID background */}
+                {dropdownOpen && (
+                    <div className="absolute right-0 top-12 z-50 w-64 rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
+                        {/* User Info */}
+                        <div className="border-b border-slate-700 p-4">
+                            <p className="font-medium text-white">{user.name}</p>
+                            <p className="text-sm text-slate-400">{user.email}</p>
+                        </div>
 
-                    {/* Trial Countdown */}
-                    {(() => {
-                        const isOnTrial = user.trial_until && user.trial_until > Date.now() && !user.is_pro && !isDeveloper;
-                        if (!isOnTrial) return null;
-                        const msLeft = user.trial_until! - Date.now();
-                        const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
-                        const timeLabel = hoursLeft > 24
-                            ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? 's' : ''} left`
-                            : `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''} left`;
-                        return (
-                            <Link
-                                href="/pricing"
-                                onClick={() => setDropdownOpen(false)}
-                                className="block border-b border-slate-700 px-4 py-3 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs text-amber-400 font-semibold">⏳ Free Preview</span>
-                                    <span className="text-xs text-amber-300 font-bold">{timeLabel}</span>
+                        {/* Trial Countdown */}
+                        {(() => {
+                            const isOnTrial = user.trial_until && user.trial_until > Date.now() && !user.is_pro && !isDeveloper;
+                            if (!isOnTrial) return null;
+                            const msLeft = user.trial_until! - Date.now();
+                            const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
+                            const timeLabel = hoursLeft > 24
+                                ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? 's' : ''} left`
+                                : `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''} left`;
+                            return (
+                                <Link
+                                    href="/pricing"
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="block border-b border-slate-700 px-4 py-3 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-amber-400 font-semibold">⏳ Free Preview</span>
+                                        <span className="text-xs text-amber-300 font-bold">{timeLabel}</span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 mt-0.5">Subscribe for full access →</p>
+                                </Link>
+                            );
+                        })()}
+
+                        {/* Reputation Section */}
+                        <div className="border-b border-slate-700 p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs text-slate-400 uppercase tracking-wide">Community Rank</span>
+                                <Link
+                                    href="/community"
+                                    className="text-xs text-purple-400 hover:text-purple-300"
+                                    onClick={() => setDropdownOpen(false)}
+                                >
+                                    View Hub →
+                                </Link>
+                            </div>
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-2xl">{rank.icon}</span>
+                                <div>
+                                    <div className={`font-semibold ${rank.color}`}>
+                                        {reputation?.rank_name || rank.name}
+                                    </div>
+                                    <div className="text-xs text-slate-500">
+                                        {reputation?.reputation_score || 0} points
+                                    </div>
                                 </div>
-                                <p className="text-[10px] text-slate-500 mt-0.5">Subscribe for full access →</p>
-                            </Link>
-                        );
-                    })()}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-slate-800 rounded-lg p-2 text-center">
+                                    <div className="text-lg font-bold text-green-400">
+                                        {reputation?.pearls_validated || 0}
+                                    </div>
+                                    <div className="text-[10px] text-slate-500">Pearls Verified</div>
+                                </div>
+                                <div className="bg-slate-800 rounded-lg p-2 text-center">
+                                    <div className="text-lg font-bold text-blue-400">
+                                        {reputation?.edits_approved || 0}
+                                    </div>
+                                    <div className="text-[10px] text-slate-500">Edits Approved</div>
+                                </div>
+                            </div>
+                        </div>
 
-                    {/* Reputation Section */}
-                    <div className="border-b border-slate-700 p-4">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-slate-400 uppercase tracking-wide">Community Rank</span>
+                        {/* Menu Items */}
+                        <div className="p-2">
                             <Link
                                 href="/community"
-                                className="text-xs text-purple-400 hover:text-purple-300"
-                                onClick={() => setDropdownOpen(false)}
-                            >
-                                View Hub →
-                            </Link>
-                        </div>
-                        <div className="flex items-center gap-2 mb-3">
-                            <span className="text-2xl">{rank.icon}</span>
-                            <div>
-                                <div className={`font-semibold ${rank.color}`}>
-                                    {reputation?.rank_name || rank.name}
-                                </div>
-                                <div className="text-xs text-slate-500">
-                                    {reputation?.reputation_score || 0} points
-                                </div>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-slate-800 rounded-lg p-2 text-center">
-                                <div className="text-lg font-bold text-green-400">
-                                    {reputation?.pearls_validated || 0}
-                                </div>
-                                <div className="text-[10px] text-slate-500">Pearls Verified</div>
-                            </div>
-                            <div className="bg-slate-800 rounded-lg p-2 text-center">
-                                <div className="text-lg font-bold text-blue-400">
-                                    {reputation?.edits_approved || 0}
-                                </div>
-                                <div className="text-[10px] text-slate-500">Edits Approved</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Menu Items */}
-                    <div className="p-2">
-                        <Link
-                            href="/community"
-                            onClick={() => setDropdownOpen(false)}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
-                        >
-                            <span>💬</span>
-                            Community Hub
-                        </Link>
-                        {isDeveloper && (
-                            <Link
-                                href="/dev"
                                 onClick={() => setDropdownOpen(false)}
                                 className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
                             >
-                                <span>🛠️</span>
-                                Dev Panel
+                                <span>💬</span>
+                                Community Hub
                             </Link>
-                        )}
-                        <Link
-                            href="/inventory"
-                            onClick={() => setDropdownOpen(false)}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
-                        >
-                            <span>📦</span>
-                            Inventory
-                        </Link>
-                        <button
-                            onClick={() => {
-                                setDropdownOpen(false);
-                                openFleetPanel();
-                            }}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-blue-500/20 hover:text-white"
-                        >
-                            <span>🏢</span>
-                            Fleet Customers
-                        </button>
-                        <button
-                            onClick={() => {
-                                setDropdownOpen(false);
-                                openTeamPanel();
-                            }}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-green-500/20 hover:text-white"
-                        >
-                            <span>👥</span>
-                            Team Manager
-                        </button>
-                        <div>
-                            <button
-                                onClick={() => setTourSubmenuOpen(!tourSubmenuOpen)}
-                                className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-amber-500/20 hover:text-white"
-                            >
-                                <span className="flex items-center gap-2">
-                                    <span>🎓</span>
-                                    Take a Tour
-                                </span>
-                                <svg
-                                    className={`h-3 w-3 text-slate-500 transition-transform ${tourSubmenuOpen ? 'rotate-180' : ''}`}
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            {isDeveloper && (
+                                <Link
+                                    href="/dev"
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
                                 >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
+                                    <span>🛠️</span>
+                                    Dev Panel
+                                </Link>
+                            )}
+                            <Link
+                                href="/inventory"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
+                            >
+                                <span>📦</span>
+                                Inventory
+                            </Link>
+                            <button
+                                onClick={() => {
+                                    setDropdownOpen(false);
+                                    openFleetPanel();
+                                }}
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-blue-500/20 hover:text-white"
+                            >
+                                <span>🏢</span>
+                                Fleet Customers
                             </button>
-                            {tourSubmenuOpen && (
-                                <div className="ml-4 mt-1 space-y-0.5">
-                                    {Object.values(TOUR_REGISTRY).map(tour => (
+                            <button
+                                onClick={() => {
+                                    setDropdownOpen(false);
+                                    openTeamPanel();
+                                }}
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-green-500/20 hover:text-white"
+                            >
+                                <span>👥</span>
+                                Team Manager
+                            </button>
+                            <div>
+                                <button
+                                    onClick={() => setTourSubmenuOpen(!tourSubmenuOpen)}
+                                    className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-amber-500/20 hover:text-white"
+                                >
+                                    <span className="flex items-center gap-2">
+                                        <span>🎓</span>
+                                        Take a Tour
+                                    </span>
+                                    <svg
+                                        className={`h-3 w-3 text-slate-500 transition-transform ${tourSubmenuOpen ? 'rotate-180' : ''}`}
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {tourSubmenuOpen && (
+                                    <div className="ml-4 mt-1 space-y-0.5">
+                                        {Object.values(TOUR_REGISTRY).map(tour => (
+                                            <button
+                                                key={tour.id}
+                                                onClick={() => {
+                                                    setDropdownOpen(false);
+                                                    setTourSubmenuOpen(false);
+                                                    startTour(tour.id);
+                                                }}
+                                                className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-purple-500/20 hover:text-white"
+                                            >
+                                                <span>{tour.icon}</span>
+                                                <span>{tour.label}</span>
+                                            </button>
+                                        ))}
                                         <button
-                                            key={tour.id}
                                             onClick={() => {
                                                 setDropdownOpen(false);
                                                 setTourSubmenuOpen(false);
-                                                startTour(tour.id);
+                                                localStorage.removeItem('eurokeys_tour_state');
+                                                localStorage.removeItem('eurokeys_onboarding');
+                                                openWizard();
                                             }}
-                                            className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-purple-500/20 hover:text-white"
+                                            className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-amber-500/20 hover:text-white"
                                         >
-                                            <span>{tour.icon}</span>
-                                            <span>{tour.label}</span>
+                                            <span>🔄</span>
+                                            <span>Full Onboarding Replay</span>
                                         </button>
-                                    ))}
-                                    <button
-                                        onClick={() => {
-                                            setDropdownOpen(false);
-                                            setTourSubmenuOpen(false);
-                                            localStorage.removeItem('eurokeys_tour_state');
-                                            localStorage.removeItem('eurokeys_onboarding');
-                                            openWizard();
-                                        }}
-                                        className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-amber-500/20 hover:text-white"
-                                    >
-                                        <span>🔄</span>
-                                        <span>Full Onboarding Replay</span>
-                                    </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Settings Section */}
+                        <div className="border-t border-slate-700 p-2">
+                            <div className="px-3 py-1 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Settings</div>
+                            {syncFeedback && (
+                                <div className={`mx-3 mb-2 px-3 py-2 rounded-lg text-xs font-medium ${syncFeedback.type === 'success'
+                                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                    }`}>
+                                    {syncFeedback.message}
                                 </div>
                             )}
+                            <button
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (!confirmingClear) {
+                                        setConfirmingClear(true);
+                                        // Auto-dismiss confirmation after 3s
+                                        setTimeout(() => setConfirmingClear(false), 3000);
+                                        return;
+                                    }
+                                    setConfirmingClear(false);
+                                    setSyncingCache(true);
+                                    setSyncFeedback(null);
+                                    const result = await clearLocalCache();
+                                    setSyncingCache(false);
+                                    setSyncFeedback({
+                                        type: result.success ? 'success' : 'error',
+                                        message: result.success
+                                            ? `✅ Cache cleared! Loaded ${result.loaded} jobs from cloud.`
+                                            : `❌ Failed: ${result.error}`
+                                    });
+                                    setTimeout(() => setSyncFeedback(null), 5000);
+                                }}
+                                disabled={syncingCache}
+                                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors disabled:opacity-50 ${confirmingClear
+                                    ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 font-semibold'
+                                    : 'text-slate-300 hover:bg-zinc-700/50 hover:text-white'
+                                    }`}
+                            >
+                                <span>{confirmingClear ? '⚠️' : '🗑️'}</span>
+                                {syncingCache ? 'Clearing...' : confirmingClear ? 'Tap again to confirm' : 'Clear Cache'}
+                            </button>
+                            <button
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    setSyncingCache(true);
+                                    setSyncFeedback(null);
+                                    const result = await forceFullSync();
+                                    setSyncingCache(false);
+                                    setSyncFeedback({
+                                        type: result.success ? 'success' : 'error',
+                                        message: result.success
+                                            ? `☁️ Synced ${result.synced} jobs to cloud.`
+                                            : `❌ Sync failed: ${result.error}`
+                                    });
+                                    setTimeout(() => setSyncFeedback(null), 5000);
+                                }}
+                                disabled={syncingCache}
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white disabled:opacity-50"
+                            >
+                                <span>☁️</span>
+                                {syncingCache ? 'Syncing...' : 'Force Sync All Data'}
+                            </button>
+                        </div>
+
+                        {/* Sign Out */}
+                        <div className="border-t border-slate-700 p-2">
+                            <button
+                                onClick={logout}
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"
+                            >
+                                <span>🚪</span>
+                                Sign Out
+                            </button>
                         </div>
                     </div>
-
-                    {/* Settings Section */}
-                    <div className="border-t border-slate-700 p-2">
-                        <div className="px-3 py-1 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Settings</div>
-                        {syncFeedback && (
-                            <div className={`mx-3 mb-2 px-3 py-2 rounded-lg text-xs font-medium ${syncFeedback.type === 'success'
-                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                }`}>
-                                {syncFeedback.message}
-                            </div>
-                        )}
-                        <button
-                            onClick={async (e) => {
-                                e.stopPropagation();
-                                if (!confirmingClear) {
-                                    setConfirmingClear(true);
-                                    // Auto-dismiss confirmation after 3s
-                                    setTimeout(() => setConfirmingClear(false), 3000);
-                                    return;
-                                }
-                                setConfirmingClear(false);
-                                setSyncingCache(true);
-                                setSyncFeedback(null);
-                                const result = await clearLocalCache();
-                                setSyncingCache(false);
-                                setSyncFeedback({
-                                    type: result.success ? 'success' : 'error',
-                                    message: result.success
-                                        ? `✅ Cache cleared! Loaded ${result.loaded} jobs from cloud.`
-                                        : `❌ Failed: ${result.error}`
-                                });
-                                setTimeout(() => setSyncFeedback(null), 5000);
-                            }}
-                            disabled={syncingCache}
-                            className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors disabled:opacity-50 ${confirmingClear
-                                ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 font-semibold'
-                                : 'text-slate-300 hover:bg-zinc-700/50 hover:text-white'
-                                }`}
-                        >
-                            <span>{confirmingClear ? '⚠️' : '🗑️'}</span>
-                            {syncingCache ? 'Clearing...' : confirmingClear ? 'Tap again to confirm' : 'Clear Cache'}
-                        </button>
-                        <button
-                            onClick={async (e) => {
-                                e.stopPropagation();
-                                setSyncingCache(true);
-                                setSyncFeedback(null);
-                                const result = await forceFullSync();
-                                setSyncingCache(false);
-                                setSyncFeedback({
-                                    type: result.success ? 'success' : 'error',
-                                    message: result.success
-                                        ? `☁️ Synced ${result.synced} jobs to cloud.`
-                                        : `❌ Sync failed: ${result.error}`
-                                });
-                                setTimeout(() => setSyncFeedback(null), 5000);
-                            }}
-                            disabled={syncingCache}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white disabled:opacity-50"
-                        >
-                            <span>☁️</span>
-                            {syncingCache ? 'Syncing...' : 'Force Sync All Data'}
-                        </button>
-                    </div>
-
-                    {/* Sign Out */}
-                    <div className="border-t border-slate-700 p-2">
-                        <button
-                            onClick={logout}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"
-                        >
-                            <span>🚪</span>
-                            Sign Out
-                        </button>
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };
