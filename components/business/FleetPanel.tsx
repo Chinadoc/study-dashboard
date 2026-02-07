@@ -80,7 +80,11 @@ export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps
                 .filter(job => job.status === 'pending' || job.status === 'in_progress')
                 .forEach(job => pending.push({ job, fleet }));
         });
-        return pending.sort((a, b) => new Date(a.job.date).getTime() - new Date(b.job.date).getTime());
+        return pending.sort((a, b) => {
+            try {
+                return new Date(a.job.date).getTime() - new Date(b.job.date).getTime();
+            } catch { return 0; }
+        });
     }, [fleets, jobLogs]);
 
     // Save a new or updated fleet
@@ -307,7 +311,7 @@ function OverviewTab({
                                 </div>
                                 {nextJob && (
                                     <div className="mt-2 text-xs text-zinc-400">
-                                        Next: {new Date(nextJob.date).toLocaleDateString()} - {nextJob.vehicle}
+                                        Next: {(() => { try { const d = nextJob.date ? new Date(nextJob.date) : null; return d && !isNaN(d.getTime()) ? d.toLocaleDateString() : '—'; } catch { return '—'; } })()} - {nextJob.vehicle}
                                     </div>
                                 )}
                             </button>
@@ -387,7 +391,7 @@ function JobsTab({
                             </div>
                             <div className="mt-2 flex items-center justify-between text-xs">
                                 <span className="text-zinc-400">
-                                    {new Date(job.date).toLocaleDateString()}
+                                    {(() => { try { const d = job.date ? new Date(job.date) : null; return d && !isNaN(d.getTime()) ? d.toLocaleDateString() : '—'; } catch { return '—'; } })()}
                                 </span>
                                 <span className="text-green-400 font-bold">
                                     ${job.price}

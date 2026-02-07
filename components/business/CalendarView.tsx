@@ -51,10 +51,14 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
     // Calculate monthly stats
     const monthStats = useMemo(() => {
         const monthJobs = jobLogs.filter(job => {
-            const jobDate = new Date(job.date);
-            return jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear;
+            try {
+                if (!job.date) return false;
+                const jobDate = new Date(job.date);
+                if (isNaN(jobDate.getTime())) return false;
+                return jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear;
+            } catch { return false; }
         });
-        const revenue = monthJobs.reduce((sum, j) => sum + j.price, 0);
+        const revenue = monthJobs.reduce((sum, j) => sum + (j.price || 0), 0);
         const costs = monthJobs.reduce((sum, j) => sum + (j.partsCost || 0) + (j.keyCost || 0) + (j.gasCost || 0), 0);
         return {
             jobs: monthJobs.length,

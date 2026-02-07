@@ -227,7 +227,7 @@ export default function AccountingPage() {
                                             <div key={job.id} className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
                                                 <div>
                                                     <div className="font-medium text-white">{job.vehicle}</div>
-                                                    <div className="text-xs text-zinc-500">{new Date(job.date).toLocaleDateString()}</div>
+                                                    <div className="text-xs text-zinc-500">{(() => { try { const d = job.date ? new Date(job.date) : null; return d && !isNaN(d.getTime()) ? d.toLocaleDateString() : '—'; } catch { return '—'; } })()}</div>
                                                 </div>
                                                 <div className="text-right">
                                                     <div className="font-bold text-red-400">-${total.toFixed(2)}</div>

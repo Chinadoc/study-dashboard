@@ -378,16 +378,24 @@ export function useUnifiedData(): UnifiedData {
         const vehicleCounts = new Map<string, { count: number; recentJob: JobLog }>();
 
         jobLogs
-            .filter(job => new Date(job.date) >= ninetyDaysAgo && job.vehicle)
+            .filter(job => {
+                try {
+                    if (!job.date || !job.vehicle) return false;
+                    const d = new Date(job.date);
+                    return !isNaN(d.getTime()) && d >= ninetyDaysAgo;
+                } catch { return false; }
+            })
             .forEach(job => {
                 const vehicle = (job.vehicle || '').trim();
                 const existing = vehicleCounts.get(vehicle);
                 if (existing) {
                     existing.count++;
                     // Keep most recent job
-                    if (new Date(job.date) > new Date(existing.recentJob.date)) {
-                        existing.recentJob = job;
-                    }
+                    try {
+                        if (new Date(job.date) > new Date(existing.recentJob.date)) {
+                            existing.recentJob = job;
+                        }
+                    } catch { /* skip */ }
                 } else {
                     vehicleCounts.set(vehicle, { count: 1, recentJob: job });
                 }
@@ -491,12 +499,16 @@ export function useUnifiedData(): UnifiedData {
         const lastUsedMap = new Map<string, Date>();
         jobLogs.forEach(job => {
             if (job.fccId) {
-                const normalized = normalizeFcc(job.fccId);
-                const jobDate = new Date(job.date);
-                const existing = lastUsedMap.get(normalized);
-                if (!existing || jobDate > existing) {
-                    lastUsedMap.set(normalized, jobDate);
-                }
+                try {
+                    const normalized = normalizeFcc(job.fccId);
+                    if (!job.date) return;
+                    const jobDate = new Date(job.date);
+                    if (isNaN(jobDate.getTime())) return;
+                    const existing = lastUsedMap.get(normalized);
+                    if (!existing || jobDate > existing) {
+                        lastUsedMap.set(normalized, jobDate);
+                    }
+                } catch { /* skip malformed dates */ }
             }
         });
 
@@ -550,7 +562,13 @@ export function useUnifiedData(): UnifiedData {
         const lowStock = inventory.filter(i => i.qty <= 2);
 
         // Job stats
-        const thisMonthJobs = jobLogs.filter(j => new Date(j.date) >= thisMonthStart);
+        const thisMonthJobs = jobLogs.filter(j => {
+            try {
+                if (!j.date) return false;
+                const d = new Date(j.date);
+                return !isNaN(d.getTime()) && d >= thisMonthStart;
+            } catch { return false; }
+        });
         const thisMonthRevenue = thisMonthJobs.reduce((sum, j) => sum + (j.price || 0), 0);
 
         // Key usage frequency from jobs

@@ -34,10 +34,18 @@ export default function BusinessDashboard() {
         const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
         return jobLogs
             .filter(j => {
-                const jobDate = new Date(j.date);
-                return jobDate >= now && jobDate <= weekFromNow && j.status === 'pending';
+                try {
+                    if (!j.date) return false;
+                    const jobDate = new Date(j.date);
+                    if (isNaN(jobDate.getTime())) return false;
+                    return jobDate >= now && jobDate <= weekFromNow && j.status === 'pending';
+                } catch { return false; }
             })
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .sort((a, b) => {
+                try {
+                    return new Date(a.date).getTime() - new Date(b.date).getTime();
+                } catch { return 0; }
+            })
             .slice(0, 3);
     }, [jobLogs]);
 
@@ -60,12 +68,16 @@ export default function BusinessDashboard() {
         const now = new Date();
 
         jobLogs.forEach(job => {
-            const jobDate = new Date(job.date);
-            const daysDiff = Math.floor((now.getTime() - jobDate.getTime()) / (1000 * 60 * 60 * 24));
-            if (daysDiff >= 0 && daysDiff < 7) {
-                const dayIndex = jobDate.getDay();
-                data[dayIndex] += job.price || 0;
-            }
+            try {
+                if (!job.date) return;
+                const jobDate = new Date(job.date);
+                if (isNaN(jobDate.getTime())) return;
+                const daysDiff = Math.floor((now.getTime() - jobDate.getTime()) / (1000 * 60 * 60 * 24));
+                if (daysDiff >= 0 && daysDiff < 7) {
+                    const dayIndex = jobDate.getDay();
+                    data[dayIndex] += job.price || 0;
+                }
+            } catch { /* skip malformed dates */ }
         });
 
         return days.map((day, i) => ({ day, revenue: data[i] }));
@@ -126,10 +138,10 @@ export default function BusinessDashboard() {
                             <div key={job.id} className="flex items-center gap-3 p-3 bg-zinc-800/50 rounded-lg">
                                 <div className="text-center min-w-[50px]">
                                     <div className="text-xs text-gray-500">
-                                        {new Date(job.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                                        {(() => { try { const d = job.date ? new Date(job.date) : null; return d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-US', { weekday: 'short' }) : '—'; } catch { return '—'; } })()}
                                     </div>
                                     <div className="text-sm font-bold text-white">
-                                        {new Date(job.date).toLocaleDateString('en-US', { day: 'numeric' })}
+                                        {(() => { try { const d = job.date ? new Date(job.date) : null; return d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-US', { day: 'numeric' }) : '—'; } catch { return '—'; } })()}
                                     </div>
                                 </div>
                                 <div className="flex-1 min-w-0">

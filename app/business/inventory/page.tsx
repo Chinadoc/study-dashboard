@@ -220,24 +220,28 @@ export default function InventoryPage() {
         const currentYear = now.getFullYear();
 
         jobLogs.forEach(job => {
-            const jobDate = new Date(job.date);
-            if (jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear) {
-                // Match job to inventory item by FCC ID or vehicle string
-                const jobFcc = job.fccId?.toUpperCase() || '';
-                const jobVehicle = job.vehicle?.toLowerCase() || '';
+            try {
+                if (!job.date) return;
+                const jobDate = new Date(job.date);
+                if (isNaN(jobDate.getTime())) return;
+                if (jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear) {
+                    // Match job to inventory item by FCC ID or vehicle string
+                    const jobFcc = job.fccId?.toUpperCase() || '';
+                    const jobVehicle = job.vehicle?.toLowerCase() || '';
 
-                inventory.forEach(item => {
-                    const itemKey = item.itemKey.toUpperCase();
-                    const itemVehicle = item.vehicle?.toLowerCase() || '';
+                    inventory.forEach(item => {
+                        const itemKey = item.itemKey.toUpperCase();
+                        const itemVehicle = item.vehicle?.toLowerCase() || '';
 
-                    // Match by FCC ID or by vehicle overlap
-                    if (jobFcc && (itemKey.includes(jobFcc) || itemKey === jobFcc)) {
-                        usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
-                    } else if (itemVehicle && jobVehicle && (itemVehicle.includes(jobVehicle) || jobVehicle.includes(itemVehicle))) {
-                        usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
-                    }
-                });
-            }
+                        // Match by FCC ID or by vehicle overlap
+                        if (jobFcc && (itemKey.includes(jobFcc) || itemKey === jobFcc)) {
+                            usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
+                        } else if (itemVehicle && jobVehicle && (itemVehicle.includes(jobVehicle) || jobVehicle.includes(itemVehicle))) {
+                            usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
+                        }
+                    });
+                }
+            } catch { /* skip malformed dates */ }
         });
         return usage;
     }, [jobLogs, inventory]);
