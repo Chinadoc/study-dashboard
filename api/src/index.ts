@@ -9557,6 +9557,117 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
+      // VEHICLE INTELLIGENCE (Materialized Single-Query Lookup)
+      // ==============================================
+
+      // GET /api/vehicle-intelligence - Single-query vehicle lookup
+      if (path === "/api/vehicle-intelligence" && request.method === "GET") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const yearParam = url.searchParams.get("year");
+          const year = yearParam ? parseInt(yearParam, 10) : null;
+
+          if (!make) {
+            return corsResponse(request, JSON.stringify({ error: "make parameter required" }), 400);
+          }
+
+          let sql = `SELECT * FROM vehicle_intelligence WHERE LOWER(make) = ?`;
+          const params: (string | number)[] = [make];
+
+          if (model) {
+            sql += ` AND LOWER(model) LIKE ?`;
+            params.push(`%${model}%`);
+          }
+
+          if (year && !isNaN(year)) {
+            sql += ` AND year_start <= ? AND year_end >= ?`;
+            params.push(year, year);
+          }
+
+          sql += ` ORDER BY model, year_start LIMIT 50`;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+          const vehicles = (result.results || []).map((r: any) => ({
+            ...r,
+            fcc_ids: r.fcc_ids ? (r.fcc_ids.startsWith('[') ? JSON.parse(r.fcc_ids) : r.fcc_ids.split(',').map((s: string) => s.trim())) : [],
+          }));
+
+          return new Response(JSON.stringify({
+            source: "vehicle_intelligence",
+            count: vehicles.length,
+            vehicles
+          }), {
+            headers: {
+              "content-type": "application/json",
+              "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "GET, OPTIONS",
+              "Access-Control-Allow-Headers": "*",
+            },
+          });
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/vehicle-intelligence/completeness - Gap analysis report
+      if (path === "/api/vehicle-intelligence/completeness" && request.method === "GET") {
+        try {
+          const makeFilter = url.searchParams.get("make")?.toLowerCase();
+
+          let whereClause = "";
+          const params: string[] = [];
+          if (makeFilter) {
+            whereClause = "WHERE LOWER(make) = ?";
+            params.push(makeFilter);
+          }
+
+          const sql = `
+            SELECT 
+              make,
+              COUNT(*) as total_models,
+              COUNT(chip_type) as has_chip,
+              COUNT(lishi) as has_lishi,
+              COUNT(autel_status) as has_autel,
+              COUNT(smartpro_status) as has_smartpro,
+              COUNT(lonsdor_status) as has_lonsdor,
+              COUNT(vvdi_status) as has_vvdi,
+              COUNT(platform) as has_platform,
+              COUNT(eeprom_chip) as has_eeprom,
+              COUNT(description) as has_description,
+              SUM(pearl_count) as total_pearls,
+              SUM(has_walkthrough) as total_walkthroughs,
+              SUM(has_guide) as total_guides,
+              ROUND(
+                (COUNT(chip_type) + COUNT(lishi) + COUNT(autel_status) + COUNT(platform) + COUNT(description)) * 100.0 
+                / (COUNT(*) * 5), 1
+              ) as completeness_pct
+            FROM vehicle_intelligence
+            ${whereClause}
+            GROUP BY make
+            ORDER BY completeness_pct ASC
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+          return new Response(JSON.stringify({
+            source: "vehicle_intelligence",
+            makes: result.results || [],
+            total_makes: (result.results || []).length
+          }), {
+            headers: {
+              "content-type": "application/json",
+              "Cache-Control": "public, max-age=600",
+              "Access-Control-Allow-Origin": "*",
+            },
+          });
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // TOOL COVERAGE (Enriched per-tool data from D1)
       // ==============================================
 
