@@ -139,11 +139,11 @@ export const GoogleSignInButton = () => {
                 return (
                     <Link
                         href="/pricing"
-                        className="hidden sm:flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1.5 text-xs font-semibold text-amber-400 hover:bg-amber-500/25 transition-colors animate-pulse hover:animate-none"
+                        className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-semibold text-amber-400 hover:bg-amber-500/25 transition-colors animate-pulse hover:animate-none"
                     >
                         <span>⏳ {timeLabel}</span>
-                        <span className="text-amber-300">•</span>
-                        <span className="text-amber-300">Get 6 more days free →</span>
+                        <span className="hidden sm:inline text-amber-300">•</span>
+                        <span className="hidden sm:inline text-amber-300">Get 6 days free →</span>
                     </Link>
                 );
             })()}

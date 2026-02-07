@@ -8,57 +8,52 @@ import { useSearchParams } from 'next/navigation';
 interface AddOn {
     id: string;
     name: string;
-    emoji: string;
     description: string;
     monthlyPrice: number;
     features: string[];
-    color: string;
+    accent: string;
 }
 
 const ADD_ONS: AddOn[] = [
     {
         id: 'dossiers',
         name: 'Technical Dossiers',
-        emoji: '📚',
         description: '230+ professional guides',
         monthlyPrice: 5,
         features: ['All dossier content', 'PDF exports', 'Offline reading'],
-        color: 'from-purple-500 to-purple-600'
+        accent: 'purple',
     },
     {
         id: 'images',
         name: 'Image Library',
-        emoji: '📷',
         description: '1,800+ technical diagrams',
         monthlyPrice: 5,
         features: ['Full image gallery', 'High-res downloads', 'Vehicle page images'],
-        color: 'from-blue-500 to-blue-600'
+        accent: 'blue',
     },
     {
         id: 'calculator',
         name: 'Bitting Calculator',
-        emoji: '🔑',
         description: 'Professional key cutting',
         monthlyPrice: 5,
         features: ['20+ keyway profiles', 'Progressive cutting', 'MACS validation'],
-        color: 'from-green-500 to-green-600'
+        accent: 'green',
     },
     {
         id: 'business_tools',
         name: 'Business Suite',
-        emoji: '📊',
         description: 'Complete business management',
         monthlyPrice: 20,
-        features: ['Unlimited job logging', 'Invoice generation', 'Analytics', 'Dispatcher access'],
-        color: 'from-amber-500 to-amber-600'
+        features: ['Unlimited jobs', 'Invoicing', 'Analytics', 'Dispatcher'],
+        accent: 'amber',
     }
 ];
 
 const PRO_FEATURES = [
-    { emoji: '🚗', text: 'Full vehicle database (800+ models)' },
-    { emoji: '🔑', text: 'FCC ID lookup (500+ entries)' },
-    { emoji: '📷', text: 'Limited technical images' },
-    { emoji: '🎯', text: 'Priority support' },
+    'Full vehicle database (800+ models)',
+    'FCC ID lookup (500+ entries)',
+    'Limited technical images',
+    'Priority support',
 ];
 
 interface TrialStatus {
@@ -76,11 +71,8 @@ export default function PricingClient() {
     const success = searchParams?.get('success');
     const canceled = searchParams?.get('canceled');
 
-    // Fetch trial status on load
     useEffect(() => {
-        if (isAuthenticated) {
-            fetchTrialStatus();
-        }
+        if (isAuthenticated) fetchTrialStatus();
     }, [isAuthenticated]);
 
     const fetchTrialStatus = async () => {
@@ -89,43 +81,30 @@ export default function PricingClient() {
             const res = await fetch(`${API_BASE}/api/user/trials`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-            if (res.ok) {
-                const data = await res.json();
-                setTrialStatus(data);
-            }
+            if (res.ok) setTrialStatus(await res.json());
         } catch (e) {
             console.error('Failed to fetch trial status:', e);
         }
     };
 
     const handleSubscribe = async (addOnId: string = 'pro') => {
-        if (!isAuthenticated) {
-            login();
-            return;
-        }
-
+        if (!isAuthenticated) { login(); return; }
         setLoadingAddon(addOnId);
         setIsLoading(true);
         try {
             const token = localStorage.getItem('session_token');
             const res = await fetch(`${API_BASE}/api/stripe/checkout`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ addOnId }),
             });
             const data = await res.json();
-
             if (data.url) {
                 window.location.href = data.url;
             } else {
-                console.error('Checkout error:', data.error);
                 alert('Failed to start checkout. Please try again.');
             }
-        } catch (err) {
-            console.error('Checkout error:', err);
+        } catch {
             alert('Failed to start checkout. Please try again.');
         } finally {
             setIsLoading(false);
@@ -138,20 +117,15 @@ export default function PricingClient() {
         try {
             const token = localStorage.getItem('session_token');
             const res = await fetch(`${API_BASE}/api/stripe/portal`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
+                headers: { 'Authorization': `Bearer ${token}` },
             });
             const data = await res.json();
-
             if (data.url) {
                 window.location.href = data.url;
             } else {
-                console.error('Portal error:', data.error);
                 alert('Failed to open subscription portal. Please try again.');
             }
-        } catch (err) {
-            console.error('Portal error:', err);
+        } catch {
             alert('Failed to open subscription portal. Please try again.');
         } finally {
             setIsLoading(false);
@@ -162,231 +136,234 @@ export default function PricingClient() {
     const isSubscribed = (addOnId: string) => trialStatus.subscribedAddons.includes(addOnId);
     const isInTrial = (addOnId: string) => trialStatus.activeTrials.includes(addOnId);
 
+    // Trial state
+    const isOnTrial = user?.trial_until && user.trial_until > Date.now() && !user.is_pro;
+    const trialEnd = user?.trial_until ?? 0;
+    const msLeft = isOnTrial ? trialEnd - Date.now() : 0;
+    const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
+    const timeLabel = hoursLeft > 24
+        ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? 's' : ''}`
+        : `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''}`;
+    const isPaidPro = !!user?.is_pro;
+
+    const accentColors: Record<string, string> = {
+        purple: 'border-purple-500/40 hover:border-purple-400/60',
+        blue: 'border-blue-500/40 hover:border-blue-400/60',
+        green: 'border-green-500/40 hover:border-green-400/60',
+        amber: 'border-amber-500/40 hover:border-amber-400/60',
+    };
+
+    const accentBg: Record<string, string> = {
+        purple: 'bg-purple-500',
+        blue: 'bg-blue-500',
+        green: 'bg-green-500',
+        amber: 'bg-amber-500',
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white">
-            <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="min-h-screen bg-zinc-950 text-white pb-8">
+            <div className="max-w-5xl mx-auto px-4 pt-8 sm:pt-12">
                 {/* Success/Cancel Messages */}
                 {success && (
-                    <div className="mb-8 p-4 bg-green-900/50 border border-green-500/50 rounded-xl text-center">
-                        <span className="text-2xl mr-2">🎉</span>
-                        <span className="text-green-400 font-semibold">Welcome!</span>
-                        <p className="text-zinc-400 text-sm mt-1">Your subscription is now active. Enjoy your access!</p>
+                    <div className="mb-6 p-3 bg-green-900/40 border border-green-500/40 rounded-lg text-center text-sm">
+                        <span className="text-green-400 font-semibold">🎉 Welcome!</span>
+                        <span className="text-zinc-400 ml-2">Your subscription is now active.</span>
                     </div>
                 )}
                 {canceled && (
-                    <div className="mb-8 p-4 bg-amber-900/30 border border-amber-500/30 rounded-xl text-center">
-                        <span className="text-zinc-400">Checkout canceled. Feel free to try again when you're ready.</span>
+                    <div className="mb-6 p-3 bg-amber-900/30 border border-amber-500/30 rounded-lg text-center text-sm text-zinc-400">
+                        Checkout canceled. Feel free to try again when you're ready.
                     </div>
                 )}
 
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                <div className="text-center mb-8 sm:mb-10">
+                    <h1 className="text-2xl sm:text-3xl font-bold mb-2">
                         Choose Your <span className="text-amber-400">Plan</span>
                     </h1>
-                    <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
-                        Start with Pro, then add specialized tools as you need them. Every add-on includes a 7-day free trial.
+                    <p className="text-sm sm:text-base text-zinc-400 max-w-lg mx-auto">
+                        Start with Pro, then add specialized tools. Every plan includes a <span className="text-amber-400 font-medium">7-day free trial</span>.
                     </p>
                 </div>
 
-                {/* Main Pro Card */}
-                <div className="max-w-xl mx-auto mb-16">
-                    <div className="relative overflow-hidden rounded-2xl border-2 border-amber-500/50 bg-gradient-to-br from-zinc-900 to-zinc-800 p-8 shadow-xl shadow-amber-500/10">
-                        {/* Badge */}
-                        {canTrial('pro') && !isPro && (
-                            <div className="absolute top-0 right-0 bg-amber-500 text-black text-xs font-bold px-4 py-1.5 rounded-bl-xl">
-                                7-DAY FREE TRIAL
-                            </div>
+                {/* Pro Card — Compact */}
+                <div className="max-w-md mx-auto mb-10">
+                    <div className="relative rounded-xl border border-amber-500/40 bg-zinc-900 p-5 sm:p-6">
+                        {/* Trial/Status Badge */}
+                        {canTrial('pro') && !isPaidPro && !isOnTrial && (
+                            <span className="absolute top-3 right-3 text-[10px] bg-amber-500 text-black font-bold px-2 py-0.5 rounded">
+                                FREE TRIAL
+                            </span>
                         )}
 
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-2xl">
+                        {/* Title Row */}
+                        <div className="flex items-center gap-2.5 mb-4">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-sm">
                                 ⭐
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold">Euro Keys Pro</h2>
-                                <p className="text-zinc-400 text-sm">Your foundation for automotive locksmith intelligence</p>
+                                <h2 className="text-lg font-bold leading-tight">Euro Keys Pro</h2>
+                                <p className="text-zinc-500 text-xs">Automotive locksmith intelligence</p>
                             </div>
                         </div>
 
                         {/* Price */}
-                        <div className="mb-6">
-                            <div className="flex items-baseline gap-1">
-                                <span className="text-5xl font-bold">$25</span>
-                                <span className="text-zinc-400 text-xl">/month</span>
-                            </div>
-                            <p className="text-zinc-500 text-sm mt-1">Cancel anytime. No commitment.</p>
+                        <div className="flex items-baseline gap-1 mb-4">
+                            <span className="text-3xl font-bold">$25</span>
+                            <span className="text-zinc-500 text-sm">/month</span>
+                            <span className="text-zinc-600 text-xs ml-2">Cancel anytime</span>
                         </div>
 
-                        {/* Features */}
-                        <ul className="space-y-2 mb-8">
+                        {/* Features — Compact List */}
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 mb-5 text-sm">
                             {PRO_FEATURES.map((feature, i) => (
-                                <li key={i} className="flex items-start gap-3">
-                                    <span className="text-lg">{feature.emoji}</span>
-                                    <span className="text-zinc-300">{feature.text}</span>
+                                <li key={i} className="flex items-center gap-2 text-zinc-300">
+                                    <span className="text-amber-400 text-xs">✦</span>
+                                    <span>{feature}</span>
                                 </li>
                             ))}
                         </ul>
 
-                        {/* CTA Button */}
-                        {(() => {
-                            // Check if user is on a free trial (has trial_until but is_pro is false)
-                            const isOnTrial = user?.trial_until && user.trial_until > Date.now() && !user.is_pro;
-                            const trialEnd = user?.trial_until ?? 0;
-                            const msLeft = isOnTrial ? trialEnd - Date.now() : 0;
-                            const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
-                            const timeLabel = hoursLeft > 24
-                                ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? 's' : ''}`
-                                : `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''}`;
-                            const isPaidPro = !!user?.is_pro;
-
-                            if (isOnTrial) {
-                                return (
-                                    <div className="space-y-3">
-                                        <div className="text-center p-3 bg-amber-900/30 border border-amber-500/30 rounded-lg">
-                                            <span className="text-amber-400 font-semibold">⏳ Free Preview — {timeLabel} remaining</span>
-                                            <p className="text-zinc-500 text-xs mt-1">Start your 7-day free trial with card to keep access</p>
-                                        </div>
-                                        <button
-                                            onClick={() => handleSubscribe('pro')}
-                                            disabled={isLoading || loading}
-                                            className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
-                                        >
-                                            {loadingAddon === 'pro' ? 'Loading...' : 'Start 7-Day Free Trial'}
-                                        </button>
-                                    </div>
-                                );
-                            } else if (isPaidPro) {
-                                return (
-                                    <div className="space-y-3">
-                                        <div className="text-center p-3 bg-green-900/30 border border-green-500/30 rounded-lg">
-                                            <span className="text-green-400 font-semibold">✓ You're a Pro member</span>
-                                        </div>
-                                        <button
-                                            onClick={handleManageSubscription}
-                                            disabled={isLoading || loading}
-                                            className="w-full py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
-                                        >
-                                            {isLoading ? 'Loading...' : 'Manage Subscription'}
-                                        </button>
-                                    </div>
-                                );
-                            } else {
-                                return (
-                                    <button
-                                        onClick={() => handleSubscribe('pro')}
-                                        disabled={isLoading || loading}
-                                        className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
-                                    >
-                                        {loadingAddon === 'pro' ? 'Loading...' :
-                                            isAuthenticated ? (canTrial('pro') ? 'Start 7-Day Free Trial' : 'Subscribe to Pro') :
-                                                'Sign In to Get Started'}
-                                    </button>
-                                );
-                            }
-                        })()}
+                        {/* CTA */}
+                        {isOnTrial ? (
+                            <div className="space-y-2.5">
+                                <div className="text-center p-2.5 bg-amber-900/25 border border-amber-500/25 rounded-lg">
+                                    <span className="text-amber-400 text-sm font-semibold">⏳ Free Preview — {timeLabel} remaining</span>
+                                    <p className="text-zinc-500 text-[11px] mt-0.5">Enter card for 7-day free trial, then $25/mo</p>
+                                </div>
+                                <button
+                                    onClick={() => handleSubscribe('pro')}
+                                    disabled={isLoading || loading}
+                                    className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold rounded-lg transition-all hover:scale-[1.01] disabled:opacity-50"
+                                >
+                                    {loadingAddon === 'pro' ? 'Loading...' : 'Start 7-Day Free Trial'}
+                                </button>
+                            </div>
+                        ) : isPaidPro ? (
+                            <div className="space-y-2.5">
+                                <div className="text-center p-2.5 bg-green-900/25 border border-green-500/25 rounded-lg">
+                                    <span className="text-green-400 text-sm font-semibold">✓ Pro Member</span>
+                                </div>
+                                <button
+                                    onClick={handleManageSubscription}
+                                    disabled={isLoading || loading}
+                                    className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    {isLoading ? 'Loading...' : 'Manage Subscription'}
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => handleSubscribe('pro')}
+                                disabled={isLoading || loading}
+                                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold rounded-lg transition-all hover:scale-[1.01] disabled:opacity-50"
+                            >
+                                {loadingAddon === 'pro' ? 'Loading...' :
+                                    isAuthenticated ? (canTrial('pro') ? 'Start 7-Day Free Trial' : 'Subscribe — $25/mo') :
+                                        'Sign In to Get Started'}
+                            </button>
+                        )}
                     </div>
 
-                    {/* Trust badges */}
-                    <div className="flex justify-center gap-6 mt-6 text-zinc-500 text-sm">
+                    {/* Trust Badges */}
+                    <div className="flex justify-center gap-4 mt-3 text-zinc-600 text-[11px]">
                         <span>🔒 Secure checkout</span>
                         <span>💳 Powered by Stripe</span>
                     </div>
                 </div>
 
-                {/* Add-ons Section */}
-                <div className="mb-16">
-                    <div className="text-center mb-8">
-                        <h2 className="text-2xl font-bold mb-2">Supercharge Your Pro</h2>
-                        <p className="text-zinc-400">
-                            Add specialized tools to your subscription. Each includes a <span className="text-green-400 font-semibold">7-day free trial</span>.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {ADD_ONS.map((addon) => {
-                            const subscribed = isSubscribed(addon.id);
-                            const inTrial = isInTrial(addon.id);
-                            const trialAvailable = canTrial(addon.id);
-
-                            return (
-                                <div
-                                    key={addon.id}
-                                    className={`relative rounded-xl border bg-zinc-800/50 p-6 transition-all hover:border-zinc-600 ${subscribed ? 'border-green-500/50' : 'border-zinc-700'
-                                        }`}
-                                >
-                                    {/* Trial Badge */}
-                                    {trialAvailable && !subscribed && (
-                                        <span className="absolute top-3 right-3 text-[10px] bg-green-600/80 text-white px-2 py-0.5 rounded">
-                                            7-day trial
-                                        </span>
-                                    )}
-                                    {inTrial && (
-                                        <span className="absolute top-3 right-3 text-[10px] bg-blue-600/80 text-white px-2 py-0.5 rounded">
-                                            In trial
-                                        </span>
-                                    )}
-                                    {subscribed && !inTrial && (
-                                        <span className="absolute top-3 right-3 text-[10px] bg-green-600/80 text-white px-2 py-0.5 rounded">
-                                            Subscribed
-                                        </span>
-                                    )}
-
-                                    {/* Icon */}
-                                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${addon.color} flex items-center justify-center text-xl mb-4`}>
-                                        {addon.emoji}
-                                    </div>
-
-                                    {/* Name & Description */}
-                                    <h3 className="font-bold text-lg mb-1">{addon.name}</h3>
-                                    <p className="text-zinc-400 text-sm mb-3">{addon.description}</p>
-
-                                    {/* Price */}
-                                    <div className="mb-4">
-                                        <span className="text-2xl font-bold">${addon.monthlyPrice}</span>
-                                        <span className="text-zinc-500">/mo</span>
-                                    </div>
-
-                                    {/* Features */}
-                                    <ul className="space-y-1 mb-4 text-sm">
-                                        {addon.features.map((f, i) => (
-                                            <li key={i} className="text-zinc-400 flex items-center gap-2">
-                                                <span className="text-green-400">✓</span> {f}
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    {/* Subscribe Button */}
-                                    {subscribed ? (
-                                        <button
-                                            onClick={handleManageSubscription}
-                                            className="w-full py-2 text-sm bg-zinc-700 hover:bg-zinc-600 text-white font-medium rounded-lg transition-colors"
-                                        >
-                                            Manage
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleSubscribe(addon.id)}
-                                            disabled={isLoading || loading}
-                                            className={`w-full py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 ${trialAvailable
-                                                ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white'
-                                                : 'bg-zinc-700 hover:bg-zinc-600 text-white'
-                                                }`}
-                                        >
-                                            {loadingAddon === addon.id ? 'Loading...' :
-                                                !isAuthenticated ? 'Sign In' :
-                                                    trialAvailable ? 'Start Free Trial' : 'Subscribe'}
-                                        </button>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+                {/* Divider */}
+                <div className="text-center mb-6">
+                    <h2 className="text-lg sm:text-xl font-bold mb-1">Add-On Tools</h2>
+                    <p className="text-zinc-500 text-sm">
+                        Each includes a <span className="text-green-400 font-medium">7-day free trial</span>
+                    </p>
                 </div>
 
-                {/* FAQ */}
-                <div className="text-center text-zinc-500 text-sm">
-                    <p>Questions? Contact <a href="mailto:support@eurokeys.app" className="text-amber-400 hover:underline">support@eurokeys.app</a></p>
+                {/* Add-ons Grid — Compact Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-10">
+                    {ADD_ONS.map((addon) => {
+                        const subscribed = isSubscribed(addon.id);
+                        const inTrial = isInTrial(addon.id);
+                        const trialAvailable = canTrial(addon.id);
+
+                        return (
+                            <div
+                                key={addon.id}
+                                className={`relative rounded-lg border bg-zinc-900/80 p-3 sm:p-4 transition-all ${subscribed ? 'border-green-500/50' : accentColors[addon.accent]
+                                    }`}
+                            >
+                                {/* Status Badge */}
+                                {trialAvailable && !subscribed && (
+                                    <span className="absolute top-2 right-2 text-[9px] bg-green-600/80 text-white px-1.5 py-0.5 rounded font-medium">
+                                        trial
+                                    </span>
+                                )}
+                                {inTrial && (
+                                    <span className="absolute top-2 right-2 text-[9px] bg-blue-600/80 text-white px-1.5 py-0.5 rounded font-medium">
+                                        active
+                                    </span>
+                                )}
+                                {subscribed && !inTrial && (
+                                    <span className="absolute top-2 right-2 text-[9px] bg-green-600/80 text-white px-1.5 py-0.5 rounded font-medium">
+                                        ✓
+                                    </span>
+                                )}
+
+                                {/* Accent dot + Name */}
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className={`w-2 h-2 rounded-full ${accentBg[addon.accent]} flex-shrink-0`} />
+                                    <h3 className="font-semibold text-sm leading-tight">{addon.name}</h3>
+                                </div>
+
+                                <p className="text-zinc-500 text-[11px] mb-2 leading-snug">{addon.description}</p>
+
+                                {/* Price */}
+                                <div className="mb-2.5">
+                                    <span className="text-lg font-bold">${addon.monthlyPrice}</span>
+                                    <span className="text-zinc-600 text-xs">/mo</span>
+                                </div>
+
+                                {/* Features */}
+                                <ul className="space-y-0.5 mb-3">
+                                    {addon.features.map((f, i) => (
+                                        <li key={i} className="text-zinc-400 text-[11px] flex items-start gap-1.5">
+                                            <span className="text-green-500 mt-0.5 text-[9px]">●</span>
+                                            <span>{f}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {/* Button */}
+                                {subscribed ? (
+                                    <button
+                                        onClick={handleManageSubscription}
+                                        className="w-full py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded transition-colors"
+                                    >
+                                        Manage
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => handleSubscribe(addon.id)}
+                                        disabled={isLoading || loading}
+                                        className={`w-full py-1.5 text-xs font-medium rounded transition-all disabled:opacity-50 ${trialAvailable
+                                                ? 'bg-green-600 hover:bg-green-500 text-white'
+                                                : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                                            }`}
+                                    >
+                                        {loadingAddon === addon.id ? '...' :
+                                            !isAuthenticated ? 'Sign In' :
+                                                trialAvailable ? 'Start Trial' : 'Subscribe'}
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Footer */}
+                <div className="text-center text-zinc-600 text-xs">
+                    <p>Questions? <a href="mailto:support@eurokeys.app" className="text-amber-400/80 hover:underline">support@eurokeys.app</a></p>
                 </div>
             </div>
         </div>
