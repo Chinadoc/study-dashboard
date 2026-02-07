@@ -134,15 +134,16 @@ export const GoogleSignInButton = () => {
                 const msLeft = user.trial_until! - Date.now();
                 const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60));
                 const timeLabel = hoursLeft > 24
-                    ? `${Math.ceil(hoursLeft / 24)}d`
-                    : `${hoursLeft}h`;
+                    ? `${Math.ceil(hoursLeft / 24)}d left`
+                    : `${hoursLeft}h left`;
                 return (
                     <Link
                         href="/pricing"
-                        className="hidden sm:flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs font-semibold text-amber-400 hover:bg-amber-500/25 transition-colors"
+                        className="hidden sm:flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1.5 text-xs font-semibold text-amber-400 hover:bg-amber-500/25 transition-colors animate-pulse hover:animate-none"
                     >
-                        <span>⏳</span>
-                        <span>{timeLabel} left</span>
+                        <span>⏳ {timeLabel}</span>
+                        <span className="text-amber-300">•</span>
+                        <span className="text-amber-300">Get 6 more days free →</span>
                     </Link>
                 );
             })()}
