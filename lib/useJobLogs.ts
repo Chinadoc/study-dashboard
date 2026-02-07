@@ -184,12 +184,22 @@ export function useJobLogs() {
 
     // Normalize job to ensure required fields exist (defensive against malformed cloud data)
     const normalizeJob = useCallback((job: Partial<JobLog>): JobLog => {
+        // Ensure date is Safari-safe YYYY-MM-DD format
+        let safeDate = new Date().toISOString().split('T')[0];
+        if (job.date) {
+            try {
+                const parsed = new Date(job.date);
+                if (!isNaN(parsed.getTime())) {
+                    safeDate = parsed.toISOString().split('T')[0];
+                }
+            } catch { /* use default */ }
+        }
+
         return {
             id: job.id || generateId(),
             vehicle: job.vehicle || '',
             jobType: job.jobType || 'other',
             price: typeof job.price === 'number' ? job.price : 0,
-            date: job.date || new Date().toISOString().split('T')[0],
             createdAt: job.createdAt || Date.now(),
             status: ([
                 'unassigned',
@@ -210,6 +220,7 @@ export function useJobLogs() {
                 ? job.status
                 : 'completed') as JobLog['status'],
             ...job,
+            date: safeDate, // override after spread to ensure Safari-safe date
         } as JobLog;
     }, []);
 
@@ -400,12 +411,23 @@ export function useJobLogs() {
 
     const filterValidJobs = useCallback((jobs: JobLog[]): JobLog[] => {
         const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'safe', 'other'];
-        return jobs.filter(j =>
-            j &&
-            j.id &&
-            typeof j.vehicle === 'string' && j.vehicle.trim() !== '' && j.vehicle !== 'null' &&
-            typeof j.jobType === 'string' && (j.jobType as string) !== 'null' && validJobTypes.includes(j.jobType)
-        );
+        return jobs.filter(j => {
+            // Basic structural checks
+            if (!j || !j.id) return false;
+            if (typeof j.vehicle !== 'string' || j.vehicle.trim() === '' || j.vehicle === 'null') return false;
+            if (typeof j.jobType !== 'string' || (j.jobType as string) === 'null' || !validJobTypes.includes(j.jobType)) return false;
+
+            // Date validation - filter out jobs with unparseable dates
+            if (!j.date || j.date === 'null' || j.date === 'undefined') return false;
+            try {
+                const d = new Date(j.date);
+                if (isNaN(d.getTime())) return false;
+            } catch {
+                return false;
+            }
+
+            return true;
+        });
     }, []);
 
     // Bidirectional sync: load from both local and cloud, merge, then push local-only to cloud
