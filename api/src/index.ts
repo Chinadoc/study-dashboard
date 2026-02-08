@@ -11707,6 +11707,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%-pack%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%flip blade%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%universal%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%vvdi%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%xhorse%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%keydiy%'
               ORDER BY c.product_type, c.buttons DESC
             `).bind(make, `%${model}%`, year).all<any>();
 
@@ -11726,7 +11730,24 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               productCount: number;
             }>> = {};
 
-            for (const row of (keyConfigResult.results || [])) {
+            // Cross-vehicle title filter: exclude products whose title clearly names a different vehicle
+            const CROSS_VEHICLE_MAKES = ['Lincoln', 'Kia', 'Toyota', 'Honda', 'Ford', 'Jeep', 'Dodge', 'Chrysler', 'Chevrolet', 'Cadillac', 'Buick', 'GMC', 'BMW', 'Audi', 'Mercedes', 'Nissan', 'Hyundai', 'Subaru', 'Mazda', 'Volkswagen', 'Acura', 'Infiniti', 'Lexus', 'Ram', 'Mitsubishi', 'Volvo', 'Jaguar', 'Fiat', 'Mini', 'Scion', 'Saturn', 'Mercury', 'Plymouth', 'Pontiac', 'Oldsmobile', 'Tesla', 'Suzuki'];
+            const normalizedModel = model.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const normalizedMake = make.toLowerCase();
+            const filteredResults = (keyConfigResult.results || []).filter((row: any) => {
+              const title = (row.title || '').toLowerCase();
+              // Check if title starts with a DIFFERENT make's vehicle name
+              for (const m of CROSS_VEHICLE_MAKES) {
+                const mLow = m.toLowerCase();
+                if (mLow === normalizedMake) continue; // Same make is fine
+                if (title.startsWith(mLow + ' ')) {
+                  return false; // Title starts with a different make — cross-vehicle contamination
+                }
+              }
+              return true;
+            });
+
+            for (const row of filteredResults) {
               // Skip products with no product_type (usually accessories like batteries)
               if (!row.product_type) continue;
 
@@ -11803,11 +11824,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               }
               // Always split and clean OEM parts (blade/mechanical may not have FCC, but still have OEM)
               if (oemRaw) {
-                const splitOem = oemRaw.split(/[,;\s]+/).map((o: string) => o.trim()).filter((o: string) => {
+                // For blade/mechanical types, the oem field often contains cross-reference key blank data
+                // (e.g. "Axxess 17 Bianchi BY159 Cole Y159 Curtis Y-159") — filter aggressively
+                const CROSS_REF_BRANDS = ['axxess', 'bianchi', 'cole', 'curtis', 'esp', 'hata', 'ilco', 'jet', 'jma', 'lotus', 'orion', 'silca', 'strattec', 'keyline', 'kaba'];
+                const splitOem = oemRaw.split(/[,;]+/).map((o: string) => o.trim()).filter((o: string) => {
                   if (!o || o === 'Multiple' || o.length < 4 || o.startsWith('(')) return false;
-                  // Filter out key blank cross-reference names (Axxess, Bianchi, Cole, Curtis, etc.)
                   // Real OEM parts have digits in them (e.g. 68092989AA, Y159, CR2032)
                   if (!/\d/.test(o)) return false;
+                  // Filter out cross-reference brand names embedded in the string
+                  const oLow = o.toLowerCase();
+                  if (CROSS_REF_BRANDS.some(brand => oLow.includes(brand))) return false;
+                  // Filter out entries that are too long (likely concatenated text, not part numbers)
+                  if (o.length > 30) return false;
                   return true;
                 });
                 for (const part of splitOem) {

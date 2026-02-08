@@ -441,15 +441,22 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
             {config.oem && config.oem.length > 0 && (
                 <div className="mb-3">
                     <div className="flex flex-wrap gap-1">
-                        {config.oem.slice(0, 3).map((part, i) => (
-                            <span
-                                key={i}
-                                className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] font-mono text-zinc-400 cursor-help"
-                                title={part.label || ''}
-                            >
-                                {part.number}
-                            </span>
-                        ))}
+                        {config.oem.slice(0, 3).map((part, i) => {
+                            const displayNum = part.number.length > 20 ? part.number.slice(0, 18) + '…' : part.number;
+                            return (
+                                <span
+                                    key={i}
+                                    className="relative group/oem px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] font-mono text-zinc-400 cursor-help"
+                                >
+                                    {displayNum}
+                                    {part.label && (
+                                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-zinc-700 text-zinc-200 text-[9px] rounded shadow-lg whitespace-nowrap opacity-0 group-hover/oem:opacity-100 transition-opacity pointer-events-none z-50 max-w-[200px] truncate">
+                                            {part.label}
+                                        </span>
+                                    )}
+                                </span>
+                            );
+                        })}
                         {config.oem.length > 3 && (
                             <span className="px-1.5 py-0.5 text-[10px] text-zinc-600 font-bold">
                                 +{config.oem.length - 3}
