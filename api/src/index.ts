@@ -11686,10 +11686,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 c.image_url as cdn_image,
                 c.reusable,
                 c.cloneable,
-                d.image_r2_key
+                CASE WHEN c.image_filename IS NOT NULL AND c.image_filename != '' 
+                  THEN 'aks_products/' || c.image_filename 
+                  ELSE NULL END as image_r2_key
               FROM aks_vehicle_products vp
               JOIN aks_products_complete c ON vp.product_page_id = c.page_id
-              LEFT JOIN aks_products_detail d ON c.item_id = d.item_number
               WHERE LOWER(vp.make) = ? 
                 AND LOWER(vp.model) LIKE LOWER(?) 
                 AND vp.year = ?
