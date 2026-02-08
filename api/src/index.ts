@@ -11640,11 +11640,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
 
           // 1.7. Get AKS key configurations grouped by key type → button count
-          // Uses: aks_vehicle_products → aks_products → aks_products_detail (for R2 images)
+          // Uses: aks_vehicle_products → aks_products_complete (comprehensive product data)
+          interface FccDetail {
+            fcc: string;
+            oem: string[];
+            title: string;
+            frequency: string | null;
+          }
           interface AksKeyConfig {
             keyType: string;
             buttonCount: string | null;
             fccIds: string[];
+            fccDetails: FccDetail[];
             oemParts: string[];
             chip: string | null;
             battery: string | null;
@@ -11653,57 +11660,67 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             partNumber: string | null;
             imageUrl: string | null;
             productCount: number;
+            reusable: string | null;
+            cloneable: string | null;
           }
           let aksKeyConfigs: AksKeyConfig[] = [];
           const WORKER_BASE = "https://euro-keys.jeremy-samuels17.workers.dev";
 
           if (year) {
+            // Query aks_products_complete for comprehensive product data
+            // Falls back to aks_products + aks_products_detail for R2 images
             const keyConfigResult = await env.LOCKSMITH_DB.prepare(`
               SELECT 
-                p.page_id,
-                p.title,
-                p.product_type,
-                p.buttons,
-                p.fcc_id,
-                p.oem_part_number,
-                p.battery,
-                p.frequency,
-                p.image_url as cdn_image,
-                d.image_r2_key,
-                d.chip,
-                d.keyway,
-                d.model_num
+                c.page_id,
+                c.item_id,
+                c.title,
+                c.product_type,
+                c.buttons,
+                c.fcc_id,
+                c.oem_part_numbers,
+                c.battery,
+                c.frequency,
+                c.chip,
+                c.keyway,
+                c.model_name,
+                c.image_url as cdn_image,
+                c.reusable,
+                c.cloneable,
+                d.image_r2_key
               FROM aks_vehicle_products vp
-              JOIN aks_products p ON vp.product_page_id = p.page_id
-              LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
+              JOIN aks_products_complete c ON vp.product_page_id = c.page_id
+              LEFT JOIN aks_products_detail d ON c.item_id = d.item_number
               WHERE LOWER(vp.make) = ? 
                 AND LOWER(vp.model) LIKE LOWER(?) 
                 AND vp.year = ?
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%shell%'
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%flip%'
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%tool%'
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%lishi%'
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%ignition%'
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%lock%'
-                AND COALESCE(p.product_type, '') != 'Key'
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%chip%'
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%other%'
-                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%shell only%'
-                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%case only%'
-                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%-pack%'
-                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%flip blade%'
-              ORDER BY p.product_type, p.buttons DESC
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%flip%'
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%tool%'
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%lishi%'
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%ignition%'
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%lock%'
+                AND COALESCE(c.product_type, '') != 'Key'
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%chip%'
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%other%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%shell only%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%case only%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%-pack%'
+                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%flip blade%'
+              ORDER BY c.product_type, c.buttons DESC
             `).bind(make, `%${model}%`, year).all<any>();
 
             // Group by key type → button count
             const keyTypeGroups: Record<string, Record<string, {
               fccIds: Set<string>;
+              fccDetailMap: Map<string, { oem: Set<string>; titles: string[]; frequency: string | null }>;
               oemParts: Set<string>;
               chips: Set<string>;
               batteries: Set<string>;
               frequencies: Set<string>;
               keyways: Set<string>;
               modelNums: Set<string>;
+              reusables: Set<string>;
+              cloneables: Set<string>;
               images: string[];
               productCount: number;
             }>> = {};
@@ -11739,12 +11756,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (!keyTypeGroups[baseType][btnKey]) {
                 keyTypeGroups[baseType][btnKey] = {
                   fccIds: new Set(),
+                  fccDetailMap: new Map(),
                   oemParts: new Set(),
                   chips: new Set(),
                   batteries: new Set(),
                   frequencies: new Set(),
                   keyways: new Set(),
                   modelNums: new Set(),
+                  reusables: new Set(),
+                  cloneables: new Set(),
                   images: [],
                   productCount: 0
                 };
@@ -11755,19 +11775,39 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               // Aggregate data
               // Skip FCC aggregation for blade/emergency/mechanical keys (no RF transmitter)
               const isBladeType = ['Emergency Key', 'Mechanical Key', 'Blade'].includes(baseType);
-              if (row.fcc_id && !isBladeType) {
-                row.fcc_id.split(',').map((f: string) => f.trim()).filter((f: string) => f).forEach((f: string) => {
-                  // Normalize O→0 typos
-                  group.fccIds.add(f.replace(/O(\d)/g, '0$1'));
-                });
+              const fccRaw = row.fcc_id;
+              const oemRaw = row.oem_part_numbers;
+              // Clean frequency — filter out "0" and "--" as invalid
+              const freqRaw = row.frequency && row.frequency !== '0' && row.frequency !== '--' ? row.frequency : null;
+
+              if (fccRaw && !isBladeType) {
+                const fccs = fccRaw.split(',').map((f: string) => f.trim()).filter((f: string) => f);
+                for (const fcc of fccs) {
+                  const normalizedFcc = fcc.replace(/O(\d)/g, '0$1');
+                  group.fccIds.add(normalizedFcc);
+
+                  // Track per-FCC details for tooltips
+                  if (!group.fccDetailMap.has(normalizedFcc)) {
+                    group.fccDetailMap.set(normalizedFcc, { oem: new Set(), titles: [], frequency: null });
+                  }
+                  const detail = group.fccDetailMap.get(normalizedFcc)!;
+                  if (oemRaw) {
+                    // Split OEM by common delimiters (comma, semicolon, or space between part numbers)
+                    // Filter out parenthetical suffixes like (AA-AD), short fragments, and "Multiple"
+                    oemRaw.split(/[,;\s]+/).map((o: string) => o.trim()).filter((o: string) => o && o !== 'Multiple' && o.length > 3 && !o.startsWith('(')).forEach((o: string) => detail.oem.add(o));
+                  }
+                  if (row.title) detail.titles.push(row.title);
+                  if (freqRaw && !detail.frequency) detail.frequency = freqRaw;
+                }
               }
-              if (row.oem_part_number) group.oemParts.add(row.oem_part_number);
+              if (oemRaw) group.oemParts.add(oemRaw);
               if (row.chip) group.chips.add(row.chip);
               if (row.battery) group.batteries.add(row.battery);
-              if (row.frequency) group.frequencies.add(row.frequency);
+              if (freqRaw) group.frequencies.add(freqRaw);
               if (row.keyway) group.keyways.add(row.keyway);
-              if (row.model_num) group.modelNums.add(row.model_num);
-
+              if (row.model_name) group.modelNums.add(row.model_name);
+              if (row.reusable) group.reusables.add(row.reusable);
+              if (row.cloneable) group.cloneables.add(row.cloneable);
 
               // Collect images - gather R2 and CDN separately for best selection
               if (row.image_r2_key) {
@@ -11793,10 +11833,22 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   imageUrl = cdnImage.substring(4);
                 }
 
+                // Build per-FCC details array
+                const fccDetails: FccDetail[] = [];
+                for (const [fcc, detail] of group.fccDetailMap.entries()) {
+                  fccDetails.push({
+                    fcc,
+                    oem: Array.from(detail.oem).slice(0, 8),
+                    title: detail.titles[0] || '',
+                    frequency: detail.frequency
+                  });
+                }
+
                 aksKeyConfigs.push({
                   keyType,
                   buttonCount: btnKey === 'other' ? null : btnKey,
-                  fccIds: Array.from(group.fccIds).slice(0, 5),
+                  fccIds: Array.from(group.fccIds).slice(0, 8),
+                  fccDetails: fccDetails.slice(0, 8),
                   oemParts: Array.from(group.oemParts).slice(0, 10),
                   chip: Array.from(group.chips)[0] || null,
                   battery: Array.from(group.batteries)[0] || null,
@@ -11804,7 +11856,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   keyway: Array.from(group.keyways)[0] || null,
                   partNumber: Array.from(group.modelNums)[0] || null,
                   imageUrl,
-                  productCount: group.productCount
+                  productCount: group.productCount,
+                  reusable: Array.from(group.reusables)[0] || null,
+                  cloneable: Array.from(group.cloneables)[0] || null,
                 });
               }
             }
@@ -11893,15 +11947,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           if (itemNumbers.length > 0) {
             const placeholders = itemNumbers.map(() => "?").join(",");
 
-            // Apply year filter to AKS products
-            let yearFilter = "";
-            if (year) {
-              yearFilter = ` AND (year_start IS NULL OR year_start <= ${year}) AND (year_end IS NULL OR year_end >= ${year})`;
-            }
+            // No year filter needed — products are already filtered by year via aks_vehicle_products junction
+            const yearFilter = "";
 
             const aksResult = await env.LOCKSMITH_DB.prepare(`
               SELECT 
-                item_number,
+                item_id as item_number,
                 product_type,
                 buttons,
                 title,
@@ -11913,8 +11964,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 frequency,
                 battery,
                 CAST(price AS REAL) as price_num
-              FROM aks_products_detail
-              WHERE item_number IN (${placeholders})${yearFilter}
+              FROM aks_products_complete
+              WHERE item_id IN (${placeholders})${yearFilter}
             `).bind(...itemNumbers).all();
 
             for (const row of (aksResult.results || []) as any[]) {
@@ -11973,7 +12024,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (row.ic) group.ic_numbers.push(row.ic);
               if (row.chip) group.chips.push(row.chip);
               if (row.keyway) group.keyways.push(row.keyway);
-              if (row.frequency) group.frequencies.push(row.frequency);
+              if (row.frequency && row.frequency !== '0' && row.frequency !== '--') group.frequencies.push(row.frequency);
               if (row.battery) group.batteries.push(row.battery);
 
               if (row.price_num) {

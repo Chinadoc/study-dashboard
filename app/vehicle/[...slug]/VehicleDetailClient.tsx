@@ -47,7 +47,7 @@ function transformProductsByType(pbt: Record<string, any>): any[] {
 }
 
 // Transform aks_key_configs from API into KeyConfig[] for KeyCards
-// New format: grouped by keyType → buttonCount with R2 images
+// New format: grouped by keyType → buttonCount with R2 images and per-FCC details
 function transformAksKeyConfigs(configs: any[]): any[] {
     if (!configs || !Array.isArray(configs) || configs.length === 0) return [];
 
@@ -76,23 +76,56 @@ function transformAksKeyConfigs(configs: any[]): any[] {
                                 : keyTypeLower.includes('mechanical') ? 'blade'
                                     : 'prox';
 
-            // Parse OEM parts - handle both array and comma-separated string formats
-            const oemParts = (c.oemParts || []).flatMap((p: string) =>
-                p.split(',').map((part: string) => ({ number: part.trim() }))
-            );
+            // Build OEM parts with labels from fccDetails
+            // Each FCC detail has linked OEM parts and a product title for tooltip
+            const fccDetails = c.fccDetails || [];
+            const oemParts: Array<{ number: string; label?: string }> = [];
+            const seenOem = new Set<string>();
+
+            for (const detail of fccDetails) {
+                const label = detail.title || '';
+                for (const oem of (detail.oem || [])) {
+                    if (!seenOem.has(oem)) {
+                        seenOem.add(oem);
+                        oemParts.push({ number: oem, label: label || undefined });
+                    }
+                }
+            }
+
+            // Fallback: if no OEM from fccDetails, parse from flat oemParts
+            if (oemParts.length === 0) {
+                for (const p of (c.oemParts || [])) {
+                    for (const part of p.split(',')) {
+                        const trimmed = part.trim();
+                        if (trimmed && !seenOem.has(trimmed)) {
+                            seenOem.add(trimmed);
+                            oemParts.push({ number: trimmed });
+                        }
+                    }
+                }
+            }
+
+            // Format frequency — don't add "MHz" if already present
+            let frequency: string | undefined;
+            if (c.frequency) {
+                frequency = c.frequency.toLowerCase().includes('mhz') ? c.frequency : `${c.frequency} MHz`;
+            }
 
             return {
                 name,
                 fcc: (c.fccIds || []).join(', ') || undefined,
+                fccDetails: fccDetails.length > 0 ? fccDetails : undefined,
                 chip: c.chip || undefined,
                 keyway: c.keyway || undefined,
                 partNumber: c.partNumber || undefined,
                 battery: c.battery || undefined,
-                frequency: c.frequency ? `${c.frequency} MHz` : undefined,
+                frequency,
                 buttons: c.buttonCount || undefined,
                 image: c.imageUrl || undefined,
-                oem: oemParts,
+                oem: oemParts.length > 0 ? oemParts : undefined,
                 type,
+                reusable: c.reusable || undefined,
+                cloneable: c.cloneable || undefined,
             };
         });
 }

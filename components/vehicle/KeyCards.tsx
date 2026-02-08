@@ -6,13 +6,22 @@ import { useInventory } from '@/contexts/InventoryContext';
 import { useUnifiedData } from '@/lib/useUnifiedData';
 import OwnedBadge from '@/components/shared/OwnedBadge';
 
+interface FccDetail {
+    fcc: string;
+    oem: string[];
+    title: string;
+    frequency: string | null;
+}
+
 interface KeyConfig {
     name: string;
     fcc?: string;
+    fccDetails?: FccDetail[];
     type?: 'prox' | 'blade' | 'flip' | 'remote' | 'transponder';
     buttons?: string;
     battery?: string;
     chip?: string;
+    frequency?: string;
     keyway?: string;
     partNumber?: string;
     priceRange?: string;
@@ -20,6 +29,8 @@ interface KeyConfig {
     image?: string;
     blade?: string;
     profile?: string;
+    reusable?: string;
+    cloneable?: string;
 }
 
 interface Pearl {
@@ -207,6 +218,7 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
 function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { make: string; model: string; year: number } }) {
     const [added, setAdded] = useState(false);
     const [showOemSelector, setShowOemSelector] = useState(false);
+    const [showFccDetails, setShowFccDetails] = useState(false);
     const { addToInventory: contextAddToInventory } = useInventory();
 
     const vehicleStr = vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined;
@@ -326,20 +338,62 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                 )}
             </div>
 
-            {/* Prominent FCC ID */}
+            {/* Prominent FCC ID — expandable to show per-FCC details */}
             {config.fcc && (() => {
                 const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean))];
+                const hasDetails = config.fccDetails && config.fccDetails.length > 1;
                 return (
-                    <div className="text-center mb-3 py-2 bg-zinc-800/70 rounded-lg">
-                        <span className="text-[10px] text-zinc-500 block">FCC ID</span>
-                        <span className="font-mono text-yellow-500 font-bold text-lg">{fccIds[0]}</span>
-                        {fccIds.length > 1 && <span className="text-yellow-400/60 text-sm ml-1">+{fccIds.length - 1}</span>}
+                    <div className="mb-3">
+                        <div className="text-center py-2 bg-zinc-800/70 rounded-lg">
+                            <span className="text-[10px] text-zinc-500 block">FCC ID</span>
+                            <span className="font-mono text-yellow-500 font-bold text-lg">{fccIds[0]}</span>
+                            {fccIds.length > 1 && (
+                                <button
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowFccDetails(!showFccDetails); }}
+                                    className="text-yellow-400/60 text-sm ml-1 hover:text-yellow-300 transition-colors"
+                                >
+                                    +{fccIds.length - 1} {showFccDetails ? '▼' : '▶'}
+                                </button>
+                            )}
+                        </div>
+                        {/* Expanded FCC details */}
+                        {showFccDetails && hasDetails && (
+                            <div className="mt-1 space-y-1">
+                                {config.fccDetails!.map((detail, i) => (
+                                    <div key={i} className="px-2 py-1.5 bg-zinc-800/40 rounded border border-zinc-700/30 text-[10px]">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-mono text-yellow-400 font-bold">{detail.fcc}</span>
+                                            {detail.frequency && (
+                                                <span className="text-emerald-400 font-medium">{detail.frequency}</span>
+                                            )}
+                                        </div>
+                                        {detail.title && (
+                                            <div className="text-zinc-500 truncate mt-0.5">{detail.title}</div>
+                                        )}
+                                        {detail.oem.length > 0 && (
+                                            <div className="flex flex-wrap gap-0.5 mt-1">
+                                                {detail.oem.slice(0, 3).map((oem, j) => (
+                                                    <span key={j} className="px-1 py-0.5 bg-zinc-700/50 rounded text-zinc-400 font-mono" title={detail.title}>{oem}</span>
+                                                ))}
+                                                {detail.oem.length > 3 && <span className="text-zinc-600 px-1">+{detail.oem.length - 3}</span>}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 );
             })()}
 
             {/* Specs Grid */}
             <div className="space-y-1 mb-3">
+                {config.frequency && (
+                    <div className="text-xs">
+                        <span className="text-zinc-500">Freq: </span>
+                        <span className="text-emerald-400 font-medium">{config.frequency}</span>
+                    </div>
+                )}
                 {config.chip && (() => {
                     // Detect VATS (resistor values) and display abbreviated
                     const chipLower = config.chip.toLowerCase();
@@ -366,6 +420,21 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         <span className="text-white">{config.battery}</span>
                     </div>
                 )}
+                {/* Reusable / Cloneable indicators */}
+                {(config.reusable || config.cloneable) && (
+                    <div className="flex gap-1.5 mt-1">
+                        {config.reusable && (
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${config.reusable.toLowerCase() === 'yes' ? 'bg-green-900/30 text-green-400 border border-green-700/30' : 'bg-red-900/30 text-red-400 border border-red-700/30'}`}>
+                                {config.reusable.toLowerCase() === 'yes' ? '♻️ Reusable' : '🚫 Not Reusable'}
+                            </span>
+                        )}
+                        {config.cloneable && (
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${config.cloneable.toLowerCase() === 'yes' ? 'bg-blue-900/30 text-blue-400 border border-blue-700/30' : 'bg-zinc-800 text-zinc-500 border border-zinc-700/30'}`}>
+                                {config.cloneable.toLowerCase() === 'yes' ? '📋 Cloneable' : '🔒 No Clone'}
+                            </span>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Collapsible OEM Parts - only show first 3, expand on click */}
@@ -375,7 +444,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         {config.oem.slice(0, 3).map((part, i) => (
                             <span
                                 key={i}
-                                className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] font-mono text-zinc-400"
+                                className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] font-mono text-zinc-400 cursor-help"
                                 title={part.label || ''}
                             >
                                 {part.number}
