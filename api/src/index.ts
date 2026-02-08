@@ -11801,7 +11801,19 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   if (freqRaw && !detail.frequency) detail.frequency = freqRaw;
                 }
               }
-              if (oemRaw) group.oemParts.add(oemRaw);
+              // Always split and clean OEM parts (blade/mechanical may not have FCC, but still have OEM)
+              if (oemRaw) {
+                const splitOem = oemRaw.split(/[,;\s]+/).map((o: string) => o.trim()).filter((o: string) => {
+                  if (!o || o === 'Multiple' || o.length < 4 || o.startsWith('(')) return false;
+                  // Filter out key blank cross-reference names (Axxess, Bianchi, Cole, Curtis, etc.)
+                  // Real OEM parts have digits in them (e.g. 68092989AA, Y159, CR2032)
+                  if (!/\d/.test(o)) return false;
+                  return true;
+                });
+                for (const part of splitOem) {
+                  group.oemParts.add(part);
+                }
+              }
               if (row.chip) group.chips.add(row.chip);
               if (row.battery) group.batteries.add(row.battery);
               if (freqRaw) group.frequencies.add(freqRaw);
