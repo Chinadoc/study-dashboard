@@ -5,6 +5,7 @@ import { AFFILIATE_TAG } from '@/lib/config';
 import { useInventory } from '@/contexts/InventoryContext';
 import { useUnifiedData } from '@/lib/useUnifiedData';
 import OwnedBadge from '@/components/shared/OwnedBadge';
+import BladeKeysCard, { BladeKeysData } from '@/components/vehicle/BladeKeysCard';
 
 interface FccDetail {
     fcc: string;
@@ -43,6 +44,13 @@ interface Pearl {
 interface KeyCardsProps {
     keys: KeyConfig[];
     vehicleInfo?: { make: string; model: string; year: number };
+    bladeKeys?: BladeKeysData | null;
+    bitting?: {
+        spaces: string | null;
+        depths: string | null;
+        macs: string | null;
+        lishi: string | null;
+    };
     pearls?: {
         keyConfig?: Pearl[];  // 5-button vs 4-button inventory tips
         frequency?: Pearl[];  // Frequency mismatch warnings
@@ -141,8 +149,10 @@ function KeyConfigPearlTags({ pearls }: { pearls: KeyCardsProps['pearls'] }) {
     );
 }
 
-export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
-    if (!keys || keys.length === 0) {
+export default function KeyCards({ keys, vehicleInfo, pearls, bladeKeys, bitting }: KeyCardsProps) {
+    const hasBladeCard = bladeKeys && bladeKeys.entries && bladeKeys.entries.length > 0;
+
+    if ((!keys || keys.length === 0) && !hasBladeCard) {
         return (
             <div className="glass p-8 text-center text-zinc-500 mb-8">
                 <div className="text-4xl mb-2">🔑</div>
@@ -151,8 +161,8 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
         );
     }
 
-    // Determine layout mode based on key count
-    const keyCount = keys.length;
+    // Determine layout mode based on key count (include blade card in total)
+    const keyCount = keys.length + (hasBladeCard ? 1 : 0);
     const useScrollLayout = keyCount > 4;
 
     return (
@@ -190,6 +200,14 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
                                 <KeyCard config={key} vehicleInfo={vehicleInfo} />
                             </div>
                         ))}
+                        {hasBladeCard && (
+                            <div
+                                className="flex-shrink-0 snap-start"
+                                style={{ width: 'calc(25% - 12px)', minWidth: '220px' }}
+                            >
+                                <BladeKeysCard data={bladeKeys!} bitting={bitting} />
+                            </div>
+                        )}
                     </div>
                     {/* Fade indicator on right edge */}
                     <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-zinc-900 to-transparent pointer-events-none" />
@@ -209,6 +227,9 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
                     {keys.map((key, index) => (
                         <KeyCard key={`key-grid-${index}-${key.name}`} config={key} vehicleInfo={vehicleInfo} />
                     ))}
+                    {hasBladeCard && (
+                        <BladeKeysCard data={bladeKeys!} bitting={bitting} />
+                    )}
                 </div>
             )}
         </div>

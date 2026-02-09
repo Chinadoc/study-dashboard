@@ -19,6 +19,7 @@ const TOOL_LABELS: Record<string, string> = {
     autel_im608: 'IM608',
     autel_im608_pro: 'IM608 Pro',
     autel_im608_pro2: 'IM608 Pro II',
+    autel_km100_not_updated: 'KM100 (No Update)',
     // OBDStar models
     obdstar_x300_mini: 'X300 Mini',
     obdstar_x300_pro4: 'X300 Pro4',
@@ -42,7 +43,7 @@ const TOOL_LABELS: Record<string, string> = {
 
 // Map tool IDs to families
 const TOOL_TO_FAMILY: Record<string, string> = {
-    autel_im508s: 'autel', autel_im608: 'autel', autel_im608_pro: 'autel', autel_im608_pro2: 'autel',
+    autel_im508s: 'autel', autel_im608: 'autel', autel_im608_pro: 'autel', autel_im608_pro2: 'autel', autel_km100_not_updated: 'autel',
     obdstar_x300_mini: 'autel', obdstar_x300_pro4: 'autel', obdstar_x300_dp_plus: 'autel', obdstar_g3: 'autel',
     smart_pro_tcode: 'smartPro', smart_pro: 'smartPro', autopropad_basic: 'smartPro', autopropad: 'smartPro',
     lonsdor_k518s: 'lonsdor', lonsdor_k518ise: 'lonsdor', lonsdor_k518_pro: 'lonsdor',

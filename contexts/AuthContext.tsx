@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { API_BASE } from '@/lib/config';
+import { initBusinessProfile } from '@/lib/businessTypes';
 
 // Modular subscription flags
 export interface Subscriptions {
@@ -120,6 +121,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 };
                 setUser(normalizedUser);
                 localStorage.setItem('eurokeys_user', JSON.stringify(normalizedUser));
+                initBusinessProfile().catch((err) => {
+                    console.warn('Failed to initialize business profile after auth:', err);
+                });
             } else {
                 // Invalid session
                 localStorage.removeItem('session_token');

@@ -35,6 +35,99 @@ interface LicensureDashboardProps {
 }
 
 const STORAGE_KEY = 'eurokeys_user_licenses';
+const VALID_LICENSE_TYPES: LicenseCategory[] = [
+    'state_license',
+    'business_license',
+    'certification',
+    'vehicle_access',
+    'tool_subscription',
+    'oem_access',
+    'insurance',
+];
+
+function isLicenseCategory(value: unknown): value is LicenseCategory {
+    return typeof value === 'string' && VALID_LICENSE_TYPES.includes(value as LicenseCategory);
+}
+
+function normalizeTokenHistoryEntry(entry: unknown): TokenHistoryEntry | null {
+    if (!entry || typeof entry !== 'object') return null;
+    const candidate = entry as Partial<TokenHistoryEntry>;
+    if (
+        typeof candidate.date !== 'string' ||
+        (candidate.type !== 'purchase' && candidate.type !== 'usage') ||
+        typeof candidate.amount !== 'number' ||
+        !Number.isFinite(candidate.amount)
+    ) {
+        return null;
+    }
+
+    return {
+        date: candidate.date,
+        type: candidate.type,
+        amount: candidate.amount,
+        note: typeof candidate.note === 'string' ? candidate.note : undefined,
+    };
+}
+
+function normalizeLicense(license: unknown): UserLicense | null {
+    if (!license || typeof license !== 'object') return null;
+    const candidate = license as Partial<UserLicense>;
+    if (
+        typeof candidate.id !== 'string' ||
+        typeof candidate.name !== 'string' ||
+        !isLicenseCategory(candidate.type) ||
+        typeof candidate.icon !== 'string' ||
+        typeof candidate.obtainedDate !== 'string' ||
+        typeof candidate.expirationDate !== 'string'
+    ) {
+        return null;
+    }
+
+    const normalized: UserLicense = {
+        id: candidate.id,
+        licenseId: typeof candidate.licenseId === 'string' ? candidate.licenseId : 'custom',
+        name: candidate.name,
+        type: candidate.type,
+        icon: candidate.icon,
+        obtainedDate: candidate.obtainedDate,
+        expirationDate: candidate.expirationDate,
+    };
+
+    if (typeof candidate.price === 'number' && Number.isFinite(candidate.price)) {
+        normalized.price = candidate.price;
+    }
+    if (typeof candidate.notes === 'string') normalized.notes = candidate.notes;
+    if (typeof candidate.renewalUrl === 'string') normalized.renewalUrl = candidate.renewalUrl;
+    if (typeof candidate.linkedToolId === 'string') normalized.linkedToolId = candidate.linkedToolId;
+    if (typeof candidate.tokensRemaining === 'number' && Number.isFinite(candidate.tokensRemaining)) {
+        normalized.tokensRemaining = candidate.tokensRemaining;
+    }
+    if (typeof candidate.isPerUse === 'boolean') normalized.isPerUse = candidate.isPerUse;
+    if (Array.isArray(candidate.tokenHistory)) {
+        normalized.tokenHistory = candidate.tokenHistory
+            .map(normalizeTokenHistoryEntry)
+            .filter((entry): entry is TokenHistoryEntry => entry !== null);
+    }
+
+    return normalized;
+}
+
+export function parseLicenseList(raw: string | null): UserLicense[] {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return normalizeLicenseList(parsed);
+    } catch {
+        return [];
+    }
+}
+
+export function normalizeLicenseList(items: unknown): UserLicense[] {
+    if (!Array.isArray(items)) return [];
+    return items
+        .map(normalizeLicense)
+        .filter((license): license is UserLicense => license !== null);
+}
 
 // Helper to calculate days
 function calculateDaysInfo(license: UserLicense) {
@@ -88,6 +181,33 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
     const [extractionError, setExtractionError] = useState<string | null>(null);
     const [confidence, setConfidence] = useState<Record<string, number>>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const getSessionToken = () => {
+        if (typeof window === 'undefined') return null;
+        try {
+            return localStorage.getItem('session_token');
+        } catch {
+            return null;
+        }
+    };
+
+    const readCachedLicenses = () => {
+        if (typeof window === 'undefined') return [];
+        try {
+            return parseLicenseList(localStorage.getItem(STORAGE_KEY));
+        } catch {
+            return [];
+        }
+    };
+
+    const writeCachedLicenses = (items: UserLicense[]) => {
+        if (typeof window === 'undefined') return;
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        } catch {
+            // Ignore cache write failures in private mode/quota limits
+        }
+    };
 
     // AI extraction handler
     const handleExtractFromImage = async () => {
@@ -163,7 +283,7 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
             if (typeof window === 'undefined') return;
 
             // Try API first
-            const token = localStorage.getItem('session_token');
+            const token = getSessionToken();
             if (token) {
                 try {
                     const res = await fetch(`${API_BASE}/api/user/licenses`, {
@@ -171,10 +291,11 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
                     });
                     if (res.ok) {
                         const data = await res.json();
-                        if (data.licenses && data.licenses.length > 0) {
-                            setLicenses(data.licenses);
+                        const normalized = normalizeLicenseList(data.licenses);
+                        if (normalized.length > 0) {
+                            setLicenses(normalized);
                             // Update localStorage as cache
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.licenses));
+                            writeCachedLicenses(normalized);
                             return;
                         }
                     }
@@ -184,10 +305,7 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
             }
 
             // Fallback to localStorage
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                setLicenses(JSON.parse(saved));
-            }
+            setLicenses(readCachedLicenses());
         };
         loadLicenses();
     }, []);
@@ -197,7 +315,7 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
         if (typeof window === 'undefined') return;
 
         const reloadFromCloud = async () => {
-            const token = localStorage.getItem('session_token');
+            const token = getSessionToken();
             if (!token) return;
 
             try {
@@ -206,10 +324,9 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.licenses) {
-                        setLicenses(data.licenses);
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.licenses));
-                    }
+                    const normalized = normalizeLicenseList(data.licenses);
+                    setLicenses(normalized);
+                    writeCachedLicenses(normalized);
                 }
             } catch (err) {
                 console.log('[Sync] Licenses: Failed to refresh from cloud:', err);
@@ -217,14 +334,14 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
         };
 
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && localStorage.getItem('session_token')) {
+            if (document.visibilityState === 'visible' && getSessionToken()) {
                 console.log('[Sync] Licenses: Tab became visible - checking for updates...');
                 reloadFromCloud();
             }
         };
 
         const handleFocus = () => {
-            if (localStorage.getItem('session_token')) {
+            if (getSessionToken()) {
                 console.log('[Sync] Licenses: Window focused - checking for updates...');
                 reloadFromCloud();
             }
@@ -251,10 +368,10 @@ export default function LicensureDashboard({ onAddLicense, prefillSubscriptionId
     const saveLicenses = async (updated: UserLicense[]) => {
         setLicenses(updated);
         if (typeof window !== 'undefined') {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+            writeCachedLicenses(updated);
 
             // Silent background sync to D1 for each license
-            const token = localStorage.getItem('session_token');
+            const token = getSessionToken();
             if (token) {
                 updated.forEach(license => {
                     fetch(`${API_BASE}/api/user/licenses`, {

@@ -393,6 +393,52 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
     return result;
 }
 
+function parseVehicleRoute(pathValue: string): { make: string; model: string; year: number } {
+    const safeDecode = (value: string) => {
+        try {
+            return decodeURIComponent(value);
+        } catch {
+            return value;
+        }
+    };
+
+    const cleanPath = String(pathValue || '').split('#')[0].split('?')[0];
+    const segments = cleanPath.split('/').filter(Boolean).map(safeDecode);
+
+    let make = segments[1]?.trim() || '';
+    let model = segments[2]?.trim() || '';
+    let year = segments[3] ? parseInt(segments[3], 10) : 0;
+
+    // Recover malformed legacy routes like /vehicle/Chevrolet|Silverado|2024
+    // or /vehicle/chevrolet_silverado_2024.
+    if ((!model || !year) && segments[1]) {
+        const joinedSegment = segments[1];
+        const separator = joinedSegment.includes('|') ? '|' : (joinedSegment.includes('_') ? '_' : '');
+        if (separator) {
+            const parts = joinedSegment
+                .split(separator)
+                .map(part => part.trim())
+                .filter(Boolean);
+
+            if (parts.length >= 2) {
+                const maybeYear = parts[parts.length - 1];
+                if (/^\d{4}$/.test(maybeYear)) {
+                    year = parseInt(maybeYear, 10);
+                    parts.pop();
+                }
+
+                make = parts[0] || make;
+                if (!model) {
+                    model = parts.slice(1).join(' ');
+                }
+            }
+        }
+    }
+
+    if (!Number.isFinite(year)) year = 0;
+    return { make, model, year };
+}
+
 export default function VehicleDetailClient() {
     const pathname = usePathname() ?? '';
     const searchParams = useSearchParams();
@@ -403,12 +449,7 @@ export default function VehicleDetailClient() {
 
     // Check for 'original' query param from 404 redirect, otherwise use pathname
     const originalPath = searchParams?.get('original') || pathname;
-    const segments = originalPath.split('/').filter(Boolean);
-
-    // Path: /vehicle/make/model/year -> segments: ["vehicle", make, model, year]
-    const make = segments[1] ? decodeURIComponent(segments[1]) : '';
-    const model = segments[2] ? decodeURIComponent(segments[2]) : '';
-    const year = segments[3] ? parseInt(segments[3], 10) : 0;
+    const { make, model, year } = parseVehicleRoute(originalPath);
 
     // Check if this is the free demo vehicle
     const isDemoVehicle = make.toLowerCase() === DEMO_VEHICLE.make
@@ -422,6 +463,13 @@ export default function VehicleDetailClient() {
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>({});
     const [activeSection, setActiveSection] = useState('specs');
+
+    const missingYear = Boolean(make && model && !year);
+
+    useEffect(() => {
+        if (!missingYear) return;
+        router.replace(`/browse?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+    }, [missingYear, make, model, router]);
 
     // Track section visibility with Intersection Observer
     useEffect(() => {
@@ -534,6 +582,10 @@ export default function VehicleDetailClient() {
         }
         fetchVehicleData();
     }, [make, model, year]);
+
+    if (missingYear) {
+        return <div className="container mx-auto p-12 text-center text-zinc-400">Redirecting to year selection...</div>;
+    }
 
     if (!make || !model || !year) {
         return <div className="container mx-auto p-12 text-center text-zinc-400">Loading route parameters...</div>;
@@ -670,6 +722,7 @@ export default function VehicleDetailClient() {
     // Merge keys: prioritize aks_key_configs (AKS with R2 images), fallback to products, then products_by_type, then VYP
     const keysFromAks = transformAksKeyConfigs(data.detail?.aks_key_configs || []);
     const aksTools = data.detail?.aks_tools || [];
+    const aksBladeKeys = data.detail?.aks_blade_keys || null;
     const keysFromProducts = transformProducts(data.products?.products || [], model);
     const keysFromPBT = transformProductsByType(productsByType);
     const keysFromVYP = classifyVypProducts(vyp, specs);
@@ -1109,6 +1162,13 @@ export default function VehicleDetailClient() {
                         <KeyCards
                             keys={mergedKeys}
                             vehicleInfo={{ make, model, year }}
+                            bladeKeys={aksBladeKeys}
+                            bitting={{
+                                spaces: fullSpecs.spaces || null,
+                                depths: fullSpecs.depths || null,
+                                macs: fullSpecs.macs || null,
+                                lishi: fullSpecs.lishi || null,
+                            }}
                             pearls={{
                                 keyConfig: routedPearls.keyConfig,
                                 frequency: routedPearls.frequency,
@@ -1250,5 +1310,4 @@ export default function VehicleDetailClient() {
         </div>
     );
 }
-
 

@@ -12,6 +12,7 @@ import {
     upsertProviderLine,
 } from '@/lib/fleetOpsTimeline';
 import { useFleet } from '@/contexts/FleetContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { AccessDenied } from '@/components/business/FleetRoleGuards';
 
 const STATUS_OPTIONS = [
@@ -118,7 +119,10 @@ function formatDuration(seconds?: number | null): string {
 
 export default function FleetOpsTimelinePage() {
     const { loading, isFleetMember, role, organization } = useFleet();
+    const { hasDispatcher, hasBusinessTools } = useAuth();
     const isManager = role === 'owner' || role === 'dispatcher';
+    const hasSubscriptionAccess = hasDispatcher || hasBusinessTools;
+    const canAccessTimeline = (isFleetMember && isManager) || hasSubscriptionAccess;
     const roleLabel = role ? role.replace(/_/g, ' ') : null;
 
     const now = Date.now();
@@ -153,12 +157,12 @@ export default function FleetOpsTimelinePage() {
     const [lineMessage, setLineMessage] = useState<string | null>(null);
 
     const loadEvents = async () => {
-        if (!organization?.id) return;
+        if (!canAccessTimeline) return;
         setLoadingEvents(true);
         setError(null);
         try {
             const data = await fetchFleetTimeline({
-                organizationId: organization.id,
+                organizationId: organization?.id,
                 from: fromDatetimeLocalValue(fromInput),
                 to: fromDatetimeLocalValue(toInput),
                 status: status !== 'all' ? status : undefined,
@@ -178,9 +182,9 @@ export default function FleetOpsTimelinePage() {
     };
 
     const loadLineMappings = async () => {
-        if (!organization?.id) return;
+        if (!canAccessTimeline) return;
         try {
-            const lines = await fetchProviderLines(organization.id);
+            const lines = await fetchProviderLines(organization?.id);
             setLineMappings(lines);
         } catch (e) {
             setLineMappings([]);
@@ -188,11 +192,11 @@ export default function FleetOpsTimelinePage() {
     };
 
     useEffect(() => {
-        if (!organization?.id || !isManager) return;
+        if (!canAccessTimeline) return;
         loadEvents();
         loadLineMappings();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [organization?.id, isManager]);
+    }, [organization?.id, canAccessTimeline]);
 
     const handleQuickToday = () => {
         const d = new Date();
@@ -202,7 +206,7 @@ export default function FleetOpsTimelinePage() {
     };
 
     const handleManualEvent = async () => {
-        if (!manualMessage.trim() || !organization?.id) return;
+        if (!manualMessage.trim() || !canAccessTimeline) return;
         setImportMessage(null);
         try {
             await appendFleetTimelineEvent(
@@ -212,7 +216,7 @@ export default function FleetOpsTimelinePage() {
                     details: manualMessage.trim(),
                     occurredAt: Date.now(),
                 },
-                organization.id
+                organization?.id
             );
             setManualMessage('');
             await loadEvents();
@@ -226,7 +230,7 @@ export default function FleetOpsTimelinePage() {
     };
 
     const handleImportFile = async (file: File) => {
-        if (!organization?.id) return;
+        if (!canAccessTimeline) return;
         setImportMessage(null);
         setError(null);
         try {
@@ -253,7 +257,7 @@ export default function FleetOpsTimelinePage() {
                 return;
             }
 
-            const result = await importFleetTimelineRows(rows, importProvider, organization.id);
+            const result = await importFleetTimelineRows(rows, importProvider, organization?.id);
             setImportMessage(`Imported ${result.imported}/${result.total} records (${result.duplicates} duplicates skipped).`);
             await loadEvents();
         } catch (e) {
@@ -262,7 +266,7 @@ export default function FleetOpsTimelinePage() {
     };
 
     const handleAddLineMapping = async () => {
-        if (!organization?.id) return;
+        if (!canAccessTimeline) return;
         setLineMessage(null);
         try {
             const line = await upsertProviderLine(
@@ -272,7 +276,7 @@ export default function FleetOpsTimelinePage() {
                     extension: lineExtension || undefined,
                     label: lineLabel || undefined,
                 },
-                organization.id
+                organization?.id
             );
             setLineMappings(prev => [line, ...prev.filter(p => p.id !== line.id)]);
             setLineNumber('');
@@ -285,9 +289,9 @@ export default function FleetOpsTimelinePage() {
     };
 
     const handleDeleteLineMapping = async (id: string) => {
-        if (!organization?.id) return;
+        if (!canAccessTimeline) return;
         try {
-            await deleteProviderLine(id, organization.id);
+            await deleteProviderLine(id, organization?.id);
             setLineMappings(prev => prev.filter(line => line.id !== id));
         } catch (e) {
             setLineMessage(e instanceof Error ? e.message : 'Failed to delete mapping');
@@ -302,13 +306,12 @@ export default function FleetOpsTimelinePage() {
         );
     }
 
-    if (!isFleetMember || !isManager) {
+    if (!canAccessTimeline) {
         return (
             <div className="space-y-6">
                 <AccessDenied
-                    requiredRole={['owner', 'dispatcher']}
                     title="Fleet Ops Timeline"
-                    message="This page is available to fleet managers and dispatchers."
+                    message="This page is available to fleet managers, dispatchers, or active Dispatcher/Business subscriptions."
                 />
 
                 <div className="max-w-2xl mx-auto bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 sm:p-5">

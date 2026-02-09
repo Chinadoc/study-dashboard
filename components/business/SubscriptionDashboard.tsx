@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSubscriptions, Subscription } from '@/contexts/SubscriptionContext';
 import { loadBusinessProfile, AVAILABLE_TOOLS, getOemRecommendationsForTool, LOCKSMITH_REQUIREMENTS } from '@/lib/businessTypes';
-import LicensureDashboard, { UserLicense, TokenHistoryEntry } from './LicensureDashboard';
+import LicensureDashboard, { UserLicense, TokenHistoryEntry, parseLicenseList } from './LicensureDashboard';
 import CostSummaryCard from './CostSummaryCard';
 import RenewalCalendar from './RenewalCalendar';
 import SubscriptionTimelineBar from './SubscriptionTimelineBar';
@@ -12,22 +12,27 @@ import TokenHistoryDrawer from './TokenHistoryDrawer';
 const LICENSE_STORAGE_KEY = 'eurokeys_user_licenses';
 
 export default function SubscriptionDashboard() {
-    const { subscriptions, loading, error, getSubscriptionStatus } = useSubscriptions();
+    const { subscriptions, loading, getSubscriptionStatus } = useSubscriptions();
     const profile = loadBusinessProfile();
+    const profileTools = Array.isArray(profile.tools) ? profile.tools : [];
     const [expandedTool, setExpandedTool] = useState<string | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [prefillSubscriptionId, setPrefillSubscriptionId] = useState<string | null>(null);
     const [licenses, setLicenses] = useState<UserLicense[]>([]);
-    const [tokenDrawerLicense, setTokenDrawerLicense] = useState<UserLicense | null>(null);;
+    const [tokenDrawerLicense, setTokenDrawerLicense] = useState<UserLicense | null>(null);
+
+    const readCachedLicenses = () => {
+        if (typeof window === 'undefined') return [];
+        try {
+            return parseLicenseList(localStorage.getItem(LICENSE_STORAGE_KEY));
+        } catch {
+            return [];
+        }
+    };
 
     // Load licenses from localStorage
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem(LICENSE_STORAGE_KEY);
-            if (saved) {
-                setLicenses(JSON.parse(saved));
-            }
-        }
+        setLicenses(readCachedLicenses());
     }, []);
 
     if (loading) {
@@ -39,7 +44,7 @@ export default function SubscriptionDashboard() {
     }
 
     // Get subscription status for user's tools
-    const toolSubscriptions = profile.tools.map(toolId => {
+    const toolSubscriptions = profileTools.map(toolId => {
         const tool = AVAILABLE_TOOLS.find(t => t.id === toolId);
         if (!tool) return null;
 
@@ -95,10 +100,7 @@ export default function SubscriptionDashboard() {
                                 setShowAddModal(false);
                                 setPrefillSubscriptionId(null);
                                 // Refresh licenses
-                                if (typeof window !== 'undefined') {
-                                    const saved = localStorage.getItem(LICENSE_STORAGE_KEY);
-                                    if (saved) setLicenses(JSON.parse(saved));
-                                }
+                                setLicenses(readCachedLicenses());
                             }}
                         />
                     </div>
@@ -381,7 +383,13 @@ export default function SubscriptionDashboard() {
                             });
 
                             // Save to localStorage
-                            localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(updatedLicenses));
+                            if (typeof window !== 'undefined') {
+                                try {
+                                    localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(updatedLicenses));
+                                } catch {
+                                    // Ignore local cache write failures
+                                }
+                            }
                             setLicenses(updatedLicenses);
 
                             // Update drawer license state

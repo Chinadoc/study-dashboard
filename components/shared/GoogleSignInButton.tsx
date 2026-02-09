@@ -27,6 +27,7 @@ export const GoogleSignInButton = () => {
     const { openFleetPanel } = useFleetPanel();
     const { openTeamPanel } = useTeamPanel();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
     const [tourSubmenuOpen, setTourSubmenuOpen] = useState(false);
     const [reputation, setReputation] = useState<ReputationData | null>(null);
     const [syncingCache, setSyncingCache] = useState(false);
@@ -67,6 +68,10 @@ export const GoogleSignInButton = () => {
         };
         fetchReputation();
     }, [user]);
+
+    useEffect(() => {
+        setAvatarLoadFailed(false);
+    }, [user?.picture]);
 
     const getRankDisplay = (level: number) => {
         const ranks = [
@@ -153,11 +158,12 @@ export const GoogleSignInButton = () => {
                     className="flex items-center gap-2 rounded-full bg-slate-800 py-1 pl-1 pr-3 transition-colors hover:bg-slate-700"
                 >
                     {/* Avatar */}
-                    {user.picture ? (
+                    {user.picture && !avatarLoadFailed ? (
                         <img
                             src={user.picture}
                             alt={user.name}
                             className="h-8 w-8 rounded-full object-cover"
+                            onError={() => setAvatarLoadFailed(true)}
                         />
                     ) : (
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-eurokeys-purple text-xs font-bold text-white">
@@ -178,7 +184,7 @@ export const GoogleSignInButton = () => {
 
                 {/* Dropdown Menu - SOLID background */}
                 {dropdownOpen && (
-                    <div className="absolute right-0 top-12 z-50 w-64 rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
+                    <div className="absolute right-0 top-12 z-[70] w-64 touch-pan-y max-h-[calc(100dvh-5.5rem)] overflow-y-auto overscroll-contain rounded-xl border border-slate-700 bg-slate-900 shadow-2xl pb-[calc(env(safe-area-inset-bottom,0px)+4.5rem)] lg:pb-2">
                         {/* User Info */}
                         <div className="border-b border-slate-700 p-4">
                             <p className="font-medium text-white">{user.name}</p>
@@ -257,6 +263,14 @@ export const GoogleSignInButton = () => {
                             >
                                 <span>💬</span>
                                 Community Hub
+                            </Link>
+                            <Link
+                                href="/verification"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-amber-500/20 hover:text-white"
+                            >
+                                <span>🛡️</span>
+                                NASTF Verification
                             </Link>
                             {isDeveloper && (
                                 <Link

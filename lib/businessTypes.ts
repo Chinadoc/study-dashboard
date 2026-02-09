@@ -1,6 +1,7 @@
 'use client';
 
 import { API_BASE } from './config';
+import { VehicleToolCapabilityMap, normalizeVehicleToolCapabilityMap } from './vehicleToolCapabilities';
 
 /**
  * Business Platform Types and Tool Definitions
@@ -14,6 +15,7 @@ export interface BusinessProfile {
     address?: string;
     logo?: string; // Base64 encoded image
     tools: string[];
+    vehicleToolCapabilities?: VehicleToolCapabilityMap;
     setupComplete: boolean;
     setupStep: 'tools' | 'coverage' | 'inventory' | 'subscriptions' | 'complete';
 }
@@ -445,6 +447,18 @@ export const AVAILABLE_TOOLS: ToolInfo[] = [
         hasSubscription: true,
         subscriptionNote: 'Annual renewal ~$1,295 for software updates',
     },
+    {
+        id: 'autel_km100_not_updated',
+        name: 'Autel KM100 (Not Updated)',
+        shortName: 'KM100 (No Update)',
+        icon: '🔴',
+        badge: 'Field Variant',
+        badgeColor: '#ef4444',
+        description: 'Pinned firmware variant used for edge-case AKL/add-key compatibility on select vehicles.',
+        subscriptionId: 'autel_subscription',
+        hasSubscription: false,
+        subscriptionNote: 'Intentionally kept off latest firmware',
+    },
     // === LONSDOR ===
     {
         id: 'lonsdor_k518s',
@@ -638,6 +652,7 @@ export const TOOL_OEM_RECOMMENDATIONS: Record<string, string[]> = {
     'autel_im608': ['gm_tis2web', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
     'autel_im608_pro': ['gm_tis2web', 'gm_techline_connect', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
     'autel_im608_pro2': ['gm_tis2web', 'gm_techline_connect', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
+    'autel_km100_not_updated': ['gm_tis2web', 'toyota_tis', 'autoauth_subscription'],
     // Lonsdor
     'lonsdor_k518s': ['toyota_tis', 'autoauth_subscription'],
     'lonsdor_k518ise': ['toyota_tis', 'autoauth_subscription'],
@@ -668,25 +683,73 @@ export function getOemRecommendationsForTool(toolId: string): LicenseItem[] {
 
 // Storage key for business profile (localStorage fallback)
 const STORAGE_KEY = 'eurokeys_business_profile';
+export const BUSINESS_PROFILE_UPDATED_EVENT = 'eurokeys:business-profile-updated';
+const VALID_SETUP_STEPS: BusinessProfile['setupStep'][] = ['tools', 'coverage', 'inventory', 'subscriptions', 'complete'];
+
+function getDefaultBusinessProfile(): BusinessProfile {
+    return { tools: [], setupComplete: false, setupStep: 'tools' };
+}
+
+function normalizeBusinessProfile(value: unknown): BusinessProfile {
+    if (!value || typeof value !== 'object') {
+        return getDefaultBusinessProfile();
+    }
+
+    const candidate = value as Partial<BusinessProfile>;
+    const normalized: BusinessProfile = getDefaultBusinessProfile();
+
+    normalized.tools = Array.isArray(candidate.tools)
+        ? candidate.tools.filter((tool): tool is string => typeof tool === 'string')
+        : [];
+
+    if (typeof candidate.setupComplete === 'boolean') {
+        normalized.setupComplete = candidate.setupComplete;
+    }
+
+    if (typeof candidate.setupStep === 'string' && VALID_SETUP_STEPS.includes(candidate.setupStep as BusinessProfile['setupStep'])) {
+        normalized.setupStep = candidate.setupStep as BusinessProfile['setupStep'];
+    }
+
+    if (typeof candidate.businessName === 'string') normalized.businessName = candidate.businessName;
+    if (typeof candidate.phone === 'string') normalized.phone = candidate.phone;
+    if (typeof candidate.email === 'string') normalized.email = candidate.email;
+    if (typeof candidate.address === 'string') normalized.address = candidate.address;
+    if (typeof candidate.logo === 'string') normalized.logo = candidate.logo;
+    if (candidate.vehicleToolCapabilities) {
+        normalized.vehicleToolCapabilities = normalizeVehicleToolCapabilityMap(candidate.vehicleToolCapabilities);
+    }
+
+    return normalized;
+}
+
+function getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('session_token') || localStorage.getItem('auth_token');
+}
+
+function emitBusinessProfileUpdated(profile: BusinessProfile): void {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(new CustomEvent<BusinessProfile>(BUSINESS_PROFILE_UPDATED_EVENT, { detail: profile }));
+}
 
 /**
  * Load business profile - tries cloud first, falls back to localStorage
  */
 export function loadBusinessProfile(): BusinessProfile {
     if (typeof window === 'undefined') {
-        return { tools: [], setupComplete: false, setupStep: 'tools' };
+        return getDefaultBusinessProfile();
     }
 
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-            return JSON.parse(saved);
+            return normalizeBusinessProfile(JSON.parse(saved));
         }
     } catch (e) {
         console.error('Failed to load business profile:', e);
     }
 
-    return { tools: [], setupComplete: false, setupStep: 'tools' };
+    return getDefaultBusinessProfile();
 }
 
 /**
@@ -694,17 +757,21 @@ export function loadBusinessProfile(): BusinessProfile {
  */
 export async function loadBusinessProfileFromCloud(): Promise<BusinessProfile | null> {
     try {
+        const token = getAuthToken();
         const response = await fetch(`${API_BASE}/api/user/business-profile`, {
             credentials: 'include',
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!response.ok) return null;
         const data = await response.json();
         if (data.profile) {
+            const normalized = normalizeBusinessProfile(data.profile);
             // Cache in localStorage
             if (typeof window !== 'undefined') {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data.profile));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+                emitBusinessProfileUpdated(normalized);
             }
-            return data.profile as BusinessProfile;
+            return normalized;
         }
         return null;
     } catch (e) {
@@ -719,11 +786,18 @@ export async function loadBusinessProfileFromCloud(): Promise<BusinessProfile | 
 export function saveBusinessProfile(profile: BusinessProfile): void {
     if (typeof window === 'undefined') return;
 
+    const existing = loadBusinessProfile();
+    const normalized = normalizeBusinessProfile({
+        ...existing,
+        ...profile,
+        vehicleToolCapabilities: profile.vehicleToolCapabilities ?? existing.vehicleToolCapabilities,
+    });
     // Immediate localStorage save
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    emitBusinessProfileUpdated(normalized);
 
     // Async cloud sync
-    syncBusinessProfileToCloud(profile).catch(e => {
+    syncBusinessProfileToCloud(normalized).catch(e => {
         console.warn('Cloud sync failed (profile saved locally):', e);
     });
 }
@@ -733,11 +807,15 @@ export function saveBusinessProfile(profile: BusinessProfile): void {
  */
 export async function syncBusinessProfileToCloud(profile: BusinessProfile): Promise<boolean> {
     try {
+        const token = getAuthToken();
         const response = await fetch(`${API_BASE}/api/user/business-profile`, {
             method: 'POST',
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(profile),
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify(normalizeBusinessProfile(profile)),
         });
         return response.ok;
     } catch (e) {
@@ -760,10 +838,15 @@ export async function initBusinessProfile(): Promise<BusinessProfile> {
             ...localProfile,
             ...cloudProfile,
             tools: mergedTools,
+            vehicleToolCapabilities: {
+                ...(localProfile.vehicleToolCapabilities || {}),
+                ...(cloudProfile.vehicleToolCapabilities || {}),
+            },
         };
         // Save merged back to localStorage
         if (typeof window !== 'undefined') {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+            emitBusinessProfileUpdated(merged);
         }
         return merged;
     }

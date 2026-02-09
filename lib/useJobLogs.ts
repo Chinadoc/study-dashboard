@@ -88,6 +88,9 @@ export interface JobLog {
 
     // Additional details
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
+    toolId?: string;               // Owned tool ID used on this job
+    toolUsed?: string;             // Human-readable tool name
+    toolCapabilityNote?: string;   // Field note attached when verifying capability
 
     // Sync metadata
     updatedAt?: number;       // Timestamp of last modification
@@ -134,6 +137,68 @@ export interface JobStats {
 const STORAGE_KEY = 'eurokeys_job_logs';
 const SYNCED_KEY = 'eurokeys_jobs_synced';
 const JOBS_UPDATED_EVENT = 'eurokeys:jobs-updated';
+
+function parseStoredJobs(raw: string | null): JobLog[] {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+function mergeJobArrays(...jobGroups: JobLog[][]): JobLog[] {
+    const merged = new Map<string, JobLog>();
+
+    for (const group of jobGroups) {
+        for (const job of group) {
+            if (!job || !job.id) continue;
+            const existing = merged.get(job.id);
+            if (!existing) {
+                merged.set(job.id, job);
+                continue;
+            }
+
+            const existingTs = existing.updatedAt || existing.createdAt || 0;
+            const candidateTs = job.updatedAt || job.createdAt || 0;
+            if (candidateTs >= existingTs) {
+                merged.set(job.id, job);
+            }
+        }
+    }
+
+    return Array.from(merged.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+}
+
+function getJobStorageKeys(): string[] {
+    const scopedKey = getUserScopedKey(STORAGE_KEY);
+    if (!scopedKey || scopedKey === STORAGE_KEY) {
+        return [STORAGE_KEY];
+    }
+    return [STORAGE_KEY, scopedKey];
+}
+
+function readMergedJobsFromStorage(): JobLog[] {
+    if (typeof window === 'undefined') return [];
+    const [legacyKey, scopedKey] = getJobStorageKeys();
+    const legacyJobs = parseStoredJobs(localStorage.getItem(legacyKey));
+    const scopedJobs = scopedKey ? parseStoredJobs(localStorage.getItem(scopedKey)) : [];
+    return mergeJobArrays(legacyJobs, scopedJobs);
+}
+
+function writeJobsToStorage(jobs: JobLog[]): void {
+    if (typeof window === 'undefined') return;
+    const serialized = JSON.stringify(jobs);
+    const keys = getJobStorageKeys();
+    keys.forEach(key => localStorage.setItem(key, serialized));
+}
+
+function clearJobsFromStorage(): void {
+    if (typeof window === 'undefined') return;
+    const keys = getJobStorageKeys();
+    keys.forEach(key => localStorage.removeItem(key));
+}
 
 function emitJobsUpdatedEvent() {
     if (typeof window === 'undefined') return;
@@ -197,9 +262,6 @@ export function useJobLogs() {
     const [conflicts, setConflicts] = useState<ConflictItem[]>([]);
     const hasSyncedRef = useRef(false);
     const isSyncingRef = useRef(false);
-
-    // Use plain storage key (user-scoping disabled to preserve existing data)
-    const effectiveStorageKey = STORAGE_KEY;
 
     // Normalize job to ensure required fields exist (defensive against malformed cloud data)
     const normalizeJob = useCallback((job: Partial<JobLog>): JobLog => {
@@ -348,7 +410,7 @@ export function useJobLogs() {
         const allJobs = getJobLogsFromStorage();
         const updated = allJobs.filter(j => !resolutions.some(r => r.id === j.id));
         const final = [...resolved, ...updated];
-        localStorage.setItem(effectiveStorageKey, JSON.stringify(final));
+        writeJobsToStorage(final);
         emitJobsUpdatedEvent();
 
         // Sync pending ones to cloud
@@ -454,18 +516,17 @@ export function useJobLogs() {
     const refreshFromLocalStorage = useCallback(() => {
         if (typeof window === 'undefined') return;
         try {
-            const saved = localStorage.getItem(effectiveStorageKey);
-            if (!saved) {
+            const merged = readMergedJobsFromStorage();
+            if (merged.length === 0) {
                 setJobLogs([]);
                 return;
             }
-            const parsed = JSON.parse(saved);
-            const valid = Array.isArray(parsed) ? filterValidJobs(parsed) : [];
+            const valid = filterValidJobs(merged);
             setJobLogs(valid);
         } catch (e) {
             console.error('Failed to refresh local jobs:', e);
         }
-    }, [effectiveStorageKey, filterValidJobs]);
+    }, [filterValidJobs]);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -474,8 +535,9 @@ export function useJobLogs() {
             refreshFromLocalStorage();
         };
 
+        const storageKeys = new Set(getJobStorageKeys());
         const handleStorage = (event: StorageEvent) => {
-            if (event.key === effectiveStorageKey) {
+            if (event.key && storageKeys.has(event.key)) {
                 refreshFromLocalStorage();
             }
         };
@@ -487,7 +549,7 @@ export function useJobLogs() {
             window.removeEventListener(JOBS_UPDATED_EVENT, handleJobsUpdated);
             window.removeEventListener('storage', handleStorage);
         };
-    }, [effectiveStorageKey, refreshFromLocalStorage]);
+    }, [refreshFromLocalStorage]);
 
     // Bidirectional sync: load from both local and cloud, merge, then push local-only to cloud
     useEffect(() => {
@@ -499,11 +561,8 @@ export function useJobLogs() {
             // 1. Load local jobs first (instant UI)
             let localJobs: JobLog[] = [];
             try {
-                const saved = localStorage.getItem(effectiveStorageKey);
-                if (saved) {
-                    localJobs = filterValidJobs(JSON.parse(saved));
-                    setJobLogs(localJobs);
-                }
+                localJobs = filterValidJobs(readMergedJobsFromStorage());
+                if (localJobs.length > 0) setJobLogs(localJobs);
             } catch (e) {
                 console.error('Failed to load local jobs:', e);
             }
@@ -535,7 +594,7 @@ export function useJobLogs() {
                     const merged = filterValidJobs(mergeJobs(localJobs, cloudJobs));
 
                     setJobLogs(merged);
-                    localStorage.setItem(effectiveStorageKey, JSON.stringify(merged));
+                    writeJobsToStorage(merged);
                     emitJobsUpdatedEvent();
 
                     // 4. Find local-only jobs that need to sync
@@ -561,7 +620,7 @@ export function useJobLogs() {
                             syncedAt: Date.now()
                         }));
                         setJobLogs(synced);
-                        localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
+                        writeJobsToStorage(synced);
                         emitJobsUpdatedEvent();
                     }
 
@@ -640,7 +699,7 @@ export function useJobLogs() {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('focus', handleFocus);
         };
-    }, [mergeJobs, processSyncQueue]);
+    }, [mergeJobs, processSyncQueue, filterValidJobs]);
 
     // Save to localStorage (for cache) and cloud (for sync)
     const saveJob = useCallback(async (job: JobLog, isNew: boolean = false): Promise<boolean> => {
@@ -663,7 +722,7 @@ export function useJobLogs() {
         } else {
             current.unshift(jobWithChecksum);
         }
-        localStorage.setItem(effectiveStorageKey, JSON.stringify(current));
+        writeJobsToStorage(current);
         emitJobsUpdatedEvent();
         updateSyncState({ lastLocalModified: Date.now() });
 
@@ -679,7 +738,7 @@ export function useJobLogs() {
                 const synced = current.map(j =>
                     j.id === job.id ? { ...j, syncStatus: 'synced' as const, syncedAt: Date.now() } : j
                 );
-                localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
+                writeJobsToStorage(synced);
                 emitJobsUpdatedEvent();
                 updateSyncState({ lastCloudSync: Date.now() });
                 setSyncStatus('synced');
@@ -791,7 +850,7 @@ export function useJobLogs() {
 
         // Remove from localStorage
         const updated = originalJobs.filter(j => j.id !== id);
-        localStorage.setItem(effectiveStorageKey, JSON.stringify(updated));
+        writeJobsToStorage(updated);
         emitJobsUpdatedEvent();
         updateSyncState({ lastLocalModified: Date.now() });
 
@@ -800,7 +859,7 @@ export function useJobLogs() {
             if (deletedJob) {
                 const current = getJobLogsFromStorage();
                 current.unshift(deletedJob);
-                localStorage.setItem(effectiveStorageKey, JSON.stringify(current));
+                writeJobsToStorage(current);
                 emitJobsUpdatedEvent();
                 setJobLogs(prev => [deletedJob, ...prev]);
             }
@@ -1115,7 +1174,7 @@ export function useJobLogs() {
                 const data = await apiRequest('/api/jobs');
                 if (data?.jobs) {
                     setJobLogs(data.jobs);
-                    localStorage.setItem(effectiveStorageKey, JSON.stringify(data.jobs));
+                    writeJobsToStorage(data.jobs);
                     emitJobsUpdatedEvent();
                     updateSyncState({ lastCloudSync: data.serverTime || Date.now() });
                 }
@@ -1145,7 +1204,7 @@ export function useJobLogs() {
                 syncedAt: Date.now()
             }));
             setJobLogs(synced);
-            localStorage.setItem(effectiveStorageKey, JSON.stringify(synced));
+            writeJobsToStorage(synced);
             emitJobsUpdatedEvent();
 
             // Update sync state
@@ -1183,7 +1242,7 @@ export function useJobLogs() {
             console.log('[ClearCache] Clearing local job data and fetching fresh from cloud...');
 
             // Clear localStorage job data
-            localStorage.removeItem(effectiveStorageKey);
+            clearJobsFromStorage();
             emitJobsUpdatedEvent();
 
             // Clear any pending sync queue items for jobs
@@ -1206,7 +1265,7 @@ export function useJobLogs() {
                 );
 
                 setJobLogs(validJobs);
-                localStorage.setItem(effectiveStorageKey, JSON.stringify(validJobs));
+                writeJobsToStorage(validJobs);
                 emitJobsUpdatedEvent();
 
                 updateSyncState({ lastCloudSync: data.serverTime || Date.now() });
@@ -1250,14 +1309,7 @@ export function useJobLogs() {
 // Standalone functions for use outside React components (GoalContext)
 export function getJobLogsFromStorage(): JobLog[] {
     if (typeof window === 'undefined') return [];
-    try {
-        // Use user-scoped key for data isolation between accounts
-        const key = getUserScopedKey(STORAGE_KEY);
-        const saved = localStorage.getItem(key);
-        return saved ? JSON.parse(saved) : [];
-    } catch {
-        return [];
-    }
+    return readMergedJobsFromStorage();
 }
 
 export function addJobLogToStorage(log: Omit<JobLog, 'id' | 'createdAt'>): JobLog {
@@ -1266,10 +1318,8 @@ export function addJobLogToStorage(log: Omit<JobLog, 'id' | 'createdAt'>): JobLo
         id: generateId(),
         createdAt: Date.now(),
     };
-    const logs = getJobLogsFromStorage();
+    const logs = readMergedJobsFromStorage();
     logs.unshift(newLog);
-    // Use user-scoped key for data isolation between accounts
-    const key = getUserScopedKey(STORAGE_KEY);
-    localStorage.setItem(key, JSON.stringify(logs));
+    writeJobsToStorage(logs);
     return newLog;
 }

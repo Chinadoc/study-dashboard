@@ -5,7 +5,7 @@
  * Maps user's owned tools to vehicle coverage via D1 API
  */
 
-import { loadBusinessProfile, AVAILABLE_TOOLS, ToolInfo } from '@/lib/businessTypes';
+import { loadBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
 
@@ -23,12 +23,13 @@ interface ToolCoverageDetail {
 }
 
 // Map tool IDs from businessTypes to coverage categories
-const TOOL_ID_TO_COVERAGE: Record<string, string> = {
+export const TOOL_ID_TO_COVERAGE: Record<string, string> = {
     // Autel
     'autel_im508s': 'autel',
     'autel_im608': 'autel',
     'autel_im608_pro': 'autel',
     'autel_im608_pro2': 'autel',
+    'autel_km100_not_updated': 'autel',
     // OBDStar
     'obdstar_x300_mini': 'autel',
     'obdstar_x300_pro4': 'autel',
@@ -49,6 +50,14 @@ const TOOL_ID_TO_COVERAGE: Record<string, string> = {
     'xhorse_vvdi2': 'vvdi',
     'xhorse_keytool_plus': 'vvdi',
 };
+
+export function getCoverageFamilyForToolId(toolId: string): VehicleToolCoverage['key'] | undefined {
+    const family = TOOL_ID_TO_COVERAGE[toolId];
+    if (family === 'autel' || family === 'smartPro' || family === 'lonsdor' || family === 'vvdi') {
+        return family;
+    }
+    return undefined;
+}
 
 // Coverage categories with display info
 const COVERAGE_TOOLS = [

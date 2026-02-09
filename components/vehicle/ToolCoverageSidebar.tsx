@@ -1,8 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { getVehicleCoverage, getStatusBadgeClass, VehicleToolCoverage } from '@/lib/toolCoverage';
+import {
+    AVAILABLE_TOOLS,
+    BUSINESS_PROFILE_UPDATED_EVENT,
+    loadBusinessProfile,
+    saveBusinessProfile
+} from '@/lib/businessTypes';
+import {
+    getCoverageFamilyForToolId,
+    getStatusBadgeClass,
+    getVehicleCoverage,
+    getVehicleCoverageAsync,
+    VehicleCoverageResult,
+    VehicleToolCoverage
+} from '@/lib/toolCoverage';
+import {
+    CapabilityAction,
+    CapabilityState,
+    getToolVehicleCapabilities,
+    updateVehicleToolCapabilities
+} from '@/lib/vehicleToolCapabilities';
 
 interface ToolCoverageSidebarProps {
     make: string;
@@ -10,56 +29,126 @@ interface ToolCoverageSidebarProps {
     year: number;
 }
 
-/**
- * Clean up flag reason text by removing leftover reference numbers
- * and filtering out garbage/non-helpful flags
- */
-function cleanFlagReason(reason: string): string | null {
-    if (!reason) return null;
+const CAPABILITY_ACTIONS: Array<{ key: CapabilityAction; label: string }> = [
+    { key: 'add_key', label: 'Add Key' },
+    { key: 'akl', label: 'AKL' },
+    { key: 'ecu_reprogram', label: 'ECU Reprogram' },
+];
 
-    // Remove leading punctuation and reference numbers (e.g., ".27", ".,", ". ")
-    let cleaned = reason
-        .replace(/^[\.\,\s]+\d*[\.\,\s]*/g, '') // Remove leading ".", ".,", ".27", ". " etc.
-        .replace(/\d+$/g, '')  // Remove trailing reference numbers
-        .trim();
+const CAPABILITY_LABELS: Record<CapabilityState, string> = {
+    yes: 'Yes',
+    no: 'No',
+    unknown: 'Unknown',
+};
 
-    // Filter out garbage flags that are just sentence fragments about general topics
-    // These came from badly extracted dossier data
-    const garbagePatterns = [
-        /^is widely regarded/i,
-        /^with over thirty/i,
-        /^the aftermarket/i,
-    ];
-
-    for (const pattern of garbagePatterns) {
-        if (pattern.test(cleaned)) {
-            return null;
-        }
-    }
-
-    // Must have meaningful content (at least 10 chars after cleaning)
-    if (cleaned.length < 10) return null;
-
-    return cleaned;
+function nextCapabilityState(state: CapabilityState): CapabilityState {
+    if (state === 'unknown') return 'yes';
+    if (state === 'yes') return 'no';
+    return 'unknown';
 }
 
 export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageSidebarProps) {
-    const coverage = getVehicleCoverage(make, model, year);
+    const [coverage, setCoverage] = useState<VehicleCoverageResult>(() => getVehicleCoverage(make, model, year));
+    const [businessProfile, setBusinessProfile] = useState(() => loadBusinessProfile());
 
-    // Sort: owned tools first, then by status (Yes > Partial > Unknown)
-    const sortedTools = [...coverage.tools].sort((a, b) => {
-        if (a.isOwned && !b.isOwned) return -1;
-        if (!a.isOwned && b.isOwned) return 1;
+    useEffect(() => {
+        let cancelled = false;
+        setCoverage(getVehicleCoverage(make, model, year));
 
-        const statusOrder = (s: string) => {
-            if (!s) return 3;
-            const lower = s.toLowerCase();
-            if (lower.includes('yes')) return 0;
-            if (lower.includes('partial')) return 1;
-            return 2;
+        getVehicleCoverageAsync(make, model, year)
+            .then((result) => {
+                if (!cancelled) setCoverage(result);
+            })
+            .catch((err) => {
+                console.warn('Failed to fetch async vehicle coverage:', err);
+            });
+
+        return () => {
+            cancelled = true;
         };
-        return statusOrder(a.status) - statusOrder(b.status);
-    });
+    }, [make, model, year]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const refresh = () => setBusinessProfile(loadBusinessProfile());
+        const handleStorage = (event: StorageEvent) => {
+            if (event.key === 'eurokeys_business_profile') refresh();
+        };
+
+        window.addEventListener(BUSINESS_PROFILE_UPDATED_EVENT, refresh as EventListener);
+        window.addEventListener('storage', handleStorage);
+
+        return () => {
+            window.removeEventListener(BUSINESS_PROFILE_UPDATED_EVENT, refresh as EventListener);
+            window.removeEventListener('storage', handleStorage);
+        };
+    }, []);
+
+    const familyCoverageMap = useMemo(() => {
+        return new Map(coverage.tools.map(tool => [tool.key, tool]));
+    }, [coverage.tools]);
+
+    const ownedTools = useMemo(() => {
+        const toolIds = [...new Set(businessProfile.tools || [])];
+        return toolIds
+            .map(id => AVAILABLE_TOOLS.find(tool => tool.id === id))
+            .filter((tool): tool is (typeof AVAILABLE_TOOLS)[number] => Boolean(tool));
+    }, [businessProfile.tools]);
+
+    const ownedFamilies = useMemo(() => {
+        return new Set(
+            ownedTools
+                .map(tool => getCoverageFamilyForToolId(tool.id))
+                .filter((family): family is VehicleToolCoverage['key'] => Boolean(family))
+        );
+    }, [ownedTools]);
+
+    const otherFamilyTools = useMemo(() => {
+        return coverage.tools.filter(tool => !ownedFamilies.has(tool.key));
+    }, [coverage.tools, ownedFamilies]);
+
+    const updateCapability = (toolId: string, action: CapabilityAction) => {
+        const current = getToolVehicleCapabilities(
+            businessProfile.vehicleToolCapabilities,
+            make,
+            model,
+            year,
+            toolId
+        );
+        const currentState = current?.[action] || 'unknown';
+        const next = nextCapabilityState(currentState);
+
+        const updatedProfile = {
+            ...businessProfile,
+            vehicleToolCapabilities: updateVehicleToolCapabilities(businessProfile.vehicleToolCapabilities, {
+                make,
+                model,
+                year,
+                toolId,
+                changes: { [action]: next },
+            }),
+        };
+
+        setBusinessProfile(updatedProfile);
+        saveBusinessProfile(updatedProfile);
+    };
+
+    const updateCapabilityNote = (toolId: string, note: string) => {
+        const updatedProfile = {
+            ...businessProfile,
+            vehicleToolCapabilities: updateVehicleToolCapabilities(businessProfile.vehicleToolCapabilities, {
+                make,
+                model,
+                year,
+                toolId,
+                note,
+            }),
+        };
+
+        setBusinessProfile(updatedProfile);
+        saveBusinessProfile(updatedProfile);
+    };
 
     return (
         <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5">
@@ -68,7 +157,7 @@ export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageS
                     🔧 Tool Coverage
                 </h3>
                 <Link
-                    href={`/business/tools?tab=coverage`}
+                    href="/business/tools?tab=coverage"
                     className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
                 >
                     View Map →
@@ -81,92 +170,144 @@ export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageS
                 </div>
             )}
 
-            <div className="space-y-3">
-                {sortedTools.map((tool) => (
-                    <ToolCard key={tool.key} tool={tool} />
-                ))}
-            </div>
+            {ownedTools.length > 0 ? (
+                <div className="space-y-3">
+                    {ownedTools.map((tool) => {
+                        const family = getCoverageFamilyForToolId(tool.id);
+                        const familyCoverage = family ? familyCoverageMap.get(family) : undefined;
+                        const capability = getToolVehicleCapabilities(
+                            businessProfile.vehicleToolCapabilities,
+                            make,
+                            model,
+                            year,
+                            tool.id
+                        );
 
-            {/* Platform info if available */}
-            {coverage.vehicle?.platform && (
-                <div className="mt-4 pt-4 border-t border-gray-800">
-                    <div className="text-xs text-gray-500 mb-1">Platform</div>
-                    <div className="font-mono text-sm text-gray-300">{coverage.vehicle.platform}</div>
+                        return (
+                            <OwnedToolCard
+                                key={tool.id}
+                                toolId={tool.id}
+                                toolName={tool.name}
+                                icon={tool.icon}
+                                status={familyCoverage?.status || ''}
+                                capability={capability}
+                                onCycle={(action) => updateCapability(tool.id, action)}
+                                onSaveNote={(note) => updateCapabilityNote(tool.id, note)}
+                            />
+                        );
+                    })}
+                </div>
+            ) : (
+                <div className="text-sm text-gray-500 mb-4 p-3 bg-gray-800/50 rounded-lg">
+                    Add your owned tools to save AKL/Add Key/ECU capabilities for this vehicle.
                 </div>
             )}
 
-            {/* Chips info if available */}
-            {coverage.vehicle?.chips && coverage.vehicle.chips.length > 0 && (
-                <div className="mt-3">
-                    <div className="text-xs text-gray-500 mb-1">Chips</div>
-                    <div className="flex flex-wrap gap-1">
-                        {coverage.vehicle.chips.slice(0, 4).map((chip, idx) => (
-                            <span key={idx} className="text-xs bg-gray-800 px-2 py-0.5 rounded font-mono">
-                                {chip}
-                            </span>
-                        ))}
+            {otherFamilyTools.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-800 space-y-2">
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                        Other Families
                     </div>
+                    {otherFamilyTools.map((tool) => (
+                        <FamilyToolCard key={tool.key} tool={tool} />
+                    ))}
                 </div>
             )}
         </div>
     );
 }
 
-function ToolCard({ tool }: { tool: VehicleToolCoverage }) {
-    const [expanded, setExpanded] = useState(false);
-    const hasData = !!tool.status;
+function OwnedToolCard({
+    toolId,
+    toolName,
+    icon,
+    status,
+    capability,
+    onCycle,
+    onSaveNote,
+}: {
+    toolId: string;
+    toolName: string;
+    icon: string;
+    status: string;
+    capability?: {
+        add_key?: CapabilityState;
+        akl?: CapabilityState;
+        ecu_reprogram?: CapabilityState;
+        note?: string;
+    };
+    onCycle: (action: CapabilityAction) => void;
+    onSaveNote: (note: string) => void;
+}) {
+    const [noteDraft, setNoteDraft] = useState(capability?.note || '');
 
-    // Clean and filter flags - remove garbage data
-    const cleanedFlags = tool.flags
-        .map(f => ({ year: f.year, reason: cleanFlagReason(f.reason) }))
-        .filter((f): f is { year: number; reason: string } => f.reason !== null);
-
-    const hasValidFlags = cleanedFlags.length > 0;
+    useEffect(() => {
+        setNoteDraft(capability?.note || '');
+    }, [capability?.note]);
 
     return (
-        <div className={`p-3 rounded-xl border transition-all ${tool.isOwned
-            ? 'bg-green-900/20 border-green-700/30'
-            : 'bg-gray-800/30 border-gray-700/30'
-            }`}>
+        <div className="p-3 rounded-xl border bg-green-900/20 border-green-700/30">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="text-lg">{tool.icon}</span>
+                    <span className="text-lg">{icon}</span>
                     <div>
-                        <div className="font-semibold text-white text-sm">
-                            {tool.ownedToolName || tool.name}
-                        </div>
-                        {tool.isOwned && (
-                            <span className="text-xs text-green-400 font-semibold">
-                                ✓ OWNED
-                            </span>
-                        )}
+                        <div className="font-semibold text-white text-sm">{toolName}</div>
+                        <span className="text-xs text-green-400 font-semibold">✓ OWNED</span>
                     </div>
                 </div>
-
-                {/* Status badge */}
-                <div className={`px-2 py-0.5 rounded text-xs font-bold ${getStatusBadgeClass(tool.status)}`}>
-                    {hasData ? tool.status : 'Unknown'}
+                <div className={`px-2 py-0.5 rounded text-xs font-bold ${getStatusBadgeClass(status)}`}>
+                    {status || 'Unknown'}
                 </div>
             </div>
 
-            {/* Flags/Warnings - clickable to expand */}
-            {hasValidFlags && (
-                <button
-                    onClick={() => setExpanded(!expanded)}
-                    className="mt-2 text-xs text-amber-400 text-left w-full hover:text-amber-300 transition-colors"
-                >
-                    <span className="flex items-start gap-1">
-                        <span>⚠️</span>
-                        <span className={expanded ? '' : 'line-clamp-2'}>
-                            {cleanedFlags[0].reason}
-                        </span>
-                    </span>
-                    {!expanded && cleanedFlags[0].reason.length > 80 && (
-                        <span className="text-gray-500 ml-4 text-[10px]">tap to read more</span>
-                    )}
-                </button>
-            )}
+            <div className="grid grid-cols-1 gap-1.5 mt-2">
+                {CAPABILITY_ACTIONS.map((action) => {
+                    const state = capability?.[action.key] || 'unknown';
+                    return (
+                        <button
+                            key={`${toolId}-${action.key}`}
+                            onClick={() => onCycle(action.key)}
+                            className={`w-full text-left rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${getCapabilityClass(state)}`}
+                            title="Tap to cycle: Unknown → Yes → No"
+                        >
+                            {action.label}: {CAPABILITY_LABELS[state]}
+                        </button>
+                    );
+                })}
+            </div>
+
+            <div className="mt-2">
+                <input
+                    type="text"
+                    value={noteDraft}
+                    onChange={(e) => setNoteDraft(e.target.value)}
+                    onBlur={() => onSaveNote(noteDraft)}
+                    placeholder="Tool note (e.g., Not updated KM100)"
+                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                />
+            </div>
         </div>
     );
 }
 
+function FamilyToolCard({ tool }: { tool: VehicleToolCoverage }) {
+    return (
+        <div className="p-2.5 rounded-lg border bg-gray-800/30 border-gray-700/30">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm">{tool.icon}</span>
+                    <span className="text-xs text-gray-300 font-medium">{tool.name}</span>
+                </div>
+                <div className={`px-2 py-0.5 rounded text-[10px] font-bold ${getStatusBadgeClass(tool.status)}`}>
+                    {tool.status || 'Unknown'}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function getCapabilityClass(state: CapabilityState): string {
+    if (state === 'yes') return 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300';
+    if (state === 'no') return 'bg-red-500/20 border-red-500/40 text-red-300';
+    return 'bg-zinc-800/40 border-zinc-700/60 text-zinc-400 hover:border-zinc-600';
+}

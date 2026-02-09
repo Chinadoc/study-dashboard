@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import NASTFBadge from '@/components/NASTFBadge';
 import styles from './community.module.css';
 
 // API base URL - use environment variable or default to production
@@ -18,6 +19,8 @@ interface RecentComment {
     content: string;
     upvotes: number;
     downvotes?: number;
+    user_vote?: number;
+    nastf_verified?: boolean | number;
     is_verified: boolean;
     verified_type: string | null;
     created_at: number;
@@ -45,8 +48,14 @@ interface Mention {
     is_read: boolean;
 }
 
+interface ParsedVehicleKey {
+    displayName: string;
+    detailHref: string;
+    discussionHref: string;
+}
+
 export default function CommunityPage() {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, login } = useAuth();
     const [activeTab, setActiveTab] = useState<'trending' | 'recent' | 'verified' | 'mentions' | 'leaderboard'>('trending');
     const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
     const [verifiedPearls, setVerifiedPearls] = useState<RecentComment[]>([]);
@@ -55,55 +64,83 @@ export default function CommunityPage() {
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [engagementError, setEngagementError] = useState<string | null>(null);
+    const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+    const [pendingVotes, setPendingVotes] = useState<Record<string, boolean>>({});
+    const [pendingReplies, setPendingReplies] = useState<Record<string, boolean>>({});
+    const [localVotes, setLocalVotes] = useState<Record<string, number>>({});
+
+    const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
+
+    const fetchData = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
+        try {
+            // Fetch trending comments (highest score in last 7 days)
+            const trendingRes = await fetch(`${API_URL}/api/community/trending`);
+            if (trendingRes.ok) {
+                const data = await trendingRes.json();
+                setTrendingComments(data.trending || []);
+            }
+
+            // Fetch recent comments across all vehicles
+            const recentRes = await fetch(`${API_URL}/api/community/recent`);
+            if (recentRes.ok) {
+                const data = await recentRes.json();
+                setRecentComments(data.comments || []);
+                setVerifiedPearls((data.comments || []).filter((c: RecentComment) => c.is_verified));
+            }
+
+            // Fetch leaderboard
+            const leaderboardRes = await fetch(`${API_URL}/api/community/leaderboard`);
+            if (leaderboardRes.ok) {
+                const data = await leaderboardRes.json();
+                setLeaderboard(data.leaderboard || []);
+            }
+
+            // Fetch mentions if authenticated
+            if (isAuthenticated) {
+                const mentionsRes = await fetch(`${API_URL}/api/user/mentions`, {
+                    headers: {
+                        'Authorization': `Bearer ${getSessionToken()}`
+                    }
+                });
+                if (mentionsRes.ok) {
+                    const data = await mentionsRes.json();
+                    setMentions(data.mentions || []);
+                    setUnreadCount(data.unread_count || 0);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch community data:', err);
+        } finally {
+            if (!silent) setLoading(false);
+        }
+    }, [isAuthenticated]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                // Fetch trending comments (highest score in last 7 days)
-                const trendingRes = await fetch(`${API_URL}/api/community/trending`);
-                if (trendingRes.ok) {
-                    const data = await trendingRes.json();
-                    setTrendingComments(data.trending || []);
-                }
+        void fetchData();
+    }, [fetchData]);
 
-                // Fetch recent comments across all vehicles
-                const recentRes = await fetch(`${API_URL}/api/community/recent`);
-                if (recentRes.ok) {
-                    const data = await recentRes.json();
-                    setRecentComments(data.comments || []);
-                    setVerifiedPearls((data.comments || []).filter((c: RecentComment) => c.is_verified));
-                }
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
 
-                // Fetch leaderboard
-                const leaderboardRes = await fetch(`${API_URL}/api/community/leaderboard`);
-                if (leaderboardRes.ok) {
-                    const data = await leaderboardRes.json();
-                    setLeaderboard(data.leaderboard || []);
-                }
-
-                // Fetch mentions if authenticated
-                if (isAuthenticated) {
-                    const mentionsRes = await fetch(`${API_URL}/api/user/mentions`, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-                        }
-                    });
-                    if (mentionsRes.ok) {
-                        const data = await mentionsRes.json();
-                        setMentions(data.mentions || []);
-                        setUnreadCount(data.unread_count || 0);
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to fetch community data:', err);
-            } finally {
-                setLoading(false);
+        const handleFocus = () => {
+            void fetchData(true);
+        };
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                void fetchData(true);
             }
         };
 
-        fetchData();
-    }, [isAuthenticated]);
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [fetchData]);
 
     const formatTime = (timestamp: number) => {
         const diff = Date.now() - timestamp;
@@ -117,11 +154,69 @@ export default function CommunityPage() {
         return new Date(timestamp).toLocaleDateString();
     };
 
-    const parseVehicleKey = (key: string) => {
-        const [make, model] = key.split('_');
+    const parseVehicleKey = (key: string): ParsedVehicleKey => {
+        const safeDecode = (value: string) => {
+            try {
+                return decodeURIComponent(value);
+            } catch {
+                return value;
+            }
+        };
+        const cleanSegment = (value: string) => safeDecode(value).trim().replace(/[|_]+$/g, '');
+        const titleCase = (value: string) => value
+            .split(/\s+/)
+            .filter(Boolean)
+            .map(part => part
+                .split('-')
+                .map(p => (p && p === p.toLowerCase()) ? `${p.charAt(0).toUpperCase()}${p.slice(1)}` : p)
+                .join('-')
+            )
+            .join(' ');
+
+        const rawKey = String(key || '').trim();
+        const separator = rawKey.includes('|') ? '|' : (rawKey.includes('_') ? '_' : '');
+        let parts = (separator ? rawKey.split(separator) : [rawKey])
+            .map(cleanSegment)
+            .filter(Boolean);
+
+        if (parts.length === 1) {
+            const expanded = parts[0].split(/[|_]/).map(cleanSegment).filter(Boolean);
+            if (expanded.length > 1) {
+                parts = expanded;
+            }
+        }
+
+        let year: number | null = null;
+        const yearIdx = parts.findIndex((part, idx) => idx > 0 && /^\d{4}$/.test(part));
+        if (yearIdx !== -1) {
+            year = parseInt(parts[yearIdx], 10);
+            parts = parts.filter((_, idx) => idx !== yearIdx);
+        }
+
+        const makeRaw = parts[0] || '';
+        const modelRaw = parts.slice(1).join(' ').trim();
+        const make = titleCase(makeRaw);
+        const model = titleCase(modelRaw);
+        const displayName = [make, model, year ? String(year) : ''].filter(Boolean).join(' ');
+
+        if (!makeRaw || !modelRaw) {
+            return {
+                displayName: rawKey || 'Vehicle',
+                detailHref: '/browse',
+                discussionHref: '/browse'
+            };
+        }
+
+        const makeSegment = encodeURIComponent(makeRaw.toLowerCase());
+        const modelSegment = encodeURIComponent(modelRaw.toLowerCase());
+        const detailHref = year
+            ? `/vehicle/${makeSegment}/${modelSegment}/${year}`
+            : `/browse?make=${encodeURIComponent(makeRaw)}&model=${encodeURIComponent(modelRaw)}`;
+
         return {
-            make: make?.charAt(0).toUpperCase() + make?.slice(1) || '',
-            model: model?.charAt(0).toUpperCase() + model?.slice(1) || ''
+            displayName,
+            detailHref,
+            discussionHref: year ? `${detailHref}#comments` : detailHref
         };
     };
 
@@ -135,13 +230,142 @@ export default function CommunityPage() {
         return ranks[level - 1] || ranks[0];
     };
 
+    const getCurrentVote = async (comment: RecentComment): Promise<number> => {
+        if (localVotes[comment.id] !== undefined) return localVotes[comment.id];
+
+        try {
+            const res = await fetch(`${API_URL}/api/vehicle-comments?vehicle_key=${encodeURIComponent(comment.vehicle_key)}`, {
+                headers: {
+                    'Authorization': `Bearer ${getSessionToken()}`
+                }
+            });
+            if (!res.ok) return 0;
+
+            const data = await res.json();
+            const stack = [...(data.comments || [])];
+            while (stack.length > 0) {
+                const current = stack.pop();
+                if (!current) continue;
+                if (current.id === comment.id) {
+                    return Number(current.user_vote || 0);
+                }
+                if (Array.isArray(current.replies) && current.replies.length > 0) {
+                    stack.push(...current.replies);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch current vote:', err);
+        }
+
+        return 0;
+    };
+
+    const updateCommentEverywhere = (commentId: string, updater: (comment: RecentComment) => RecentComment) => {
+        const apply = (comments: RecentComment[]) => comments.map(c => (c.id === commentId ? updater(c) : c));
+        setTrendingComments(prev => apply(prev));
+        setRecentComments(prev => apply(prev));
+        setVerifiedPearls(prev => apply(prev));
+    };
+
+    const handleUpvote = async (comment: RecentComment) => {
+        if (!isAuthenticated) {
+            login();
+            return;
+        }
+        if (pendingVotes[comment.id]) return;
+
+        setEngagementError(null);
+        setPendingVotes(prev => ({ ...prev, [comment.id]: true }));
+
+        try {
+            const currentVote = await getCurrentVote(comment);
+            const targetVote = currentVote === 1 ? 0 : 1;
+
+            const response = await fetch(`${API_URL}/api/vehicle-comments/vote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getSessionToken()}`
+                },
+                body: JSON.stringify({ comment_id: comment.id, vote: targetVote })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to vote');
+            }
+
+            setLocalVotes(prev => ({ ...prev, [comment.id]: targetVote }));
+            updateCommentEverywhere(comment.id, c => {
+                let upvotes = c.upvotes || 0;
+                let downvotes = c.downvotes || 0;
+
+                if (currentVote === 0 && targetVote === 1) {
+                    upvotes += 1;
+                } else if (currentVote === 1 && targetVote === 0) {
+                    upvotes = Math.max(0, upvotes - 1);
+                } else if (currentVote === -1 && targetVote === 1) {
+                    upvotes += 1;
+                    downvotes = Math.max(0, downvotes - 1);
+                }
+
+                return { ...c, upvotes, downvotes };
+            });
+        } catch (err: any) {
+            setEngagementError(err?.message || 'Failed to vote');
+        } finally {
+            setPendingVotes(prev => ({ ...prev, [comment.id]: false }));
+        }
+    };
+
+    const handleReplySubmit = async (comment: RecentComment) => {
+        if (!isAuthenticated) {
+            login();
+            return;
+        }
+
+        const content = (replyDrafts[comment.id] || '').trim();
+        if (!content || pendingReplies[comment.id]) return;
+
+        setEngagementError(null);
+        setPendingReplies(prev => ({ ...prev, [comment.id]: true }));
+
+        try {
+            const response = await fetch(`${API_URL}/api/vehicle-comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getSessionToken()}`
+                },
+                body: JSON.stringify({
+                    vehicle_key: comment.vehicle_key,
+                    parent_id: comment.id,
+                    content
+                })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to post reply');
+            }
+
+            setReplyDrafts(prev => ({ ...prev, [comment.id]: '' }));
+            setReplyingTo(null);
+            void fetchData(true);
+        } catch (err: any) {
+            setEngagementError(err?.message || 'Failed to post reply');
+        } finally {
+            setPendingReplies(prev => ({ ...prev, [comment.id]: false }));
+        }
+    };
+
     const markMentionsRead = async () => {
         try {
             await fetch(`${API_URL}/api/user/mentions/read`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${getSessionToken()}`
                 }
             });
             setUnreadCount(0);
@@ -156,6 +380,11 @@ export default function CommunityPage() {
             <header className={styles.header}>
                 <h1 className={styles.title}>💬 Community Hub</h1>
                 <p className={styles.subtitle}>Connect with fellow locksmiths, share tips, and learn from verified pearls</p>
+                <div className={styles.headerActions}>
+                    <Link href="/verification" className={styles.verifyLink}>
+                        🛡️ Submit NASTF Verification
+                    </Link>
+                </div>
             </header>
 
             {/* Tab Navigation */}
@@ -197,6 +426,9 @@ export default function CommunityPage() {
 
             {/* Content */}
             <div className={styles.content}>
+                {engagementError && (
+                    <div className={styles.errorBanner}>{engagementError}</div>
+                )}
                 {loading ? (
                     <div className={styles.loading}>Loading community data...</div>
                 ) : (
@@ -213,8 +445,8 @@ export default function CommunityPage() {
                                         return (
                                             <div key={comment.id} className={`${styles.commentCard} ${comment.is_verified ? styles.verified : ''} ${score >= 5 ? styles.hot : ''}`}>
                                                 <div className={styles.cardHeader}>
-                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}`} className={styles.vehicleLink}>
-                                                        {vehicle.make} {vehicle.model}
+                                                    <Link href={vehicle.detailHref} className={styles.vehicleLink}>
+                                                        {vehicle.displayName}
                                                     </Link>
                                                     {score >= 5 && <span className={styles.hotBadge}>🔥 Hot</span>}
                                                     <span className={styles.time}>{formatTime(comment.created_at)}</span>
@@ -228,6 +460,9 @@ export default function CommunityPage() {
                                                         {comment.rank_level && (
                                                             <span className={styles.rank}>{getRankDisplay(comment.rank_level).icon}</span>
                                                         )}
+                                                        {(comment.nastf_verified === 1 || comment.nastf_verified === true) && (
+                                                            <NASTFBadge size="sm" />
+                                                        )}
                                                         {comment.is_verified && (
                                                             <span className={styles.verifiedBadge}>✓ Pearl</span>
                                                         )}
@@ -240,10 +475,55 @@ export default function CommunityPage() {
                                                 </div>
                                                 <div className={styles.cardFooter}>
                                                     <span className={`${styles.score} ${score >= 5 ? styles.highScore : ''}`}>▲ {score}</span>
-                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}#comments`} className={styles.viewLink}>
-                                                        View Discussion →
-                                                    </Link>
+                                                    <div className={styles.engagementActions}>
+                                                        <button
+                                                            type="button"
+                                                            className={`${styles.actionBtn} ${(localVotes[comment.id] === 1 || comment.user_vote === 1) ? styles.actionBtnActive : ''}`}
+                                                            onClick={() => void handleUpvote(comment)}
+                                                            disabled={pendingVotes[comment.id]}
+                                                        >
+                                                            {pendingVotes[comment.id] ? 'Voting...' : (localVotes[comment.id] === 1 || comment.user_vote === 1) ? 'Upvoted' : 'Upvote'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className={styles.actionBtn}
+                                                            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                                        >
+                                                            {replyingTo === comment.id ? 'Cancel' : 'Reply'}
+                                                        </button>
+                                                        <Link href={vehicle.discussionHref} className={styles.viewLink}>
+                                                            View Discussion →
+                                                        </Link>
+                                                    </div>
                                                 </div>
+                                                {replyingTo === comment.id && (
+                                                    <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleReplySubmit(comment); }}>
+                                                        <textarea
+                                                            className={styles.replyInput}
+                                                            value={replyDrafts[comment.id] || ''}
+                                                            onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                                            rows={3}
+                                                            placeholder="Add a reply..."
+                                                            maxLength={2000}
+                                                        />
+                                                        <div className={styles.replyActions}>
+                                                            <button
+                                                                type="button"
+                                                                className={styles.replyBtnSecondary}
+                                                                onClick={() => setReplyingTo(null)}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                type="submit"
+                                                                className={styles.replyBtnPrimary}
+                                                                disabled={pendingReplies[comment.id] || !(replyDrafts[comment.id] || '').trim()}
+                                                            >
+                                                                {pendingReplies[comment.id] ? 'Posting...' : 'Post Reply'}
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                )}
                                             </div>
                                         );
                                     })
@@ -262,8 +542,8 @@ export default function CommunityPage() {
                                         return (
                                             <div key={comment.id} className={`${styles.commentCard} ${comment.is_verified ? styles.verified : ''}`}>
                                                 <div className={styles.cardHeader}>
-                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}`} className={styles.vehicleLink}>
-                                                        {vehicle.make} {vehicle.model}
+                                                    <Link href={vehicle.detailHref} className={styles.vehicleLink}>
+                                                        {vehicle.displayName}
                                                     </Link>
                                                     <span className={styles.time}>{formatTime(comment.created_at)}</span>
                                                 </div>
@@ -275,6 +555,9 @@ export default function CommunityPage() {
                                                         <span className={styles.userName}>{comment.user_name || 'Anonymous'}</span>
                                                         {comment.rank_level && (
                                                             <span className={styles.rank}>{getRankDisplay(comment.rank_level).icon}</span>
+                                                        )}
+                                                        {(comment.nastf_verified === 1 || comment.nastf_verified === true) && (
+                                                            <NASTFBadge size="sm" />
                                                         )}
                                                         {comment.is_verified && (
                                                             <span className={styles.verifiedBadge}>✓ Pearl</span>
@@ -288,10 +571,55 @@ export default function CommunityPage() {
                                                 </div>
                                                 <div className={styles.cardFooter}>
                                                     <span className={styles.score}>▲ {comment.upvotes}</span>
-                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}#comments`} className={styles.viewLink}>
-                                                        View Discussion →
-                                                    </Link>
+                                                    <div className={styles.engagementActions}>
+                                                        <button
+                                                            type="button"
+                                                            className={`${styles.actionBtn} ${(localVotes[comment.id] === 1 || comment.user_vote === 1) ? styles.actionBtnActive : ''}`}
+                                                            onClick={() => void handleUpvote(comment)}
+                                                            disabled={pendingVotes[comment.id]}
+                                                        >
+                                                            {pendingVotes[comment.id] ? 'Voting...' : (localVotes[comment.id] === 1 || comment.user_vote === 1) ? 'Upvoted' : 'Upvote'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className={styles.actionBtn}
+                                                            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                                        >
+                                                            {replyingTo === comment.id ? 'Cancel' : 'Reply'}
+                                                        </button>
+                                                        <Link href={vehicle.discussionHref} className={styles.viewLink}>
+                                                            View Discussion →
+                                                        </Link>
+                                                    </div>
                                                 </div>
+                                                {replyingTo === comment.id && (
+                                                    <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleReplySubmit(comment); }}>
+                                                        <textarea
+                                                            className={styles.replyInput}
+                                                            value={replyDrafts[comment.id] || ''}
+                                                            onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                                            rows={3}
+                                                            placeholder="Add a reply..."
+                                                            maxLength={2000}
+                                                        />
+                                                        <div className={styles.replyActions}>
+                                                            <button
+                                                                type="button"
+                                                                className={styles.replyBtnSecondary}
+                                                                onClick={() => setReplyingTo(null)}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                type="submit"
+                                                                className={styles.replyBtnPrimary}
+                                                                disabled={pendingReplies[comment.id] || !(replyDrafts[comment.id] || '').trim()}
+                                                            >
+                                                                {pendingReplies[comment.id] ? 'Posting...' : 'Post Reply'}
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                )}
                                             </div>
                                         );
                                     })
@@ -310,8 +638,8 @@ export default function CommunityPage() {
                                         return (
                                             <div key={comment.id} className={`${styles.commentCard} ${styles.verified}`}>
                                                 <div className={styles.cardHeader}>
-                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}`} className={styles.vehicleLink}>
-                                                        {vehicle.make} {vehicle.model}
+                                                    <Link href={vehicle.detailHref} className={styles.vehicleLink}>
+                                                        {vehicle.displayName}
                                                     </Link>
                                                     <span className={styles.verifiedType}>{comment.verified_type || 'Verified'}</span>
                                                 </div>
@@ -323,9 +651,62 @@ export default function CommunityPage() {
                                                     </div>
                                                 </div>
                                                 <div className={styles.cardFooter}>
-                                                    <span className={styles.author}>by {comment.user_name}</span>
-                                                    <span className={styles.score}>▲ {comment.upvotes}</span>
+                                                    <div className={styles.authorRow}>
+                                                        <span className={styles.author}>by {comment.user_name}</span>
+                                                        {(comment.nastf_verified === 1 || comment.nastf_verified === true) && (
+                                                            <NASTFBadge size="sm" />
+                                                        )}
+                                                    </div>
+                                                    <div className={styles.engagementActions}>
+                                                        <span className={styles.score}>▲ {comment.upvotes}</span>
+                                                        <button
+                                                            type="button"
+                                                            className={`${styles.actionBtn} ${(localVotes[comment.id] === 1 || comment.user_vote === 1) ? styles.actionBtnActive : ''}`}
+                                                            onClick={() => void handleUpvote(comment)}
+                                                            disabled={pendingVotes[comment.id]}
+                                                        >
+                                                            {pendingVotes[comment.id] ? 'Voting...' : (localVotes[comment.id] === 1 || comment.user_vote === 1) ? 'Upvoted' : 'Upvote'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className={styles.actionBtn}
+                                                            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                                        >
+                                                            {replyingTo === comment.id ? 'Cancel' : 'Reply'}
+                                                        </button>
+                                                        <Link href={vehicle.discussionHref} className={styles.viewLink}>
+                                                            View Discussion →
+                                                        </Link>
+                                                    </div>
                                                 </div>
+                                                {replyingTo === comment.id && (
+                                                    <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleReplySubmit(comment); }}>
+                                                        <textarea
+                                                            className={styles.replyInput}
+                                                            value={replyDrafts[comment.id] || ''}
+                                                            onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                                            rows={3}
+                                                            placeholder="Add a reply..."
+                                                            maxLength={2000}
+                                                        />
+                                                        <div className={styles.replyActions}>
+                                                            <button
+                                                                type="button"
+                                                                className={styles.replyBtnSecondary}
+                                                                onClick={() => setReplyingTo(null)}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                type="submit"
+                                                                className={styles.replyBtnPrimary}
+                                                                disabled={pendingReplies[comment.id] || !(replyDrafts[comment.id] || '').trim()}
+                                                            >
+                                                                {pendingReplies[comment.id] ? 'Posting...' : 'Post Reply'}
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                )}
                                             </div>
                                         );
                                     })
@@ -351,8 +732,8 @@ export default function CommunityPage() {
                                                     )}
                                                     <span className={styles.mentioner}>{mention.mentioner_name}</span>
                                                     <span>mentioned you in</span>
-                                                    <Link href={`/vehicle/${vehicle.make.toLowerCase()}/${vehicle.model.toLowerCase()}`} className={styles.vehicleLink}>
-                                                        {vehicle.make} {vehicle.model}
+                                                    <Link href={vehicle.detailHref} className={styles.vehicleLink}>
+                                                        {vehicle.displayName}
                                                     </Link>
                                                 </div>
                                                 <div className={styles.mentionContent}>

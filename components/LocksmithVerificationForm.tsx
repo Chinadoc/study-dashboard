@@ -33,12 +33,13 @@ const PROOF_TYPES = [
 ];
 
 export default function LocksmithVerificationForm() {
-    const { user, isAuthenticated } = useAuth();
+    const { isAuthenticated, login } = useAuth();
     const [status, setStatus] = useState<VerificationStatus | null>(null);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
 
     // Fetch verification status
     useEffect(() => {
@@ -48,7 +49,7 @@ export default function LocksmithVerificationForm() {
             try {
                 const response = await fetch(`${API_URL}/api/verification/status`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                        'Authorization': `Bearer ${getSessionToken()}`
                     }
                 });
                 const data = await response.json();
@@ -91,7 +92,7 @@ export default function LocksmithVerificationForm() {
             const uploadResponse = await fetch(`${API_URL}/api/verification/upload-proof`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${getSessionToken()}`
                 },
                 body: formData
             });
@@ -106,7 +107,7 @@ export default function LocksmithVerificationForm() {
             // Refresh status
             const statusResponse = await fetch(`${API_URL}/api/verification/status`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    'Authorization': `Bearer ${getSessionToken()}`
                 }
             });
             const statusData = await statusResponse.json();
@@ -129,6 +130,7 @@ export default function LocksmithVerificationForm() {
                 <div className={styles.signInPrompt}>
                     <h3>🔐 Locksmith Verification</h3>
                     <p>Sign in to verify your professional credentials</p>
+                    <button className={styles.signInButton} onClick={login}>Sign in</button>
                 </div>
             </div>
         );

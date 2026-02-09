@@ -55,6 +55,9 @@ export default function LogJobButton({
             milesDriven: job.milesDriven,
             gasCost: job.gasCost,
             referralSource: job.referralSource,
+            toolId: job.toolId || undefined,
+            toolUsed: job.toolLabel || undefined,
+            toolCapabilityNote: job.capabilityNote || undefined,
             status: job.status || 'completed',
             source: 'manual',
         });

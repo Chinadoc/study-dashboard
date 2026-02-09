@@ -31,6 +31,7 @@ interface FleetPanelProps {
 type TabType = 'overview' | 'service_vehicles' | 'jobs' | 'key_stock';
 
 export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps) {
+    const { organization, isFleetOwner, serviceVehicles, addServiceVehicle } = useFleet();
     const [activeTab, setActiveTab] = useState<TabType>('overview');
     const [fleets, setFleets] = useState<FleetAccount[]>([]);
     const [selectedFleet, setSelectedFleet] = useState<FleetAccount | null>(null);
@@ -87,12 +88,47 @@ export default function FleetPanel({ isOpen, onClose, jobLogs }: FleetPanelProps
         });
     }, [fleets, jobLogs]);
 
+    const isOwnFleetAccount = (fleet: FleetAccount): boolean => {
+        const orgName = organization?.name?.trim().toLowerCase();
+        const fleetName = fleet.name?.trim().toLowerCase();
+        if (!orgName || !fleetName) return false;
+        return fleetName === orgName || fleetName.includes(orgName) || orgName.includes(fleetName);
+    };
+
+    const serviceVehicleKey = (vehicle: { year: number; make: string; model: string; vin?: string }) => {
+        const vin = (vehicle.vin || '').trim().toUpperCase();
+        const core = `${vehicle.year}|${vehicle.make.trim().toLowerCase()}|${vehicle.model.trim().toLowerCase()}`;
+        return vin ? `${core}|${vin}` : core;
+    };
+
+    const syncOwnFleetVehiclesToServiceVehicles = async (fleet: FleetAccount) => {
+        if (!isFleetOwner || !organization || !isOwnFleetAccount(fleet)) return;
+        if (!fleet.vehicles.length) return;
+
+        const existingKeys = new Set(serviceVehicles.map(serviceVehicleKey));
+        const candidates = fleet.vehicles.filter(vehicle => !existingKeys.has(serviceVehicleKey(vehicle)));
+
+        if (!candidates.length) return;
+
+        await Promise.all(
+            candidates.map(vehicle => addServiceVehicle({
+                year: vehicle.year,
+                make: vehicle.make,
+                model: vehicle.model,
+                vin: vehicle.vin,
+                licensePlate: vehicle.licensePlate,
+                status: 'available',
+            }))
+        );
+    };
+
     // Save a new or updated fleet
     const handleSaveFleet = (fleet: FleetAccount) => {
-        const saved = saveFleetAccount(fleet);
+        saveFleetAccount(fleet);
         setFleets(getFleetAccountsFromStorage());
         setIsAddingFleet(false);
         setSelectedFleet(null);
+        void syncOwnFleetVehiclesToServiceVehicles(fleet);
     };
 
     // Delete fleet

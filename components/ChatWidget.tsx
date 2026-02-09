@@ -41,6 +41,15 @@ type ParsedJobCommand =
   | { handled: true; ok: true; payload: Omit<JobLog, 'id' | 'createdAt'> };
 
 const JOB_LOG_PREFIX = /^\s*(?:\/)?(?:log|add|create)\s+job\b[:\-]?\s*/i;
+const NATURAL_JOB_TYPE_PATTERNS: Array<{ value: JobLog['jobType']; regex: RegExp }> = [
+  { value: 'akl', regex: /\b(?:all\s+keys?\s+lost|akl|lost\s+all\s+keys?)\b/i },
+  { value: 'add_key', regex: /\b(?:add(?:ed|ing)?\s+key|spare\s+key|duplicate\s+key)\b/i },
+  { value: 'lockout', regex: /\b(?:lockout|unlock)\b/i },
+  { value: 'rekey', regex: /\b(?:rekey|re-key)\b/i },
+  { value: 'remote', regex: /\b(?:remote(?:\s+only)?|fob|key\s+fob)\b/i },
+  { value: 'blade', regex: /\b(?:blade(?:\s+cut)?|cut\s+key)\b/i },
+  { value: 'safe', regex: /\b(?:safe(?:\s+opening)?)\b/i },
+];
 
 function normalizeFieldName(field: string): string {
   return field.toLowerCase().replace(/[\s_-]+/g, '');
@@ -84,6 +93,20 @@ function normalizeJobType(value?: string): JobLog['jobType'] {
   return 'other';
 }
 
+function formatJobTypeLabel(jobType: JobLog['jobType']): string {
+  const labels: Record<JobLog['jobType'], string> = {
+    add_key: 'Add Key',
+    akl: 'All Keys Lost',
+    remote: 'Remote Only',
+    blade: 'Blade Cut',
+    rekey: 'Rekey',
+    lockout: 'Lockout',
+    safe: 'Safe Work',
+    other: 'Other',
+  };
+  return labels[jobType] || 'Other';
+}
+
 function normalizeStatus(value?: string): JobLog['status'] {
   if (!value) return 'completed';
   const normalized = value.toLowerCase().trim().replace(/[\s_-]+/g, '');
@@ -114,6 +137,64 @@ function normalizeStatus(value?: string): JobLog['status'] {
   return validStatuses.includes(normalized as JobLog['status'])
     ? (normalized as JobLog['status'])
     : 'completed';
+}
+
+function extractNaturalLanguageFields(input: string): Record<string, string> {
+  const fields: Record<string, string> = {};
+  const text = input.replace(/\s+/g, ' ').trim();
+  if (!text) return fields;
+
+  let jobTypeIndex = -1;
+  for (const candidate of NATURAL_JOB_TYPE_PATTERNS) {
+    const match = text.match(candidate.regex);
+    if (match) {
+      fields.job = candidate.value;
+      if (typeof match.index === 'number') {
+        jobTypeIndex = match.index;
+      }
+      break;
+    }
+  }
+
+  const priceMatch =
+    text.match(/\b(?:price|priced|charge(?:d)?|charged|total|for|at)\s*\$?\s*(-?\d+(?:\.\d{1,2})?)/i) ||
+    text.match(/\$\s*(-?\d+(?:\.\d{1,2})?)/i);
+  if (priceMatch?.[1]) {
+    fields.price = priceMatch[1];
+  } else if (fields.job) {
+    const trailingAmount = text.match(/(?:^|\s)(-?\d+(?:\.\d{1,2})?)\s*$/);
+    if (trailingAmount?.[1]) {
+      fields.price = trailingAmount[1];
+    }
+  }
+
+  if (!fields.status && /\b(?:done|completed|complete|closed)\b/i.test(text)) {
+    fields.status = 'completed';
+  }
+  if (!fields.status && /\b(?:pending|appointment|estimate)\b/i.test(text)) {
+    fields.status = 'pending';
+  }
+
+  const cutPositions: number[] = [];
+  if (jobTypeIndex >= 0) cutPositions.push(jobTypeIndex);
+  if (priceMatch && typeof priceMatch.index === 'number') cutPositions.push(priceMatch.index);
+
+  let vehicleCandidate = text;
+  if (cutPositions.length > 0) {
+    vehicleCandidate = text.slice(0, Math.min(...cutPositions));
+  }
+
+  vehicleCandidate = vehicleCandidate
+    .replace(/^\s*(?:for|vehicle|car)\s+/i, '')
+    .replace(/\b(?:for|at|with|and|job|type|price|charged?)\s*$/i, '')
+    .replace(/[;:,\-.\s]+$/g, '')
+    .trim();
+
+  if (vehicleCandidate) {
+    fields.vehicle = vehicleCandidate;
+  }
+
+  return fields;
 }
 
 function parseJobCommand(input: string): ParsedJobCommand {
@@ -168,6 +249,14 @@ function parseJobCommand(input: string): ParsedJobCommand {
       const value = segment.slice(splitIndex + 1).trim();
       if (!key || !value) return;
       fields[normalizeFieldName(key)] = value;
+    });
+
+    const naturalFields = extractNaturalLanguageFields(body);
+    Object.entries(naturalFields).forEach(([key, value]) => {
+      const normalizedKey = normalizeFieldName(key);
+      if (!fields[normalizedKey] && value) {
+        fields[normalizedKey] = value.trim();
+      }
     });
 
     // Allow "log job: 2019 Honda Civic" as shorthand vehicle-only input.
@@ -283,7 +372,7 @@ export default function ChatWidget() {
         setMessages(prev => [...prev, {
           id: `msg_${Date.now()}`,
           role: 'assistant',
-          content: `Job logged successfully.\nVehicle: ${newJob.vehicle}\nType: ${newJob.jobType}\nPrice: $${displayPrice}\nStatus: ${newJob.status}\n\nOpen /business/jobs to review or edit this entry.`,
+          content: `Job logged successfully.\nVehicle: ${newJob.vehicle}\nType: ${formatJobTypeLabel(newJob.jobType)}\nPrice: $${displayPrice}\nStatus: ${newJob.status.replace(/_/g, ' ')}\n\nOpen /business/jobs to review or edit this entry.`,
           timestamp: new Date(),
         }]);
       } catch {

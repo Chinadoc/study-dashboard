@@ -10,6 +10,7 @@ interface JobsDashboardProps {
     stats: JobStats;
     onAddJob: () => void;
     onDeleteJob: (id: string) => void;
+    onEditJob?: (job: JobLog) => void;
     onUpdateJob?: (id: string, updates: Partial<JobLog>) => void;
     onGenerateInvoice?: (job: JobLog) => void;
     onImportJobs?: (jobs: Partial<JobLog>[]) => void;
@@ -26,14 +27,14 @@ const JOB_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
     other: { label: 'Other', icon: '🔧' },
 };
 
-const STATUS_COLORS = {
+const STATUS_COLORS: Partial<Record<JobLog['status'], string>> = {
     pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     in_progress: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     completed: 'bg-green-500/20 text-green-400 border-green-500/30',
     cancelled: 'bg-red-500/20 text-red-400 border-red-500/30',
 };
 
-export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, onUpdateJob, onGenerateInvoice, onImportJobs }: JobsDashboardProps) {
+export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, onEditJob, onUpdateJob, onGenerateInvoice, onImportJobs }: JobsDashboardProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterJobType, setFilterJobType] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -464,6 +465,7 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
                                             onToggle={() => !bulkMode && toggleJobExpand(job.id)}
                                             onDelete={() => onDeleteJob(job.id)}
                                             onMarkComplete={() => markComplete(job)}
+                                            onEdit={onEditJob ? () => onEditJob(job) : undefined}
                                             onGenerateInvoice={onGenerateInvoice ? () => onGenerateInvoice(job) : undefined}
                                         />
                                     </div>
@@ -495,6 +497,7 @@ function JobCard({
     onToggle,
     onDelete,
     onMarkComplete,
+    onEdit,
     onGenerateInvoice
 }: {
     job: JobLog;
@@ -504,6 +507,7 @@ function JobCard({
     onToggle: () => void;
     onDelete: () => void;
     onMarkComplete: () => void;
+    onEdit?: () => void;
     onGenerateInvoice?: () => void;
 }) {
     const typeInfo = JOB_TYPE_LABELS[job.jobType] || { label: job.jobType, icon: '🔧' };
@@ -648,6 +652,14 @@ function JobCard({
 
                     {/* Actions */}
                     <div className="flex gap-2 pt-2">
+                        {onEdit && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                                className="flex-1 py-2 bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold hover:bg-blue-500/30 transition-colors"
+                            >
+                                ✏️ Edit
+                            </button>
+                        )}
                         {status !== 'completed' && (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onMarkComplete(); }}

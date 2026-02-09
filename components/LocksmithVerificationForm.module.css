@@ -36,6 +36,24 @@
     color: var(--text-secondary, rgba(255, 255, 255, 0.6));
 }
 
+.signInButton {
+    margin-top: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(99, 102, 241, 0.2);
+    color: #e0e7ff;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.45rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.signInButton:hover {
+    background: rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.45);
+}
+
 .loading {
     color: var(--text-secondary, rgba(255, 255, 255, 0.6));
     text-align: center;

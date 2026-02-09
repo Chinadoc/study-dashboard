@@ -34,9 +34,10 @@ function JobsPageContent() {
     const [jobModalOpen, setJobModalOpen] = useState(false);
     const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
     const [invoiceJob, setInvoiceJob] = useState<JobLog | undefined>(undefined);
+    const [editingJob, setEditingJob] = useState<JobLog | null>(null);
 
     // Prefill data for lead-to-job conversion
-    const [prefillData, setPrefillData] = useState<{ vehicle?: string; customerName?: string; customerPhone?: string } | null>(null);
+    const [prefillData, setPrefillData] = useState<{ vehicle?: string; customerName?: string; customerPhone?: string; customerAddress?: string } | null>(null);
     // Selected date from calendar for job creation
     const [prefillDate, setPrefillDate] = useState<string | undefined>(undefined);
     // Success feedback for pipeline conversion
@@ -89,6 +90,7 @@ function JobsPageContent() {
             if (vehicle) {
                 setPrefillData({ vehicle });
             }
+            setEditingJob(null);
             // Auto open the modal
             setJobModalOpen(true);
             // Clear URL params after handling
@@ -112,34 +114,51 @@ function JobsPageContent() {
 
     const handleJobSubmit = (data: JobFormData) => {
         // Determine source and status based on whether this is a pipeline conversion
-        const isFromPipeline = !!schedulingLead;
+        const isEditing = !!editingJob;
+        const isFromPipeline = !!schedulingLead && !isEditing;
+        const coalesceString = (incoming?: string, fallback?: string) => {
+            if (typeof incoming !== 'string') return fallback;
+            const trimmed = incoming.trim();
+            return trimmed.length > 0 ? incoming : fallback;
+        };
 
-        addJobLog({
+        const mappedData: Omit<JobLog, 'id' | 'createdAt'> = {
             vehicle: data.vehicle,
-            companyName: data.companyName,
-            fccId: data.fccId || undefined,
-            keyType: data.keyType || undefined,
+            companyName: coalesceString(data.companyName, editingJob?.companyName),
+            fccId: coalesceString(data.fccId, editingJob?.fccId),
+            keyType: coalesceString(data.keyType, editingJob?.keyType),
             jobType: data.jobType,
             price: data.price,
             date: data.date,
-            notes: isFromPipeline && schedulingLead
-                ? `[Pipeline Lead #${schedulingLead.id.slice(-6)}] ${data.notes || ''}`
-                : (data.notes || undefined),
-            customerName: data.customerName,
-            customerPhone: data.customerPhone,
-            customerAddress: data.customerAddress,
-            fleetId: data.fleetId,
-            technicianId: data.technicianId,
-            technicianName: data.technicianName,
-            partsCost: data.partsCost,
-            keyCost: data.keyCost,
-            serviceCost: data.serviceCost,
-            milesDriven: data.milesDriven,
-            gasCost: data.gasCost,
-            referralSource: data.referralSource,
-            status: isFromPipeline ? 'unassigned' : (data.status || 'completed'),
-            source: isFromPipeline ? 'pipeline' : 'manual',
-        } as Omit<JobLog, 'id' | 'createdAt'>);
+            notes: coalesceString(data.notes, editingJob?.notes),
+            customerName: coalesceString(data.customerName, editingJob?.customerName),
+            customerPhone: coalesceString(data.customerPhone, editingJob?.customerPhone),
+            customerAddress: coalesceString(data.customerAddress, editingJob?.customerAddress),
+            fleetId: coalesceString(data.fleetId, editingJob?.fleetId),
+            technicianId: coalesceString(data.technicianId, editingJob?.technicianId),
+            technicianName: coalesceString(data.technicianName, editingJob?.technicianName),
+            partsCost: data.partsCost ?? editingJob?.partsCost,
+            keyCost: data.keyCost ?? editingJob?.keyCost,
+            serviceCost: data.serviceCost ?? editingJob?.serviceCost,
+            milesDriven: data.milesDriven ?? editingJob?.milesDriven,
+            gasCost: data.gasCost ?? editingJob?.gasCost,
+            referralSource: data.referralSource || editingJob?.referralSource,
+            toolId: coalesceString(data.toolId, editingJob?.toolId),
+            toolUsed: coalesceString(data.toolLabel, editingJob?.toolUsed),
+            toolCapabilityNote: coalesceString(data.capabilityNote, editingJob?.toolCapabilityNote),
+            status: isFromPipeline ? 'unassigned' : (data.status || editingJob?.status || 'completed'),
+            source: isFromPipeline ? 'pipeline' : (editingJob?.source || 'manual'),
+        };
+
+        if (isFromPipeline && schedulingLead) {
+            mappedData.notes = `[Pipeline Lead #${schedulingLead.id.slice(-6)}] ${data.notes || ''}`.trim();
+        }
+
+        if (isEditing && editingJob) {
+            updateJobLog(editingJob.id, mappedData);
+        } else {
+            addJobLog(mappedData);
+        }
 
         // If this was a pipeline conversion, delete the lead and show success
         if (isFromPipeline && schedulingLead) {
@@ -149,6 +168,7 @@ function JobsPageContent() {
         }
 
         setJobModalOpen(false);
+        setEditingJob(null);
         setSchedulingLead(null);
         setPrefillData(null);
         setPrefillDate(undefined);
@@ -164,6 +184,7 @@ function JobsPageContent() {
 
     // Handle scheduling a lead - opens modal to fill in job details
     const handleScheduleLead = (lead: PipelineLead) => {
+        setEditingJob(null);
         setSchedulingLead(lead);
         setPrefillData({
             vehicle: lead.vehicle,
@@ -280,8 +301,25 @@ function JobsPageContent() {
                 <JobsDashboard
                     jobLogs={jobLogs}
                     stats={stats}
-                    onAddJob={() => setJobModalOpen(true)}
+                    onAddJob={() => {
+                        setEditingJob(null);
+                        setPrefillData(null);
+                        setPrefillDate(undefined);
+                        setJobModalOpen(true);
+                    }}
                     onDeleteJob={deleteJobLog}
+                    onEditJob={(job) => {
+                        setEditingJob(job);
+                        setSchedulingLead(null);
+                        setPrefillData({
+                            vehicle: job.vehicle,
+                            customerName: job.customerName,
+                            customerPhone: job.customerPhone,
+                            customerAddress: job.customerAddress,
+                        });
+                        setPrefillDate(job.date);
+                        setJobModalOpen(true);
+                    }}
                     onUpdateJob={updateJobLog}
                     onGenerateInvoice={(job) => {
                         setInvoiceJob(job);
@@ -403,20 +441,25 @@ function JobsPageContent() {
                     isOpen={jobModalOpen}
                     onClose={() => {
                         setJobModalOpen(false);
+                        setEditingJob(null);
                         setPrefillData(null);
                         setPrefillDate(undefined);
                         setSchedulingLead(null);
                     }}
                     onSubmit={handleJobSubmit}
+                    mode={editingJob ? 'edit' : 'create'}
                     recentCustomers={getRecentCustomers()}
-                    prefillVehicle={prefillData?.vehicle}
+                    prefillVehicle={editingJob?.vehicle || prefillData?.vehicle}
+                    prefillFccId={editingJob?.fccId}
                     prefillDate={prefillDate}
-                    prefillCustomerName={prefillData?.customerName}
-                    prefillCustomerPhone={prefillData?.customerPhone}
-                    prefillPrice={schedulingLead?.estimatedValue}
-                    prefillJobType={schedulingLead?.jobType}
-                    prefillReferralSource={schedulingLead?.source}
-                    prefillNotes={schedulingLead?.notes}
+                    prefillCustomerName={editingJob?.customerName || prefillData?.customerName}
+                    prefillCustomerPhone={editingJob?.customerPhone || prefillData?.customerPhone}
+                    prefillCustomerAddress={editingJob?.customerAddress || prefillData?.customerAddress}
+                    prefillPrice={editingJob?.price ?? schedulingLead?.estimatedValue}
+                    prefillJobType={editingJob?.jobType || schedulingLead?.jobType}
+                    prefillReferralSource={editingJob?.referralSource || schedulingLead?.source}
+                    prefillStatus={editingJob?.status}
+                    prefillNotes={editingJob?.notes || schedulingLead?.notes}
                 />
             )}
 

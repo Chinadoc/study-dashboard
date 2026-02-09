@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { loadBusinessProfile, saveBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
+import {
+    loadBusinessProfile,
+    saveBusinessProfile,
+    initBusinessProfile,
+    AVAILABLE_TOOLS,
+    BUSINESS_PROFILE_UPDATED_EVENT
+} from '@/lib/businessTypes';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import CoverageTimeline from '@/components/business/CoverageTimeline';
 import ToolCoveragePreview from '@/components/business/ToolCoveragePreview';
@@ -14,9 +19,34 @@ export default function ToolsPage() {
     const [businessProfile, setBusinessProfile] = useState(() => loadBusinessProfile());
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setBusinessProfile(loadBusinessProfile());
-        }
+        if (typeof window === 'undefined') return;
+
+        let mounted = true;
+        setBusinessProfile(loadBusinessProfile());
+
+        initBusinessProfile()
+            .then((profile) => {
+                if (mounted) setBusinessProfile(profile);
+            })
+            .catch((err) => {
+                console.warn('Failed to initialize cloud business profile:', err);
+            });
+
+        const handleProfileUpdated = () => setBusinessProfile(loadBusinessProfile());
+        const handleStorage = (event: StorageEvent) => {
+            if (event.key === 'eurokeys_business_profile') {
+                setBusinessProfile(loadBusinessProfile());
+            }
+        };
+
+        window.addEventListener(BUSINESS_PROFILE_UPDATED_EVENT, handleProfileUpdated as EventListener);
+        window.addEventListener('storage', handleStorage);
+
+        return () => {
+            mounted = false;
+            window.removeEventListener(BUSINESS_PROFILE_UPDATED_EVENT, handleProfileUpdated as EventListener);
+            window.removeEventListener('storage', handleStorage);
+        };
     }, []);
 
     const userTools = businessProfile.tools || [];
@@ -196,4 +226,3 @@ function ToolCard({
         </div>
     );
 }
-

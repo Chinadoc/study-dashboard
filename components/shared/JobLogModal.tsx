@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { FleetAccount, getFleetAccountsFromStorage } from '@/lib/fleetTypes';
-import { Technician, getTechniciansFromStorage, getActiveTechnicians } from '@/lib/technicianTypes';
+import { Technician, getActiveTechnicians } from '@/lib/technicianTypes';
 import { useFleetCustomers } from '@/lib/useFleetCustomers';
+import { AVAILABLE_TOOLS, loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
+import { CapabilityAction, updateVehicleToolCapabilities } from '@/lib/vehicleToolCapabilities';
 
 interface RecentCustomer {
     name: string;
@@ -15,6 +17,7 @@ interface JobLogModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (job: JobFormData) => void;
+    mode?: 'create' | 'edit';
     prefillFccId?: string;
     prefillVehicle?: string;
     prefillDate?: string;  // YYYY-MM-DD format for calendar date selection
@@ -25,6 +28,7 @@ interface JobLogModalProps {
     prefillPrice?: number;
     prefillJobType?: string;
     prefillReferralSource?: string;
+    prefillStatus?: JobFormData['status'];
     recentCustomers?: RecentCustomer[];
     fleetAccounts?: FleetAccount[];  // Optional fleet accounts for linking
 }
@@ -51,6 +55,10 @@ export interface JobFormData {
     milesDriven?: number; // Miles driven for gas calculation
     gasCost?: number;     // Auto-calculated from miles (3.5$/gal at 30mpg = $0.117/mile)
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
+    toolId?: string;
+    toolLabel?: string;
+    capabilityNote?: string;
+    confirmCapability?: boolean;
     status?:
     | 'appointment'
     | 'accepted'
@@ -75,7 +83,7 @@ const JOB_TYPES = [
     { value: 'blade', label: 'Blade Cut', icon: '✂️' },
     { value: 'rekey', label: 'Rekey', icon: '🔄' },
     { value: 'lockout', label: 'Lockout', icon: '🚗' },
-    { value: 'other', label: 'Other', icon: '🔧' },
+    { value: 'other', label: 'TBD / Other', icon: '🔧' },
 ];
 
 const REFERRAL_SOURCES = [
@@ -101,7 +109,33 @@ const STATUS_OPTIONS: Array<{ value: NonNullable<JobFormData['status']>; label: 
     { value: 'cancelled', label: 'Cancelled', color: 'red', icon: '✕' },
 ];
 
-export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', prefillDate, prefillCustomerName = '', prefillCustomerPhone = '', prefillCustomerAddress = '', prefillNotes = '', prefillPrice, prefillJobType, prefillReferralSource, recentCustomers = [], fleetAccounts }: JobLogModalProps) {
+const OPEN_INTAKE_STATUSES: Array<NonNullable<JobFormData['status']>> = [
+    'estimate',
+    'pending',
+    'appointment',
+    'follow_up',
+    'unassigned',
+];
+
+export default function JobLogModal({
+    isOpen,
+    onClose,
+    onSubmit,
+    mode = 'create',
+    prefillFccId = '',
+    prefillVehicle = '',
+    prefillDate,
+    prefillCustomerName = '',
+    prefillCustomerPhone = '',
+    prefillCustomerAddress = '',
+    prefillNotes = '',
+    prefillPrice,
+    prefillJobType,
+    prefillReferralSource,
+    prefillStatus,
+    recentCustomers = [],
+    fleetAccounts
+}: JobLogModalProps) {
     const [showCustomerInfo, setShowCustomerInfo] = useState(true);
     const [showCostTracking, setShowCostTracking] = useState(false);
     const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: number; button_count?: number; image_url?: string }>>([]);
@@ -124,6 +158,16 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         setTechnicians(getActiveTechnicians());
     }, []);
 
+    // Load owned tools for field verification tagging
+    const [ownedTools, setOwnedTools] = useState(() => {
+        const profile = loadBusinessProfile();
+        return AVAILABLE_TOOLS.filter(tool => (profile.tools || []).includes(tool.id));
+    });
+    useEffect(() => {
+        const profile = loadBusinessProfile();
+        setOwnedTools(AVAILABLE_TOOLS.filter(tool => (profile.tools || []).includes(tool.id)));
+    }, [isOpen]);
+
     // Community tips for the vehicle being logged
     const [communityTips, setCommunityTips] = useState<Array<{ content: string; user_name: string; score: number }>>([]);
     const [loadingTips, setLoadingTips] = useState(false);
@@ -137,7 +181,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
     const validJobTypes = ['add_key', 'akl', 'remote', 'blade', 'rekey', 'lockout', 'other'] as const;
     const initialJobType = prefillJobType && validJobTypes.includes(prefillJobType as any)
         ? prefillJobType as JobFormData['jobType']
-        : 'add_key';
+        : 'other';
 
     // Determine valid referral source from prefill
     const validSources = ['google', 'yelp', 'referral', 'repeat', 'other'] as const;
@@ -145,7 +189,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         ? prefillReferralSource as JobFormData['referralSource']
         : undefined;
 
-    const [formData, setFormData] = useState<JobFormData>({
+    const getInitialFormData = (): JobFormData => ({
         vehicle: prefillVehicle,
         companyName: '',
         fccId: prefillFccId,
@@ -165,8 +209,35 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         milesDriven: 0,
         gasCost: 0,
         referralSource: initialReferral,
-        status: 'completed',
+        toolId: '',
+        toolLabel: '',
+        capabilityNote: '',
+        confirmCapability: true,
+        status: prefillStatus || 'completed',
     });
+
+    const [formData, setFormData] = useState<JobFormData>(getInitialFormData);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setFormData(getInitialFormData());
+        setValidationError(null);
+        setCustomerSaved(false);
+    }, [
+        isOpen,
+        mode,
+        prefillVehicle,
+        prefillFccId,
+        prefillDate,
+        prefillCustomerName,
+        prefillCustomerPhone,
+        prefillCustomerAddress,
+        prefillNotes,
+        prefillPrice,
+        prefillJobType,
+        prefillReferralSource,
+        prefillStatus,
+    ]);
 
     // Auto-show customer info section if prefilled
     useEffect(() => {
@@ -190,10 +261,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                 ...prev,
                 fleetId: fleet.id,
                 companyName: fleet.name || prev.companyName,
-                customerName: fleet.name,
-                customerPhone: fleet.phone || prev.customerPhone,
-                customerAddress: fleet.address || prev.customerAddress,
-                referralSource: 'repeat'
+                referralSource: prev.referralSource || 'repeat',
             }));
             setShowCustomerInfo(true);  // Auto-show customer section
         } else {
@@ -286,47 +354,53 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         return () => clearTimeout(timeoutId);
     }, [formData.fccId]);
 
+    const mapJobTypeToCapabilityAction = (jobType: JobFormData['jobType']): CapabilityAction | null => {
+        if (jobType === 'add_key') return 'add_key';
+        if (jobType === 'akl') return 'akl';
+        return null;
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        const isOpenIntake = !!(formData.status && OPEN_INTAKE_STATUSES.includes(formData.status));
         const missing: string[] = [];
         if (!formData.vehicle?.trim()) missing.push('Vehicle');
-        if (!formData.companyName?.trim()) missing.push('Company');
-        if (!formData.jobType?.trim()) missing.push('Job Description');
-        if (!formData.technicianName?.trim()) missing.push('Technician');
-        if (!formData.customerName?.trim()) missing.push('Customer Name');
-        if (!formData.customerPhone?.trim()) missing.push('Customer Phone');
+        if (!isOpenIntake && !formData.jobType?.trim()) missing.push('Job Description');
         if (!formData.status?.trim()) missing.push('Status');
 
         if (missing.length > 0) {
             setValidationError(`Required fields: ${missing.join(', ')}`);
-            if (!showCustomerInfo) setShowCustomerInfo(true);
             return;
         }
 
         setValidationError(null);
+
+        const selectedToolId = formData.toolId?.trim();
+        const capabilityAction = mapJobTypeToCapabilityAction(formData.jobType);
+        if (selectedToolId && formData.confirmCapability && capabilityAction) {
+            const { year: vehicleYear, make: vehicleMake, model: vehicleModel } = parseVehicle(formData.vehicle || '');
+            const parsedYear = Number(vehicleYear);
+            if (vehicleMake && vehicleModel && Number.isFinite(parsedYear) && parsedYear > 1900) {
+                const profile = loadBusinessProfile();
+                const updatedProfile = {
+                    ...profile,
+                    vehicleToolCapabilities: updateVehicleToolCapabilities(profile.vehicleToolCapabilities, {
+                        make: vehicleMake,
+                        model: vehicleModel,
+                        year: parsedYear,
+                        toolId: selectedToolId,
+                        changes: { [capabilityAction]: 'yes' },
+                        note: formData.capabilityNote || '',
+                    }),
+                };
+                saveBusinessProfile(updatedProfile);
+            }
+        }
+
         onSubmit(formData);
         // Reset form
-        setFormData({
-            vehicle: '',
-            companyName: '',
-            fccId: '',
-            keyType: '',
-            jobType: 'add_key',
-            price: 0,
-            date: new Date().toISOString().split('T')[0],
-            notes: '',
-            customerName: '',
-            customerPhone: '',
-            customerAddress: '',
-            fleetId: '',
-            technicianName: '',
-            partsCost: 0,
-            keyCost: 0,
-            gasCost: 0,
-            referralSource: undefined,
-            status: 'completed',
-        });
+        setFormData(getInitialFormData());
         setShowCustomerInfo(false);
         setShowCostTracking(false);
         onClose();
@@ -334,6 +408,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
 
     const totalCosts = (formData.partsCost || 0) + (formData.keyCost || 0) + (formData.serviceCost || 0) + (formData.gasCost || 0);
     const profit = (formData.price || 0) - totalCosts;
+    const isOpenIntake = !!(formData.status && OPEN_INTAKE_STATUSES.includes(formData.status));
 
     // Parse vehicle string to extract year, make, model
     const parseVehicle = (vehicleStr: string) => {
@@ -521,14 +596,10 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
     };
 
     // Completeness tracking
-    const requiredFields = [
+    const requiredFields: Array<{ label: string; filled: boolean }> = [
         { label: 'Vehicle', filled: !!formData.vehicle?.trim() },
-        { label: 'Company', filled: !!formData.companyName?.trim() },
-        { label: 'Job Type', filled: !!formData.jobType },
-        { label: 'Technician', filled: !!formData.technicianName?.trim() },
-        { label: 'Customer', filled: !!formData.customerName?.trim() },
-        { label: 'Phone', filled: !!formData.customerPhone?.trim() },
         { label: 'Status', filled: !!formData.status },
+        ...(isOpenIntake ? [] : [{ label: 'Job Type', filled: !!formData.jobType?.trim() }]),
     ];
     const filledCount = requiredFields.filter(f => f.filled).length;
     const [showStatusPicker, setShowStatusPicker] = useState(false);
@@ -556,7 +627,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                             <span className="text-lg">📋</span>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-white">New Job</h2>
+                            <h2 className="text-lg font-bold text-white">{mode === 'edit' ? 'Edit Job' : 'New Job'}</h2>
                             <div className="flex items-center gap-2 mt-0.5">
                                 <div className="flex gap-0.5">
                                     {requiredFields.map((f, i) => (
@@ -724,6 +795,60 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                 </button>
                             ))}
                         </div>
+                        <div className="text-[10px] text-zinc-500">
+                            Leave as <span className="text-zinc-400">TBD / Other</span> for estimate jobs until details are confirmed.
+                        </div>
+
+                        {/* Tool used + field verification */}
+                        {ownedTools.length > 0 && (
+                            <div className="grid grid-cols-1 gap-2">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                                        Tool Used
+                                    </label>
+                                    <select
+                                        value={formData.toolId || ''}
+                                        onChange={(e) => {
+                                            const selected = ownedTools.find(tool => tool.id === e.target.value);
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                toolId: selected?.id || '',
+                                                toolLabel: selected?.name || '',
+                                            }));
+                                        }}
+                                        className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                                    >
+                                        <option value="">Select owned tool...</option>
+                                        {ownedTools.map(tool => (
+                                            <option key={tool.id} value={tool.id}>
+                                                {tool.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {formData.toolId && (
+                                    <div className="space-y-2 rounded-xl border border-zinc-700/50 bg-zinc-900/30 p-3">
+                                        <label className="flex items-center gap-2 text-xs text-zinc-300">
+                                            <input
+                                                type="checkbox"
+                                                checked={!!formData.confirmCapability}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, confirmCapability: e.target.checked }))}
+                                                className="h-3.5 w-3.5 rounded border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500/40"
+                                            />
+                                            Mark this {formData.jobType === 'akl' ? 'AKL' : 'job'} as verified capability for this vehicle
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.capabilityNote || ''}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, capabilityNote: e.target.value }))}
+                                            placeholder='Optional note (e.g., "Not updated KM100")'
+                                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder-zinc-600"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Company */}
                         <div>
@@ -734,7 +859,6 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                 value={formData.companyName || ''}
                                 onChange={e => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
                                 className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder-zinc-600 transition-all"
-                                required
                             />
                         </div>
 
@@ -857,7 +981,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                         <input type="text" placeholder={technicians.length > 0 ? 'Or type a name...' : 'Technician name'}
                             value={formData.technicianName || ''}
                             onChange={e => setFormData(prev => ({ ...prev, technicianName: e.target.value }))}
-                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 placeholder-zinc-600" required />
+                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 placeholder-zinc-600" />
                     </div>
 
 
@@ -979,25 +1103,26 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                         }}
                         className="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-black py-3.5 rounded-xl hover:from-amber-400 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 text-sm"
                     >
-                        ✓ Log Job
+                        {mode === 'edit' ? '✓ Save Changes' : '✓ Log Job'}
                     </button>
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            setFormData(prev => ({ ...prev, status: 'unassigned' }));
-                            setTimeout(() => {
-                                const form = document.querySelector('form') as HTMLFormElement;
-                                if (form) form.requestSubmit();
-                            }, 0);
-                        }}
-                        className="px-5 py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl hover:from-blue-500 hover:to-blue-400 transition-all shadow-lg shadow-blue-500/20 text-sm"
-                        title="Save and send to the Dispatch queue"
-                    >
-                        🚚 Dispatch
-                    </button>
+                    {mode !== 'edit' && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setFormData(prev => ({ ...prev, status: 'unassigned' }));
+                                setTimeout(() => {
+                                    const form = document.querySelector('form') as HTMLFormElement;
+                                    if (form) form.requestSubmit();
+                                }, 0);
+                            }}
+                            className="px-5 py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl hover:from-blue-500 hover:to-blue-400 transition-all shadow-lg shadow-blue-500/20 text-sm"
+                            title="Save and send to the Dispatch queue"
+                        >
+                            🚚 Dispatch
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
     );
 }
-

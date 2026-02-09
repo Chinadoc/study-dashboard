@@ -5996,9 +5996,11 @@ Guidelines:
               (vc.upvotes - COALESCE(vc.downvotes, 0)) as score,
               vc.job_type, vc.tool_used, vc.created_at,
               COALESCE(vc.is_verified, 0) as is_verified, vc.verified_type,
-              ur.rank_level
+              ur.rank_level,
+              COALESCE(u.nastf_verified, 0) as nastf_verified
             FROM vehicle_comments vc
             LEFT JOIN user_reputation ur ON vc.user_id = ur.user_id
+            LEFT JOIN users u ON vc.user_id = u.id
             WHERE COALESCE(vc.is_deleted, 0) = 0 
               AND vc.parent_id IS NULL
               AND vc.created_at > ?
@@ -11679,6 +11681,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             cloneable: string | null;
           }
           let aksKeyConfigs: AksKeyConfig[] = [];
+          let bladeKeys: { keyway: string | null; entries: any[] } | null = null;
           const WORKER_BASE = "https://euro-keys.jeremy-samuels17.workers.dev";
 
           if (year) {
@@ -11716,16 +11719,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%ignition%'
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%lock%'
                 AND COALESCE(c.product_type, '') != 'Key'
-                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%chip%'
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%other%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%shell only%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%-pack%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%flip blade%'
-                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%universal%'
-                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%vvdi%'
-                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%xhorse%'
-                AND LOWER(COALESCE(c.title, '')) NOT LIKE '%keydiy%'
               ORDER BY c.product_type, c.buttons DESC
             `).bind(make, `%${model}%`, year).all<any>();
 
@@ -11773,6 +11771,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (baseType === 'Emergency Key_Blade') {
                 baseType = 'Emergency Key';
               }
+
+              // Skip chip products from generating their own cards —
+              // their chip data enriches transponder key entries via the chip field
+              if (baseType.toLowerCase().includes('chip')) continue;
 
               // Extract button count (skip for blade types — they don't have buttons)
               let buttonCount: string | null = null;
@@ -11943,7 +11945,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             // Sort: Smart Keys first, then by button count descending
             const typeOrder: Record<string, number> = {
               'Smart Key': 1, 'Remote Head Key': 2, 'Remote Keyless Entry': 3,
-              'Flip Key': 4, 'Transponder Key': 5, 'Mechanical Key': 6, 'Emergency Key': 7
+              'Flip Key': 4, 'Transponder Key': 5, 'Mechanical Key': 6, 'Emergency Key': 7,
+              'Transponder Chip': 8
             };
             aksKeyConfigs.sort((a, b) => {
               const orderA = typeOrder[a.keyType] || 10;
@@ -11951,6 +11954,58 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (orderA !== orderB) return orderA - orderB;
               return (parseInt(b.buttonCount || '0') || 0) - (parseInt(a.buttonCount || '0') || 0);
             });
+
+            // Consolidate blade-type keys into a single bladeKeys object
+            const BLADE_TYPES = ['Transponder Key', 'Mechanical Key', 'Emergency Key'];
+            const bladeEntries = aksKeyConfigs.filter(k => BLADE_TYPES.includes(k.keyType));
+            // Remove blade types from the main array — they'll be in bladeKeys instead
+            aksKeyConfigs = aksKeyConfigs.filter(k => !BLADE_TYPES.includes(k.keyType));
+
+            if (bladeEntries.length > 0) {
+              // Enrich with vehicle-level data (aksVehicleData has accurate keyway names)
+              const vehTransponderKey = aksVehicleData?.transponder_key || null; // e.g. "Y170 (Pod)"
+              const vehMechanicalKey = aksVehicleData?.mechanical_key || null;   // e.g. "Y157 / P1794"
+              const vehChipType = aksVehicleData?.chip_type || null;             // e.g. "Philips 46"
+
+              // Build sub-entries for each blade type
+              const bladeSubEntries = bladeEntries.map(entry => {
+                // Use vehicle-level keyway if product-level is missing
+                let keyway = entry.keyway;
+                if (!keyway) {
+                  if (entry.keyType === 'Transponder Key') keyway = vehTransponderKey;
+                  else if (entry.keyType === 'Mechanical Key') keyway = vehMechanicalKey;
+                  else if (entry.keyType === 'Emergency Key') keyway = entry.keyway || vehMechanicalKey;
+                }
+
+                // Use vehicle-level chip if product-level is missing
+                const chip = entry.chip || (entry.keyType === 'Transponder Key' ? vehChipType : null);
+
+                return {
+                  type: entry.keyType.replace(' Key', ''), // "Transponder", "Mechanical", "Emergency"
+                  keyway,
+                  chip,
+                  imageUrl: entry.imageUrl,
+                  oemParts: entry.oemParts,
+                  fccIds: entry.fccIds,
+                  partNumber: entry.partNumber,
+                  productCount: entry.productCount,
+                  reusable: entry.reusable,
+                  cloneable: entry.cloneable,
+                  purpose: entry.keyType === 'Transponder Key' ? 'For Starting'
+                    : entry.keyType === 'Mechanical Key' ? 'Door / Trunk'
+                      : 'Inside FOBIK',
+                };
+              });
+
+              // Shared keyway from vehicle data or any blade entry
+              const sharedKeyway = vehMechanicalKey
+                || bladeEntries.find(e => e.keyway)?.keyway || null;
+
+              bladeKeys = {
+                keyway: sharedKeyway,
+                entries: bladeSubEntries,
+              };
+            }
           }
 
           // Query for Tools (Lishi) based on keyways found in the keys
@@ -12297,6 +12352,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
             // AKS key configs grouped by key type → button count (with R2 images)
             aks_key_configs: aksKeyConfigs.length > 0 ? aksKeyConfigs : null,
+
+            // Blade keys consolidated (transponder + mechanical + emergency)
+            aks_blade_keys: bladeKeys,
 
             // Tools (Lishi) matched by keyway
             aks_tools: aksTools.length > 0 ? aksTools : null,
