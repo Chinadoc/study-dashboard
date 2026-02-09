@@ -9140,6 +9140,20 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               }
             }
 
+            // Check for letter-suffix variants on numeric models (300C→300, 300M→300)
+            // Only when: base is purely numeric AND the suffix is 1-2 uppercase letters
+            if (!foundVariant) {
+              const letterSuffixMatch = model.match(/^(\d+)([A-Z]{1,2})$/);
+              if (letterSuffixMatch) {
+                const potentialBase = letterSuffixMatch[1];
+                const letterSuffix = letterSuffixMatch[2];
+                if (models.includes(potentialBase)) {
+                  baseModel = potentialBase;
+                  foundVariant = letterSuffix;
+                }
+              }
+            }
+
             // Only merge if the base model also exists independently
             if (foundVariant && models.includes(baseModel)) {
               if (!modelVariantMap.has(baseModel)) {
@@ -11759,14 +11773,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 baseType = 'Emergency Key';
               }
 
-              // Extract button count
+              // Extract button count (skip for blade types — they don't have buttons)
               let buttonCount: string | null = null;
-              const btnMatch = (row.title || '').match(/(\d)-(?:Btn|Button)/i);
-              if (btnMatch) {
-                buttonCount = btnMatch[1];
-              } else if (row.buttons) {
-                const btnParts = String(row.buttons).split('/');
-                buttonCount = String(btnParts.length);
+              const isBladeTypeForBtn = ['Emergency Key', 'Mechanical Key', 'Blade', 'Transponder Key'].includes(baseType);
+              if (!isBladeTypeForBtn) {
+                // Match: "5-Btn", "5-Button", "5-B " (as in "3-B FOBIK")
+                const btnMatch = (row.title || '').match(/(\d)-(?:Btn|Button|B\b)/i);
+                if (btnMatch) {
+                  buttonCount = btnMatch[1];
+                } else if (row.buttons) {
+                  const btnParts = String(row.buttons).split('/');
+                  buttonCount = String(btnParts.length);
+                }
               }
 
               // Initialize key type group
@@ -11803,9 +11821,26 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               const freqRaw = row.frequency && row.frequency !== '0' && row.frequency !== '--' ? row.frequency : null;
 
               if (fccRaw && !isBladeType) {
-                const fccs = fccRaw.split(',').map((f: string) => f.trim()).filter((f: string) => f);
+                // Step 1: Strip parenthetical chip annotations like (HITAG2), (AES), (PEPS)
+                const cleanedFccRaw = fccRaw.replace(/\s*\([^)]*\)/g, '');
+                // Step 2: Split by comma, then also split remaining entries by space
+                // (handles "M3N-40821302 2AOKM-CYV11" → two separate FCCs)
+                const rawParts = cleanedFccRaw.split(',').map((f: string) => f.trim()).filter((f: string) => f);
+                const fccs: string[] = [];
+                for (const part of rawParts) {
+                  // If it contains a space, check if it's multiple FCCs
+                  // FCC IDs follow pattern: letters+digits with hyphens (e.g., M3N-40821302, IYZ-C01C, 2AOKM-CYV11)
+                  const subParts = part.split(/\s+/);
+                  if (subParts.length > 1 && subParts.every((s: string) => /^[A-Z0-9]+-?[A-Z0-9]+$/i.test(s) && s.length >= 5)) {
+                    fccs.push(...subParts);
+                  } else {
+                    fccs.push(part);
+                  }
+                }
                 for (const fcc of fccs) {
-                  const normalizedFcc = fcc.replace(/O(\d)/g, '0$1');
+                  // Normalize O→0 typos and skip chip-only strings
+                  const normalizedFcc = fcc.replace(/O(\d)/g, '0$1').trim();
+                  if (!normalizedFcc || normalizedFcc.length < 5) continue;
                   group.fccIds.add(normalizedFcc);
 
                   // Track per-FCC details for tooltips
