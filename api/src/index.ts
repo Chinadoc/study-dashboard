@@ -11582,7 +11582,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               SELECT mechanical_key, transponder_key, lishi_tool, chip_type, code_series,
                      spaces, depths, macs,
                      ilco_part_numbers, jma_part_numbers, silca_part_numbers, jet_part_numbers,
-                     product_count, product_page_ids
+                     product_count, product_item_ids
               FROM aks_vehicles_by_year
               WHERE LOWER(make) = ? AND LOWER(model) LIKE LOWER(?) AND year = ?
               LIMIT 1
