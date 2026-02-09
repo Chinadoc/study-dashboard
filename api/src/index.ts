@@ -11575,15 +11575,16 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
 
           // 1.5. Get AKS vehicles data (Priority 1.5 - source for keyway/lishi/bitting with better coverage)
-          // Join aks_vehicles_by_year (exact year) → aks_vehicles (bitting specs) via page_id
+          // aks_vehicles_by_year is the single source of truth — no JOIN needed
           let aksVehicleData: any = null;
           if (year) {
             aksVehicleData = await env.LOCKSMITH_DB.prepare(`
-              SELECT v.mechanical_key, v.transponder_key, v.lishi_tool, v.chip_type, v.code_series,
-                     v.spaces, v.depths, v.macs
-              FROM aks_vehicles_by_year vy
-              JOIN aks_vehicles v ON vy.page_id = v.page_id
-              WHERE LOWER(vy.make) = ? AND LOWER(vy.model) LIKE LOWER(?) AND vy.year = ?
+              SELECT mechanical_key, transponder_key, lishi_tool, chip_type, code_series,
+                     spaces, depths, macs,
+                     ilco_part_numbers, jma_part_numbers, silca_part_numbers, jet_part_numbers,
+                     product_count, product_page_ids
+              FROM aks_vehicles_by_year
+              WHERE LOWER(make) = ? AND LOWER(model) LIKE LOWER(?) AND year = ?
               LIMIT 1
             `).bind(make, `%${model}%`, year).first<any>();
           }
