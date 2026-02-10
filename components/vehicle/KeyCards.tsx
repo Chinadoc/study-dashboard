@@ -14,8 +14,23 @@ interface FccDetail {
     frequency: string | null;
 }
 
+interface KeyVariant {
+    label: string;
+    buttons: string;
+    fcc?: string;
+    chip?: string;
+    battery?: string;
+    frequency?: string;
+    keyway?: string;
+    oem?: Array<{ number: string; label?: string }>;
+    image?: string;
+    priceRange?: string;
+    hasRemoteStart?: boolean;
+}
+
 interface KeyConfig {
     name: string;
+    familyBadge?: string;
     fcc?: string;
     fccDetails?: FccDetail[];
     type?: 'prox' | 'blade' | 'flip' | 'remote' | 'transponder';
@@ -30,8 +45,7 @@ interface KeyConfig {
     image?: string;
     blade?: string;
     profile?: string;
-    reusable?: string;
-    cloneable?: string;
+    variants?: KeyVariant[];
 }
 
 interface Pearl {
@@ -241,7 +255,23 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
     const [showOemSelector, setShowOemSelector] = useState(false);
     const [showFccDetails, setShowFccDetails] = useState(false);
     const [oemExpanded, setOemExpanded] = useState<string>('');
+    const [activeVariant, setActiveVariant] = useState(0);
     const { addToInventory: contextAddToInventory } = useInventory();
+
+    // If variants exist, merge active variant's data over config
+    const variant = config.variants?.[activeVariant];
+    const effective = variant ? {
+        ...config,
+        buttons: variant.buttons,
+        fcc: variant.fcc,
+        chip: variant.chip,
+        battery: variant.battery,
+        frequency: variant.frequency,
+        keyway: variant.keyway,
+        oem: variant.oem,
+        image: variant.image,
+        priceRange: variant.priceRange,
+    } : config;
 
     const vehicleStr = vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined;
 
@@ -290,13 +320,13 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
 
     // Construct Amazon Search URL
     // Search query: FCC ID + Name (e.g., "M3N-A2C31243800 4-Button Smart Key")
-    const searchQuery = `${config.fcc || ''} ${config.name || ''}`.trim();
-    const amazonUrl = config.fcc
+    const searchQuery = `${effective.fcc || ''} ${effective.buttons ? `${effective.buttons}-Button ` : ''}${config.name || ''}`.trim();
+    const amazonUrl = effective.fcc
         ? `https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}&tag=${AFFILIATE_TAG}`
         : '#';
 
-    const CardWrapper = config.fcc ? 'a' : 'div';
-    const wrapperProps = config.fcc ? {
+    const CardWrapper = effective.fcc ? 'a' : 'div';
+    const wrapperProps = effective.fcc ? {
         href: amazonUrl,
         target: '_blank',
         rel: 'noopener noreferrer'
@@ -310,48 +340,53 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
             {/* Header with Key Type Badge */}
             <div className="flex justify-between items-start mb-3">
                 <div className="flex-1 min-w-0">
-                    {/* Button count as title */}
+                    {/* Family name as title */}
                     <h3 className="font-bold text-xl text-white group-hover:text-purple-300 transition-colors">
-                        {config.buttons ? `${config.buttons}-Button` : config.name?.split(' ')[0] || 'Key'}
+                        {config.name || 'Key'}
                     </h3>
-                    {/* Key type as subtitle */}
+                    {/* Button count as subtitle */}
                     <p className="text-sm text-zinc-400 mt-0.5">
-                        {config.name?.replace(/^\d+-Button\s*/i, '') || 'Key'}
+                        {effective.buttons ? `${effective.buttons}-Button` : ''}
                     </p>
                 </div>
                 {/* Badges container */}
                 <div className="flex flex-col items-end gap-1">
-                    {/* Key Type Badge - Smart Key, Remote Head, etc. */}
+                    {/* Key Type Badge */}
                     <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border whitespace-nowrap ${typeColors[typeLabel] || typeColors.prox}`}>
-                        {(() => {
-                            const name = config.name?.toLowerCase() || '';
-                            if (name.includes('smart')) return 'SMART';
-                            if (name.includes('remote head')) return 'RHK';
-                            if (name.includes('transponder')) return 'TPK';
-                            if (name.includes('emergency') || name.includes('blade')) return 'BLADE';
-                            if (name.includes('flip')) return 'FLIP';
-                            if (name.includes('mechanical')) return 'MECH';
-                            // For remote keyless entry / remote fobs
-                            if (name.includes('remote') && !name.includes('smart')) return 'REMOTE';
-                            if (typeLabel === 'remote') return 'REMOTE';
-                            if (typeLabel === 'transponder') return 'TPK';
-                            return typeLabel.toUpperCase();
-                        })()}
+                        {config.familyBadge || typeLabel.toUpperCase()}
                     </span>
                     {/* Owned Badge - shows stock count or Add button */}
                     <OwnedBadge
-                        fcc={config.fcc}
+                        fcc={effective.fcc}
                         compact
                         vehicleInfo={vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined}
                     />
                 </div>
             </div>
 
+            {/* Variant Tabs — button count selector */}
+            {config.variants && config.variants.length > 1 && (
+                <div className="flex gap-1 mb-3">
+                    {config.variants.map((v, i) => (
+                        <button
+                            key={v.label}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveVariant(i); }}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${i === activeVariant
+                                ? 'bg-purple-600/30 border-purple-500/50 text-purple-300'
+                                : 'bg-zinc-800/40 border-zinc-700/40 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600'
+                                }`}
+                        >
+                            {v.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+
             {/* Large Key Image - Hero Style */}
             <div className="w-full h-28 rounded-lg bg-zinc-800/50 flex items-center justify-center overflow-hidden mb-3">
-                {config.image ? (
+                {effective.image ? (
                     <img
-                        src={config.image}
+                        src={effective.image}
                         alt={config.name}
                         className="max-h-full max-w-full object-contain"
                     />
@@ -361,8 +396,8 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
             </div>
 
             {/* Prominent FCC ID — expandable to show per-FCC details */}
-            {config.fcc && (() => {
-                const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean).filter(
+            {effective.fcc && (() => {
+                const fccIds = [...new Set(effective.fcc.split(/[\s,]+/).filter(Boolean).filter(
                     t => /^[A-Z0-9]+-?[A-Z0-9]+$/i.test(t) && t.length >= 5
                 ))];
                 const hasDetails = config.fccDetails && config.fccDetails.length > 1;
@@ -412,60 +447,46 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
 
             {/* Specs Grid */}
             <div className="space-y-1 mb-3">
-                {config.frequency && (
+                {effective.frequency && (
                     <div className="text-xs">
                         <span className="text-zinc-500">Freq: </span>
-                        <span className="text-emerald-400 font-medium">{config.frequency}</span>
+                        <span className="text-emerald-400 font-medium">{effective.frequency}</span>
                     </div>
                 )}
-                {config.chip && (() => {
+                {effective.chip && (() => {
                     // Detect VATS (resistor values) and display abbreviated
-                    const chipLower = config.chip.toLowerCase();
+                    const chipLower = effective.chip.toLowerCase();
                     const isVATS = chipLower.includes('vats') || chipLower.includes('resistor') ||
                         chipLower.includes('resister') || chipLower.includes('ohms');
                     return (
                         <div className="text-xs truncate">
                             <span className="text-zinc-500">Chip: </span>
                             <span className={isVATS ? 'text-amber-400' : 'text-white'}>
-                                {isVATS ? 'VATS (Resistor)' : config.chip}
+                                {isVATS ? 'VATS (Resistor)' : effective.chip}
                             </span>
                         </div>
                     );
                 })()}
-                {config.keyway && (
+                {effective.keyway && (
                     <div className="text-xs truncate">
                         <span className="text-zinc-500">Blade: </span>
-                        <span className="text-white font-mono">{config.keyway}</span>
+                        <span className="text-white font-mono">{effective.keyway}</span>
                     </div>
                 )}
-                {config.battery && (
+                {effective.battery && (
                     <div className="text-xs">
                         <span className="text-zinc-500">Battery: </span>
-                        <span className="text-white">{config.battery}</span>
+                        <span className="text-white">{effective.battery}</span>
                     </div>
                 )}
-                {/* Reusable / Cloneable indicators — only show positive badges */}
-                {(config.reusable?.toLowerCase().startsWith('yes') || config.cloneable?.toLowerCase().startsWith('yes')) && (
-                    <div className="flex gap-1.5 mt-1">
-                        {config.reusable?.toLowerCase().startsWith('yes') && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-900/30 text-green-400 border border-green-700/30">
-                                ♻️ Reusable
-                            </span>
-                        )}
-                        {config.cloneable?.toLowerCase().startsWith('yes') && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-900/30 text-blue-400 border border-blue-700/30">
-                                📋 Cloneable
-                            </span>
-                        )}
-                    </div>
-                )}
+
             </div>
 
             {/* Collapsible OEM Parts - show first 3, click +N to expand */}
-            {config.oem && config.oem.length > 0 && (
+            {effective.oem && effective.oem.length > 0 && (
                 <div className="mb-3">
                     <div className="flex flex-wrap gap-1">
-                        {(oemExpanded === config.fcc ? config.oem : config.oem.slice(0, 3)).map((part, i) => {
+                        {(oemExpanded === effective.fcc ? effective.oem : effective.oem.slice(0, 3)).map((part, i) => {
                             const displayNum = part.number.length > 20 ? part.number.slice(0, 18) + '…' : part.number;
                             return (
                                 <span
@@ -481,15 +502,15 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                                 </span>
                             );
                         })}
-                        {config.oem.length > 3 && oemExpanded !== config.fcc && (
+                        {effective.oem.length > 3 && oemExpanded !== effective.fcc && (
                             <button
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOemExpanded(config.fcc || ''); }}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOemExpanded(effective.fcc || ''); }}
                                 className="px-1.5 py-0.5 text-[10px] text-amber-500 font-bold hover:text-amber-300 transition-colors cursor-pointer"
                             >
-                                +{config.oem.length - 3}
+                                +{effective.oem.length - 3}
                             </button>
                         )}
-                        {config.oem.length > 3 && oemExpanded === config.fcc && (
+                        {effective.oem.length > 3 && oemExpanded === effective.fcc && (
                             <button
                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOemExpanded(''); }}
                                 className="px-1.5 py-0.5 text-[10px] text-zinc-500 font-bold hover:text-zinc-300 transition-colors cursor-pointer"
@@ -513,7 +534,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                 >
                     {added ? '✓' : '📦'}
                 </button>
-                {config.fcc && (
+                {effective.fcc && (
                     <div className="flex-1 text-center py-2 bg-yellow-500/90 group-hover:bg-yellow-400 text-black font-bold rounded-lg transition-all text-xs">
                         🛒 Buy
                     </div>

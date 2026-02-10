@@ -13,7 +13,7 @@ import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import VideoEmbed from '@/components/vehicle/VideoEmbed';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
-import ToolCoverageBadges from '@/components/vehicle/ToolCoverageBadges';
+
 import FloatingCommentTab from '@/components/FloatingCommentTab';
 import CommunityHighlight from '@/components/CommunityHighlight';
 import VehicleSidebar from '@/components/layout/VehicleSidebar';
@@ -186,14 +186,35 @@ function transformProducts(products: any[], targetModel?: string): any[] {
     });
 }
 
-// Consolidate keys by button count: Group all keys by their button count,
-// aggregate all OEM parts, FCC IDs, and chips underneath each group.
-// This reduces fragmentation (e.g., 9 cards → 3 cards for Honda Accord)
+// Consolidate keys by key type family → button count variants.
+// Groups all keys by their family (Smart Key, Remote Keyless Entry, etc.),
+// then each family card has clickable button-count variant tabs.
+// This reduces fragmentation (e.g., 7 cards → 3 for 2013 Dodge Charger)
 function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
     if (!keys || (keys.length === 0 && !specs?.keyway)) return [];
 
-    // Group keys by button count (primary grouping)
-    const buttonGroups: Record<string, {
+    // Classify key type into a family
+    const getFamily = (key: any): string => {
+        const type = (key.type || '').toLowerCase();
+        const name = (key.name || key.title || '').toLowerCase();
+        if (type === 'blade' || name.includes('blade') || name.includes('emergency')) return 'blade';
+        if (type === 'transponder') return 'transponder';
+        if (type === 'flip') return 'flip';
+        if (type === 'prox' || name.includes('smart') || name.includes('prox') || name.includes('fobik')) return 'smart_key';
+        if (type === 'remote' || name.includes('remote')) return 'remote';
+        return 'smart_key'; // default
+    };
+
+    const familyLabels: Record<string, { label: string; badge: string }> = {
+        smart_key: { label: 'Smart Key', badge: 'SMART' },
+        remote: { label: 'Remote Keyless Entry', badge: 'REMOTE' },
+        flip: { label: 'Flip Key', badge: 'FLIP' },
+        transponder: { label: 'Transponder Key', badge: 'TRANSPONDER' },
+        blade: { label: 'Blade Keys', badge: 'BLADE' },
+    };
+
+    // Group by family → button count
+    const familyGroups: Record<string, Record<string, {
         buttons: number;
         fccIds: Set<string>;
         oemParts: Set<string>;
@@ -202,25 +223,24 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
         keyways: Set<string>;
         frequencies: Set<string>;
         images: string[];
-        types: Set<string>; // prox, flip, etc.
         hasRemoteStart: boolean;
-        hasTrunk: boolean;
         priceMin: number;
         priceMax: number;
-    }> = {};
+    }>> = {};
 
-    // Special group for blades/emergency keys
+    // Blade group is special (no button variants)
     let bladeGroup: any = null;
 
     keys.forEach(key => {
         const name = (key.name || key.title || '').toLowerCase();
-        const keyType = key.type || 'prox';
 
         // Skip bulk packs and shells
         if (name.includes('-pack') || name.includes('pack ') || name.includes('shell')) return;
 
+        const family = getFamily(key);
+
         // Handle blades separately
-        if (name.includes('blade') || name.includes('emergency') || keyType === 'blade') {
+        if (family === 'blade') {
             if (!bladeGroup) {
                 bladeGroup = {
                     keyways: new Set<string>(),
@@ -234,7 +254,7 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
             return;
         }
 
-        // Extract button count from name or buttons field
+        // Extract button count
         let buttonCount = 0;
         const btnMatchName = name.match(/(\d)-btn/) || name.match(/(\d)-button/) || name.match(/(\d) btn/) || name.match(/(\d) button/);
         if (btnMatchName) {
@@ -247,11 +267,11 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
         // Skip if no button count detected
         if (buttonCount === 0) return;
 
-        const groupKey = `${buttonCount}btn`;
+        if (!familyGroups[family]) familyGroups[family] = {};
+        const btnKey = `${buttonCount}btn`;
 
-        // Initialize group if needed
-        if (!buttonGroups[groupKey]) {
-            buttonGroups[groupKey] = {
+        if (!familyGroups[family][btnKey]) {
+            familyGroups[family][btnKey] = {
                 buttons: buttonCount,
                 fccIds: new Set(),
                 oemParts: new Set(),
@@ -260,17 +280,15 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
                 keyways: new Set(),
                 frequencies: new Set(),
                 images: [],
-                types: new Set(),
                 hasRemoteStart: false,
-                hasTrunk: false,
                 priceMin: Infinity,
                 priceMax: 0,
             };
         }
 
-        const group = buttonGroups[groupKey];
+        const group = familyGroups[family][btnKey];
 
-        // Aggregate FCC IDs (handle comma-separated and duplicates)
+        // Aggregate FCC IDs
         if (key.fcc) {
             String(key.fcc).split(/[,\s]+/).filter(Boolean).forEach(f => group.fccIds.add(f.trim()));
         }
@@ -283,32 +301,18 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
             });
         }
 
-        // Aggregate chips
-        if (key.chip) {
-            String(key.chip).split(/[,\s]+/).filter(Boolean).forEach(c => group.chips.add(c.trim()));
-        }
-
-        // Aggregate batteries
+        // Aggregate chips, batteries, keyways, frequencies
+        if (key.chip) String(key.chip).split(/[,\s]+/).filter(Boolean).forEach(c => group.chips.add(c.trim()));
         if (key.battery) group.batteries.add(key.battery);
-
-        // Aggregate keyways
         if (key.keyway) group.keyways.add(key.keyway);
-
-        // Aggregate frequencies
         if (key.frequency) group.frequencies.add(key.frequency);
-
-        // Track key type (prox, flip, remote)
-        if (keyType) group.types.add(keyType);
 
         // Track features
         if (name.includes('remote start') || name.includes('rs') || name.includes('w/rs')) {
             group.hasRemoteStart = true;
         }
-        if (name.includes('trunk') || name.includes('hatch')) {
-            group.hasTrunk = true;
-        }
 
-        // Collect images (prefer ones with actual URLs)
+        // Collect images
         if (key.image && !group.images.includes(key.image)) {
             group.images.push(key.image);
         }
@@ -328,61 +332,80 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
         }
     });
 
-    // Convert groups to KeyConfig format
+    // Convert family groups to output cards with button variants
     const result: any[] = [];
 
-    // Sort button counts (ascending)
-    const sortedButtonCounts = Object.keys(buttonGroups).sort((a, b) => {
-        const aNum = parseInt(a.replace('btn', ''), 10);
-        const bNum = parseInt(b.replace('btn', ''), 10);
-        return aNum - bNum;
-    });
+    // Order families: smart_key first, then remote, flip, transponder
+    const familyOrder = ['smart_key', 'remote', 'flip', 'transponder'];
 
-    sortedButtonCounts.forEach(groupKey => {
-        const group = buttonGroups[groupKey];
+    for (const family of familyOrder) {
+        const btnGroups = familyGroups[family];
+        if (!btnGroups) continue;
 
-        // Build descriptive name with features
-        let name = `${group.buttons}-Button`;
-        const features: string[] = [];
-        if (group.hasRemoteStart) features.push('Remote Start');
-        if (group.hasTrunk) features.push('Trunk');
-        if (features.length > 0) {
-            name += ` (${features.join(', ')})`;
-        }
+        const btnKeys = Object.keys(btnGroups).sort((a, b) => {
+            return parseInt(a.replace('btn', ''), 10) - parseInt(b.replace('btn', ''), 10);
+        });
 
-        // Determine primary type
-        const primaryType = group.types.has('prox') ? 'prox'
-            : group.types.has('flip') ? 'flip'
-                : 'remote';
+        if (btnKeys.length === 0) continue;
 
-        // Build price range string
-        let priceRange: string | undefined;
-        if (group.priceMin < Infinity && group.priceMax > 0) {
-            priceRange = group.priceMin === group.priceMax
-                ? `$${group.priceMin.toFixed(2)}`
-                : `$${group.priceMin.toFixed(2)} - $${group.priceMax.toFixed(2)}`;
-        }
+        const meta = familyLabels[family] || { label: family, badge: family.toUpperCase() };
+
+        // Determine primary type for styling
+        const primaryType = family === 'smart_key' ? 'prox'
+            : family === 'flip' ? 'flip'
+                : family === 'transponder' ? 'transponder'
+                    : 'remote';
+
+        // Build variant array — one per button count
+        const variants = btnKeys.map(bk => {
+            const g = btnGroups[bk];
+            let priceRange: string | undefined;
+            if (g.priceMin < Infinity && g.priceMax > 0) {
+                priceRange = g.priceMin === g.priceMax
+                    ? `$${g.priceMin.toFixed(2)}`
+                    : `$${g.priceMin.toFixed(2)} - $${g.priceMax.toFixed(2)}`;
+            }
+            return {
+                label: `${g.buttons}-Btn`,
+                buttons: String(g.buttons),
+                fcc: Array.from(g.fccIds).slice(0, 3).join(', ') || undefined,
+                chip: Array.from(g.chips).slice(0, 2).join(', ') || undefined,
+                battery: Array.from(g.batteries)[0] || undefined,
+                frequency: Array.from(g.frequencies)[0] || undefined,
+                keyway: Array.from(g.keyways)[0] || undefined,
+                oem: Array.from(g.oemParts).slice(0, 8).map(p => ({ number: p })),
+                image: g.images[0] || undefined,
+                priceRange,
+                hasRemoteStart: g.hasRemoteStart,
+            };
+        });
+
+        // Default to first variant's data
+        const defaultVariant = variants[0];
 
         result.push({
-            name,
-            buttons: String(group.buttons),
-            fcc: Array.from(group.fccIds).slice(0, 3).join(', ') || undefined,
-            chip: Array.from(group.chips).slice(0, 2).join(', ') || undefined,
-            battery: Array.from(group.batteries)[0] || undefined,
-            frequency: Array.from(group.frequencies)[0] || undefined,
-            keyway: Array.from(group.keyways)[0] || undefined,
-            oem: Array.from(group.oemParts).slice(0, 8).map(p => ({ number: p })),
-            image: group.images[0] || undefined,
+            name: meta.label,
+            familyBadge: meta.badge,
+            buttons: defaultVariant.buttons,
+            fcc: defaultVariant.fcc,
+            chip: defaultVariant.chip,
+            battery: defaultVariant.battery,
+            frequency: defaultVariant.frequency,
+            keyway: defaultVariant.keyway,
+            oem: defaultVariant.oem,
+            image: defaultVariant.image,
             type: primaryType,
-            priceRange,
+            priceRange: defaultVariant.priceRange,
+            variants: variants.length > 1 ? variants : undefined,
         });
-    });
+    }
 
     // Add blade/emergency key if found or synthesize from specs
     if (bladeGroup || specs?.keyway) {
         const keyway = bladeGroup ? Array.from(bladeGroup.keyways)[0] : specs.keyway;
         result.push({
-            name: `Emergency Blade${keyway ? ` (${keyway})` : ''}`,
+            name: `Blade Keys${keyway ? ` (${keyway})` : ''}`,
+            familyBadge: 'BLADE',
             type: 'blade',
             keyway: keyway || undefined,
             oem: bladeGroup ? Array.from(bladeGroup.oemParts as Set<string>).slice(0, 4).map((p: string) => ({ number: p })) : [],
@@ -393,7 +416,6 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
 
     return result;
 }
-
 function parseVehicleRoute(pathValue: string): { make: string; model: string; year: number } {
     const safeDecode = (value: string) => {
         try {
@@ -1156,30 +1178,7 @@ export default function VehicleDetailClient() {
                         />
                     </div>
 
-                    {/* Vehicle Intelligence — Tool Coverage, Programming, EEPROM */}
-                    {intelligence && (
-                        <div className="mb-8">
-                            {intelligence.field_intel?.description && (
-                                <div className="glass p-4 mb-4">
-                                    <p className="text-sm text-zinc-300 leading-relaxed">
-                                        {intelligence.field_intel.description}
-                                    </p>
-                                </div>
-                            )}
-                            {intelligence.field_intel?.critical_alert && (
-                                <div className="glass p-3 mb-4 border-red-500/30 bg-red-950/20">
-                                    <span className="text-red-400 font-bold text-xs">⚠️ CRITICAL: </span>
-                                    <span className="text-red-300 text-xs">{intelligence.field_intel.critical_alert}</span>
-                                </div>
-                            )}
-                            <ToolCoverageBadges
-                                coverage={intelligence.tool_coverage}
-                                security={intelligence.security}
-                                programming={intelligence.programming}
-                                eeprom={intelligence.eeprom}
-                            />
-                        </div>
-                    )}
+
 
                     {/* Related YouTube Video */}
                     <VideoEmbed make={make} model={model} year={year} />
@@ -1315,7 +1314,7 @@ export default function VehicleDetailClient() {
                 {/* Right Column: Locksmith Sidebar (4/12) */}
                 <div className="lg:col-span-4 space-y-6">
                     {/* Tool Coverage - Show which tools cover this vehicle */}
-                    <ToolCoverageSidebar make={make} model={model} year={year} />
+                    <ToolCoverageSidebar make={make} model={model} year={year} intelligence={intelligence} />
 
                     <LocksmithSidebar
                         specs={{

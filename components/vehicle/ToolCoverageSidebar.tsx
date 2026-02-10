@@ -27,6 +27,7 @@ interface ToolCoverageSidebarProps {
     make: string;
     model: string;
     year: number;
+    intelligence?: any;
 }
 
 const CAPABILITY_ACTIONS: Array<{ key: CapabilityAction; label: string }> = [
@@ -47,7 +48,7 @@ function nextCapabilityState(state: CapabilityState): CapabilityState {
     return 'unknown';
 }
 
-export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageSidebarProps) {
+export default function ToolCoverageSidebar({ make, model, year, intelligence }: ToolCoverageSidebarProps) {
     const [coverage, setCoverage] = useState<VehicleCoverageResult>(() => getVehicleCoverage(make, model, year));
     const [businessProfile, setBusinessProfile] = useState(() => loadBusinessProfile());
 
@@ -150,6 +151,11 @@ export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageS
         saveBusinessProfile(updatedProfile);
     };
 
+    // VI tool coverage data
+    const viCoverage = intelligence?.tool_coverage;
+    const viPerTool = intelligence?.programming?.tool_coverage_json;
+    const [showPerTool, setShowPerTool] = React.useState(false);
+
     return (
         <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
@@ -164,7 +170,78 @@ export default function ToolCoverageSidebar({ make, model, year }: ToolCoverageS
                 </Link>
             </div>
 
-            {!coverage.found && (
+            {/* VI Description + Critical Alert */}
+            {intelligence?.field_intel?.description && (
+                <p className="text-xs text-zinc-400 leading-relaxed mb-3">
+                    {intelligence.field_intel.description}
+                </p>
+            )}
+            {intelligence?.field_intel?.critical_alert && (
+                <div className="p-2 mb-3 rounded-lg border border-red-500/30 bg-red-950/20">
+                    <span className="text-red-400 font-bold text-[10px]">⚠️ CRITICAL: </span>
+                    <span className="text-red-300 text-[10px]">{intelligence.field_intel.critical_alert}</span>
+                </div>
+            )}
+
+            {/* VI Family Status Badges */}
+            {viCoverage && (
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                    {[
+                        { key: 'autel', label: 'Autel', val: viCoverage.autel, color: 'red' },
+                        { key: 'smartpro', label: 'Smart Pro', val: viCoverage.smartpro, color: 'gray' },
+                        { key: 'lonsdor', label: 'Lonsdor', val: viCoverage.lonsdor, color: 'purple' },
+                        { key: 'vvdi', label: 'VVDI', val: viCoverage.vvdi, color: 'amber' },
+                    ].map(fam => {
+                        if (!fam.val) return null;
+                        const isYes = fam.val.toLowerCase().startsWith('yes');
+                        const isInferred = fam.val.toLowerCase().includes('inferred');
+                        return (
+                            <div key={fam.key} className={`flex items-center justify-between px-2.5 py-2 rounded-lg border ${isYes ? 'bg-emerald-950/30 border-emerald-700/30' : 'bg-amber-950/20 border-amber-700/20'
+                                }`}>
+                                <span className="text-xs font-medium text-zinc-300">{fam.label}</span>
+                                <span className={`text-[10px] font-bold ${isYes ? 'text-emerald-400' : 'text-amber-400'
+                                    }`}>
+                                    {isYes ? '✓' : '△'} {fam.val.replace(' (inferred)', '')}
+                                    {isInferred && <span className="text-zinc-500 ml-0.5">*</span>}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Per-tool expansion */}
+            {viPerTool && (() => {
+                let parsedTools: Record<string, { status: string; notes?: string }> = {};
+                try { parsedTools = typeof viPerTool === 'string' ? JSON.parse(viPerTool) : viPerTool; } catch { /* ignore */ }
+                const toolEntries = Object.entries(parsedTools);
+                if (toolEntries.length === 0) return null;
+                const displayTools = showPerTool ? toolEntries : toolEntries.slice(0, 4);
+                return (
+                    <div className="mb-4">
+                        <div className="space-y-1">
+                            {displayTools.map(([tid, info]) => (
+                                <div key={tid} className="flex items-center justify-between px-2 py-1.5 rounded bg-zinc-800/40 text-[10px]">
+                                    <span className="text-zinc-400 font-mono">{tid.replace(/_/g, ' ')}</span>
+                                    <span className={info.status?.toLowerCase().startsWith('yes') ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                                        {info.status}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                        {toolEntries.length > 4 && (
+                            <button
+                                onClick={() => setShowPerTool(!showPerTool)}
+                                className="text-[10px] text-amber-500 hover:text-amber-400 mt-1 transition-colors"
+                            >
+                                {showPerTool ? 'Less ▲' : `+${toolEntries.length - 4} more ▼`}
+                            </button>
+                        )}
+                    </div>
+                );
+            })()}
+
+            {!coverage.found && !viCoverage && (
                 <div className="text-sm text-gray-500 mb-4 p-3 bg-gray-800/50 rounded-lg">
                     ⚠️ No coverage data found for this vehicle configuration.
                 </div>
