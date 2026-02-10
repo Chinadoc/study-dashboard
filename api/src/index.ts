@@ -12770,7 +12770,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                      pearl_count, comment_count, image_count, has_walkthrough, has_guide,
                      chip_type, platform, architecture, immo_system,
                      lishi, keyway, spaces, depths, macs, frequency, battery,
-                     adapter_type, fcc_ids, key_type, code_series
+                     adapter_type, fcc_ids, key_type, code_series,
+                     key_configurations,
+                     push_start_trims, non_push_start_trims,
+                     vin_push_position, vin_push_chars, vin_non_push_chars,
+                     all_push_start_from
               FROM vehicle_intelligence
               WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND year_start <= ? AND year_end >= ?
@@ -12788,6 +12792,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               WHERE LOWER(make) = ? AND LOWER(model) = ? AND year = ?
               LIMIT 1
             `).bind(make, model, year).first<any>();
+          }
+
+          // 0.7. Get per-chip tool coverage from source table (for per-key-type matching)
+          let toolCoverageRows: any[] = [];
+          if (year) {
+            const tcResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT DISTINCT tool_id, tool_family, chips, status, confidence, notes
+              FROM tool_coverage
+              WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
+                AND year_start <= ? AND year_end >= ?
+            `).bind(make, `%${model}%`, year, year).all();
+            toolCoverageRows = tcResult?.results || [];
           }
 
           // 1. Get VYP data (Priority 2 - source for Lishi, spaces, depths, MACS)
@@ -13759,6 +13775,135 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 has_walkthrough: viData.has_walkthrough === 1,
                 has_guide: viData.has_guide === 1,
               },
+              // Per-key-type configurations with per-chip tool coverage and images
+              key_configs: (() => {
+                if (!viData.key_configurations) return null;
+                try {
+                  const configs = JSON.parse(viData.key_configurations);
+                  const viToolCoverage = viData.tool_coverage_json ? JSON.parse(viData.tool_coverage_json) : null;
+
+                  // Chip name normalization: product chip names → tool_coverage chip IDs
+                  const chipNormalize = (chip: string | null): string[] => {
+                    if (!chip) return [];
+                    const lower = chip.toLowerCase();
+                    const ids: string[] = [];
+                    // NXP AES / Hitag AES → 4A
+                    if (lower.includes('aes') || lower.includes('4a')) ids.push('4A');
+                    // H-Chip / 8A → 8A
+                    if (lower.includes('8a') || lower.includes('h-chip') || lower.includes('h chip')) ids.push('8A');
+                    // Philips 46 / Hitag2 / ID46 → ID46
+                    if (lower.includes('46') || lower.includes('hitag2') || lower.includes('hitag 2')) ids.push('ID46');
+                    // 4D-63 / ID47 → ID47
+                    if (lower.includes('47') || lower.includes('4d-63') || lower.includes('4d63') || lower.includes('4d 63')) ids.push('ID47');
+                    // 128-bit (Ford) → ID47
+                    if (lower.includes('128') && lower.includes('bit') && !ids.includes('ID47')) ids.push('ID47');
+                    // Megamos 48 → ID48
+                    if (lower.includes('48') || lower.includes('megamos')) ids.push('ID48');
+                    // G-chip / Toyota G → G_CHIP
+                    if (lower.includes('g-chip') || lower.includes('g chip') || lower.includes('toyota g')) ids.push('G_CHIP');
+                    // ID49 / Hitag Pro → ID49
+                    if (lower.includes('49') || lower.includes('hitag pro') || lower.includes('hitag-pro')) ids.push('ID49');
+                    // PCF7935
+                    if (lower.includes('pcf7935')) ids.push('PCF7935');
+                    // MQB
+                    if (lower.includes('mqb')) ids.push('MQB48', 'MQB');
+                    // Default Philips → ID46
+                    if (ids.length === 0 && lower.includes('philips')) ids.push('ID46');
+                    return ids;
+                  };
+
+                  // Build per-chip-id tool map from source tool_coverage rows
+                  // Map: chipId → toolId → { status, confidence, notes, family }
+                  const chipToolMap = new Map<string, Map<string, { status: string; confidence: string; notes: string; family: string }>>();
+
+                  for (const row of toolCoverageRows) {
+                    // Parse chips JSON array from source row
+                    let rowChips: string[] = [];
+                    try {
+                      rowChips = row.chips ? JSON.parse(row.chips) : [];
+                    } catch { continue; }
+
+                    for (const chipId of rowChips) {
+                      if (!chipToolMap.has(chipId)) chipToolMap.set(chipId, new Map());
+                      const toolMap = chipToolMap.get(chipId)!;
+
+                      const existing = toolMap.get(row.tool_id);
+                      // Keep best status: Yes > Limited > No > Unknown
+                      const statusRank = (s: string) => {
+                        const l = (s || '').toLowerCase();
+                        if (l.startsWith('yes')) return 3;
+                        if (l === 'limited') return 2;
+                        if (l === 'no') return 1;
+                        return 0;
+                      };
+                      if (!existing || statusRank(row.status) > statusRank(existing.status)) {
+                        toolMap.set(row.tool_id, {
+                          status: row.status || 'Unknown',
+                          confidence: row.confidence || 'medium',
+                          notes: row.notes || '',
+                          family: row.tool_family || '',
+                        });
+                      }
+                    }
+                  }
+
+                  // Build image map from aks_key_configs by keyType
+                  const imageByKeyType = new Map<string, string>();
+                  if (aksKeyConfigs) {
+                    for (const akc of aksKeyConfigs) {
+                      if (akc.imageUrl && akc.keyType && !imageByKeyType.has(akc.keyType)) {
+                        imageByKeyType.set(akc.keyType, akc.imageUrl);
+                      }
+                    }
+                  }
+
+                  return configs.map((config: any) => {
+                    // Find tools matching this config's chip
+                    let tools: Record<string, { status: string; confidence?: string; notes?: string; family?: string }> | null = null;
+                    const configChipIds = chipNormalize(config.chip);
+
+                    if (configChipIds.length > 0 && chipToolMap.size > 0) {
+                      // Merge tools from all matching chip IDs
+                      const merged = new Map<string, { status: string; confidence: string; notes: string; family: string }>();
+                      for (const chipId of configChipIds) {
+                        const toolMap = chipToolMap.get(chipId);
+                        if (toolMap) {
+                          for (const [toolId, info] of toolMap) {
+                            if (!merged.has(toolId)) merged.set(toolId, info);
+                          }
+                        }
+                      }
+                      if (merged.size > 0) {
+                        tools = Object.fromEntries(merged);
+                      }
+                    }
+
+                    // Fallback: if no per-chip data but VI has aggregated tool coverage, use it
+                    if (!tools && viToolCoverage && config.chip) {
+                      tools = viToolCoverage;
+                    }
+
+                    // Merge image from aks_key_configs by matching keyType
+                    const image = imageByKeyType.get(config.type) || null;
+
+                    return {
+                      ...config,
+                      chip_id: configChipIds.length > 0 ? configChipIds[0] : null,
+                      tools,
+                      image,
+                    };
+                  });
+                } catch { return null; }
+              })(),
+              // Push-start data from VI (fallback if push_start_variants query missed)
+              vi_push_start: viData.push_start_trims ? {
+                push_start_trims: viData.push_start_trims,
+                non_push_start_trims: viData.non_push_start_trims,
+                vin_push_position: viData.vin_push_position,
+                vin_push_chars: viData.vin_push_chars,
+                vin_non_push_chars: viData.vin_non_push_chars,
+                all_push_start_from: viData.all_push_start_from,
+              } : null,
             } : null,
 
             // Push-Start Variant Intelligence (curated ignition context for key cards)

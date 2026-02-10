@@ -114,6 +114,7 @@ const KEY_TYPE_PRIORITY: Record<string, number> = {
   'Transponder Key': 4,
   'Transponder': 4,
   'Remote Head Key': 5,
+  'Remote Keyless Entry': 6,
   'Fobik': 6,
   'Emergency Key': 10,
   'Mechanical Key': 11,
@@ -132,15 +133,124 @@ function getPrimaryKeyType(productTypes: string[]): string | null {
   return scored[0].type;
 }
 
-// Patterns to filter out non-key products
-const HIDE_PATTERNS = [
-  /shell only/i, /case only/i, /\d-pack/i, /flip blade/i,
-  /tool/i, /lishi/i, /ignition/i, /lock/i, /^chip$/i, /other/i
+// Patterns to filter out non-key products (product_type or title matches)
+const HIDE_TYPE_PATTERNS = [
+  /shell/i, /tool/i, /lishi/i, /ignition/i, /lock/i,
+  /flip blade/i, /flip_blade/i, /emergency key.?blade/i,
+  /transponder chip/i, /^chip$/i, /^other$/i,
+];
+
+const HIDE_TITLE_PATTERNS = [
+  /shell only/i, /case only/i, /\d-pack/i,
+  /accu.?reader/i, /eez reader/i,
 ];
 
 function isKeyProduct(title: string, productType: string): boolean {
-  const combined = `${title} ${productType}`;
-  return !HIDE_PATTERNS.some(p => p.test(combined));
+  if (HIDE_TYPE_PATTERNS.some(p => p.test(productType))) return false;
+  if (HIDE_TITLE_PATTERNS.some(p => p.test(title))) return false;
+  return true;
+}
+
+// ============================================================
+// Proximity Detection
+// ============================================================
+function detectProximity(product: any): boolean | null {
+  // 1. Use structured proximity field if present
+  const prox = product.proximity;
+  if (prox && typeof prox === 'string') {
+    const lower = prox.toLowerCase();
+    if (lower.startsWith('yes') || lower.includes('peps')) return true;
+    if (lower === 'no') return false;
+  }
+
+  // 2. Fall back to title keywords
+  const title = (product.title || '').toLowerCase();
+  if (title.includes('no prox') || title.includes('non-prox') || title.includes('non prox')) return false;
+  if (title.includes('prox') || title.includes('peps') || title.includes('keyless go')) return true;
+
+  // 3. Infer from product_type
+  const pt = (product.product_type || '').toLowerCase();
+  if (pt === 'smart key') return true;
+
+  return null; // Can't determine
+}
+
+// ============================================================
+// Per-Key-Type Configuration Builder
+// ============================================================
+interface KeyConfig {
+  type: string;
+  fcc_ids: string[];
+  chip: string | null;
+  frequency: string | null;
+  battery: string | null;
+  keyway: string | null;
+  buttons: string | null;
+  proximity: boolean | null;
+  product_count: number;
+}
+
+function buildKeyConfigurations(products: any[]): KeyConfig[] {
+  // Group products by product_type
+  const groups: Record<string, any[]> = {};
+  for (const p of products) {
+    const pt = p.product_type || 'Unknown';
+    if (!groups[pt]) groups[pt] = [];
+    groups[pt].push(p);
+  }
+
+  const configs: KeyConfig[] = [];
+
+  for (const [type, typeProducts] of Object.entries(groups)) {
+    // Collect specs
+    const chips = typeProducts.map(p => p.chip).filter((v: any) => v && v !== '--' && v !== '0');
+    const freqs = typeProducts.map(p => p.frequency).filter((v: any) => v && v !== '0');
+    const batts = typeProducts.map(p => p.battery).filter((v: any) => v && v !== '-' && v !== '0');
+    const keyways = typeProducts.map(p => p.keyway).filter((v: any) => v && v !== '-');
+    const btns = typeProducts.map(p => p.buttons).filter((v: any) => v && v !== '-');
+
+    // Deduplicate FCC IDs
+    const fccSet = new Set<string>();
+    for (const p of typeProducts) {
+      const raw = p.fcc_id;
+      if (!raw) continue;
+      // Split comma or space-separated FCCs, take primary
+      for (const part of String(raw).split(/[,]/).map(s => s.trim()).filter(Boolean)) {
+        // Take the first token (the actual FCC) and ignore parenthetical notes
+        const fcc = part.split(/\s+/)[0].replace(/[()]/g, '').trim();
+        if (fcc && fcc.length > 3) fccSet.add(fcc);
+      }
+    }
+
+    // Proximity: majority vote from individual detections
+    const proxVotes = typeProducts.map(detectProximity).filter((v): v is boolean => v !== null);
+    let proximity: boolean | null = null;
+    if (proxVotes.length > 0) {
+      const trueCount = proxVotes.filter(v => v).length;
+      proximity = trueCount > proxVotes.length / 2;
+    }
+
+    configs.push({
+      type,
+      fcc_ids: [...fccSet].sort(),
+      chip: findConsensus(chips).value,
+      frequency: findConsensus(freqs).value,
+      battery: findConsensus(batts).value,
+      keyway: findConsensus(keyways).value,
+      buttons: findConsensus(btns).value,
+      proximity,
+      product_count: typeProducts.length,
+    });
+  }
+
+  // Sort by KEY_TYPE_PRIORITY
+  configs.sort((a, b) => {
+    const pa = KEY_TYPE_PRIORITY[a.type] || 8;
+    const pb = KEY_TYPE_PRIORITY[b.type] || 8;
+    return pa - pb;
+  });
+
+  return configs;
 }
 
 // ============================================================
@@ -182,6 +292,27 @@ async function main() {
 
   console.log(`   Found ${vehicles.length} vehicle groups`);
 
+  // ── Load push_start_variants for push-start/key-start differentiation ──
+  console.log('📥 Loading push_start_variants...');
+  const pushStartRows = queryD1(`
+    SELECT make, model, year, smart_key_fccs, rke_fccs,
+           push_start_trims, non_push_start_trims,
+           vin_position, vin_push_start_chars, vin_non_push_chars,
+           base_is_push_start, all_trims_push_start_from, notes, curated
+    FROM push_start_variants
+  `);
+  // Map by make|model|year for exact lookups, also by make|model for range lookups
+  const pushStartByYear = new Map<string, any>();
+  const pushStartByModel = new Map<string, any[]>();
+  for (const ps of pushStartRows) {
+    const yearKey = `${ps.make?.toLowerCase()}|${ps.model?.toLowerCase()}|${ps.year}`;
+    pushStartByYear.set(yearKey, ps);
+    const modelKey = `${ps.make?.toLowerCase()}|${ps.model?.toLowerCase()}`;
+    if (!pushStartByModel.has(modelKey)) pushStartByModel.set(modelKey, []);
+    pushStartByModel.get(modelKey)!.push(ps);
+  }
+  console.log(`   Loaded ${pushStartRows.length} push_start_variants (${pushStartByModel.size} unique models)`);
+
   // Build product_item_ids supplemental map per make|model
   const supplementalIds = new Map<string, Set<string>>();
   for (const v of vehicles) {
@@ -208,13 +339,16 @@ async function main() {
   }
   console.log(`   Found ${bittingSpecs.length} bitting spec entries`);
 
-  // ── NEW: Query products via aks_product_vehicle_years → aks_products_complete ──
-  // This is the same chain the runtime detail API uses (Path A)
+  // ── Query products via aks_product_vehicle_years → aks_products_complete ──
+  // Year-aware grouping: products keyed by make|model|year
   console.log('📥 Querying product linkages via aks_product_vehicle_years → aks_products_complete...');
   const pvyMakes = queryD1(`SELECT DISTINCT make FROM aks_product_vehicle_years WHERE make IS NOT NULL`);
   console.log(`   ${pvyMakes.length} makes to process via junction table`);
 
+  // Products keyed by make|model (for the flat VI lookup)
   const productsByVehicle = new Map<string, any[]>();
+  // Products keyed by make|model|year (for per-year key configs)
+  const productsByVehicleYear = new Map<string, any[]>();
   let totalProductLinks = 0;
 
   for (const { make: pMake } of pvyMakes) {
@@ -222,19 +356,28 @@ async function main() {
       SELECT pvy.make, pvy.model, pvy.year,
              c.item_id, c.product_type, c.fcc_id, c.buttons,
              c.oem_part_numbers, c.battery, c.frequency, c.chip,
-             c.keyway, c.model_name, c.title, c.reusable, c.cloneable
+             c.keyway, c.model_name, c.title, c.reusable, c.cloneable,
+             c.proximity
       FROM aks_product_vehicle_years pvy
       JOIN aks_products_complete c ON pvy.item_id = c.item_id
       WHERE pvy.make = '${pMake.replace(/'/g, "''")}'
     `);
     for (const pl of links) {
-      const key = `${pl.make?.toLowerCase()}|${pl.model?.toLowerCase()}`;
-      if (!productsByVehicle.has(key)) productsByVehicle.set(key, []);
-      productsByVehicle.get(key)!.push(pl);
+      const modelKey = `${pl.make?.toLowerCase()}|${pl.model?.toLowerCase()}`;
+      if (!productsByVehicle.has(modelKey)) productsByVehicle.set(modelKey, []);
+      productsByVehicle.get(modelKey)!.push(pl);
+
+      // Also index by year for per-year configs
+      if (pl.year) {
+        const yearKey = `${pl.make?.toLowerCase()}|${pl.model?.toLowerCase()}|${pl.year}`;
+        if (!productsByVehicleYear.has(yearKey)) productsByVehicleYear.set(yearKey, []);
+        productsByVehicleYear.get(yearKey)!.push(pl);
+      }
     }
     totalProductLinks += links.length;
   }
   console.log(`   Found ${totalProductLinks} product links across ${productsByVehicle.size} vehicles (junction path)`);
+  console.log(`   Year-specific product groups: ${productsByVehicleYear.size}`);
 
   // ── Supplemental: Fill gaps from product_item_ids (Path B) ──
   // Same as runtime detail API — catches products not linked via junction
@@ -253,7 +396,8 @@ async function main() {
       const supProducts = queryD1(`
         SELECT item_id, product_type, fcc_id, buttons,
                oem_part_numbers, battery, frequency, chip,
-               keyway, model_name, title, reusable, cloneable
+               keyway, model_name, title, reusable, cloneable,
+               proximity
         FROM aks_products_complete
         WHERE item_id IN (${placeholders})
       `);
@@ -267,14 +411,16 @@ async function main() {
   console.log(`   Supplemental: filled ${supplementalFilled} additional product links`);
 
   // ============================================================
-  // STEP 1b: Build INSERT statements with consensus logic
+  // STEP 1b: Build INSERT statements with per-key-type configs
   // ============================================================
-  console.log('\n🔨 Building vehicle intelligence rows...');
+  console.log('\n🔨 Building vehicle intelligence rows with per-key-type configurations...');
 
   const insertBatches: string[] = [];
   let currentBatch: string[] = [];
   let rowCount = 0;
   let varianceCount = 0;
+  let configsPopulated = 0;
+  let pushStartPopulated = 0;
 
   for (const v of vehicles) {
     const normalized = normalizeMake(v.make, v.model);
@@ -284,24 +430,47 @@ async function main() {
     // Get bitting specs
     const bitting = v.page_id ? bittingMap.get(String(v.page_id)) : null;
 
-    // Get products for consensus
+    // Get products for consensus — flat (all years for this model)
     const vKey = `${v.make?.toLowerCase()}|${v.model?.toLowerCase()}`;
-    const products = (productsByVehicle.get(vKey) || [])
+    const allProducts = (productsByVehicle.get(vKey) || [])
       .filter((p: any) => isKeyProduct(p.title || '', p.product_type || ''));
 
-    // Consensus calculations — using aks_products_complete column names
-    const chips = products.map((p: any) => p.chip).filter(Boolean);
-    const batteries = products.map((p: any) => p.battery).filter(Boolean);
-    const frequencies = products.map((p: any) => p.frequency).filter(Boolean);
+    // Get year-filtered products for per-key-type configs
+    // Gather products from all years in this vehicle's range
+    const yearFilteredProducts: any[] = [];
+    const seenItemIds = new Set<string>();
+    for (let y = v.year_start; y <= v.year_end; y++) {
+      const yearKey = `${v.make?.toLowerCase()}|${v.model?.toLowerCase()}|${y}`;
+      const yearProducts = productsByVehicleYear.get(yearKey) || [];
+      for (const p of yearProducts) {
+        if (!isKeyProduct(p.title || '', p.product_type || '')) continue;
+        const itemId = String(p.item_id);
+        if (!seenItemIds.has(itemId)) {
+          seenItemIds.add(itemId);
+          yearFilteredProducts.push(p);
+        }
+      }
+    }
+
+    // Use year-filtered products if available, otherwise fall back to flat
+    const productsForConfigs = yearFilteredProducts.length > 0 ? yearFilteredProducts : allProducts;
+
+    // Build per-key-type configurations
+    const keyConfigs = buildKeyConfigurations(productsForConfigs);
+    const keyConfigsJson = keyConfigs.length > 0 ? JSON.stringify(keyConfigs) : null;
+    if (keyConfigs.length > 0) configsPopulated++;
+
+    // Overall consensus (for the flat top-level fields — backward compat)
+    const chips = productsForConfigs.map((p: any) => p.chip).filter((v: any) => v && v !== '--' && v !== '0');
+    const batteries = productsForConfigs.map((p: any) => p.battery).filter((v: any) => v && v !== '-' && v !== '0');
+    const frequencies = productsForConfigs.map((p: any) => p.frequency).filter((v: any) => v && v !== '0');
     const fccIds = [...new Set(
-      products.map((p: any) => p.fcc_id).filter(Boolean)
+      productsForConfigs.map((p: any) => p.fcc_id).filter(Boolean)
         .flatMap((f: string) => f.split(',').map(s => s.trim()))
         .filter(Boolean)
     )];
-    const keyTypes = [...new Set(products.map((p: any) => p.product_type).filter(Boolean))];
-    const buttons = products.map((p: any) => p.buttons).filter(Boolean);
-    const reusables = products.map((p: any) => p.reusable).filter(Boolean);
-    const cloneables = products.map((p: any) => p.cloneable).filter(Boolean);
+    const keyTypes = [...new Set(productsForConfigs.map((p: any) => p.product_type).filter(Boolean))];
+    const buttons = productsForConfigs.map((p: any) => p.buttons).filter(Boolean);
 
     const chipConsensus = findConsensus(chips);
     const batteryConsensus = findConsensus(batteries);
@@ -322,6 +491,30 @@ async function main() {
     const finalCodeSeries = bitting?.code_series || null;
     const finalKeyway = bitting?.mechanical_key || null;
 
+    // Lookup push_start_variants — use the midpoint year for best match
+    const midYear = Math.round((v.year_start + v.year_end) / 2);
+    let pushStartData: any = null;
+
+    // Try exact midpoint year first, then scan the range
+    for (let y = v.year_start; y <= v.year_end && !pushStartData; y++) {
+      const psKey = `${v.make?.toLowerCase()}|${v.model?.toLowerCase()}|${y}`;
+      pushStartData = pushStartByYear.get(psKey);
+    }
+    // Also try with the normalized model name
+    if (!pushStartData) {
+      const normalizedModelKey = `${make.toLowerCase()}|${model.toLowerCase()}`;
+      const psModels = pushStartByModel.get(normalizedModelKey) || [];
+      pushStartData = psModels.find((ps: any) => ps.year >= v.year_start && ps.year <= v.year_end);
+    }
+
+    const pushStartTrims = pushStartData?.push_start_trims || null;
+    const nonPushStartTrims = pushStartData?.non_push_start_trims || null;
+    const vinPushPosition = pushStartData?.vin_position || null;
+    const vinPushChars = pushStartData?.vin_push_start_chars || null;
+    const vinNonPushChars = pushStartData?.vin_non_push_chars || null;
+    const allPushStartFrom = pushStartData?.all_trims_push_start_from || null;
+    if (pushStartData) pushStartPopulated++;
+
     currentBatch.push(`(
       ${sqlEscape(make)}, ${sqlEscape(model)}, ${v.year_start || 'NULL'}, ${v.year_end || 'NULL'},
       ${sqlEscape(primaryKeyType)}, ${sqlEscape(fccIds.length > 0 ? JSON.stringify(fccIds) : null)},
@@ -332,8 +525,12 @@ async function main() {
       ${sqlEscape(finalLishi)}, ${sqlEscape(finalKeyway)},
       ${sqlEscape(finalSpaces)}, ${sqlEscape(finalDepths)}, ${sqlEscape(finalMacs)},
       ${sqlEscape(finalCodeSeries)},
-      ${keyTypes.length}, ${hasVariance},
-      CURRENT_TIMESTAMP
+      ${keyConfigs.length}, ${hasVariance},
+      CURRENT_TIMESTAMP,
+      ${sqlEscape(keyConfigsJson)},
+      ${sqlEscape(pushStartTrims)}, ${sqlEscape(nonPushStartTrims)},
+      ${vinPushPosition || 'NULL'}, ${sqlEscape(vinPushChars)}, ${sqlEscape(vinNonPushChars)},
+      ${allPushStartFrom || 'NULL'}
     )`);
 
     rowCount++;
@@ -351,6 +548,8 @@ async function main() {
 
   console.log(`   Prepared ${rowCount} rows in ${insertBatches.length} batches`);
   console.log(`   ${varianceCount} vehicles with hardware variance (transition years)`);
+  console.log(`   ${configsPopulated} vehicles with per-key-type configurations`);
+  console.log(`   ${pushStartPopulated} vehicles with push_start_variants data`);
 
   // Execute inserts
   console.log('\n📤 Inserting into vehicle_intelligence...');
@@ -363,13 +562,17 @@ async function main() {
       chip_type, frequency, buttons, battery, key_blank_refs,
       lishi, keyway, spaces, depths, macs, code_series,
       key_config_count, has_variance,
-      last_refreshed
+      last_refreshed,
+      key_configurations,
+      push_start_trims, non_push_start_trims,
+      vin_push_position, vin_push_chars, vin_non_push_chars,
+      all_push_start_from
     ) VALUES ${batch}`;
 
     executeD1(sql);
     process.stdout.write(`   Batch ${batchNum}/${insertBatches.length}\r`);
   }
-  console.log(`\n   ✅ Inserted ${rowCount} rows`);
+  console.log(`\n   ✅ Inserted ${rowCount} rows (${configsPopulated} with key configs, ${pushStartPopulated} with push-start data)`);
 
   // ============================================================
   // STEP 2: Enrich with platform_security

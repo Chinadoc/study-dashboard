@@ -153,7 +153,28 @@ export default function ToolCoverageSidebar({ make, model, year, intelligence }:
 
     // VI tool coverage data
     const viCoverage = intelligence?.tool_coverage;
-    const viPerTool = intelligence?.programming?.tool_coverage_json;
+    // Per-tool details: first try tool_coverage.details, then merge from key_configs
+    const viPerTool = useMemo(() => {
+        // Primary: tool_coverage.details from VI materialized view
+        if (viCoverage?.details && Object.keys(viCoverage.details).length > 0) {
+            return viCoverage.details;
+        }
+        // Fallback: merge tools from all key_configs
+        const keyConfigs = intelligence?.key_configs;
+        if (keyConfigs && Array.isArray(keyConfigs)) {
+            const merged: Record<string, { status: string; notes?: string; family?: string }> = {};
+            for (const kc of keyConfigs) {
+                if (!kc.tools) continue;
+                for (const [toolId, info] of Object.entries(kc.tools)) {
+                    if (!merged[toolId]) {
+                        merged[toolId] = info as { status: string; notes?: string; family?: string };
+                    }
+                }
+            }
+            if (Object.keys(merged).length > 0) return merged;
+        }
+        return null;
+    }, [viCoverage, intelligence?.key_configs]);
     const [showPerTool, setShowPerTool] = React.useState(false);
 
     return (

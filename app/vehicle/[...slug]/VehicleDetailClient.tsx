@@ -13,6 +13,7 @@ import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import VideoEmbed from '@/components/vehicle/VideoEmbed';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
+import KeyConfigCards from '@/components/vehicle/KeyConfigCards';
 
 import FloatingCommentTab from '@/components/FloatingCommentTab';
 import CommunityHighlight from '@/components/CommunityHighlight';
@@ -42,8 +43,11 @@ function transformProductsByType(pbt: Record<string, any>): any[] {
         oem: Array.isArray(data.oem_parts) ? data.oem_parts.filter(Boolean).map((p: string) => ({ number: p })) : [],
         type: type.toLowerCase().includes('prox') || type.toLowerCase().includes('smart') ? 'prox'
             : type.toLowerCase().includes('flip') ? 'flip'
-                : type.toLowerCase().includes('blade') ? 'blade'
-                    : 'remote',
+                : type.toLowerCase().includes('blade') || type.toLowerCase().includes('emergency') ? 'blade'
+                    : type.toLowerCase().includes('transponder') ? 'transponder'
+                        : type.toLowerCase().includes('mechanical') ? 'blade'
+                            : type.toLowerCase().includes('remote') ? 'remote'
+                                : 'remote',
     }));
 }
 
@@ -1227,7 +1231,14 @@ export default function VehicleDetailClient() {
                         />
                     </div>
 
-
+                    {/* VI Key Configurations with per-type tool coverage */}
+                    {intelligence?.key_configs && (
+                        <KeyConfigCards
+                            configs={intelligence.key_configs}
+                            pushStartTrims={intelligence.vi_push_start?.push_start_trims || pushStartInfo?.trims}
+                            nonPushStartTrims={intelligence.vi_push_start?.non_push_start_trims || pushStartInfo?.non_push_trims}
+                        />
+                    )}
 
                     {/* Related YouTube Video */}
                     <VideoEmbed make={make} model={model} year={year} />
