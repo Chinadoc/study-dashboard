@@ -162,6 +162,17 @@ interface ModerationFlag {
     reporter_email?: string | null;
 }
 
+interface PendingVerification {
+    id: string;
+    user_id: string;
+    proof_type: string;
+    proof_image_url: string;
+    created_at: number;
+    user_name?: string | null;
+    user_email?: string | null;
+    user_picture?: string | null;
+}
+
 // Helper to format bytes
 const formatBytes = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -217,6 +228,16 @@ const getActionCategory = (action: string): string => {
     return 'system';
 };
 
+const PROOF_TYPE_LABELS: Record<string, string> = {
+    nastf_vsp: 'NASTF VSP Card',
+    business_license: 'Business License',
+    aloa_card: 'ALOA Membership Card',
+    state_license: 'State Locksmith License',
+    tool_photo: 'Professional Tools',
+    insurance_cert: 'Insurance Certificate',
+    work_van: 'Work Van / Vehicle',
+};
+
 export default function DevPanelPage() {
     const { user, loading, isDeveloper } = useAuth();
     const router = useRouter();
@@ -230,10 +251,15 @@ export default function DevPanelPage() {
     const [users, setUsers] = useState<UserData[]>([]);
     const [coverageGaps, setCoverageGaps] = useState<CoverageGaps | null>(null);
     const [moderationQueue, setModerationQueue] = useState<ModerationFlag[]>([]);
+    const [verificationQueue, setVerificationQueue] = useState<PendingVerification[]>([]);
     const [resolvingFlagId, setResolvingFlagId] = useState<string | null>(null);
     const [moderationError, setModerationError] = useState<string | null>(null);
+    const [verificationError, setVerificationError] = useState<string | null>(null);
+    const [reviewingVerificationId, setReviewingVerificationId] = useState<string | null>(null);
+    const [verificationNotes, setVerificationNotes] = useState<Record<string, string>>({});
+    const [verificationRejectReasons, setVerificationRejectReasons] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps' | 'moderation'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps' | 'moderation' | 'verification'>('overview');
     const [activityFilter, setActivityFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [expandedActivityId, setExpandedActivityId] = useState<number | null>(null);
@@ -248,7 +274,7 @@ export default function DevPanelPage() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         try {
-            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes] = await Promise.allSettled([
+            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes, verificationRes] = await Promise.allSettled([
                 fetch(`${API_BASE}/api/admin/stats`, { headers }),
                 fetch(`${API_BASE}/api/admin/cloudflare`, { headers }),
                 fetch(`${API_BASE}/api/admin/activity?limit=50`, { headers }),
@@ -256,7 +282,8 @@ export default function DevPanelPage() {
                 fetch(`${API_BASE}/api/admin/intelligence/clicks`, { headers }),
                 fetch(`${API_BASE}/api/admin/users`, { headers }),
                 fetch(`${API_BASE}/api/admin/coverage-gaps${categoryFilter ? `?category=${categoryFilter}` : ''}`, { headers }),
-                fetch(`${API_BASE}/api/moderation/queue`, { headers })
+                fetch(`${API_BASE}/api/moderation/queue`, { headers }),
+                fetch(`${API_BASE}/api/verification/pending`, { headers })
             ]);
 
             if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
@@ -292,6 +319,13 @@ export default function DevPanelPage() {
                 setModerationError(null);
             } else if (moderationRes.status === 'fulfilled' && !moderationRes.value.ok) {
                 setModerationError('Failed to load moderation queue');
+            }
+            if (verificationRes.status === 'fulfilled' && verificationRes.value.ok) {
+                const data = await verificationRes.value.json();
+                setVerificationQueue(Array.isArray(data.verifications) ? data.verifications : []);
+                setVerificationError(null);
+            } else if (verificationRes.status === 'fulfilled' && !verificationRes.value.ok) {
+                setVerificationError('Failed to load verification queue');
             }
         } catch (e) {
             console.error('Failed to fetch dev data:', e);
@@ -357,6 +391,50 @@ export default function DevPanelPage() {
         }
     };
 
+    const reviewVerificationProof = async (proofId: string, action: 'approve' | 'reject') => {
+        const token = getSessionToken();
+        if (!token) {
+            setVerificationError('Missing session token');
+            return;
+        }
+
+        const rejectionReason = (verificationRejectReasons[proofId] || '').trim();
+        const adminNotes = (verificationNotes[proofId] || '').trim();
+        if (action === 'reject' && !rejectionReason) {
+            setVerificationError('Rejection reason is required to reject a proof.');
+            return;
+        }
+
+        setReviewingVerificationId(proofId);
+        setVerificationError(null);
+
+        try {
+            const response = await fetch(`${API_BASE}/api/verification/review`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    proof_id: proofId,
+                    action,
+                    rejection_reason: action === 'reject' ? rejectionReason : undefined,
+                    admin_notes: adminNotes || undefined,
+                }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || `Failed to ${action} proof`);
+            }
+
+            setVerificationQueue((prev) => prev.filter((item) => item.id !== proofId));
+        } catch (err: any) {
+            setVerificationError(err?.message || `Failed to ${action} proof`);
+        } finally {
+            setReviewingVerificationId(null);
+        }
+    };
+
     // Redirect non-developers
     useEffect(() => {
         if (!loading && (!user || !isDeveloper)) {
@@ -412,7 +490,7 @@ export default function DevPanelPage() {
 
             {/* Tab Navigation */}
             <div className="mb-6 flex gap-2 border-b border-eurokeys-border pb-2">
-                {(['overview', 'users', 'activity', 'gaps', 'moderation'] as const).map(tab => (
+                {(['overview', 'users', 'activity', 'gaps', 'verification', 'moderation'] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -425,6 +503,7 @@ export default function DevPanelPage() {
                         {tab === 'users' && '👥 Users'}
                         {tab === 'activity' && '📋 Activity'}
                         {tab === 'gaps' && '🔍 Coverage Gaps'}
+                        {tab === 'verification' && `🪪 Verification (${verificationQueue.length})`}
                         {tab === 'moderation' && `🛡️ Moderation (${moderationQueue.length})`}
                     </button>
                 ))}
@@ -1139,6 +1218,108 @@ export default function DevPanelPage() {
                             <p className="text-sm text-slate-500">All vehicles have FCC data</p>
                         )}
                     </div>
+                </div>
+            )}
+
+            {activeTab === 'verification' && (
+                <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                    <div className="mb-4 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-white">Locksmith Verification Review Queue</h2>
+                        <button
+                            onClick={fetchAllData}
+                            disabled={isLoading}
+                            className="rounded-lg border border-eurokeys-border bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 disabled:opacity-50"
+                        >
+                            Refresh Queue
+                        </button>
+                    </div>
+
+                    <p className="mb-4 text-sm text-slate-400">
+                        Review pending proof submissions including NASTF, licenses, and membership cards.
+                    </p>
+
+                    {verificationError && (
+                        <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+                            {verificationError}
+                        </div>
+                    )}
+
+                    {verificationQueue.length === 0 ? (
+                        <div className="rounded-lg border border-eurokeys-border bg-slate-800/40 px-4 py-5 text-sm text-slate-400">
+                            No pending verification proofs.
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {verificationQueue.map((proof) => {
+                                const isReviewing = reviewingVerificationId === proof.id;
+                                return (
+                                    <div key={proof.id} className="rounded-xl border border-eurokeys-border bg-slate-900/60 p-4">
+                                        <div className="mb-3 flex items-start justify-between gap-3">
+                                            <div>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-semibold text-blue-300">
+                                                        {PROOF_TYPE_LABELS[proof.proof_type] || proof.proof_type}
+                                                    </span>
+                                                    <span className="text-xs text-slate-500">
+                                                        {timeAgo(proof.created_at)}
+                                                    </span>
+                                                </div>
+                                                <p className="mt-1 text-sm text-slate-300">
+                                                    {proof.user_name || 'Unknown User'} {proof.user_email ? `(${proof.user_email})` : ''}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <a
+                                            href={proof.proof_image_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="mb-3 block w-fit"
+                                        >
+                                            <img
+                                                src={proof.proof_image_url}
+                                                alt={`${PROOF_TYPE_LABELS[proof.proof_type] || proof.proof_type} proof`}
+                                                className="max-h-64 rounded-lg border border-slate-700 object-contain"
+                                            />
+                                        </a>
+
+                                        <textarea
+                                            className="mb-2 w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500"
+                                            placeholder="Admin notes (optional)"
+                                            value={verificationNotes[proof.id] || ''}
+                                            onChange={(e) => setVerificationNotes((prev) => ({ ...prev, [proof.id]: e.target.value }))}
+                                            disabled={isReviewing}
+                                        />
+                                        <input
+                                            type="text"
+                                            className="mb-3 w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500"
+                                            placeholder="Rejection reason (required when rejecting)"
+                                            value={verificationRejectReasons[proof.id] || ''}
+                                            onChange={(e) => setVerificationRejectReasons((prev) => ({ ...prev, [proof.id]: e.target.value }))}
+                                            disabled={isReviewing}
+                                        />
+
+                                        <div className="flex flex-wrap gap-2">
+                                            <button
+                                                onClick={() => void reviewVerificationProof(proof.id, 'approve')}
+                                                disabled={isReviewing}
+                                                className="rounded-lg border border-green-500/40 bg-green-500/15 px-3 py-1.5 text-xs font-medium text-green-200 hover:bg-green-500/25 disabled:opacity-50"
+                                            >
+                                                {isReviewing ? 'Working...' : 'Approve'}
+                                            </button>
+                                            <button
+                                                onClick={() => void reviewVerificationProof(proof.id, 'reject')}
+                                                disabled={isReviewing}
+                                                className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/25 disabled:opacity-50"
+                                            >
+                                                {isReviewing ? 'Working...' : 'Reject'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
 
