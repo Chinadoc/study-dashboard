@@ -14,6 +14,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-sam
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8MB before compression
 const MAX_EMBEDDED_BYTES = 700 * 1024; // 700KB after compression
+const PAGE_SIZE = 20;
 
 interface RecentComment {
     id: string;
@@ -52,6 +53,20 @@ interface Mention {
     mentioner_picture: string | null;
     created_at: number;
     is_read: boolean;
+}
+
+interface NotificationItem {
+    id: string;
+    type: string;
+    title?: string | null;
+    body?: string | null;
+    vehicle_key?: string | null;
+    comment_id?: string | null;
+    is_read: boolean | number;
+    created_at: number;
+    actor_name?: string | null;
+    actor_picture?: string | null;
+    metadata?: string | null;
 }
 
 interface ParsedVehicleKey {
@@ -132,7 +147,20 @@ function toPreviewContent(content: string, maxLength: number): ContentPreview {
     return { text, imageUrl: firstImageUrl };
 }
 
-async function compressImageToDataUrl(file: File): Promise<string> {
+function dataUrlToBlob(dataUrl: string): Blob {
+    const [meta, b64] = dataUrl.split(',');
+    if (!meta || !b64) throw new Error('Invalid image encoding.');
+    const mimeMatch = meta.match(/data:(.*?);base64/);
+    const mime = mimeMatch?.[1] || 'image/jpeg';
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return new Blob([bytes], { type: mime });
+}
+
+async function compressImageToBlob(file: File): Promise<Blob> {
     if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
         throw new Error('Only JPEG, PNG, or WEBP images are supported.');
     }
@@ -172,30 +200,40 @@ async function compressImageToDataUrl(file: File): Promise<string> {
             throw new Error('Compressed image is still too large. Please use a smaller image.');
         }
 
-        return dataUrl;
+        const blob = dataUrlToBlob(dataUrl);
+        if (blob.size > MAX_EMBEDDED_BYTES) {
+            throw new Error('Compressed image is still too large. Please use a smaller image.');
+        }
+        return blob;
     } finally {
         URL.revokeObjectURL(objectUrl);
     }
 }
 
-async function buildCommentContentWithImage(text: string, imageFile: File | null): Promise<string> {
+async function buildCommentContentWithImage(
+    text: string,
+    imageFile: File | null,
+    uploadMedia: (file: File) => Promise<string>
+): Promise<string> {
     const trimmedText = text.trim();
     if (!imageFile) return trimmedText;
-    const dataUrl = await compressImageToDataUrl(imageFile);
-    if (!trimmedText) return `![Attachment](${dataUrl})`;
-    return `${trimmedText}\n\n![Attachment](${dataUrl})`;
+    const mediaUrl = await uploadMedia(imageFile);
+    if (!trimmedText) return `![Attachment](${mediaUrl})`;
+    return `${trimmedText}\n\n![Attachment](${mediaUrl})`;
 }
 
 export default function CommunityPage() {
     const { isAuthenticated, login, user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'trending' | 'recent' | 'verified' | 'mentions' | 'leaderboard'>('trending');
+    const [activeTab, setActiveTab] = useState<'trending' | 'recent' | 'verified' | 'inbox' | 'mentions' | 'leaderboard'>('trending');
     const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
     const [verifiedPearls, setVerifiedPearls] = useState<RecentComment[]>([]);
     const [trendingComments, setTrendingComments] = useState<RecentComment[]>([]);
     const [mentions, setMentions] = useState<Mention[]>([]);
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [notificationUnreadCount, setNotificationUnreadCount] = useState(0);
     const [engagementError, setEngagementError] = useState<string | null>(null);
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [commentingOn, setCommentingOn] = useState<string | null>(null);
@@ -211,25 +249,71 @@ export default function CommunityPage() {
     const [localVotes, setLocalVotes] = useState<Record<string, number>>({});
     const [optimisticReplies, setOptimisticReplies] = useState<Record<string, OptimisticPost[]>>({});
     const [optimisticComments, setOptimisticComments] = useState<Record<string, OptimisticPost[]>>({});
+    const [hasMoreTrending, setHasMoreTrending] = useState(false);
+    const [hasMoreRecent, setHasMoreRecent] = useState(false);
+    const [hasMoreVerified, setHasMoreVerified] = useState(false);
+    const [hasMoreInbox, setHasMoreInbox] = useState(false);
+    const [loadingMoreTab, setLoadingMoreTab] = useState<'trending' | 'recent' | 'verified' | 'inbox' | null>(null);
 
     const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
+    const mergeById = <T extends { id: string }>(existing: T[], incoming: T[]): T[] => {
+        const seen = new Set<string>();
+        const merged: T[] = [];
+        for (const item of [...existing, ...incoming]) {
+            if (!item?.id || seen.has(item.id)) continue;
+            seen.add(item.id);
+            merged.push(item);
+        }
+        return merged;
+    };
+
+    const uploadCommentMedia = useCallback(async (file: File): Promise<string> => {
+        const compressedBlob = await compressImageToBlob(file);
+        const uploadFile = new File([compressedBlob], `comment_${Date.now()}.jpg`, { type: compressedBlob.type || 'image/jpeg' });
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+
+        const response = await fetch(`${API_URL}/api/vehicle-comments/upload-media`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${getSessionToken()}`
+            },
+            body: formData,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.media_url) {
+            throw new Error(data.error || 'Failed to upload image');
+        }
+        return String(data.media_url);
+    }, []);
 
     const fetchData = useCallback(async (silent = false) => {
         if (!silent) setLoading(true);
         try {
+            const authHeaders = isAuthenticated ? { 'Authorization': `Bearer ${getSessionToken()}` } : undefined;
+
             // Fetch trending comments (highest score in last 7 days)
-            const trendingRes = await fetch(`${API_URL}/api/community/trending`);
+            const trendingRes = await fetch(`${API_URL}/api/community/trending?limit=${PAGE_SIZE}&offset=0`);
             if (trendingRes.ok) {
                 const data = await trendingRes.json();
                 setTrendingComments(rankTrendingComments(data.trending || []));
+                setHasMoreTrending(Boolean(data?.pagination?.has_more));
             }
 
             // Fetch recent comments across all vehicles
-            const recentRes = await fetch(`${API_URL}/api/community/recent`);
+            const recentRes = await fetch(`${API_URL}/api/community/recent?limit=${PAGE_SIZE}&offset=0`);
             if (recentRes.ok) {
                 const data = await recentRes.json();
                 setRecentComments(data.comments || []);
-                setVerifiedPearls((data.comments || []).filter((c: RecentComment) => c.is_verified));
+                setHasMoreRecent(Boolean(data?.pagination?.has_more));
+            }
+
+            // Fetch verified pearls
+            const verifiedRes = await fetch(`${API_URL}/api/community/verified?limit=${PAGE_SIZE}&offset=0`);
+            if (verifiedRes.ok) {
+                const data = await verifiedRes.json();
+                setVerifiedPearls(data.verified || []);
+                setHasMoreVerified(Boolean(data?.pagination?.has_more));
             }
 
             // Fetch leaderboard
@@ -239,18 +323,29 @@ export default function CommunityPage() {
                 setLeaderboard(data.leaderboard || []);
             }
 
-            // Fetch mentions if authenticated
-            if (isAuthenticated) {
-                const mentionsRes = await fetch(`${API_URL}/api/user/mentions`, {
-                    headers: {
-                        'Authorization': `Bearer ${getSessionToken()}`
-                    }
-                });
+            if (isAuthenticated && authHeaders) {
+                // Fetch mentions
+                const mentionsRes = await fetch(`${API_URL}/api/user/mentions`, { headers: authHeaders });
                 if (mentionsRes.ok) {
                     const data = await mentionsRes.json();
                     setMentions(data.mentions || []);
                     setUnreadCount(data.unread_count || 0);
                 }
+
+                // Fetch inbox notifications
+                const notificationsRes = await fetch(`${API_URL}/api/notifications?limit=${PAGE_SIZE}&offset=0`, { headers: authHeaders });
+                if (notificationsRes.ok) {
+                    const data = await notificationsRes.json();
+                    setNotifications(data.notifications || []);
+                    setNotificationUnreadCount(data.unread_count || 0);
+                    setHasMoreInbox(Boolean(data?.pagination?.has_more));
+                }
+            } else {
+                setMentions([]);
+                setUnreadCount(0);
+                setNotifications([]);
+                setNotificationUnreadCount(0);
+                setHasMoreInbox(false);
             }
         } catch (err) {
             console.error('Failed to fetch community data:', err);
@@ -594,7 +689,7 @@ export default function CommunityPage() {
         const optimisticReplyId = `optimistic-reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
         let content = '';
         try {
-            content = await buildCommentContentWithImage(replyText, replyImageFile);
+            content = await buildCommentContentWithImage(replyText, replyImageFile, uploadCommentMedia);
             setOptimisticReplies((prev) => ({
                 ...prev,
                 [comment.id]: [
@@ -669,7 +764,7 @@ export default function CommunityPage() {
         const optimisticCardCommentId = `optimistic-comment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
         const optimisticRecentId = `optimistic-recent-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
         try {
-            const content = await buildCommentContentWithImage(draftText, draftImage);
+            const content = await buildCommentContentWithImage(draftText, draftImage, uploadCommentMedia);
 
             setOptimisticComments((prev) => ({
                 ...prev,
@@ -921,6 +1016,94 @@ export default function CommunityPage() {
         );
     };
 
+    const loadMoreTrending = async () => {
+        if (loadingMoreTab || !hasMoreTrending) return;
+        setLoadingMoreTab('trending');
+        try {
+            const response = await fetch(`${API_URL}/api/community/trending?limit=${PAGE_SIZE}&offset=${trendingComments.length}`);
+            if (!response.ok) return;
+            const data = await response.json();
+            setTrendingComments((prev) => rankTrendingComments(mergeById(prev, data.trending || [])));
+            setHasMoreTrending(Boolean(data?.pagination?.has_more));
+        } catch (err) {
+            console.error('Failed to load more trending comments:', err);
+        } finally {
+            setLoadingMoreTab(null);
+        }
+    };
+
+    const loadMoreRecent = async () => {
+        if (loadingMoreTab || !hasMoreRecent) return;
+        setLoadingMoreTab('recent');
+        try {
+            const response = await fetch(`${API_URL}/api/community/recent?limit=${PAGE_SIZE}&offset=${recentComments.length}`);
+            if (!response.ok) return;
+            const data = await response.json();
+            setRecentComments((prev) => mergeById(prev, data.comments || []));
+            setHasMoreRecent(Boolean(data?.pagination?.has_more));
+        } catch (err) {
+            console.error('Failed to load more recent comments:', err);
+        } finally {
+            setLoadingMoreTab(null);
+        }
+    };
+
+    const loadMoreVerified = async () => {
+        if (loadingMoreTab || !hasMoreVerified) return;
+        setLoadingMoreTab('verified');
+        try {
+            const response = await fetch(`${API_URL}/api/community/verified?limit=${PAGE_SIZE}&offset=${verifiedPearls.length}`);
+            if (!response.ok) return;
+            const data = await response.json();
+            setVerifiedPearls((prev) => mergeById(prev, data.verified || []));
+            setHasMoreVerified(Boolean(data?.pagination?.has_more));
+        } catch (err) {
+            console.error('Failed to load more verified pearls:', err);
+        } finally {
+            setLoadingMoreTab(null);
+        }
+    };
+
+    const loadMoreInbox = async () => {
+        if (!isAuthenticated || loadingMoreTab || !hasMoreInbox) return;
+        setLoadingMoreTab('inbox');
+        try {
+            const response = await fetch(`${API_URL}/api/notifications?limit=${PAGE_SIZE}&offset=${notifications.length}`, {
+                headers: {
+                    'Authorization': `Bearer ${getSessionToken()}`
+                }
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+            setNotifications((prev) => mergeById(prev, data.notifications || []));
+            setHasMoreInbox(Boolean(data?.pagination?.has_more));
+        } catch (err) {
+            console.error('Failed to load more notifications:', err);
+        } finally {
+            setLoadingMoreTab(null);
+        }
+    };
+
+    const markNotificationsRead = async () => {
+        if (!isAuthenticated) return;
+        try {
+            const response = await fetch(`${API_URL}/api/notifications/read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getSessionToken()}`
+                },
+                body: JSON.stringify({})
+            });
+            if (!response.ok) return;
+            const data = await response.json().catch(() => ({}));
+            setNotificationUnreadCount(Number(data?.unread_count || 0));
+            setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+        } catch (err) {
+            console.error('Failed to mark notifications read:', err);
+        }
+    };
+
     const markMentionsRead = async () => {
         try {
             await fetch(`${API_URL}/api/user/mentions/read`, {
@@ -931,7 +1114,7 @@ export default function CommunityPage() {
                 }
             });
             setUnreadCount(0);
-            setMentions(mentions.map(m => ({ ...m, is_read: true })));
+            setMentions((prev) => prev.map((m) => ({ ...m, is_read: true })));
         } catch (err) {
             console.error('Failed to mark mentions read:', err);
         }
@@ -971,8 +1154,27 @@ export default function CommunityPage() {
                 </button>
                 {isAuthenticated && (
                     <button
+                        className={`${styles.tab} ${activeTab === 'inbox' ? styles.active : ''}`}
+                        onClick={() => {
+                            setActiveTab('inbox');
+                            if (notificationUnreadCount > 0) {
+                                void markNotificationsRead();
+                            }
+                        }}
+                    >
+                        🔔 Inbox
+                        {notificationUnreadCount > 0 && <span className={styles.badge}>{notificationUnreadCount}</span>}
+                    </button>
+                )}
+                {isAuthenticated && (
+                    <button
                         className={`${styles.tab} ${activeTab === 'mentions' ? styles.active : ''}`}
-                        onClick={() => { setActiveTab('mentions'); if (unreadCount > 0) markMentionsRead(); }}
+                        onClick={() => {
+                            setActiveTab('mentions');
+                            if (unreadCount > 0) {
+                                void markMentionsRead();
+                            }
+                        }}
                     >
                         @ Mentions
                         {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
@@ -1087,6 +1289,18 @@ export default function CommunityPage() {
                                         );
                                     })
                                 )}
+                                {hasMoreTrending && (
+                                    <div className={styles.loadMoreWrap}>
+                                        <button
+                                            type="button"
+                                            className={styles.loadMoreBtn}
+                                            onClick={() => void loadMoreTrending()}
+                                            disabled={loadingMoreTab === 'trending'}
+                                        >
+                                            {loadingMoreTab === 'trending' ? 'Loading...' : 'Load More Trending'}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -1181,6 +1395,18 @@ export default function CommunityPage() {
                                         );
                                     })
                                 )}
+                                {hasMoreRecent && (
+                                    <div className={styles.loadMoreWrap}>
+                                        <button
+                                            type="button"
+                                            className={styles.loadMoreBtn}
+                                            onClick={() => void loadMoreRecent()}
+                                            disabled={loadingMoreTab === 'recent'}
+                                        >
+                                            {loadingMoreTab === 'recent' ? 'Loading...' : 'Load More Recent'}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -1261,6 +1487,68 @@ export default function CommunityPage() {
                                             </div>
                                         );
                                     })
+                                )}
+                                {hasMoreVerified && (
+                                    <div className={styles.loadMoreWrap}>
+                                        <button
+                                            type="button"
+                                            className={styles.loadMoreBtn}
+                                            onClick={() => void loadMoreVerified()}
+                                            disabled={loadingMoreTab === 'verified'}
+                                        >
+                                            {loadingMoreTab === 'verified' ? 'Loading...' : 'Load More Verified'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Inbox Tab */}
+                        {activeTab === 'inbox' && (
+                            <div className={styles.notificationList}>
+                                {!isAuthenticated ? (
+                                    <div className={styles.signInPrompt}>Sign in to see your community inbox</div>
+                                ) : notifications.length === 0 ? (
+                                    <div className={styles.empty}>No notifications yet. Activity will show up here.</div>
+                                ) : (
+                                    notifications.map((item) => {
+                                        const vehicle = parseVehicleKey(String(item.vehicle_key || ''));
+                                        const targetHref = item.comment_id
+                                            ? `${vehicle.detailHref}#comment-${encodeURIComponent(String(item.comment_id))}`
+                                            : vehicle.detailHref;
+                                        const headline = item.title || item.type || 'Notification';
+                                        const body = item.body || 'You have a community update.';
+                                        return (
+                                            <div key={item.id} className={`${styles.notificationCard} ${!item.is_read ? styles.unread : ''}`}>
+                                                <div className={styles.notificationHeader}>
+                                                    {item.actor_picture && (
+                                                        <img src={item.actor_picture} alt="" className={styles.avatar} />
+                                                    )}
+                                                    <span className={styles.mentioner}>{item.actor_name || 'Community'}</span>
+                                                    <span className={styles.notificationType}>{headline}</span>
+                                                </div>
+                                                <p className={styles.notificationBody}>{body}</p>
+                                                <div className={styles.mentionFooter}>
+                                                    <span className={styles.mentionTime}>{formatTime(item.created_at)}</span>
+                                                    <Link href={targetHref} className={styles.viewLink}>
+                                                        Open →
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                                {hasMoreInbox && (
+                                    <div className={styles.loadMoreWrap}>
+                                        <button
+                                            type="button"
+                                            className={styles.loadMoreBtn}
+                                            onClick={() => void loadMoreInbox()}
+                                            disabled={loadingMoreTab === 'inbox'}
+                                        >
+                                            {loadingMoreTab === 'inbox' ? 'Loading...' : 'Load More Inbox'}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         )}

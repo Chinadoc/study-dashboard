@@ -191,6 +191,146 @@ function isDeveloper(email: string, devEmails: string): boolean {
   return allowed.includes((email || '').toLowerCase());
 }
 
+async function ensureCommunityRateLimitTable(env: Env): Promise<void> {
+  await env.LOCKSMITH_DB.prepare(`
+    CREATE TABLE IF NOT EXISTS community_rate_limits (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      action TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+  `).run();
+}
+
+async function checkAndRecordCommunityRateLimit(
+  env: Env,
+  userId: string,
+  action: string,
+  limit: number,
+  windowMs: number
+): Promise<boolean> {
+  await ensureCommunityRateLimitTable(env);
+  const now = Date.now();
+  const windowStart = now - windowMs;
+  const countResult = await env.LOCKSMITH_DB.prepare(`
+    SELECT COUNT(*) as count
+    FROM community_rate_limits
+    WHERE user_id = ? AND action = ? AND created_at > ?
+  `).bind(userId, action, windowStart).first<{ count: number }>();
+
+  if ((countResult?.count || 0) >= limit) {
+    return false;
+  }
+
+  const id = `rl_${now}_${Math.random().toString(36).slice(2, 9)}`;
+  await env.LOCKSMITH_DB.prepare(`
+    INSERT INTO community_rate_limits (id, user_id, action, created_at)
+    VALUES (?, ?, ?, ?)
+  `).bind(id, userId, action, now).run();
+
+  return true;
+}
+
+async function ensureReviewerRolesTable(env: Env): Promise<void> {
+  await env.LOCKSMITH_DB.prepare(`
+    CREATE TABLE IF NOT EXISTS reviewer_roles (
+      user_id TEXT PRIMARY KEY,
+      can_review_verification INTEGER DEFAULT 0,
+      can_review_nastf INTEGER DEFAULT 0,
+      can_moderate_community INTEGER DEFAULT 0,
+      created_by TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+}
+
+async function getReviewerCapabilities(env: Env, userId: string): Promise<{ verification: boolean; nastf: boolean; moderation: boolean }> {
+  await ensureReviewerRolesTable(env);
+  const row = await env.LOCKSMITH_DB.prepare(`
+    SELECT can_review_verification, can_review_nastf, can_moderate_community
+    FROM reviewer_roles
+    WHERE user_id = ?
+  `).bind(userId).first<{ can_review_verification?: number; can_review_nastf?: number; can_moderate_community?: number }>();
+
+  return {
+    verification: (row?.can_review_verification || 0) === 1,
+    nastf: (row?.can_review_nastf || 0) === 1,
+    moderation: (row?.can_moderate_community || 0) === 1,
+  };
+}
+
+async function ensureNotificationTables(env: Env): Promise<void> {
+  await env.LOCKSMITH_DB.prepare(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      actor_id TEXT,
+      type TEXT NOT NULL,
+      title TEXT,
+      body TEXT,
+      vehicle_key TEXT,
+      comment_id TEXT,
+      is_read INTEGER DEFAULT 0,
+      created_at INTEGER NOT NULL,
+      metadata TEXT
+    )
+  `).run();
+
+  await env.LOCKSMITH_DB.prepare(`
+    CREATE TABLE IF NOT EXISTS comment_mentions (
+      id TEXT PRIMARY KEY,
+      comment_id TEXT NOT NULL,
+      mentioner_id TEXT NOT NULL,
+      mentioned_user_id TEXT NOT NULL,
+      is_read INTEGER DEFAULT 0,
+      created_at INTEGER NOT NULL
+    )
+  `).run();
+}
+
+async function ensureCommunityEventsTable(env: Env): Promise<void> {
+  await env.LOCKSMITH_DB.prepare(`
+    CREATE TABLE IF NOT EXISTS community_events (
+      id TEXT PRIMARY KEY,
+      event_type TEXT NOT NULL,
+      user_id TEXT,
+      vehicle_key TEXT,
+      comment_id TEXT,
+      metadata TEXT,
+      created_at INTEGER NOT NULL
+    )
+  `).run();
+}
+
+async function recordCommunityEvent(
+  env: Env,
+  eventType: string,
+  userId?: string | null,
+  vehicleKey?: string | null,
+  commentId?: string | null,
+  metadata?: unknown
+): Promise<void> {
+  try {
+    await ensureCommunityEventsTable(env);
+    const id = `evt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    await env.LOCKSMITH_DB.prepare(`
+      INSERT INTO community_events (id, event_type, user_id, vehicle_key, comment_id, metadata, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      id,
+      eventType,
+      userId || null,
+      vehicleKey || null,
+      commentId || null,
+      metadata ? JSON.stringify(metadata) : null,
+      Date.now()
+    ).run();
+  } catch {
+    // Non-critical analytics logging.
+  }
+}
+
 // Extract session token from Authorization header (Bearer) or Cookie
 // This allows cross-domain auth when cookies can't be shared
 function getSessionToken(request: Request): string | null {
@@ -5314,6 +5454,10 @@ Guidelines:
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
+          const uploadAllowed = await checkAndRecordCommunityRateLimit(env, userId, 'upload_media', 40, 60 * 60 * 1000);
+          if (!uploadAllowed) {
+            return corsResponse(request, JSON.stringify({ error: "Upload limit reached. Please try again later." }), 429);
+          }
           const formData = await request.formData();
           const fileEntry = formData.get('file');
 
@@ -5347,6 +5491,7 @@ Guidelines:
           });
 
           const imageUrl = `https://pub-6f55decd53fc486a97f4a7c74e53f6c4.r2.dev/${mediaKey}`;
+          await recordCommunityEvent(env, 'media_upload', userId, null, null, { media_key: mediaKey });
           return corsResponse(request, JSON.stringify({ success: true, media_url: imageUrl, media_key: mediaKey }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -5360,6 +5505,8 @@ Guidelines:
           const vehicleKey = url.searchParams.get('vehicle_key');
           const make = url.searchParams.get('make');
           const model = url.searchParams.get('model');
+          const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '30', 10), 1), 100);
+          const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
 
           if (!vehicleKey && (!make || !model)) {
             return corsResponse(request, JSON.stringify({ error: "Missing vehicle_key or make/model" }), 400);
@@ -5379,22 +5526,68 @@ Guidelines:
 
           // Build query with NASTF filter support
           let whereConditions = 'vc.vehicle_key = ?';
+          const whereParams: any[] = [bindValue];
           if (nastfOnly) {
             whereConditions += ' AND COALESCE(u.nastf_verified, 0) = 1';
           }
+          const topLevelWhere = `${whereConditions} AND vc.parent_id IS NULL`;
 
+          const topLevelCount = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM vehicle_comments vc
+            LEFT JOIN users u ON vc.user_id = u.id
+            WHERE ${topLevelWhere}
+          `).bind(...whereParams).first<{ count: number }>();
+
+          const topLevelRows = await env.LOCKSMITH_DB.prepare(`
+            SELECT vc.id
+            FROM vehicle_comments vc
+            LEFT JOIN users u ON vc.user_id = u.id
+            WHERE ${topLevelWhere}
+            ORDER BY (vc.upvotes - COALESCE(vc.downvotes, 0)) DESC, vc.created_at DESC
+            LIMIT ? OFFSET ?
+          `).bind(...whereParams, limit, offset).all<{ id: string }>();
+
+          const topLevelIds = (topLevelRows.results || []).map((row: any) => String(row.id));
+          const totalTopLevel = Number(topLevelCount?.count || 0);
+
+          if (topLevelIds.length === 0) {
+            return corsResponse(request, JSON.stringify({
+              comments: [],
+              vehicle_key: bindValue,
+              comment_count: 0,
+              pagination: {
+                limit,
+                offset,
+                total_top_level: totalTopLevel,
+                returned_top_level: 0,
+                has_more: offset + 0 < totalTopLevel,
+                next_offset: offset
+              }
+            }));
+          }
+
+          const placeholders = topLevelIds.map(() => '?').join(',');
           const result = await env.LOCKSMITH_DB.prepare(`
-            SELECT vc.id, vc.parent_id, vc.user_id, vc.user_name, vc.user_picture, vc.content, vc.job_type, vc.tool_used, 
-                   vc.upvotes, COALESCE(vc.downvotes, 0) as downvotes, vc.created_at, vc.updated_at, 
+            WITH RECURSIVE thread_comments(id) AS (
+              SELECT id FROM vehicle_comments WHERE id IN (${placeholders})
+              UNION ALL
+              SELECT vc.id
+              FROM vehicle_comments vc
+              JOIN thread_comments tc ON vc.parent_id = tc.id
+            )
+            SELECT vc.id, vc.parent_id, vc.user_id, vc.user_name, vc.user_picture, vc.content, vc.job_type, vc.tool_used,
+                   vc.upvotes, COALESCE(vc.downvotes, 0) as downvotes, vc.created_at, vc.updated_at,
                    COALESCE(vc.is_deleted, 0) as is_deleted,
                    COALESCE(u.nastf_verified, 0) as nastf_verified,
                    ur.rank_level
             FROM vehicle_comments vc
             LEFT JOIN users u ON vc.user_id = u.id
             LEFT JOIN user_reputation ur ON vc.user_id = ur.user_id
-            WHERE ${whereConditions}
+            WHERE vc.id IN (SELECT id FROM thread_comments)
+            ${nastfOnly ? 'AND COALESCE(u.nastf_verified, 0) = 1' : ''}
             ORDER BY vc.created_at ASC
-          `).bind(bindValue).all();
+          `).bind(...topLevelIds).all();
 
           const comments = result.results || [];
 
@@ -5433,17 +5626,28 @@ Guidelines:
             if (c.parent_id && commentMap[c.parent_id]) {
               commentMap[c.parent_id].replies.push(commentMap[c.id]);
             } else {
-              topLevel.push(commentMap[c.id]);
+              // Keep top-level order from paginated query.
+              if (topLevelIds.includes(c.id)) {
+                topLevel.push(commentMap[c.id]);
+              }
             }
           }
 
-          // Sort top-level by score (hot), then by date
-          topLevel.sort((a, b) => b.score - a.score || b.created_at - a.created_at);
+          const topLevelOrder = new Map(topLevelIds.map((id, index) => [id, index]));
+          topLevel.sort((a, b) => (topLevelOrder.get(a.id) || 0) - (topLevelOrder.get(b.id) || 0));
 
           return corsResponse(request, JSON.stringify({
             comments: topLevel,
             vehicle_key: bindValue,
-            comment_count: comments.length
+            comment_count: comments.length,
+            pagination: {
+              limit,
+              offset,
+              total_top_level: totalTopLevel,
+              returned_top_level: topLevel.length,
+              has_more: (offset + topLevel.length) < totalTopLevel,
+              next_offset: offset + topLevel.length
+            }
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -5477,6 +5681,12 @@ Guidelines:
             return corsResponse(request, JSON.stringify({ error: "Comment too long (max 2000 chars)" }), 400);
           }
 
+          const rateAction = parent_id ? 'reply_comment' : 'post_comment';
+          const postAllowed = await checkAndRecordCommunityRateLimit(env, userId, rateAction, 15, 60 * 1000);
+          if (!postAllowed) {
+            return corsResponse(request, JSON.stringify({ error: "Posting too fast. Please wait a minute and try again." }), 429);
+          }
+
           // Generate comment ID
           const commentId = `cmt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -5491,6 +5701,87 @@ Guidelines:
               "INSERT INTO user_activity (user_id, action, details, created_at) VALUES (?, ?, ?, ?)"
             ).bind(userId, parent_id ? 'reply_comment' : 'add_comment', JSON.stringify({ vehicle_key: effectiveKey, comment_id: commentId }), Date.now()).run();
           } catch (e) { /* non-critical */ }
+
+          // Notifications + mentions (non-blocking)
+          try {
+            await ensureNotificationTables(env);
+
+            if (parent_id) {
+              const parentComment = await env.LOCKSMITH_DB.prepare(
+                `SELECT user_id, vehicle_key FROM vehicle_comments WHERE id = ?`
+              ).bind(parent_id).first<any>();
+              if (parentComment?.user_id && parentComment.user_id !== userId) {
+                const notificationId = `notif_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+                await env.LOCKSMITH_DB.prepare(`
+                  INSERT INTO notifications (id, user_id, actor_id, type, title, body, vehicle_key, comment_id, is_read, created_at, metadata)
+                  VALUES (?, ?, ?, 'reply', ?, ?, ?, ?, 0, ?, ?)
+                `).bind(
+                  notificationId,
+                  parentComment.user_id,
+                  userId,
+                  'New reply',
+                  `${userName} replied to your comment`,
+                  parentComment.vehicle_key || effectiveKey,
+                  commentId,
+                  Date.now(),
+                  JSON.stringify({ parent_comment_id: parent_id })
+                ).run();
+              }
+            }
+
+            const mentionPattern = /@([a-zA-Z0-9_-]{2,40})/g;
+            const mentionHandles = Array.from(new Set(
+              [...content.matchAll(mentionPattern)]
+                .map((match) => String(match[1] || '').trim())
+                .filter(Boolean)
+            ));
+
+            for (const handle of mentionHandles) {
+              const targetUser = await env.LOCKSMITH_DB.prepare(`
+                SELECT id, name
+                FROM users
+                WHERE LOWER(name) = LOWER(?)
+                   OR LOWER(REPLACE(name, ' ', '')) = LOWER(?)
+                   OR LOWER(SUBSTR(email, 1, INSTR(email, '@') - 1)) = LOWER(?)
+                LIMIT 1
+              `).bind(handle, handle, handle).first<any>();
+
+              if (!targetUser?.id || targetUser.id === userId) continue;
+
+              const mentionId = `mention_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+              await env.LOCKSMITH_DB.prepare(`
+                INSERT INTO comment_mentions (id, comment_id, mentioner_id, mentioned_user_id, is_read, created_at)
+                VALUES (?, ?, ?, ?, 0, ?)
+              `).bind(mentionId, commentId, userId, targetUser.id, Date.now()).run();
+
+              const notificationId = `notif_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+              await env.LOCKSMITH_DB.prepare(`
+                INSERT INTO notifications (id, user_id, actor_id, type, title, body, vehicle_key, comment_id, is_read, created_at, metadata)
+                VALUES (?, ?, ?, 'mention', ?, ?, ?, ?, 0, ?, ?)
+              `).bind(
+                notificationId,
+                targetUser.id,
+                userId,
+                'Mention',
+                `${userName} mentioned you`,
+                effectiveKey,
+                commentId,
+                Date.now(),
+                JSON.stringify({ handle })
+              ).run();
+            }
+          } catch (e) {
+            // Non-critical: comment still succeeds if notifications/mentions fail.
+          }
+
+          await recordCommunityEvent(
+            env,
+            parent_id ? 'reply_create' : 'comment_create',
+            userId,
+            effectiveKey,
+            commentId,
+            { has_image: String(content).includes('![') }
+          );
 
           return corsResponse(request, JSON.stringify({
             success: true,
@@ -5528,14 +5819,18 @@ Guidelines:
 
           const body: any = await request.json();
           const { comment_id, vote } = body;  // vote: 1 (upvote), -1 (downvote), 0 (remove vote)
+          const normalizedVote = Number(vote);
 
           if (!comment_id || vote === undefined) {
             return corsResponse(request, JSON.stringify({ error: "Missing comment_id or vote" }), 400);
           }
+          if (![1, 0, -1].includes(normalizedVote)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid vote. Use 1, -1, or 0." }), 400);
+          }
 
           // Verify comment exists and is not deleted
           const comment = await env.LOCKSMITH_DB.prepare(
-            `SELECT id, user_id, is_deleted FROM vehicle_comments WHERE id = ?`
+            `SELECT id, user_id, vehicle_key, is_deleted FROM vehicle_comments WHERE id = ?`
           ).bind(comment_id).first<any>();
 
           if (!comment) {
@@ -5557,8 +5852,9 @@ Guidelines:
           ).bind(userId, comment_id).first<any>();
 
           const oldVote = existingVote?.vote || 0;
+          let resultingVote = oldVote;
 
-          if (vote === 0) {
+          if (normalizedVote === 0) {
             // Remove vote
             if (oldVote !== 0) {
               await env.LOCKSMITH_DB.prepare(`DELETE FROM comment_votes WHERE user_id = ? AND comment_id = ?`).bind(userId, comment_id).run();
@@ -5569,43 +5865,85 @@ Guidelines:
                 await env.LOCKSMITH_DB.prepare(`UPDATE vehicle_comments SET downvotes = COALESCE(downvotes, 0) - 1 WHERE id = ?`).bind(comment_id).run();
               }
             }
+            resultingVote = 0;
           } else {
             // Add or change vote
             if (oldVote === 0) {
               // New vote
               await env.LOCKSMITH_DB.prepare(
                 `INSERT INTO comment_votes (user_id, comment_id, vote, created_at) VALUES (?, ?, ?, ?)`
-              ).bind(userId, comment_id, vote, Date.now()).run();
-              if (vote === 1) {
+              ).bind(userId, comment_id, normalizedVote, Date.now()).run();
+              if (normalizedVote === 1) {
                 await env.LOCKSMITH_DB.prepare(`UPDATE vehicle_comments SET upvotes = upvotes + 1 WHERE id = ?`).bind(comment_id).run();
               } else {
                 await env.LOCKSMITH_DB.prepare(`UPDATE vehicle_comments SET downvotes = COALESCE(downvotes, 0) + 1 WHERE id = ?`).bind(comment_id).run();
               }
-            } else if (oldVote !== vote) {
+              resultingVote = normalizedVote;
+            } else if (oldVote !== normalizedVote) {
               // Change vote
               await env.LOCKSMITH_DB.prepare(
                 `UPDATE comment_votes SET vote = ?, created_at = ? WHERE user_id = ? AND comment_id = ?`
-              ).bind(vote, Date.now(), userId, comment_id).run();
-              if (vote === 1) {
+              ).bind(normalizedVote, Date.now(), userId, comment_id).run();
+              if (normalizedVote === 1) {
                 // Changed from down to up
                 await env.LOCKSMITH_DB.prepare(`UPDATE vehicle_comments SET upvotes = upvotes + 1, downvotes = COALESCE(downvotes, 0) - 1 WHERE id = ?`).bind(comment_id).run();
               } else {
                 // Changed from up to down
                 await env.LOCKSMITH_DB.prepare(`UPDATE vehicle_comments SET upvotes = upvotes - 1, downvotes = COALESCE(downvotes, 0) + 1 WHERE id = ?`).bind(comment_id).run();
               }
+              resultingVote = normalizedVote;
             }
             // If oldVote === vote, it's a toggle-off (treat as remove)
             else {
               await env.LOCKSMITH_DB.prepare(`DELETE FROM comment_votes WHERE user_id = ? AND comment_id = ?`).bind(userId, comment_id).run();
-              if (vote === 1) {
+              if (normalizedVote === 1) {
                 await env.LOCKSMITH_DB.prepare(`UPDATE vehicle_comments SET upvotes = upvotes - 1 WHERE id = ?`).bind(comment_id).run();
               } else {
                 await env.LOCKSMITH_DB.prepare(`UPDATE vehicle_comments SET downvotes = COALESCE(downvotes, 0) - 1 WHERE id = ?`).bind(comment_id).run();
               }
+              resultingVote = 0;
             }
           }
 
-          return corsResponse(request, JSON.stringify({ success: true, vote }));
+          try {
+            await ensureNotificationTables(env);
+            await env.LOCKSMITH_DB.prepare(`
+              DELETE FROM notifications
+              WHERE user_id = ? AND actor_id = ? AND type = 'upvote' AND comment_id = ?
+            `).bind(comment.user_id, userId, comment_id).run();
+
+            if (resultingVote === 1 && comment.user_id !== userId) {
+              const voter = await env.LOCKSMITH_DB.prepare(`SELECT name FROM users WHERE id = ?`).bind(userId).first<{ name?: string }>();
+              const notificationId = `notif_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+              await env.LOCKSMITH_DB.prepare(`
+                INSERT INTO notifications (id, user_id, actor_id, type, title, body, vehicle_key, comment_id, is_read, created_at, metadata)
+                VALUES (?, ?, ?, 'upvote', ?, ?, ?, ?, 0, ?, ?)
+              `).bind(
+                notificationId,
+                comment.user_id,
+                userId,
+                'New upvote',
+                `${voter?.name || 'Someone'} upvoted your comment`,
+                comment.vehicle_key || null,
+                comment_id,
+                Date.now(),
+                JSON.stringify({ vote: 1 })
+              ).run();
+            }
+          } catch {
+            // Non-critical.
+          }
+
+          await recordCommunityEvent(
+            env,
+            resultingVote === 1 ? 'vote_up' : resultingVote === -1 ? 'vote_down' : 'vote_remove',
+            userId,
+            comment.vehicle_key || null,
+            comment_id,
+            { previous_vote: oldVote, requested_vote: normalizedVote, resulting_vote: resultingVote }
+          );
+
+          return corsResponse(request, JSON.stringify({ success: true, vote: resultingVote }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
@@ -5672,6 +6010,11 @@ Guidelines:
             return corsResponse(request, JSON.stringify({ error: "Missing comment_id or reason" }), 400);
           }
 
+          const reportAllowed = await checkAndRecordCommunityRateLimit(env, userId, 'flag_comment', 12, 60 * 60 * 1000);
+          if (!reportAllowed) {
+            return corsResponse(request, JSON.stringify({ error: "Report limit reached. Please try again later." }), 429);
+          }
+
           const validReasons = ['spam', 'misinformation', 'offensive', 'off_topic', 'other'];
           if (!validReasons.includes(reason)) {
             return corsResponse(request, JSON.stringify({ error: "Invalid reason" }), 400);
@@ -5698,6 +6041,8 @@ Guidelines:
             UPDATE vehicle_comments SET flag_count = COALESCE(flag_count, 0) + 1 WHERE id = ?
           `).bind(comment_id).run();
 
+          await recordCommunityEvent(env, 'comment_flag', userId, null, comment_id, { reason });
+
           return corsResponse(request, JSON.stringify({ success: true, message: "Comment reported" }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -5713,8 +6058,10 @@ Guidelines:
           const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
+          const userId = payload.sub as string;
           const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
-          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          const roleCaps = await getReviewerCapabilities(env, userId);
+          if (!userIsDev && !roleCaps.moderation) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
 
           const result = await env.LOCKSMITH_DB.prepare(`
             SELECT 
@@ -5737,6 +6084,53 @@ Guidelines:
         }
       }
 
+      // GET /api/moderation/history - Get moderation action history (admin only)
+      if (path === "/api/moderation/history" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          const roleCaps = await getReviewerCapabilities(env, userId);
+          if (!userIsDev && !roleCaps.moderation) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '50', 10), 1), 200);
+          const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
+
+          await env.LOCKSMITH_DB.prepare(`
+            CREATE TABLE IF NOT EXISTS moderation_actions (
+              id TEXT PRIMARY KEY,
+              flag_id TEXT NOT NULL,
+              comment_id TEXT NOT NULL,
+              vehicle_key TEXT,
+              resolution TEXT NOT NULL,
+              delete_comment INTEGER DEFAULT 0,
+              note TEXT,
+              resolved_by TEXT NOT NULL,
+              resolved_at INTEGER NOT NULL
+            )
+          `).run();
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              ma.id, ma.flag_id, ma.comment_id, ma.vehicle_key, ma.resolution, ma.delete_comment, ma.note, ma.resolved_at,
+              u.name as moderator_name, u.email as moderator_email
+            FROM moderation_actions ma
+            LEFT JOIN users u ON ma.resolved_by = u.id
+            ORDER BY ma.resolved_at DESC
+            LIMIT ? OFFSET ?
+          `).bind(limit, offset).all();
+
+          return corsResponse(request, JSON.stringify({ actions: result.results || [], limit, offset }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // POST /api/moderation/resolve - Resolve a flag (admin only)
       if (path === "/api/moderation/resolve" && request.method === "POST") {
         try {
@@ -5748,10 +6142,11 @@ Guidelines:
 
           const userId = payload.sub as string;
           const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
-          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          const roleCaps = await getReviewerCapabilities(env, userId);
+          if (!userIsDev && !roleCaps.moderation) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
 
           const body: any = await request.json();
-          const { flag_id, resolution, delete_comment } = body;
+          const { flag_id, resolution, delete_comment, note } = body;
 
           if (!flag_id || !resolution) {
             return corsResponse(request, JSON.stringify({ error: "Missing flag_id or resolution" }), 400);
@@ -5764,7 +6159,10 @@ Guidelines:
 
           // Get the flag to find the comment
           const flag = await env.LOCKSMITH_DB.prepare(
-            `SELECT comment_id FROM comment_flags WHERE id = ?`
+            `SELECT cf.comment_id, vc.vehicle_key
+             FROM comment_flags cf
+             LEFT JOIN vehicle_comments vc ON cf.comment_id = vc.id
+             WHERE cf.id = ?`
           ).bind(flag_id).first<any>();
 
           if (!flag) {
@@ -5785,7 +6183,142 @@ Guidelines:
             `).bind(Date.now(), flag.comment_id).run();
           }
 
+          await env.LOCKSMITH_DB.prepare(`
+            CREATE TABLE IF NOT EXISTS moderation_actions (
+              id TEXT PRIMARY KEY,
+              flag_id TEXT NOT NULL,
+              comment_id TEXT NOT NULL,
+              vehicle_key TEXT,
+              resolution TEXT NOT NULL,
+              delete_comment INTEGER DEFAULT 0,
+              note TEXT,
+              resolved_by TEXT NOT NULL,
+              resolved_at INTEGER NOT NULL
+            )
+          `).run();
+
+          const actionId = `mod_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO moderation_actions (id, flag_id, comment_id, vehicle_key, resolution, delete_comment, note, resolved_by, resolved_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            actionId,
+            flag_id,
+            flag.comment_id,
+            flag.vehicle_key || null,
+            resolution,
+            delete_comment ? 1 : 0,
+            note ? String(note).trim().slice(0, 500) : null,
+            userId,
+            Date.now()
+          ).run();
+
+          await recordCommunityEvent(env, 'moderation_resolve', userId, flag.vehicle_key || null, flag.comment_id, { resolution, delete_comment: !!delete_comment });
+
           return corsResponse(request, JSON.stringify({ success: true }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/reviewer-roles - List reviewer role assignments (admin only)
+      if (path === "/api/reviewer-roles" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const reviewerId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          const roleCaps = await getReviewerCapabilities(env, reviewerId);
+          if (!userIsDev && !roleCaps.nastf && !roleCaps.verification) {
+            return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          }
+
+          await ensureReviewerRolesTable(env);
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              rr.user_id, rr.can_review_verification, rr.can_review_nastf, rr.can_moderate_community,
+              rr.created_by, rr.created_at, rr.updated_at,
+              u.name as user_name, u.email as user_email,
+              creator.name as created_by_name, creator.email as created_by_email
+            FROM reviewer_roles rr
+            LEFT JOIN users u ON rr.user_id = u.id
+            LEFT JOIN users creator ON rr.created_by = creator.id
+            ORDER BY rr.updated_at DESC
+          `).all();
+
+          return corsResponse(request, JSON.stringify({ roles: result.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/reviewer-roles - Upsert reviewer role assignment (admin only)
+      if (path === "/api/reviewer-roles" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const adminId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          const roleCaps = await getReviewerCapabilities(env, adminId);
+          if (!userIsDev && !roleCaps.nastf && !roleCaps.verification) {
+            return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          }
+
+          const body: any = await request.json().catch(() => ({}));
+          const targetUserId = String(body.user_id || '').trim();
+          if (!targetUserId) {
+            return corsResponse(request, JSON.stringify({ error: "Missing user_id" }), 400);
+          }
+
+          const userExists = await env.LOCKSMITH_DB.prepare(
+            `SELECT id FROM users WHERE id = ?`
+          ).bind(targetUserId).first<{ id: string }>();
+          if (!userExists) {
+            return corsResponse(request, JSON.stringify({ error: "Target user not found" }), 404);
+          }
+
+          const canReviewVerification = body.can_review_verification ? 1 : 0;
+          const canReviewNastf = body.can_review_nastf ? 1 : 0;
+          const canModerateCommunity = body.can_moderate_community ? 1 : 0;
+          const now = Date.now();
+
+          await ensureReviewerRolesTable(env);
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO reviewer_roles (
+              user_id, can_review_verification, can_review_nastf, can_moderate_community,
+              created_by, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+              can_review_verification = excluded.can_review_verification,
+              can_review_nastf = excluded.can_review_nastf,
+              can_moderate_community = excluded.can_moderate_community,
+              updated_at = excluded.updated_at
+          `).bind(
+            targetUserId,
+            canReviewVerification,
+            canReviewNastf,
+            canModerateCommunity,
+            adminId,
+            now,
+            now
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            role: {
+              user_id: targetUserId,
+              can_review_verification: canReviewVerification === 1,
+              can_review_nastf: canReviewNastf === 1,
+              can_moderate_community: canModerateCommunity === 1,
+            }
+          }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
@@ -5910,6 +6443,100 @@ Guidelines:
         }
       }
 
+      // GET /api/notifications - Get user's community notifications
+      if (path === "/api/notifications" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '30', 10), 1), 100);
+          const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
+          const unreadOnly = url.searchParams.get('unread_only') === 'true';
+
+          await ensureNotificationTables(env);
+          const whereClause = unreadOnly ? 'AND n.is_read = 0' : '';
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              n.id, n.type, n.title, n.body, n.vehicle_key, n.comment_id, n.is_read, n.created_at, n.metadata,
+              u.name as actor_name, u.picture as actor_picture
+            FROM notifications n
+            LEFT JOIN users u ON n.actor_id = u.id
+            WHERE n.user_id = ? ${whereClause}
+            ORDER BY n.created_at DESC
+            LIMIT ? OFFSET ?
+          `).bind(userId, limit, offset).all();
+
+          const unread = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0
+          `).bind(userId).first<{ count: number }>();
+
+          const total = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count FROM notifications WHERE user_id = ? ${unreadOnly ? 'AND is_read = 0' : ''}
+          `).bind(userId).first<{ count: number }>();
+
+          const totalCount = Number(total?.count || 0);
+          const notifications = (result.results || []) as any[];
+
+          return corsResponse(request, JSON.stringify({
+            notifications,
+            unread_count: Number(unread?.count || 0),
+            pagination: {
+              limit,
+              offset,
+              total: totalCount,
+              has_more: offset + notifications.length < totalCount,
+              next_offset: offset + notifications.length
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/notifications/read - Mark notifications read
+      if (path === "/api/notifications/read" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json().catch(() => ({}));
+          const ids: string[] = Array.isArray(body?.notification_ids)
+            ? body.notification_ids.map((id: any) => String(id)).filter(Boolean)
+            : [];
+
+          await ensureNotificationTables(env);
+          if (ids.length > 0) {
+            const placeholders = ids.map(() => '?').join(',');
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE notifications
+              SET is_read = 1
+              WHERE user_id = ? AND id IN (${placeholders})
+            `).bind(userId, ...ids).run();
+          } else {
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE notifications SET is_read = 1 WHERE user_id = ?
+            `).bind(userId).run();
+          }
+
+          const unread = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0
+          `).bind(userId).first<{ count: number }>();
+
+          return corsResponse(request, JSON.stringify({ success: true, unread_count: Number(unread?.count || 0) }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // GET /api/user/mentions - Get unread mentions for current user
       if (path === "/api/user/mentions" && request.method === "GET") {
         try {
@@ -5990,7 +6617,8 @@ Guidelines:
       // GET /api/community/recent - Get recent comments across all vehicles
       if (path === "/api/community/recent" && request.method === "GET") {
         try {
-          const limit = parseInt(url.searchParams.get('limit') || '50');
+          const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '20', 10), 1), 100);
+          const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
 
           const result = await env.LOCKSMITH_DB.prepare(`
             SELECT 
@@ -6003,11 +6631,26 @@ Guidelines:
             LEFT JOIN users u ON vc.user_id = u.id
             WHERE COALESCE(vc.is_deleted, 0) = 0 AND vc.parent_id IS NULL
             ORDER BY vc.created_at DESC
-            LIMIT ?
-          `).bind(Math.min(limit, 100)).all();
+            LIMIT ? OFFSET ?
+          `).bind(limit, offset).all();
+
+          const total = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM vehicle_comments
+            WHERE COALESCE(is_deleted, 0) = 0 AND parent_id IS NULL
+          `).first<{ count: number }>();
+          const comments = (result.results || []) as any[];
+          const totalCount = Number(total?.count || 0);
 
           return corsResponse(request, JSON.stringify({
-            comments: result.results || []
+            comments,
+            pagination: {
+              limit,
+              offset,
+              total: totalCount,
+              has_more: offset + comments.length < totalCount,
+              next_offset: offset + comments.length
+            }
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -6049,7 +6692,8 @@ Guidelines:
       // GET /api/community/trending - Get trending content (highest score in last 7 days)
       if (path === "/api/community/trending" && request.method === "GET") {
         try {
-          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '20', 10), 1), 100);
+          const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
           const daysAgo = Math.min(parseInt(url.searchParams.get('days') || '7'), 30); // Cap at 30 days
           const cutoffTime = Date.now() - (daysAgo * 24 * 60 * 60 * 1000);
 
@@ -6069,12 +6713,77 @@ Guidelines:
               AND vc.parent_id IS NULL
               AND vc.created_at > ?
             ORDER BY score DESC, vc.upvotes DESC, vc.created_at DESC
-            LIMIT ?
-          `).bind(cutoffTime, Math.min(limit, 50)).all();
+            LIMIT ? OFFSET ?
+          `).bind(cutoffTime, limit, offset).all();
+
+          const total = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM vehicle_comments vc
+            WHERE COALESCE(vc.is_deleted, 0) = 0
+              AND vc.parent_id IS NULL
+              AND vc.created_at > ?
+          `).bind(cutoffTime).first<{ count: number }>();
+          const trending = (result.results || []) as any[];
+          const totalCount = Number(total?.count || 0);
 
           return corsResponse(request, JSON.stringify({
-            trending: result.results || [],
-            period_days: daysAgo
+            trending,
+            period_days: daysAgo,
+            pagination: {
+              limit,
+              offset,
+              total: totalCount,
+              has_more: offset + trending.length < totalCount,
+              next_offset: offset + trending.length
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/community/verified - Get verified pearls with pagination
+      if (path === "/api/community/verified" && request.method === "GET") {
+        try {
+          const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '20', 10), 1), 100);
+          const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              vc.id, vc.vehicle_key, vc.user_id, vc.user_name, vc.user_picture,
+              vc.content, vc.upvotes, COALESCE(vc.downvotes, 0) as downvotes,
+              vc.job_type, vc.tool_used, vc.created_at,
+              COALESCE(vc.is_verified, 0) as is_verified, vc.verified_type,
+              ur.rank_level,
+              COALESCE(u.nastf_verified, 0) as nastf_verified
+            FROM vehicle_comments vc
+            LEFT JOIN user_reputation ur ON vc.user_id = ur.user_id
+            LEFT JOIN users u ON vc.user_id = u.id
+            WHERE COALESCE(vc.is_deleted, 0) = 0
+              AND vc.parent_id IS NULL
+              AND COALESCE(vc.is_verified, 0) = 1
+            ORDER BY vc.created_at DESC
+            LIMIT ? OFFSET ?
+          `).bind(limit, offset).all();
+
+          const total = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM vehicle_comments
+            WHERE COALESCE(is_deleted, 0) = 0
+              AND parent_id IS NULL
+              AND COALESCE(is_verified, 0) = 1
+          `).first<{ count: number }>();
+          const verified = (result.results || []) as any[];
+          const totalCount = Number(total?.count || 0);
+
+          return corsResponse(request, JSON.stringify({
+            verified,
+            pagination: {
+              limit,
+              offset,
+              total: totalCount,
+              has_more: offset + verified.length < totalCount,
+              next_offset: offset + verified.length
+            }
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -6150,6 +6859,119 @@ Guidelines:
         }
       }
 
+      // GET /api/community/conversion - Community conversion funnel metrics (admin/reviewer)
+      if (path === "/api/community/conversion" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          const roleCaps = await getReviewerCapabilities(env, userId);
+          if (!userIsDev && !roleCaps.verification && !roleCaps.nastf && !roleCaps.moderation) {
+            return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          }
+
+          const days = Math.min(Math.max(parseInt(url.searchParams.get('days') || '30', 10), 1), 90);
+          const since = Date.now() - (days * 24 * 60 * 60 * 1000);
+          await ensureCommunityEventsTable(env);
+          await ensureNotificationTables(env);
+
+          const topLevelComments = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM vehicle_comments
+            WHERE COALESCE(is_deleted, 0) = 0
+              AND parent_id IS NULL
+              AND created_at > ?
+          `).bind(since).first<{ count: number }>();
+
+          const replies = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM vehicle_comments
+            WHERE COALESCE(is_deleted, 0) = 0
+              AND parent_id IS NOT NULL
+              AND created_at > ?
+          `).bind(since).first<{ count: number }>();
+
+          const uniqueCommenters = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(DISTINCT user_id) as count
+            FROM vehicle_comments
+            WHERE COALESCE(is_deleted, 0) = 0
+              AND created_at > ?
+          `).bind(since).first<{ count: number }>();
+
+          const voteEvents = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              COUNT(*) as total_votes,
+              COUNT(DISTINCT user_id) as unique_voters
+            FROM community_events
+            WHERE created_at > ?
+              AND event_type IN ('vote_up', 'vote_down', 'vote_remove')
+          `).bind(since).first<{ total_votes: number; unique_voters: number }>();
+
+          const mentions = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM comment_mentions
+            WHERE created_at > ?
+          `).bind(since).first<{ count: number }>();
+
+          const proofsSubmitted = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM locksmith_proofs
+            WHERE created_at > ?
+          `).bind(since).first<{ count: number }>();
+
+          const proofsApproved = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM locksmith_proofs
+            WHERE status = 'approved'
+              AND reviewed_at > ?
+          `).bind(since).first<{ count: number }>();
+
+          const newlyVerified = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM users
+            WHERE COALESCE(locksmith_verified_at, 0) > ?
+          `).bind(since).first<{ count: number }>();
+
+          const commenterCount = Number(uniqueCommenters?.count || 0);
+          const approvedCount = Number(proofsApproved?.count || 0);
+          const submissionCount = Number(proofsSubmitted?.count || 0);
+
+          const conversion = {
+            review_pass_rate: submissionCount > 0 ? Number(((approvedCount / submissionCount) * 100).toFixed(1)) : 0,
+            commenter_to_verified_rate: commenterCount > 0 ? Number(((Number(newlyVerified?.count || 0) / commenterCount) * 100).toFixed(1)) : 0,
+          };
+
+          return corsResponse(request, JSON.stringify({
+            window_days: days,
+            since,
+            metrics: {
+              top_level_comments: Number(topLevelComments?.count || 0),
+              replies: Number(replies?.count || 0),
+              unique_commenters: commenterCount,
+              vote_events: Number(voteEvents?.total_votes || 0),
+              unique_voters: Number(voteEvents?.unique_voters || 0),
+              mentions: Number(mentions?.count || 0),
+              proofs_submitted: submissionCount,
+              proofs_approved: approvedCount,
+              newly_verified_users: Number(newlyVerified?.count || 0),
+            },
+            conversion,
+            funnel: [
+              { stage: 'Active commenters', value: commenterCount },
+              { stage: 'Proofs submitted', value: submissionCount },
+              { stage: 'Proofs approved', value: approvedCount },
+              { stage: 'Newly verified users', value: Number(newlyVerified?.count || 0) }
+            ]
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // ==============================================
       // NASTF VSP VERIFICATION ENDPOINTS
       // ==============================================
@@ -6164,6 +6986,10 @@ Guidelines:
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
+          const submissionAllowed = await checkAndRecordCommunityRateLimit(env, userId, 'nastf_submit', 5, 24 * 60 * 60 * 1000);
+          if (!submissionAllowed) {
+            return corsResponse(request, JSON.stringify({ error: "Submission limit reached. Please try again tomorrow." }), 429);
+          }
           const body: any = await request.json();
           const { proof_image_url } = body;
 
@@ -6188,6 +7014,8 @@ Guidelines:
             INSERT INTO nastf_verifications (id, user_id, proof_image_url, status, created_at)
             VALUES (?, ?, ?, 'pending', ?)
           `).bind(verificationId, userId, proof_image_url, Date.now()).run();
+
+          await recordCommunityEvent(env, 'nastf_submitted', userId, null, verificationId);
 
           return corsResponse(request, JSON.stringify({ success: true, verification_id: verificationId }));
         } catch (err: any) {
@@ -6328,6 +7156,8 @@ Guidelines:
             `).bind(verification.user_id, now, now).run();
           }
 
+          await recordCommunityEvent(env, action === 'approve' ? 'nastf_approved' : 'nastf_rejected', adminId, null, verification_id);
+
           return corsResponse(request, JSON.stringify({ success: true, status: newStatus }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -6429,6 +7259,10 @@ Guidelines:
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
           const userId = payload.sub as string;
+          const submissionAllowed = await checkAndRecordCommunityRateLimit(env, userId, 'verification_upload', 10, 24 * 60 * 60 * 1000);
+          if (!submissionAllowed) {
+            return corsResponse(request, JSON.stringify({ error: "Submission limit reached. Please try again tomorrow." }), 429);
+          }
           const formData = await request.formData();
           const fileEntry = formData.get('file');
           const proofType = formData.get('proof_type') as string;
@@ -6478,6 +7312,8 @@ Guidelines:
             `).bind(nvId, userId, imageUrl, proofType, Date.now()).run();
           }
 
+          await recordCommunityEvent(env, 'proof_submitted', userId, null, proofId, { proof_type: proofType });
+
           return corsResponse(request, JSON.stringify({ success: true, proof_id: proofId, image_url: imageUrl }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -6493,8 +7329,16 @@ Guidelines:
           const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
           if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
+          const reviewerId = payload.sub as string;
           const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
-          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          const roleCaps = await getReviewerCapabilities(env, reviewerId);
+          if (!userIsDev && !roleCaps.verification && !roleCaps.nastf) {
+            return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          }
+
+          const proofTypeFilter = (!userIsDev && roleCaps.nastf && !roleCaps.verification)
+            ? `AND lp.proof_type = 'nastf_vsp'`
+            : '';
 
           const result = await env.LOCKSMITH_DB.prepare(`
             SELECT lp.id, lp.user_id, lp.proof_type, lp.proof_image_url, lp.created_at,
@@ -6502,6 +7346,7 @@ Guidelines:
             FROM locksmith_proofs lp
             LEFT JOIN users u ON lp.user_id = u.id
             WHERE lp.status = 'pending'
+              ${proofTypeFilter}
             ORDER BY lp.created_at ASC
           `).all();
 
@@ -6522,7 +7367,10 @@ Guidelines:
 
           const adminId = payload.sub as string;
           const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
-          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          const roleCaps = await getReviewerCapabilities(env, adminId);
+          if (!userIsDev && !roleCaps.verification && !roleCaps.nastf) {
+            return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          }
 
           const body: any = await request.json();
           const { proof_id, action, rejection_reason, admin_notes } = body;
@@ -6541,6 +7389,9 @@ Guidelines:
           }
           if (proof.status !== 'pending') {
             return corsResponse(request, JSON.stringify({ error: "Proof already processed" }), 400);
+          }
+          if (!userIsDev && !roleCaps.verification && !(roleCaps.nastf && proof.proof_type === 'nastf_vsp')) {
+            return corsResponse(request, JSON.stringify({ error: "Not authorized to review this proof type" }), 403);
           }
 
           const now = Date.now();
@@ -6624,6 +7475,15 @@ Guidelines:
               `).bind(verificationLevel, proof.user_id).run();
             }
           }
+
+          await recordCommunityEvent(
+            env,
+            action === 'approve' ? 'proof_approved' : 'proof_rejected',
+            adminId,
+            null,
+            proof_id,
+            { proof_type: proof.proof_type }
+          );
 
           return corsResponse(request, JSON.stringify({ success: true, status: newStatus }));
         } catch (err: any) {

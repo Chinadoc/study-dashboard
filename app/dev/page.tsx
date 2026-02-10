@@ -186,6 +186,38 @@ interface PendingVerification {
     user_picture?: string | null;
 }
 
+interface ReviewerRole {
+    user_id: string;
+    user_name?: string | null;
+    user_email?: string | null;
+    can_review_verification: boolean | number;
+    can_review_nastf: boolean | number;
+    can_moderate_community: boolean | number;
+    created_by_name?: string | null;
+    created_by_email?: string | null;
+    updated_at: number;
+}
+
+interface CommunityConversionData {
+    window_days: number;
+    metrics: {
+        top_level_comments: number;
+        replies: number;
+        unique_commenters: number;
+        vote_events: number;
+        unique_voters: number;
+        mentions: number;
+        proofs_submitted: number;
+        proofs_approved: number;
+        newly_verified_users: number;
+    };
+    conversion: {
+        review_pass_rate: number;
+        commenter_to_verified_rate: number;
+    };
+    funnel: Array<{ stage: string; value: number }>;
+}
+
 function normalizeProofUrl(rawUrl: string): string {
     const value = String(rawUrl || '').trim();
     if (!value) return '';
@@ -275,6 +307,13 @@ export default function DevPanelPage() {
     const [moderationNotesByFlag, setModerationNotesByFlag] = useState<Record<string, string>>({});
     const [moderationHistory, setModerationHistory] = useState<ModerationHistoryItem[]>([]);
     const [verificationQueue, setVerificationQueue] = useState<PendingVerification[]>([]);
+    const [reviewerRoles, setReviewerRoles] = useState<ReviewerRole[]>([]);
+    const [communityConversion, setCommunityConversion] = useState<CommunityConversionData | null>(null);
+    const [reviewerTargetUserId, setReviewerTargetUserId] = useState<string>('');
+    const [reviewerCanVerification, setReviewerCanVerification] = useState<boolean>(true);
+    const [reviewerCanNastf, setReviewerCanNastf] = useState<boolean>(false);
+    const [reviewerCanModeration, setReviewerCanModeration] = useState<boolean>(false);
+    const [savingReviewerRole, setSavingReviewerRole] = useState<boolean>(false);
     const [resolvingFlagId, setResolvingFlagId] = useState<string | null>(null);
     const [moderationError, setModerationError] = useState<string | null>(null);
     const [verificationError, setVerificationError] = useState<string | null>(null);
@@ -298,7 +337,7 @@ export default function DevPanelPage() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         try {
-            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes, verificationRes] = await Promise.allSettled([
+            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes, moderationHistoryRes, verificationRes, reviewerRolesRes, communityConversionRes] = await Promise.allSettled([
                 fetch(`${API_BASE}/api/admin/stats`, { headers }),
                 fetch(`${API_BASE}/api/admin/cloudflare`, { headers }),
                 fetch(`${API_BASE}/api/admin/activity?limit=50`, { headers }),
@@ -307,7 +346,10 @@ export default function DevPanelPage() {
                 fetch(`${API_BASE}/api/admin/users`, { headers }),
                 fetch(`${API_BASE}/api/admin/coverage-gaps${categoryFilter ? `?category=${categoryFilter}` : ''}`, { headers }),
                 fetch(`${API_BASE}/api/moderation/queue`, { headers }),
-                fetch(`${API_BASE}/api/verification/pending`, { headers })
+                fetch(`${API_BASE}/api/moderation/history?limit=100`, { headers }),
+                fetch(`${API_BASE}/api/verification/pending`, { headers }),
+                fetch(`${API_BASE}/api/reviewer-roles`, { headers }),
+                fetch(`${API_BASE}/api/community/conversion?days=30`, { headers })
             ]);
 
             if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
@@ -344,6 +386,10 @@ export default function DevPanelPage() {
             } else if (moderationRes.status === 'fulfilled' && !moderationRes.value.ok) {
                 setModerationError('Failed to load moderation queue');
             }
+            if (moderationHistoryRes.status === 'fulfilled' && moderationHistoryRes.value.ok) {
+                const data = await moderationHistoryRes.value.json();
+                setModerationHistory(Array.isArray(data.actions) ? data.actions : []);
+            }
             if (verificationRes.status === 'fulfilled' && verificationRes.value.ok) {
                 const data = await verificationRes.value.json();
                 setVerificationQueue(Array.isArray(data.verifications) ? data.verifications : []);
@@ -351,12 +397,20 @@ export default function DevPanelPage() {
             } else if (verificationRes.status === 'fulfilled' && !verificationRes.value.ok) {
                 setVerificationError('Failed to load verification queue');
             }
+            if (reviewerRolesRes.status === 'fulfilled' && reviewerRolesRes.value.ok) {
+                const data = await reviewerRolesRes.value.json();
+                setReviewerRoles(Array.isArray(data.roles) ? data.roles : []);
+            }
+            if (communityConversionRes.status === 'fulfilled' && communityConversionRes.value.ok) {
+                const data = await communityConversionRes.value.json();
+                setCommunityConversion(data || null);
+            }
         } catch (e) {
             console.error('Failed to fetch dev data:', e);
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [categoryFilter]);
 
     const parseVehicleKey = (vehicleKey: string): { label: string; href: string } => {
         const raw = String(vehicleKey || '');
@@ -402,6 +456,7 @@ export default function DevPanelPage() {
                     flag_id: flag.flag_id,
                     resolution,
                     delete_comment: deleteComment,
+                    note: moderatorNote || undefined,
                 }),
             });
             const data = await response.json().catch(() => ({}));
@@ -474,6 +529,45 @@ export default function DevPanelPage() {
             setVerificationError(err?.message || `Failed to ${action} proof`);
         } finally {
             setReviewingVerificationId(null);
+        }
+    };
+
+    const saveReviewerRole = async () => {
+        const token = getSessionToken();
+        if (!token) {
+            setVerificationError('Missing session token');
+            return;
+        }
+        if (!reviewerTargetUserId) {
+            setVerificationError('Select a user before saving reviewer role.');
+            return;
+        }
+
+        setSavingReviewerRole(true);
+        setVerificationError(null);
+        try {
+            const response = await fetch(`${API_BASE}/api/reviewer-roles`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    user_id: reviewerTargetUserId,
+                    can_review_verification: reviewerCanVerification,
+                    can_review_nastf: reviewerCanNastf,
+                    can_moderate_community: reviewerCanModeration,
+                }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to save reviewer role');
+            }
+            await fetchAllData();
+        } catch (err: any) {
+            setVerificationError(err?.message || 'Failed to save reviewer role');
+        } finally {
+            setSavingReviewerRole(false);
         }
     };
 
@@ -799,6 +893,40 @@ export default function DevPanelPage() {
                                             ))}
                                         </div>
                                     </div>
+                                )}
+                            </div>
+
+                            {/* Community Conversion Funnel */}
+                            <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                        🧭 Community Conversion (30d)
+                                    </h2>
+                                    <span className="text-xs text-slate-500">Reviewer + Verification Funnel</span>
+                                </div>
+                                {!communityConversion ? (
+                                    <p className="text-sm text-slate-500">No conversion data yet.</p>
+                                ) : (
+                                    <>
+                                        <div className="mb-3 grid grid-cols-2 gap-2">
+                                            <div className="rounded-lg border border-slate-700 bg-slate-900/50 p-2.5">
+                                                <p className="text-[11px] uppercase tracking-wide text-slate-500">Review Pass</p>
+                                                <p className="text-lg font-semibold text-emerald-300">{communityConversion.conversion.review_pass_rate}%</p>
+                                            </div>
+                                            <div className="rounded-lg border border-slate-700 bg-slate-900/50 p-2.5">
+                                                <p className="text-[11px] uppercase tracking-wide text-slate-500">Commenter to Verified</p>
+                                                <p className="text-lg font-semibold text-blue-300">{communityConversion.conversion.commenter_to_verified_rate}%</p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {communityConversion.funnel.map((stage) => (
+                                                <div key={stage.stage} className="flex items-center justify-between rounded-lg bg-slate-900/45 px-3 py-2">
+                                                    <span className="text-xs text-slate-300">{stage.stage}</span>
+                                                    <span className="text-sm font-semibold text-white">{stage.value.toLocaleString()}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
                                 )}
                             </div>
 
@@ -1301,6 +1429,80 @@ export default function DevPanelPage() {
                     <p className="mb-4 text-sm text-slate-400">
                         Review pending proof submissions including NASTF, licenses, and membership cards.
                     </p>
+
+                    <div className="mb-4 rounded-lg border border-slate-700 bg-slate-900/50 p-3">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Reviewer Role Access</p>
+                        <div className="grid gap-2 md:grid-cols-[minmax(220px,1fr)_auto_auto_auto_auto] md:items-center">
+                            <select
+                                className="rounded border border-slate-700 bg-slate-950/60 px-2.5 py-1.5 text-xs text-slate-200"
+                                value={reviewerTargetUserId}
+                                onChange={(e) => setReviewerTargetUserId(e.target.value)}
+                                disabled={savingReviewerRole}
+                            >
+                                <option value="">Select user...</option>
+                                {users.map((u) => (
+                                    <option key={u.id} value={u.id}>
+                                        {u.name || u.email} ({u.email})
+                                    </option>
+                                ))}
+                            </select>
+                            <label className="flex items-center gap-1.5 text-xs text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    checked={reviewerCanVerification}
+                                    onChange={(e) => setReviewerCanVerification(e.target.checked)}
+                                    disabled={savingReviewerRole}
+                                />
+                                Verify
+                            </label>
+                            <label className="flex items-center gap-1.5 text-xs text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    checked={reviewerCanNastf}
+                                    onChange={(e) => setReviewerCanNastf(e.target.checked)}
+                                    disabled={savingReviewerRole}
+                                />
+                                NASTF
+                            </label>
+                            <label className="flex items-center gap-1.5 text-xs text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    checked={reviewerCanModeration}
+                                    onChange={(e) => setReviewerCanModeration(e.target.checked)}
+                                    disabled={savingReviewerRole}
+                                />
+                                Moderation
+                            </label>
+                            <button
+                                type="button"
+                                onClick={saveReviewerRole}
+                                disabled={savingReviewerRole}
+                                className="rounded border border-blue-500/40 bg-blue-500/15 px-2.5 py-1.5 text-xs font-medium text-blue-200 hover:bg-blue-500/25 disabled:opacity-50"
+                            >
+                                {savingReviewerRole ? 'Saving...' : 'Save'}
+                            </button>
+                        </div>
+                        <div className="mt-3 space-y-1">
+                            {reviewerRoles.length === 0 ? (
+                                <p className="text-xs text-slate-500">No reviewer roles assigned.</p>
+                            ) : (
+                                reviewerRoles.slice(0, 12).map((role) => (
+                                    <div key={role.user_id} className="flex flex-wrap items-center justify-between rounded border border-slate-700 bg-slate-950/60 px-2.5 py-1.5 text-xs">
+                                        <span className="text-slate-200">
+                                            {role.user_name || role.user_email || role.user_id}
+                                        </span>
+                                        <span className="text-slate-400">
+                                            {role.can_review_verification ? 'Verify' : ''}
+                                            {role.can_review_verification && role.can_review_nastf ? ' • ' : ''}
+                                            {role.can_review_nastf ? 'NASTF' : ''}
+                                            {(role.can_review_verification || role.can_review_nastf) && role.can_moderate_community ? ' • ' : ''}
+                                            {role.can_moderate_community ? 'Moderation' : ''}
+                                        </span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
 
                     {verificationError && (
                         <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">

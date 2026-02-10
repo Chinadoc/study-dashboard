@@ -559,6 +559,77 @@
     cursor: default;
 }
 
+.loadMoreWrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.2rem;
+}
+
+.loadMoreBtn {
+    border: 1px solid rgba(99, 102, 241, 0.45);
+    background: rgba(99, 102, 241, 0.18);
+    color: #e0e7ff;
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.loadMoreBtn:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.28);
+}
+
+.loadMoreBtn:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.notificationList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.notificationCard {
+    background: var(--card-bg, rgba(30, 30, 40, 0.6));
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    border-radius: 10px;
+    padding: 0.95rem 1rem;
+}
+
+.notificationCard.unread {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.28);
+}
+
+.notificationHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.45rem;
+}
+
+.notificationType {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    border-radius: 999px;
+    padding: 0.14rem 0.45rem;
+}
+
+.notificationBody {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.86));
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin: 0;
+    padding-left: 36px;
+}
+
 /* Mentions */
 .mentionList {
     display: flex;

@@ -41,6 +41,7 @@ type SortMode = 'top' | 'new' | 'hot' | 'controversial';
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8MB before compression
 const MAX_EMBEDDED_BYTES = 700 * 1024; // 700KB after compression
+const THREAD_PAGE_SIZE = 20;
 
 function getHotScore(comment: Comment): number {
     const score = comment.score || ((comment.upvotes || 0) - (comment.downvotes || 0));
@@ -79,7 +80,20 @@ function hasCommentId(items: Comment[], commentId: string): boolean {
     return false;
 }
 
-async function compressImageToDataUrl(file: File): Promise<string> {
+function dataUrlToBlob(dataUrl: string): Blob {
+    const [meta, b64] = dataUrl.split(',');
+    if (!meta || !b64) throw new Error('Invalid image encoding.');
+    const mimeMatch = meta.match(/data:(.*?);base64/);
+    const mime = mimeMatch?.[1] || 'image/jpeg';
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return new Blob([bytes], { type: mime });
+}
+
+async function compressImageToBlob(file: File): Promise<Blob> {
     if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
         throw new Error('Only JPEG, PNG, or WEBP images are supported.');
     }
@@ -119,20 +133,28 @@ async function compressImageToDataUrl(file: File): Promise<string> {
             throw new Error('Compressed image is still too large. Please use a smaller image.');
         }
 
-        return dataUrl;
+        const blob = dataUrlToBlob(dataUrl);
+        if (blob.size > MAX_EMBEDDED_BYTES) {
+            throw new Error('Compressed image is still too large. Please use a smaller image.');
+        }
+        return blob;
     } finally {
         URL.revokeObjectURL(objectUrl);
     }
 }
 
-async function buildCommentContentWithImage(text: string, imageFile: File | null): Promise<string> {
+async function buildCommentContentWithImage(
+    text: string,
+    imageFile: File | null,
+    uploadMedia: (file: File) => Promise<string>
+): Promise<string> {
     const trimmedText = text.trim();
     if (!imageFile) return trimmedText;
-    const dataUrl = await compressImageToDataUrl(imageFile);
+    const mediaUrl = await uploadMedia(imageFile);
     if (!trimmedText) {
-        return `![Attachment](${dataUrl})`;
+        return `![Attachment](${mediaUrl})`;
     }
-    return `${trimmedText}\n\n![Attachment](${dataUrl})`;
+    return `${trimmedText}\n\n![Attachment](${mediaUrl})`;
 }
 
 export default function CommentSection({ make, model }: CommentSectionProps) {
@@ -159,6 +181,9 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     const [savedCommentIds, setSavedCommentIds] = useState<Record<string, boolean>>({});
     const [showSavedOnly, setShowSavedOnly] = useState(false);
     const [watchedThread, setWatchedThread] = useState(false);
+    const [hasMoreComments, setHasMoreComments] = useState(false);
+    const [nextOffset, setNextOffset] = useState(0);
+    const [loadingMoreComments, setLoadingMoreComments] = useState(false);
     const highlightTimerRef = useRef<number | null>(null);
 
     const vehicleKey = `${make.toLowerCase()}_${model.toLowerCase()}`;
@@ -176,10 +201,15 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     };
 
     // Fetch comments
-    const fetchComments = useCallback(async () => {
+    const fetchComments = useCallback(async (append = false, appendOffset = 0) => {
         try {
-            setLoading(true);
-            let url = `${API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+            if (!append) {
+                setLoading(true);
+            } else {
+                setLoadingMoreComments(true);
+            }
+            const offset = append ? appendOffset : 0;
+            let url = `${API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=${THREAD_PAGE_SIZE}&offset=${offset}`;
             if (nastfOnly) {
                 url += '&nastf_only=true';
             }
@@ -188,25 +218,47 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
             });
             const data = await response.json();
             if (data.comments) {
-                setComments(data.comments);
+                setComments((prev) => {
+                    if (!append) return data.comments;
+                    const seen = new Set(prev.map((item) => item.id));
+                    const merged = [...prev];
+                    for (const item of data.comments as Comment[]) {
+                        if (!seen.has(item.id)) {
+                            seen.add(item.id);
+                            merged.push(item);
+                        }
+                    }
+                    return merged;
+                });
+                const pagination = data.pagination || {};
+                setHasMoreComments(Boolean(pagination.has_more));
+                setNextOffset(Number(pagination.next_offset || 0));
             } else {
-                setComments([]);
+                if (!append) {
+                    setComments([]);
+                }
+                setHasMoreComments(false);
+                setNextOffset(0);
             }
         } catch (err) {
             console.error('Failed to fetch comments:', err);
         } finally {
-            setLoading(false);
+            if (!append) {
+                setLoading(false);
+            } else {
+                setLoadingMoreComments(false);
+            }
         }
     }, [make, model, nastfOnly]);
 
     useEffect(() => {
-        void fetchComments();
+        void fetchComments(false);
     }, [fetchComments]);
 
     useEffect(() => {
         const unsubscribe = subscribeCommunityUpdates((detail) => {
             if (detail.vehicleKey && detail.vehicleKey !== vehicleKey) return;
-            void fetchComments();
+            void fetchComments(false);
         });
         return unsubscribe;
     }, [fetchComments, vehicleKey]);
@@ -384,6 +436,24 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         if (file) setError(null);
     };
 
+    const uploadCommentMedia = async (file: File): Promise<string> => {
+        const compressedBlob = await compressImageToBlob(file);
+        const uploadFile = new File([compressedBlob], `comment_${Date.now()}.jpg`, { type: compressedBlob.type || 'image/jpeg' });
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+
+        const response = await fetch(`${API_URL}/api/vehicle-comments/upload-media`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: formData,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.media_url) {
+            throw new Error(data.error || 'Failed to upload image');
+        }
+        return String(data.media_url);
+    };
+
     // Submit new comment
     const handleSubmitComment = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -393,7 +463,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         setError(null);
 
         try {
-            const composedContent = await buildCommentContentWithImage(newComment, newCommentImageFile);
+            const composedContent = await buildCommentContentWithImage(newComment, newCommentImageFile, uploadCommentMedia);
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: getAuthHeaders(true),
@@ -449,7 +519,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         setError(null);
 
         try {
-            const composedContent = await buildCommentContentWithImage(replyContent, replyImageFile);
+            const composedContent = await buildCommentContentWithImage(replyContent, replyImageFile, uploadCommentMedia);
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: getAuthHeaders(true),
@@ -867,6 +937,11 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         );
     };
 
+    const handleLoadMoreComments = () => {
+        if (loadingMoreComments || !hasMoreComments || showSavedOnly) return;
+        void fetchComments(true, nextOffset);
+    };
+
 
     if (loading) {
         return <div className={styles.loading}>Loading comments...</div>;
@@ -1008,6 +1083,18 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     </p>
                 ) : (
                     visibleTopLevelComments.map(comment => renderComment(comment))
+                )}
+                {!showSavedOnly && hasMoreComments && (
+                    <div className={styles.loadMoreWrap}>
+                        <button
+                            type="button"
+                            className={styles.loadMoreCommentsBtn}
+                            onClick={handleLoadMoreComments}
+                            disabled={loadingMoreComments}
+                        >
+                            {loadingMoreComments ? 'Loading...' : 'Load More Comments'}
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
