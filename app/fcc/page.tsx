@@ -222,6 +222,7 @@ function FccContent() {
             companyName: job.companyName,
             fccId: job.fccId || undefined,
             keyType: job.keyType || undefined,
+            keysMade: job.keysMade,
             jobType: job.jobType,
             price: job.price,
             date: job.date,
@@ -243,7 +244,11 @@ function FccContent() {
         });
         // Optionally auto-decrement inventory
         if (job.fccId) {
-            updateStock(job.fccId, -1);
+            const shouldDecrement = ['add_key', 'akl', 'remote', 'blade'].includes(job.jobType);
+            const decrementBy = shouldDecrement ? Math.max(1, Math.round(job.keysMade || 1)) : 0;
+            if (decrementBy > 0) {
+                updateStock(job.fccId, -decrementBy);
+            }
         }
         setJobModalOpen(false);
         setSelectedFcc(null);

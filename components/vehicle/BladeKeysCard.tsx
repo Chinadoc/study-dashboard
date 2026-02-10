@@ -66,8 +66,8 @@ export default function BladeKeysCard({ data, bitting }: BladeKeysCardProps) {
                         <div
                             key={i}
                             className={`flex gap-3 items-start p-2.5 rounded-lg transition-all ${isTransponder
-                                    ? 'bg-cyan-950/30 border border-cyan-700/20'
-                                    : 'bg-zinc-800/40 border border-zinc-700/20'
+                                ? 'bg-cyan-950/30 border border-cyan-700/20'
+                                : 'bg-zinc-800/40 border border-zinc-700/20'
                                 }`}
                         >
                             {/* Small product image */}
@@ -130,28 +130,24 @@ export default function BladeKeysCard({ data, bitting }: BladeKeysCardProps) {
                 })}
             </div>
 
-            {/* Reusable / Cloneable from transponder entry */}
+            {/* Reusable / Cloneable from transponder entry — only positive */}
             {(() => {
                 const transponder = sorted.find(e => e.type === 'Transponder');
                 if (!transponder) return null;
                 const { reusable, cloneable } = transponder;
-                if (!reusable && !cloneable) return null;
+                const showReusable = reusable?.toLowerCase().startsWith('yes');
+                const showCloneable = cloneable?.toLowerCase().startsWith('yes');
+                if (!showReusable && !showCloneable) return null;
                 return (
                     <div className="flex gap-1.5 mb-3">
-                        {reusable && (
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${reusable.toLowerCase() === 'yes'
-                                    ? 'bg-green-900/30 text-green-400 border border-green-700/30'
-                                    : 'bg-red-900/30 text-red-400 border border-red-700/30'
-                                }`}>
-                                {reusable.toLowerCase() === 'yes' ? '♻️ Reusable' : '🚫 Not Reusable'}
+                        {showReusable && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-900/30 text-green-400 border border-green-700/30">
+                                ♻️ Reusable
                             </span>
                         )}
-                        {cloneable && (
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${cloneable.toLowerCase() === 'yes'
-                                    ? 'bg-blue-900/30 text-blue-400 border border-blue-700/30'
-                                    : 'bg-zinc-800 text-zinc-500 border border-zinc-700/30'
-                                }`}>
-                                {cloneable.toLowerCase() === 'yes' ? '📋 Cloneable' : '🔒 No Clone'}
+                        {showCloneable && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-900/30 text-blue-400 border border-blue-700/30">
+                                📋 Cloneable
                             </span>
                         )}
                     </div>

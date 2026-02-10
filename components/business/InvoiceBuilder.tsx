@@ -745,9 +745,12 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
                                         />
                                         <input
                                             type="number"
-                                            value={item.unitPrice}
+                                            value={item.unitPrice === 0 ? '' : item.unitPrice}
                                             onChange={(e) => updateLineItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                            onFocus={(e) => e.target.select()}
                                             placeholder="Price"
+                                            inputMode="decimal"
+                                            step="0.01"
                                             className="w-24 px-2 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm text-right"
                                         />
                                         <span className="w-20 text-right text-yellow-500 font-bold">

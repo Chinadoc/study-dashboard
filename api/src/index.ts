@@ -999,7 +999,7 @@ export default {
             fleet_id, technician_id, technician_name,
             status, claimed_at, started_at, completed_at, priority, source,
             parts_cost, key_cost, service_cost, miles_driven, gas_cost,
-            referral_source, synced_at, sync_status, device_id
+            referral_source, synced_at, sync_status, device_id, data
           FROM job_logs WHERE user_id = ?`;
           const params: any[] = [userId];
 
@@ -1016,40 +1016,55 @@ export default {
           const result = await env.LOCKSMITH_DB.prepare(query).bind(...params).all();
 
           // Map DB columns to camelCase response
-          const jobs = (result.results || []).map((row: any) => ({
-            id: row.id,
-            vehicle: row.vehicle,
-            fccId: row.fcc_id,
-            keyType: row.key_type,
-            jobType: row.job_type,
-            price: row.price,
-            date: row.date,
-            notes: row.notes,
-            customerName: row.customer_name,
-            customerPhone: row.customer_phone,
-            customerEmail: row.customer_email,
-            customerAddress: row.customer_address,
-            fleetId: row.fleet_id,
-            technicianId: row.technician_id,
-            technicianName: row.technician_name,
-            status: row.status || 'completed',
-            claimedAt: row.claimed_at,
-            startedAt: row.started_at,
-            completedAt: row.completed_at,
-            priority: row.priority || 'normal',
-            source: row.source,
-            partsCost: row.parts_cost,
-            keyCost: row.key_cost,
-            serviceCost: row.service_cost,
-            milesDriven: row.miles_driven,
-            gasCost: row.gas_cost,
-            referralSource: row.referral_source,
-            createdAt: row.created_at,
-            updatedAt: row.updated_at || row.created_at,
-            syncedAt: row.synced_at,
-            syncStatus: row.sync_status || 'synced',
-            deviceId: row.device_id
-          }));
+          const jobs = (result.results || []).map((row: any) => {
+            let dataBlob: any = null;
+            if (row.data) {
+              try {
+                dataBlob = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+              } catch {
+                dataBlob = null;
+              }
+            }
+            const keysMade = typeof dataBlob?.keysMade === 'number' && Number.isFinite(dataBlob.keysMade) && dataBlob.keysMade > 0
+              ? Math.max(1, Math.round(dataBlob.keysMade))
+              : undefined;
+
+            return {
+              id: row.id,
+              vehicle: row.vehicle,
+              fccId: row.fcc_id,
+              keyType: row.key_type,
+              keysMade,
+              jobType: row.job_type,
+              price: row.price,
+              date: row.date,
+              notes: row.notes,
+              customerName: row.customer_name,
+              customerPhone: row.customer_phone,
+              customerEmail: row.customer_email,
+              customerAddress: row.customer_address,
+              fleetId: row.fleet_id,
+              technicianId: row.technician_id,
+              technicianName: row.technician_name,
+              status: row.status || 'completed',
+              claimedAt: row.claimed_at,
+              startedAt: row.started_at,
+              completedAt: row.completed_at,
+              priority: row.priority || 'normal',
+              source: row.source,
+              partsCost: row.parts_cost,
+              keyCost: row.key_cost,
+              serviceCost: row.service_cost,
+              milesDriven: row.miles_driven,
+              gasCost: row.gas_cost,
+              referralSource: row.referral_source,
+              createdAt: row.created_at,
+              updatedAt: row.updated_at || row.created_at,
+              syncedAt: row.synced_at,
+              syncStatus: row.sync_status || 'synced',
+              deviceId: row.device_id
+            };
+          });
 
           // Add server time header for clock sync
           const headers = new Headers();
@@ -9064,116 +9079,25 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return evPatterns.some(pattern => pattern.test(model));
           };
 
-          // Merge model variants (G35 + G35 Coupe → G35 with variants indicator)
-          // These are suffixes where the key system is typically identical to the base model
-          const variantSuffixes = [
-            // Body styles
-            'Coupe', 'Sedan', 'Convertible', 'Wagon', 'Hatchback', 'Cab',
-            // Trim levels
-            'Sport', 'Sports', 'Touring', 'Limited', 'Premium', 'Base', 'SE', 'LE', 'XLE', 'XSE',
-            // Drivetrain (same key system)
-            'AWD', '4WD', '2WD', 'FWD', 'RWD', 'Quattro', 'xDrive', '4Matic',
-            // Powertrain variants (same key system)
-            'Hybrid', 'PHEV', 'Plug-In', 'EV', 'Diesel', 'Turbo', 'V6', 'V8',
-            // Performance trims (Jeep/Dodge especially - same key system)
-            'SRT', 'SRT8', 'Trackhawk', 'Hellcat', 'Demon', 'Scat Pack', 'R/T', 'GT',
-            // Extended/size variants (same key system)  
-            'L', 'XL', 'Long', 'Short',
-            // Generation/platform suffixes (same key system within generation)
-            'WK', 'WK2', 'WL', 'JK', 'JL', 'JT', 'KL', 'MK',
-            // Luxury package variants
-            'Sport Sedan', 'Gran Coupe', 'Gran Turismo',
-            'Cross Country', 'Sportback', 'Avant', 'Allroad', 'Cabriolet', 'Convertible', 'Roadster', 'Coupe', 'Sedan', 'Wagon',
-            // Common trim packages
-            'Laredo', 'Overland', 'Summit', 'Trailhawk', 'High Altitude', 'Limited X',
-            // Toyota performance/package variants (same key system)
-            'TRD', 'TRD Pro', 'TRD Off-Road', 'TRD Sport', 'Trail', 'Nightshade',
-            // Honda performance variants
-            'Type R', 'Type-R', 'Si', 'Type S', 'Type-S',
-            // Acura performance variants
-            'A-Spec', 'Advance', 'Technology',
-            // Volkswagen/Audi performance
-            'R', 'GTI', 'GLI', 'R-Line', 'S-Line',
-            // Hyundai/Kia performance
-            'N', 'N Line', 'GT-Line',
-            // Subaru performance
-            'STI', 'WRX', 'XT',
-            // Nissan performance
-            'NISMO', 'SR', 'SV', 'SL', 'Platinum',
-            // Mazda trims
-            'Signature', 'Grand Touring', 'Carbon Edition',
-            // Fleet/Police variants (same key system as civilian)
-            'PPV', 'Police', 'Taxi', 'Fleet'
-          ];
-
-          // Hyphenated suffixes (like CTS-V, ATS-V) - checked separately
-          const hyphenatedSuffixes = [
-            '-V',     // Cadillac (CTS-V, ATS-V, CT5-V)
-            '-S',     // Jaguar (F-Type S, XE-S)
-            '-F',     // Lexus (IS-F, RC-F, GS-F)
-          ];
-
-          // Build a map of base model → variants
-          const modelVariantMap = new Map<string, Set<string>>();
-          const processedModels = new Set<string>();
-
-          for (const model of models) {
-            let baseModel = model;
-            let foundVariant: string | null = null;
-
-            // Check if this model ends with a variant suffix (space-separated)
-            for (const suffix of variantSuffixes) {
-              const pattern = new RegExp(`\\s+${suffix}$`, 'i');
-              if (pattern.test(model)) {
-                baseModel = model.replace(pattern, '').trim();
-                foundVariant = suffix;
-                break;
-              }
-            }
-
-            // Also check hyphenated suffixes (like CTS-V → CTS)
-            if (!foundVariant) {
-              for (const suffix of hyphenatedSuffixes) {
-                if (model.endsWith(suffix)) {
-                  baseModel = model.slice(0, -suffix.length);
-                  foundVariant = suffix;
-                  break;
-                }
-              }
-            }
-
-            // Check for letter-suffix variants on numeric models (300C→300, 300M→300)
-            // Only when: base is purely numeric AND the suffix is 1-2 uppercase letters
-            if (!foundVariant) {
-              const letterSuffixMatch = model.match(/^(\d+)([A-Z]{1,2})$/);
-              if (letterSuffixMatch) {
-                const potentialBase = letterSuffixMatch[1];
-                const letterSuffix = letterSuffixMatch[2];
-                if (models.includes(potentialBase)) {
-                  baseModel = potentialBase;
-                  foundVariant = letterSuffix;
-                }
-              }
-            }
-
-            // Only merge if the base model also exists independently
-            if (foundVariant && models.includes(baseModel)) {
-              if (!modelVariantMap.has(baseModel)) {
-                modelVariantMap.set(baseModel, new Set());
-              }
-              modelVariantMap.get(baseModel)!.add(foundVariant);
-            } else if (!foundVariant) {
-              // This is a base model or standalone model
-              if (!modelVariantMap.has(model)) {
-                modelVariantMap.set(model, new Set());
-              }
-            } else {
-              // Variant without base model - keep as-is
-              processedModels.add(model);
+          // Use model_family from junction table for variant grouping
+          // This replaces the old 90-line suffix-stripping algorithm with pre-computed families
+          const familySql = `
+            SELECT model_family, GROUP_CONCAT(DISTINCT model) as variants
+            FROM aks_product_vehicle_years
+            WHERE LOWER(make) = LOWER(?)
+            GROUP BY model_family
+            HAVING COUNT(DISTINCT model) > 1
+          `;
+          const familyResult = await env.LOCKSMITH_DB.prepare(familySql).bind(make).all();
+          const familyMap = new Map<string, string[]>();
+          for (const row of (familyResult.results || []) as any[]) {
+            const variants = (row.variants || '').split(',').filter((v: string) => v !== row.model_family).sort();
+            if (variants.length > 0) {
+              familyMap.set(row.model_family, variants);
             }
           }
 
-          // Build merged models list with indicators
+          // Build merged models list using model_family groupings
           interface MergedModel {
             name: string;
             display: string;
@@ -9182,36 +9106,50 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
 
           const mergedModels: MergedModel[] = [];
+          const consumedByFamily = new Set<string>();
 
-          for (const [baseModel, variants] of modelVariantMap) {
-            const variantArray = Array.from(variants).sort();
-            let display = baseModel;
+          // First pass: identify models that are variants of a family
+          for (const [family, variants] of familyMap) {
+            for (const v of variants) {
+              consumedByFamily.add(v);
+            }
+          }
 
-            if (variantArray.length > 0) {
-              if (variantArray.length === 1) {
-                display = `${baseModel} (incl. ${variantArray[0]})`;
-              } else if (variantArray.length <= 3) {
-                display = `${baseModel} (incl. ${variantArray.join(', ')})`;
+          for (const model of models) {
+            // Skip models that are consumed as variants of another family
+            if (consumedByFamily.has(model)) continue;
+
+            const variants = familyMap.get(model) || [];
+            // Only show variants that actually exist in the browse models list
+            const visibleVariants = variants.filter(v => models.includes(v));
+
+            let display = model;
+            if (visibleVariants.length > 0) {
+              // Strip base model prefix from variant names for compact display
+              // "200 Convertible" → "Convertible", "300C" → "C", "300 C" → "C"
+              const shortVariants = visibleVariants.map(v => {
+                let short = v;
+                // Strip base model prefix (with or without space)
+                if (short.startsWith(model + ' ')) {
+                  short = short.substring(model.length + 1).trim();
+                } else if (short.startsWith(model)) {
+                  short = short.substring(model.length).trim();
+                }
+                return short || v; // fallback to full name if nothing left
+              });
+
+              if (shortVariants.length <= 4) {
+                display = `${model} (+${shortVariants.join('/')})`;
               } else {
-                display = `${baseModel} (+${variantArray.length} variants)`;
+                display = `${model} (+${shortVariants.length})`;
               }
             }
 
             mergedModels.push({
-              name: baseModel,
-              display,
-              baseModel,
-              variants: variantArray
-            });
-          }
-
-          // Add standalone models (variants without base)
-          for (const model of processedModels) {
-            mergedModels.push({
               name: model,
-              display: model,
+              display,
               baseModel: model,
-              variants: []
+              variants: visibleVariants
             });
           }
 
@@ -11558,6 +11496,27 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const enrichmentParams = year ? [make, `%${model}%`, year, year] : [make, `%${model}%`];
           enrichmentData = await env.LOCKSMITH_DB.prepare(enrichmentQuery).bind(...enrichmentParams).first<any>();
 
+          // 0.5. Get vehicle_intelligence (materialized single-table view)
+          // Provides: tool coverage, programming info, EEPROM data, field intel, AND specs (priority -1)
+          let viData: any = null;
+          if (year) {
+            viData = await env.LOCKSMITH_DB.prepare(`
+              SELECT autel_status, smartpro_status, lonsdor_status, vvdi_status,
+                     tool_coverage_json, security_level, obd_supported, bench_required,
+                     programming_method, pin_required, akl_method, akl_supported,
+                     eeprom_chip, eeprom_module, eeprom_location, eeprom_tools,
+                     critical_alert, service_notes, description,
+                     pearl_count, comment_count, image_count, has_walkthrough, has_guide,
+                     chip_type, platform, architecture, immo_system,
+                     lishi, keyway, spaces, depths, macs, frequency, battery,
+                     adapter_type, fcc_ids, key_type, code_series
+              FROM vehicle_intelligence
+              WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
+                AND year_start <= ? AND year_end >= ?
+              LIMIT 1
+            `).bind(make, `%${model}%`, year, year).first<any>();
+          }
+
           // 1. Get VYP data (Priority 2 - source for Lishi, spaces, depths, MACS)
           let vypData: any = null;
           let itemNumbers: string[] = [];
@@ -11601,12 +11560,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           if (year) {
             const fccResult = await env.LOCKSMITH_DB.prepare(`
-              SELECT DISTINCT p.fcc_id, p.product_type, p.buttons, p.title
-              FROM aks_vehicle_products vp
-              JOIN aks_products p ON vp.product_page_id = p.page_id
-              WHERE LOWER(vp.make) = ? AND LOWER(vp.model) LIKE LOWER(?) AND vp.year = ?
-                AND p.fcc_id IS NOT NULL AND p.fcc_id != ''
-                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%shell%'
+              SELECT DISTINCT c.fcc_id, c.product_type, c.buttons, c.title
+              FROM aks_product_vehicle_years pvy
+              JOIN aks_products_complete c ON pvy.item_id = c.item_id
+              WHERE LOWER(pvy.make) = ? AND LOWER(pvy.model) LIKE LOWER(?) AND pvy.year = ?
+                AND c.fcc_id IS NOT NULL AND c.fcc_id != ''
+                AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
             `).bind(make, `%${model}%`, year).all<any>();
 
             // Normalize FCC IDs: replace common O/0 typos (letter O → number 0)
@@ -11669,7 +11628,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             buttonCount: string | null;
             fccIds: string[];
             fccDetails: FccDetail[];
-            oemParts: string[];
+            oemParts: { number: string; label: string | null }[];
             chip: string | null;
             battery: string | null;
             frequency: string | null;
@@ -11707,11 +11666,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 CASE WHEN c.image_filename IS NOT NULL AND c.image_filename != '' 
                   THEN 'aks_products/' || c.image_filename 
                   ELSE NULL END as image_r2_key
-              FROM aks_vehicle_products vp
-              JOIN aks_products_complete c ON vp.product_page_id = c.page_id
-              WHERE LOWER(vp.make) = ? 
-                AND LOWER(vp.model) LIKE LOWER(?) 
-                AND vp.year = ?
+              FROM aks_product_vehicle_years pvy
+              JOIN aks_products_complete c ON pvy.item_id = c.item_id
+              WHERE LOWER(pvy.make) = ? 
+                AND LOWER(pvy.model) LIKE LOWER(?) 
+                AND pvy.year = ?
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%flip%'
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%tool%'
@@ -11727,11 +11686,56 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               ORDER BY c.product_type, c.buttons DESC
             `).bind(make, `%${model}%`, year).all<any>();
 
+            // Secondary lookup: also fetch products via aks_vehicles_by_year.product_item_ids
+            // This fills junction table gaps (e.g., KOBJXF18A products not linked to Range Rover)
+            const seenItemIds = new Set((keyConfigResult.results || []).map((r: any) => String(r.item_id)));
+            if (aksVehicleData?.product_item_ids) {
+              try {
+                const itemIds: string[] = JSON.parse(aksVehicleData.product_item_ids);
+                const missingIds = itemIds.filter(id => !seenItemIds.has(id));
+                if (missingIds.length > 0) {
+                  const placeholders = missingIds.map(() => '?').join(',');
+                  const supplemental = await env.LOCKSMITH_DB.prepare(`
+                    SELECT page_id, item_id, title, product_type, buttons, fcc_id,
+                      oem_part_numbers, battery, frequency, chip, keyway, model_name,
+                      image_url as cdn_image, reusable, cloneable,
+                      CASE WHEN image_filename IS NOT NULL AND image_filename != ''
+                        THEN 'aks_products/' || image_filename ELSE NULL END as image_r2_key
+                    FROM aks_products_complete
+                    WHERE item_id IN (${placeholders})
+                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%shell%'
+                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%flip%'
+                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%tool%'
+                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%lishi%'
+                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%ignition%'
+                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%lock%'
+                      AND COALESCE(product_type, '') != 'Key'
+                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%other%'
+                      AND LOWER(COALESCE(title, '')) NOT LIKE '%shell only%'
+                      AND LOWER(COALESCE(title, '')) NOT LIKE '%case only%'
+                      AND LOWER(COALESCE(title, '')) NOT LIKE '%-pack%'
+                      AND LOWER(COALESCE(title, '')) NOT LIKE '%flip blade%'
+                    ORDER BY product_type, buttons DESC
+                  `).bind(...missingIds.map(id => parseInt(id) || id)).all<any>();
+
+                  // Merge supplemental products into main result set
+                  for (const row of (supplemental.results || [])) {
+                    if (!seenItemIds.has(String(row.item_id))) {
+                      seenItemIds.add(String(row.item_id));
+                      (keyConfigResult.results as any[]).push(row);
+                    }
+                  }
+                }
+              } catch (e) {
+                // Ignore parse errors on product_item_ids
+              }
+            }
+
             // Group by key type → button count
             const keyTypeGroups: Record<string, Record<string, {
               fccIds: Set<string>;
               fccDetailMap: Map<string, { oem: Set<string>; titles: string[]; frequency: string | null }>;
-              oemParts: Set<string>;
+              oemParts: Map<string, { title: string; reusable: string | null; cloneable: string | null; fcc: string | null }>;
               chips: Set<string>;
               batteries: Set<string>;
               frequencies: Set<string>;
@@ -11760,7 +11764,20 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               return true;
             });
 
-            for (const row of filteredResults) {
+            // Year-range filter: parse year ranges from product titles and exclude
+            // products whose range doesn't cover the queried vehicle year.
+            // e.g., "2011-2018 Smart Key" should NOT appear for a 2020 vehicle.
+            const yearFilteredResults = year ? filteredResults.filter((row: any) => {
+              const title = row.title || '';
+              const m = title.match(/\b(20\d{2})\s*[-–]\s*(20\d{2})\b/);
+              if (!m) return true; // No year range in title → keep (conservative)
+              const [, startStr, endStr] = m;
+              const yStart = parseInt(startStr);
+              const yEnd = parseInt(endStr);
+              return year >= yStart && year <= yEnd;
+            }) : filteredResults;
+
+            for (const row of yearFilteredResults) {
               // Skip products with no product_type (usually accessories like batteries)
               if (!row.product_type) continue;
 
@@ -11785,8 +11802,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 if (btnMatch) {
                   buttonCount = btnMatch[1];
                 } else if (row.buttons) {
-                  const btnParts = String(row.buttons).split('/');
-                  buttonCount = String(btnParts.length);
+                  // Try to extract a numeric button count from the buttons field
+                  const numMatch = String(row.buttons).match(/(\d+)/);
+                  if (numMatch) {
+                    buttonCount = numMatch[1];
+                  } else {
+                    // Count slash-separated button labels (Lock/Unlock/Panic = 3)
+                    const btnParts = String(row.buttons).split('/').filter(Boolean);
+                    if (btnParts.length > 1) {
+                      buttonCount = String(btnParts.length);
+                    }
+                    // If only 1 part with no digit, leave as null → groups as 'other'
+                  }
                 }
               }
 
@@ -11800,7 +11827,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 keyTypeGroups[baseType][btnKey] = {
                   fccIds: new Set(),
                   fccDetailMap: new Map(),
-                  oemParts: new Set(),
+                  oemParts: new Map(),
                   chips: new Set(),
                   batteries: new Set(),
                   frequencies: new Set(),
@@ -11877,7 +11904,14 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   return true;
                 });
                 for (const part of splitOem) {
-                  group.oemParts.add(part);
+                  if (!group.oemParts.has(part)) {
+                    group.oemParts.set(part, {
+                      title: row.title || '',
+                      reusable: row.reusable || null,
+                      cloneable: row.cloneable || null,
+                      fcc: fccRaw || null,
+                    });
+                  }
                 }
               }
               if (row.chip) group.chips.add(row.chip);
@@ -11928,7 +11962,19 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   buttonCount: btnKey === 'other' ? null : btnKey,
                   fccIds: Array.from(group.fccIds).slice(0, 8),
                   fccDetails: fccDetails.slice(0, 8),
-                  oemParts: Array.from(group.oemParts).slice(0, 10),
+                  oemParts: Array.from(group.oemParts.entries()).slice(0, 10).map(([num, meta]) => {
+                    // Compute short differentiator label for tooltip
+                    const labels: string[] = [];
+                    if (meta.reusable?.toLowerCase().startsWith('yes')) labels.push('♻️ Reusable');
+                    if (meta.cloneable?.toLowerCase().startsWith('yes')) labels.push('📋 Cloneable');
+                    if (meta.fcc && meta.fcc.length > 4) labels.push(meta.fcc.split(/[,\s]+/)[0]);
+                    // Short title — extract key distinguisher from product title
+                    if (meta.title && labels.length === 0) {
+                      const shortTitle = meta.title.replace(/^\d+-button\s*/i, '').replace(/for\s+\w+.*$/i, '').trim();
+                      if (shortTitle.length > 0 && shortTitle.length < 40) labels.push(shortTitle);
+                    }
+                    return { number: num, label: labels.join(' · ') || null };
+                  }),
                   chip: Array.from(group.chips)[0] || null,
                   battery: Array.from(group.batteries)[0] || null,
                   frequency: Array.from(group.frequencies)[0] || null,
@@ -12273,52 +12319,51 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               aks_products: Object.keys(productsByType).length > 0
             },
 
-            // Header data — Priority: enrichments > aks_vehicles > vyp > vehicles (DEPRECATED)
+            // Header data — Priority: VI > enrichments > aks_vehicles > vyp > vehicles (DEPRECATED)
             header: {
               make: aksVehicleData?.make_model?.split(' ')[0] || vehicleData?.make || make,
               model: vehicleData?.model || model,
               year: year,
               year_range: vehicleData ? { start: vehicleData.year_start, end: vehicleData.year_end } : null,
-              // Priority: enrichments > vehicles (DEPRECATED fallback)
-              immobilizer_system: enrichmentData?.immobilizer_system || vehicleData?.immobilizer_system || null, // vehicles DEPRECATED
-              platform: enrichmentData?.platform || vehicleData?.platform || null, // vehicles DEPRECATED
+              // Priority: VI > enrichments > vehicles (DEPRECATED fallback)
+              immobilizer_system: viData?.immo_system || viData?.architecture || enrichmentData?.immobilizer_system || vehicleData?.immobilizer_system || null,
+              platform: viData?.platform || enrichmentData?.platform || vehicleData?.platform || null,
               protocol_type: enrichmentData?.protocol_type || null,
               security_gateway: enrichmentData?.security_gateway || null,
-              key_type: vehicleData?.key_type || null, // vehicles DEPRECATED
-              can_fd_required: enrichmentData?.can_fd_required ?? vehicleData?.can_fd_required ?? false, // vehicles DEPRECATED
-              adapter_type: enrichmentData?.adapter_type ?? vehicleData?.adapter_type ??
+              key_type: viData?.key_type || vehicleData?.key_type || null,
+              can_fd_required: enrichmentData?.can_fd_required ?? vehicleData?.can_fd_required ?? false,
+              adapter_type: viData?.adapter_type || enrichmentData?.adapter_type || vehicleData?.adapter_type ||
                 (enrichmentData?.can_fd_required || vehicleData?.can_fd_required ? 'CAN FD' : 'None'),
               online_required: enrichmentData?.online_required ?? false,
-              // DEPRECATED: architecture_tags from vehicles table are often wrong (e.g. Catera shows GM PK3)
               architecture_tags: vehicleData?.architecture_tags_json ? JSON.parse(vehicleData.architecture_tags_json) : []
             },
 
-            // Specs data - Priority: enrichments > AKS vehicles > VYP > vehicles (DEPRECATED)
+            // Specs data - Priority: VI > enrichments > AKS vehicles > VYP > vehicles (DEPRECATED)
             specs: {
-              // Priority: enrichments > AKS vehicles > VYP > vehicles (DEPRECATED - often wrong, e.g. HU100 for Catera)
-              lishi: enrichmentData?.lishi || aksVehicleData?.lishi_tool || vypData?.lishi || vehicleData?.lishi_tool || null, // vehicles DEPRECATED
-              lishi_source: enrichmentData?.lishi ? "enrichments" : (aksVehicleData?.lishi_tool ? "aks_vehicles" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles_deprecated" : null))),
+              // Priority: VI > enrichments > AKS vehicles > VYP > vehicles
+              lishi: viData?.lishi || enrichmentData?.lishi || aksVehicleData?.lishi_tool || vypData?.lishi || vehicleData?.lishi_tool || null,
+              lishi_source: viData?.lishi ? "vehicle_intelligence" : (enrichmentData?.lishi ? "enrichments" : (aksVehicleData?.lishi_tool ? "aks_vehicles" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles_deprecated" : null)))),
 
-              // Bitting specs - Priority: AKS vehicles (74.5%) > VYP > vehicles
-              spaces: parseInt(aksVehicleData?.spaces, 10) || parseInt(vypData?.spaces, 10) || vehicleData?.spaces || null,
-              depths: aksVehicleData?.depths || vypData?.depths || vehicleData?.depths || null,
-              macs: parseInt(aksVehicleData?.macs, 10) || parseInt(vypData?.macs, 10) || vehicleData?.macs || null,
+              // Bitting specs - Priority: VI > AKS vehicles > VYP > vehicles
+              spaces: viData?.spaces || parseInt(aksVehicleData?.spaces, 10) || parseInt(vypData?.spaces, 10) || vehicleData?.spaces || null,
+              depths: viData?.depths || aksVehicleData?.depths || vypData?.depths || vehicleData?.depths || null,
+              macs: viData?.macs || parseInt(aksVehicleData?.macs, 10) || parseInt(vypData?.macs, 10) || vehicleData?.macs || null,
               // Track source for accuracy/debugging
-              mechanical_source: aksVehicleData?.spaces ? "aks_vehicles" : (vypData?.spaces ? "vyp" : (vehicleData?.spaces ? "vehicles" : null)),
-              bitting_source: aksVehicleData?.spaces ? (aksVehicleData?.bitting_source || 'unknown') : (vypData?.spaces ? 'scraped' : null),
-              code_series: aksVehicleData?.code_series || vypData?.code_series || vehicleData?.code_series || null,
+              mechanical_source: viData?.spaces ? "vehicle_intelligence" : (aksVehicleData?.spaces ? "aks_vehicles" : (vypData?.spaces ? "vyp" : (vehicleData?.spaces ? "vehicles" : null))),
+              bitting_source: viData?.spaces ? "vehicle_intelligence" : (aksVehicleData?.spaces ? (aksVehicleData?.bitting_source || 'unknown') : (vypData?.spaces ? 'scraped' : null)),
+              code_series: viData?.code_series || aksVehicleData?.code_series || vypData?.code_series || vehicleData?.code_series || null,
               mechanical_key: aksVehicleData?.mechanical_key || vypData?.mechanical_key || vehicleData?.mechanical_spec || null,
               transponder_key: aksVehicleData?.transponder_key || vypData?.transponder_key || vehicleData?.blade_type || null,
-              // Priority: enrichments > AKS vehicles (83% coverage) > AKS consensus > vehicles
-              keyway: enrichmentData?.keyway || aksVehicleData?.mechanical_key || aksConsensus.keyway || vehicleData?.keyway || null,
-              keyway_source: enrichmentData?.keyway ? "enrichments" : (aksVehicleData?.mechanical_key ? "aks_vehicles" : (aksConsensus.keyway ? "aks_products" : (vehicleData?.keyway ? "vehicles" : null))),
+              // Priority: VI > enrichments > AKS vehicles > AKS consensus > vehicles
+              keyway: viData?.keyway || enrichmentData?.keyway || aksVehicleData?.mechanical_key || aksConsensus.keyway || vehicleData?.keyway || null,
+              keyway_source: viData?.keyway ? "vehicle_intelligence" : (enrichmentData?.keyway ? "enrichments" : (aksVehicleData?.mechanical_key ? "aks_vehicles" : (aksConsensus.keyway ? "aks_products" : (vehicleData?.keyway ? "vehicles" : null)))),
 
-              // Priority: enrichments (override) > AKS (primary hardware authority) > vehicles (DEPRECATED fallback)
-              chip: enrichmentData?.chip || aksConsensus.chip || vehicleData?.chip || null, // vehicles DEPRECATED
-              frequency: enrichmentData?.frequency || aksConsensus.frequency || vehicleData?.frequency || null, // vehicles DEPRECATED
-              battery: enrichmentData?.battery || aksConsensus.battery || vehicleData?.battery || null, // vehicles DEPRECATED
-              buttons: vehicleData?.buttons || null, // vehicles DEPRECATED
-              fcc_id: enrichmentData?.fcc_id || aksConsensus.fcc_id || vehicleData?.fcc_id || null, // vehicles DEPRECATED
+              // Priority: VI > enrichments > AKS consensus > vehicles (DEPRECATED fallback)
+              chip: viData?.chip_type || enrichmentData?.chip || aksConsensus.chip || vehicleData?.chip || null,
+              frequency: viData?.frequency || enrichmentData?.frequency || aksConsensus.frequency || vehicleData?.frequency || null,
+              battery: viData?.battery || enrichmentData?.battery || aksConsensus.battery || vehicleData?.battery || null,
+              buttons: vehicleData?.buttons || null,
+              fcc_id: enrichmentData?.fcc_id || aksConsensus.fcc_id || vehicleData?.fcc_id || null,
 
               // Transition year variance detection (60% Mode Rule)
               hasVariance: aksConsensus.hasVariance,
@@ -12367,6 +12412,47 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               akl_difficulty: vehicleData.akl_difficulty,
               prog_difficulty: vehicleData.prog_difficulty,
               prog_tools: vehicleData.prog_tools
+            } : null,
+
+            // Vehicle Intelligence (materialized single-table view)
+            // Provides tool coverage, programming info, EEPROM data, field intel
+            intelligence: viData ? {
+              tool_coverage: {
+                autel: viData.autel_status || null,
+                smartpro: viData.smartpro_status || null,
+                lonsdor: viData.lonsdor_status || null,
+                vvdi: viData.vvdi_status || null,
+                details: viData.tool_coverage_json ? JSON.parse(viData.tool_coverage_json) : null,
+              },
+              security: {
+                level: viData.security_level || null,
+                obd_supported: viData.obd_supported === 1,
+                bench_required: viData.bench_required === 1,
+              },
+              programming: {
+                method: viData.programming_method || null,
+                pin_required: viData.pin_required || null,
+                akl_method: viData.akl_method || null,
+                akl_supported: viData.akl_supported || null,
+              },
+              eeprom: viData.eeprom_chip ? {
+                chip: viData.eeprom_chip,
+                module: viData.eeprom_module || null,
+                location: viData.eeprom_location || null,
+                tools: viData.eeprom_tools || null,
+              } : null,
+              field_intel: {
+                critical_alert: viData.critical_alert || null,
+                service_notes: viData.service_notes || null,
+                description: viData.description || null,
+              },
+              counts: {
+                pearls: viData.pearl_count || 0,
+                comments: viData.comment_count || 0,
+                images: viData.image_count || 0,
+                has_walkthrough: viData.has_walkthrough === 1,
+                has_guide: viData.has_guide === 1,
+              },
             } : null,
 
             // Counts for UI badges (DEPRECATED - relies on vehicles table)

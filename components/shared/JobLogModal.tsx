@@ -26,6 +26,7 @@ interface JobLogModalProps {
     prefillCustomerAddress?: string;
     prefillNotes?: string;
     prefillPrice?: number;
+    prefillKeysMade?: number;
     prefillJobType?: string;
     prefillReferralSource?: string;
     prefillStatus?: JobFormData['status'];
@@ -39,6 +40,7 @@ export interface JobFormData {
     companyName?: string;
     fccId: string;
     keyType: string;
+    keysMade?: number;
     jobType: 'add_key' | 'akl' | 'remote' | 'blade' | 'rekey' | 'lockout' | 'other';
     price: number;
     date: string;
@@ -86,6 +88,8 @@ const JOB_TYPES = [
     { value: 'other', label: 'TBD / Other', icon: '🔧' },
 ];
 
+const KEY_COUNT_JOB_TYPES = new Set<JobFormData['jobType']>(['add_key', 'akl', 'remote', 'blade']);
+
 const REFERRAL_SOURCES = [
     { value: 'google', label: 'Google' },
     { value: 'yelp', label: 'Yelp' },
@@ -117,6 +121,10 @@ const OPEN_INTAKE_STATUSES: Array<NonNullable<JobFormData['status']>> = [
     'unassigned',
 ];
 
+function getLocalDateKey(date: Date = new Date()): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 export default function JobLogModal({
     isOpen,
     onClose,
@@ -130,6 +138,7 @@ export default function JobLogModal({
     prefillCustomerAddress = '',
     prefillNotes = '',
     prefillPrice,
+    prefillKeysMade,
     prefillJobType,
     prefillReferralSource,
     prefillStatus,
@@ -194,9 +203,12 @@ export default function JobLogModal({
         companyName: '',
         fccId: prefillFccId,
         keyType: '',
+        keysMade: typeof prefillKeysMade === 'number' && Number.isFinite(prefillKeysMade) && prefillKeysMade > 0
+            ? Math.max(1, Math.round(prefillKeysMade))
+            : 1,
         jobType: initialJobType,
         price: prefillPrice || 0,
-        date: prefillDate || new Date().toISOString().split('T')[0],
+        date: prefillDate || getLocalDateKey(),
         notes: prefillNotes,
         customerName: prefillCustomerName,
         customerPhone: prefillCustomerPhone,
@@ -234,6 +246,7 @@ export default function JobLogModal({
         prefillCustomerAddress,
         prefillNotes,
         prefillPrice,
+        prefillKeysMade,
         prefillJobType,
         prefillReferralSource,
         prefillStatus,
@@ -398,7 +411,15 @@ export default function JobLogModal({
             }
         }
 
-        onSubmit(formData);
+        const shouldTrackKeyCount = KEY_COUNT_JOB_TYPES.has(formData.jobType);
+        const normalizedKeysMade = shouldTrackKeyCount
+            ? Math.max(1, Math.round(formData.keysMade || 1))
+            : undefined;
+
+        onSubmit({
+            ...formData,
+            keysMade: normalizedKeysMade,
+        });
         // Reset form
         setFormData(getInitialFormData());
         setShowCustomerInfo(false);
@@ -863,8 +884,8 @@ export default function JobLogModal({
                         </div>
 
 
-                        {/* Price & Date row */}
-                        <div className="grid grid-cols-2 gap-3">
+                        {/* Price / Keys Made / Date */}
+                        <div className={`grid gap-3 ${KEY_COUNT_JOB_TYPES.has(formData.jobType) ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">💲 Price</label>
                                 <input type="number" placeholder="150" min="0" step="0.01"
@@ -872,6 +893,37 @@ export default function JobLogModal({
                                     onChange={e => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                                     className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 text-green-400 font-bold placeholder-zinc-600" />
                             </div>
+                            {KEY_COUNT_JOB_TYPES.has(formData.jobType) && (
+                                <div>
+                                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">🔢 Keys Made</label>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="number"
+                                            placeholder="1"
+                                            min="1"
+                                            step="1"
+                                            value={formData.keysMade || 1}
+                                            onChange={e => setFormData(prev => ({ ...prev, keysMade: Math.max(1, Math.round(parseFloat(e.target.value) || 1)) }))}
+                                            className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-amber-300 font-bold placeholder-zinc-600"
+                                        />
+                                        <div className="grid grid-cols-3 gap-1">
+                                            {[1, 2, 3].map(qty => (
+                                                <button
+                                                    key={qty}
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, keysMade: qty }))}
+                                                    className={`text-[10px] py-1 rounded-md border transition-colors ${formData.keysMade === qty
+                                                        ? 'border-amber-500/50 text-amber-300 bg-amber-500/10'
+                                                        : 'border-zinc-700/60 text-zinc-500 bg-zinc-900/50 hover:text-zinc-300 hover:border-zinc-600'
+                                                        }`}
+                                                >
+                                                    {qty}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">📅 Date</label>
                                 <input type="date" value={formData.date}

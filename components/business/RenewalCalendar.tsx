@@ -18,7 +18,13 @@ function getFirstDayOfMonth(year: number, month: number): number {
 }
 
 function formatDateKey(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function normalizeDateKey(raw?: string): string | null {
+    if (!raw) return null;
+    const key = raw.split('T')[0];
+    return /^\d{4}-\d{2}-\d{2}$/.test(key) ? key : null;
 }
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -36,23 +42,22 @@ export default function RenewalCalendar({ licenses, onSelectRenewal }: RenewalCa
     const renewalsByDate = useMemo(() => {
         const map = new Map<string, UserLicense[]>();
         licenses.forEach(license => {
-            if (license.expirationDate) {
-                const dateKey = license.expirationDate.split('T')[0];
-                if (!map.has(dateKey)) {
-                    map.set(dateKey, []);
-                }
-                map.get(dateKey)!.push(license);
+            const dateKey = normalizeDateKey(license.expirationDate);
+            if (!dateKey) return;
+            if (!map.has(dateKey)) {
+                map.set(dateKey, []);
             }
+            map.get(dateKey)!.push(license);
         });
         return map;
     }, [licenses]);
 
     // Get renewals for current month
     const monthRenewals = useMemo(() => {
+        const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-`;
         return licenses.filter(license => {
-            if (!license.expirationDate) return false;
-            const expiry = new Date(license.expirationDate);
-            return expiry.getMonth() === currentMonth && expiry.getFullYear() === currentYear;
+            const dateKey = normalizeDateKey(license.expirationDate);
+            return dateKey ? dateKey.startsWith(monthPrefix) : false;
         });
     }, [licenses, currentMonth, currentYear]);
 

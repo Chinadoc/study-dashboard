@@ -240,6 +240,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
     const [added, setAdded] = useState(false);
     const [showOemSelector, setShowOemSelector] = useState(false);
     const [showFccDetails, setShowFccDetails] = useState(false);
+    const [oemExpanded, setOemExpanded] = useState<string>('');
     const { addToInventory: contextAddToInventory } = useInventory();
 
     const vehicleStr = vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined;
@@ -361,7 +362,9 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
 
             {/* Prominent FCC ID — expandable to show per-FCC details */}
             {config.fcc && (() => {
-                const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean))];
+                const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean).filter(
+                    t => /^[A-Z0-9]+-?[A-Z0-9]+$/i.test(t) && t.length >= 5
+                ))];
                 const hasDetails = config.fccDetails && config.fccDetails.length > 1;
                 return (
                     <div className="mb-3">
@@ -441,28 +444,28 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         <span className="text-white">{config.battery}</span>
                     </div>
                 )}
-                {/* Reusable / Cloneable indicators */}
-                {(config.reusable || config.cloneable) && (
+                {/* Reusable / Cloneable indicators — only show positive badges */}
+                {(config.reusable?.toLowerCase().startsWith('yes') || config.cloneable?.toLowerCase().startsWith('yes')) && (
                     <div className="flex gap-1.5 mt-1">
-                        {config.reusable && (
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${config.reusable.toLowerCase() === 'yes' ? 'bg-green-900/30 text-green-400 border border-green-700/30' : 'bg-red-900/30 text-red-400 border border-red-700/30'}`}>
-                                {config.reusable.toLowerCase() === 'yes' ? '♻️ Reusable' : '🚫 Not Reusable'}
+                        {config.reusable?.toLowerCase().startsWith('yes') && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-900/30 text-green-400 border border-green-700/30">
+                                ♻️ Reusable
                             </span>
                         )}
-                        {config.cloneable && (
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${config.cloneable.toLowerCase() === 'yes' ? 'bg-blue-900/30 text-blue-400 border border-blue-700/30' : 'bg-zinc-800 text-zinc-500 border border-zinc-700/30'}`}>
-                                {config.cloneable.toLowerCase() === 'yes' ? '📋 Cloneable' : '🔒 No Clone'}
+                        {config.cloneable?.toLowerCase().startsWith('yes') && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-900/30 text-blue-400 border border-blue-700/30">
+                                📋 Cloneable
                             </span>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* Collapsible OEM Parts - only show first 3, expand on click */}
+            {/* Collapsible OEM Parts - show first 3, click +N to expand */}
             {config.oem && config.oem.length > 0 && (
                 <div className="mb-3">
                     <div className="flex flex-wrap gap-1">
-                        {config.oem.slice(0, 3).map((part, i) => {
+                        {(oemExpanded === config.fcc ? config.oem : config.oem.slice(0, 3)).map((part, i) => {
                             const displayNum = part.number.length > 20 ? part.number.slice(0, 18) + '…' : part.number;
                             return (
                                 <span
@@ -478,10 +481,21 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                                 </span>
                             );
                         })}
-                        {config.oem.length > 3 && (
-                            <span className="px-1.5 py-0.5 text-[10px] text-zinc-600 font-bold">
+                        {config.oem.length > 3 && oemExpanded !== config.fcc && (
+                            <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOemExpanded(config.fcc || ''); }}
+                                className="px-1.5 py-0.5 text-[10px] text-amber-500 font-bold hover:text-amber-300 transition-colors cursor-pointer"
+                            >
                                 +{config.oem.length - 3}
-                            </span>
+                            </button>
+                        )}
+                        {config.oem.length > 3 && oemExpanded === config.fcc && (
+                            <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOemExpanded(''); }}
+                                className="px-1.5 py-0.5 text-[10px] text-zinc-500 font-bold hover:text-zinc-300 transition-colors cursor-pointer"
+                            >
+                                ▲
+                            </button>
                         )}
                     </div>
                 </div>

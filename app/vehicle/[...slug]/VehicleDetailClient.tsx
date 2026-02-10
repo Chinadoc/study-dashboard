@@ -13,6 +13,7 @@ import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import VideoEmbed from '@/components/vehicle/VideoEmbed';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
+import ToolCoverageBadges from '@/components/vehicle/ToolCoverageBadges';
 import FloatingCommentTab from '@/components/FloatingCommentTab';
 import CommunityHighlight from '@/components/CommunityHighlight';
 import VehicleSidebar from '@/components/layout/VehicleSidebar';
@@ -609,6 +610,7 @@ export default function VehicleDetailClient() {
     const specs = detail.specs || {};
     const productsByType = detail.products_by_type || {};
     const vyp = detail.vyp || {};
+    const intelligence = detail.intelligence || null;
 
     // Universal key classification system
     // Groups products by (type + button count), filters packs/shells, aggregates OEM parts
@@ -1153,6 +1155,31 @@ export default function VehicleDetailClient() {
                             }}
                         />
                     </div>
+
+                    {/* Vehicle Intelligence — Tool Coverage, Programming, EEPROM */}
+                    {intelligence && (
+                        <div className="mb-8">
+                            {intelligence.field_intel?.description && (
+                                <div className="glass p-4 mb-4">
+                                    <p className="text-sm text-zinc-300 leading-relaxed">
+                                        {intelligence.field_intel.description}
+                                    </p>
+                                </div>
+                            )}
+                            {intelligence.field_intel?.critical_alert && (
+                                <div className="glass p-3 mb-4 border-red-500/30 bg-red-950/20">
+                                    <span className="text-red-400 font-bold text-xs">⚠️ CRITICAL: </span>
+                                    <span className="text-red-300 text-xs">{intelligence.field_intel.critical_alert}</span>
+                                </div>
+                            )}
+                            <ToolCoverageBadges
+                                coverage={intelligence.tool_coverage}
+                                security={intelligence.security}
+                                programming={intelligence.programming}
+                                eeprom={intelligence.eeprom}
+                            />
+                        </div>
+                    )}
 
                     {/* Related YouTube Video */}
                     <VideoEmbed make={make} model={model} year={year} />

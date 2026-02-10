@@ -26,6 +26,7 @@ export interface JobLog {
     vehicle: string;
     fccId?: string;
     keyType?: string;
+    keysMade?: number;
     jobType: 'add_key' | 'akl' | 'remote' | 'blade' | 'rekey' | 'lockout' | 'safe' | 'other';
     price: number;
     date: string; // ISO string
@@ -281,6 +282,9 @@ export function useJobLogs() {
             vehicle: job.vehicle || '',
             jobType: job.jobType || 'other',
             price: typeof job.price === 'number' ? job.price : 0,
+            keysMade: typeof job.keysMade === 'number' && Number.isFinite(job.keysMade) && job.keysMade > 0
+                ? Math.max(1, Math.round(job.keysMade))
+                : undefined,
             createdAt: job.createdAt || Date.now(),
             status: ([
                 'unassigned',

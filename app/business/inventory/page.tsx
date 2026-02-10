@@ -225,6 +225,10 @@ export default function InventoryPage() {
                 const jobDate = new Date(job.date);
                 if (isNaN(jobDate.getTime())) return;
                 if (jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear) {
+                    const isKeyMakingJob = ['add_key', 'akl', 'remote', 'blade'].includes(job.jobType);
+                    const keysUsed = isKeyMakingJob ? Math.max(1, Math.round(job.keysMade || 1)) : 0;
+                    if (keysUsed <= 0) return;
+
                     // Match job to inventory item by FCC ID or vehicle string
                     const jobFcc = job.fccId?.toUpperCase() || '';
                     const jobVehicle = job.vehicle?.toLowerCase() || '';
@@ -235,9 +239,9 @@ export default function InventoryPage() {
 
                         // Match by FCC ID or by vehicle overlap
                         if (jobFcc && (itemKey.includes(jobFcc) || itemKey === jobFcc)) {
-                            usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
+                            usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + keysUsed);
                         } else if (itemVehicle && jobVehicle && (itemVehicle.includes(jobVehicle) || jobVehicle.includes(itemVehicle))) {
-                            usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + 1);
+                            usage.set(item.itemKey, (usage.get(item.itemKey) || 0) + keysUsed);
                         }
                     });
                 }

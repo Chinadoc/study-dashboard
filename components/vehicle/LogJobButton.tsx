@@ -39,6 +39,7 @@ export default function LogJobButton({
             companyName: job.companyName,
             fccId: job.fccId || undefined,
             keyType: job.keyType || undefined,
+            keysMade: job.keysMade,
             jobType: job.jobType,
             price: job.price,
             date: job.date,

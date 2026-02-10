@@ -21,7 +21,13 @@ function getFirstDayOfMonth(year: number, month: number): number {
 
 // Format date as YYYY-MM-DD for comparison
 function formatDateKey(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function normalizeDateKey(raw?: string): string | null {
+    if (!raw) return null;
+    const key = raw.split('T')[0];
+    return /^\d{4}-\d{2}-\d{2}$/.test(key) ? key : null;
 }
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -39,7 +45,8 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
     const jobsByDate = useMemo(() => {
         const map = new Map<string, JobLog[]>();
         jobLogs.forEach(job => {
-            const dateKey = job.date.split('T')[0];
+            const dateKey = normalizeDateKey(job.date);
+            if (!dateKey) return;
             if (!map.has(dateKey)) {
                 map.set(dateKey, []);
             }
@@ -50,13 +57,10 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
 
     // Calculate monthly stats
     const monthStats = useMemo(() => {
+        const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-`;
         const monthJobs = jobLogs.filter(job => {
-            try {
-                if (!job.date) return false;
-                const jobDate = new Date(job.date);
-                if (isNaN(jobDate.getTime())) return false;
-                return jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear;
-            } catch { return false; }
+            const dateKey = normalizeDateKey(job.date);
+            return dateKey ? dateKey.startsWith(monthPrefix) : false;
         });
         const revenue = monthJobs.reduce((sum, j) => sum + (j.price || 0), 0);
         const costs = monthJobs.reduce((sum, j) => sum + (j.partsCost || 0) + (j.keyCost || 0) + (j.gasCost || 0), 0);
@@ -180,7 +184,7 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
                         const dayJobs = jobsByDate.get(dateKey) || [];
                         const isToday = dateKey === todayKey;
                         const isSelected = dateKey === selectedDate;
-                        const isFuture = new Date(dateKey) > today;
+                        const isFuture = dateKey > todayKey;
                         const hasCompleted = dayJobs.some(j => j.status === 'completed');
                         const hasPending = dayJobs.some(j => j.status === 'pending' || j.status === 'in_progress');
 

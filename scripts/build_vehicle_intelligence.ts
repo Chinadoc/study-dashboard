@@ -173,13 +173,27 @@ async function main() {
     SELECT DISTINCT vy.make, vy.model, 
            MIN(vy.year) as year_start, MAX(vy.year) as year_end,
            vy.page_id,
-           vy.chip_type, vy.lishi_tool
+           vy.chip_type, vy.lishi_tool,
+           vy.product_item_ids
     FROM aks_vehicles_by_year vy
     WHERE vy.make IS NOT NULL AND vy.model IS NOT NULL
     GROUP BY vy.make, vy.model, vy.page_id
   `);
 
   console.log(`   Found ${vehicles.length} vehicle groups`);
+
+  // Build product_item_ids supplemental map per make|model
+  const supplementalIds = new Map<string, Set<string>>();
+  for (const v of vehicles) {
+    if (!v.product_item_ids) continue;
+    try {
+      const ids: string[] = JSON.parse(v.product_item_ids);
+      const key = `${v.make?.toLowerCase()}|${v.model?.toLowerCase()}`;
+      if (!supplementalIds.has(key)) supplementalIds.set(key, new Set());
+      for (const id of ids) supplementalIds.get(key)!.add(id);
+    } catch { /* ignore parse errors */ }
+  }
+  console.log(`   ${supplementalIds.size} vehicles have supplemental product_item_ids`);
 
   // Query bitting specs from aks_vehicles
   console.log('📥 Querying bitting specs from aks_vehicles...');
@@ -194,25 +208,24 @@ async function main() {
   }
   console.log(`   Found ${bittingSpecs.length} bitting spec entries`);
 
-  // Query product linkages per-make (178K total rows, paginated to avoid D1 response size limits)
-  console.log('📥 Querying product linkages per make...');
-  const distinctMakes = queryD1(`SELECT DISTINCT make FROM aks_vehicle_products WHERE make IS NOT NULL`);
-  console.log(`   ${distinctMakes.length} makes to process`);
+  // ── NEW: Query products via aks_product_vehicle_years → aks_products_complete ──
+  // This is the same chain the runtime detail API uses (Path A)
+  console.log('📥 Querying product linkages via aks_product_vehicle_years → aks_products_complete...');
+  const pvyMakes = queryD1(`SELECT DISTINCT make FROM aks_product_vehicle_years WHERE make IS NOT NULL`);
+  console.log(`   ${pvyMakes.length} makes to process via junction table`);
 
   const productsByVehicle = new Map<string, any[]>();
   let totalProductLinks = 0;
 
-  for (const { make: pMake } of distinctMakes) {
+  for (const { make: pMake } of pvyMakes) {
     const links = queryD1(`
-      SELECT vp.make, vp.model, vp.year, 
-             p.product_type, p.fcc_id, p.buttons, p.oem_part_number,
-             p.battery as p_battery, p.frequency as p_frequency, p.title,
-             d.chip as d_chip, d.keyway as d_keyway, d.battery as d_battery,
-             d.frequency as d_frequency, d.fcc_id as d_fcc
-      FROM aks_vehicle_products vp
-      JOIN aks_products p ON vp.product_page_id = p.page_id
-      LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
-      WHERE vp.make = '${pMake.replace(/'/g, "''")}'
+      SELECT pvy.make, pvy.model, pvy.year,
+             c.item_id, c.product_type, c.fcc_id, c.buttons,
+             c.oem_part_numbers, c.battery, c.frequency, c.chip,
+             c.keyway, c.model_name, c.title, c.reusable, c.cloneable
+      FROM aks_product_vehicle_years pvy
+      JOIN aks_products_complete c ON pvy.item_id = c.item_id
+      WHERE pvy.make = '${pMake.replace(/'/g, "''")}'
     `);
     for (const pl of links) {
       const key = `${pl.make?.toLowerCase()}|${pl.model?.toLowerCase()}`;
@@ -221,7 +234,37 @@ async function main() {
     }
     totalProductLinks += links.length;
   }
-  console.log(`   Found ${totalProductLinks} product links across ${productsByVehicle.size} vehicles`);
+  console.log(`   Found ${totalProductLinks} product links across ${productsByVehicle.size} vehicles (junction path)`);
+
+  // ── Supplemental: Fill gaps from product_item_ids (Path B) ──
+  // Same as runtime detail API — catches products not linked via junction
+  console.log('📥 Filling product gaps via product_item_ids supplemental...');
+  let supplementalFilled = 0;
+  for (const [vKey, itemIdSet] of supplementalIds.entries()) {
+    const existing = productsByVehicle.get(vKey) || [];
+    const seenIds = new Set(existing.map((p: any) => String(p.item_id)));
+    const missingIds = [...itemIdSet].filter(id => !seenIds.has(id));
+    if (missingIds.length === 0) continue;
+
+    // Query missing products in batches of 50
+    for (let i = 0; i < missingIds.length; i += 50) {
+      const batch = missingIds.slice(i, i + 50);
+      const placeholders = batch.map(id => `'${id.replace(/'/g, "''")}'`).join(',');
+      const supProducts = queryD1(`
+        SELECT item_id, product_type, fcc_id, buttons,
+               oem_part_numbers, battery, frequency, chip,
+               keyway, model_name, title, reusable, cloneable
+        FROM aks_products_complete
+        WHERE item_id IN (${placeholders})
+      `);
+      for (const sp of supProducts) {
+        if (!productsByVehicle.has(vKey)) productsByVehicle.set(vKey, []);
+        productsByVehicle.get(vKey)!.push(sp);
+        supplementalFilled++;
+      }
+    }
+  }
+  console.log(`   Supplemental: filled ${supplementalFilled} additional product links`);
 
   // ============================================================
   // STEP 1b: Build INSERT statements with consensus logic
@@ -246,17 +289,19 @@ async function main() {
     const products = (productsByVehicle.get(vKey) || [])
       .filter((p: any) => isKeyProduct(p.title || '', p.product_type || ''));
 
-    // Consensus calculations
-    const chips = products.map((p: any) => p.d_chip).filter(Boolean);
-    const batteries = products.map((p: any) => p.p_battery || p.d_battery).filter(Boolean);
-    const frequencies = products.map((p: any) => p.p_frequency || p.d_frequency).filter(Boolean);
+    // Consensus calculations — using aks_products_complete column names
+    const chips = products.map((p: any) => p.chip).filter(Boolean);
+    const batteries = products.map((p: any) => p.battery).filter(Boolean);
+    const frequencies = products.map((p: any) => p.frequency).filter(Boolean);
     const fccIds = [...new Set(
-      products.map((p: any) => p.fcc_id || p.d_fcc).filter(Boolean)
+      products.map((p: any) => p.fcc_id).filter(Boolean)
         .flatMap((f: string) => f.split(',').map(s => s.trim()))
         .filter(Boolean)
     )];
     const keyTypes = [...new Set(products.map((p: any) => p.product_type).filter(Boolean))];
     const buttons = products.map((p: any) => p.buttons).filter(Boolean);
+    const reusables = products.map((p: any) => p.reusable).filter(Boolean);
+    const cloneables = products.map((p: any) => p.cloneable).filter(Boolean);
 
     const chipConsensus = findConsensus(chips);
     const batteryConsensus = findConsensus(batteries);

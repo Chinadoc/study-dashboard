@@ -127,6 +127,7 @@ function JobsPageContent() {
             companyName: coalesceString(data.companyName, editingJob?.companyName),
             fccId: coalesceString(data.fccId, editingJob?.fccId),
             keyType: coalesceString(data.keyType, editingJob?.keyType),
+            keysMade: data.keysMade ?? editingJob?.keysMade,
             jobType: data.jobType,
             price: data.price,
             date: data.date,
@@ -330,6 +331,7 @@ function JobsPageContent() {
                             addJobLog({
                                 vehicle: job.vehicle || '',
                                 jobType: job.jobType || 'other',
+                                keysMade: typeof (job as any).keysMade === 'number' ? (job as any).keysMade : undefined,
                                 price: job.price || 0,
                                 date: job.date || new Date().toISOString().split('T')[0],
                                 customerName: job.customerName,
@@ -456,6 +458,7 @@ function JobsPageContent() {
                     prefillCustomerPhone={editingJob?.customerPhone || prefillData?.customerPhone}
                     prefillCustomerAddress={editingJob?.customerAddress || prefillData?.customerAddress}
                     prefillPrice={editingJob?.price ?? schedulingLead?.estimatedValue}
+                    prefillKeysMade={editingJob?.keysMade}
                     prefillJobType={editingJob?.jobType || schedulingLead?.jobType}
                     prefillReferralSource={editingJob?.referralSource || schedulingLead?.source}
                     prefillStatus={editingJob?.status}

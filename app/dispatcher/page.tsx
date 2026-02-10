@@ -174,6 +174,7 @@ export default function DispatcherPage() {
             companyName: data.companyName,
             fccId: data.fccId || undefined,
             keyType: data.keyType || undefined,
+            keysMade: data.keysMade,
             jobType: data.jobType,
             price: data.price,
             date: data.date,

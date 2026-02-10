@@ -16,6 +16,7 @@ export interface JobLogSynced extends SyncableRecord {
     vehicle: string;
     fccId?: string;
     keyType?: string;
+    keysMade?: number;
     jobType: 'add_key' | 'akl' | 'remote' | 'blade' | 'rekey' | 'lockout' | 'safe' | 'other';
     price: number;
     date: string;
