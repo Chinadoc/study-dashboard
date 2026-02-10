@@ -122,12 +122,58 @@ interface UserOverviewResponse {
         verification_level?: string | null;
         nastf_verified?: number | boolean;
         nastf_verified_at?: number | null;
+        trial_until?: number | null;
     };
     inventory: {
         summary: UserInventorySummary;
         items: UserInventoryItem[];
     };
     activity: UserActivityItem[];
+    dashboard?: {
+        subscription?: {
+            tier?: 'free' | 'pro' | 'developer' | string;
+            is_pro?: boolean;
+            is_developer?: boolean;
+            trial_until?: number | null;
+            active_addons?: string[];
+            tool_subscription_count?: number;
+        };
+        behavior?: {
+            last_7d?: {
+                events?: number;
+                clicks?: number;
+                searches?: number;
+                vehicle_views?: number;
+                comments?: number;
+                votes_cast?: number;
+                reports?: number;
+            };
+            last_30d?: {
+                events?: number;
+                clicks?: number;
+                searches?: number;
+                vehicle_views?: number;
+                comments?: number;
+                votes_cast?: number;
+                reports?: number;
+            };
+            totals?: {
+                events?: number;
+                clicks?: number;
+                searches?: number;
+                vehicle_views?: number;
+                comments?: number;
+                top_level_comments?: number;
+                replies?: number;
+                upvotes_received?: number;
+                votes_cast?: number;
+                upvotes_cast?: number;
+                downvotes_cast?: number;
+                reports?: number;
+            };
+            top_actions?: Array<{ action: string; count: number }>;
+        };
+    };
     verification: {
         proofs: VerificationHistoryItem[];
         nastf: Array<{
@@ -320,6 +366,39 @@ const timeAgo = (timestamp: number) => {
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
     return `${Math.floor(seconds / 86400)}d ago`;
 };
+
+const relativeTime = (timestamp?: number | null) => {
+    if (!timestamp) return 'N/A';
+    const diff = timestamp - Date.now();
+    const absSeconds = Math.floor(Math.abs(diff) / 1000);
+    if (absSeconds < 60) return diff >= 0 ? 'in <1m' : 'just now';
+    if (absSeconds < 3600) {
+        const value = Math.floor(absSeconds / 60);
+        return diff >= 0 ? `in ${value}m` : `${value}m ago`;
+    }
+    if (absSeconds < 86400) {
+        const value = Math.floor(absSeconds / 3600);
+        return diff >= 0 ? `in ${value}h` : `${value}h ago`;
+    }
+    const value = Math.floor(absSeconds / 86400);
+    return diff >= 0 ? `in ${value}d` : `${value}d ago`;
+};
+
+const formatDateTime = (timestamp?: number | null) => {
+    if (!timestamp) return 'N/A';
+    try {
+        return new Date(timestamp).toLocaleString();
+    } catch {
+        return 'N/A';
+    }
+};
+
+const formatActionLabel = (action: string) =>
+    String(action || '')
+        .split('_')
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
 
 // Country flag emoji helper
 const countryFlag = (code: string) => {
@@ -745,6 +824,13 @@ export default function DevPanelPage() {
         count: v.view_count
     }));
 
+    const selectedDashboard = selectedUserOverview?.dashboard;
+    const selectedSubscription = selectedDashboard?.subscription;
+    const selectedBehavior = selectedDashboard?.behavior;
+    const selectedTier = selectedSubscription?.tier
+        || (selectedUserOverview?.user?.is_developer ? 'developer' : selectedUserOverview?.user?.is_pro ? 'pro' : 'free');
+    const selectedTopActions = selectedBehavior?.top_actions || [];
+
     return (
         <div className="mx-auto max-w-7xl px-4 py-8">
             {/* Header */}
@@ -1169,6 +1255,69 @@ export default function DevPanelPage() {
                                             <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[11px] text-blue-300">
                                                 {selectedUserOverview.user.verification_level}
                                             </span>
+                                        )}
+                                        <span className="rounded bg-violet-500/20 px-1.5 py-0.5 text-[11px] text-violet-300">
+                                            Tier: {String(selectedTier).toUpperCase()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="rounded border border-slate-700 bg-slate-900/60 p-2.5">
+                                    <p className="mb-1 font-semibold text-slate-200">Quick User Dashboard</p>
+                                    <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Clicks 7d</p>
+                                            <p className="font-semibold text-slate-100">{selectedBehavior?.last_7d?.clicks || 0}</p>
+                                        </div>
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Searches 7d</p>
+                                            <p className="font-semibold text-slate-100">{selectedBehavior?.last_7d?.searches || 0}</p>
+                                        </div>
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Comments 30d</p>
+                                            <p className="font-semibold text-slate-100">{selectedBehavior?.last_30d?.comments || 0}</p>
+                                        </div>
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Votes 30d</p>
+                                            <p className="font-semibold text-slate-100">{selectedBehavior?.last_30d?.votes_cast || 0}</p>
+                                        </div>
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Vehicle Views 30d</p>
+                                            <p className="font-semibold text-slate-100">{selectedBehavior?.last_30d?.vehicle_views || 0}</p>
+                                        </div>
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Events Total</p>
+                                            <p className="font-semibold text-slate-100">{selectedBehavior?.totals?.events || 0}</p>
+                                        </div>
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Tool Subs</p>
+                                            <p className="font-semibold text-slate-100">{selectedSubscription?.tool_subscription_count || 0}</p>
+                                        </div>
+                                        <div className="rounded bg-slate-950/60 px-2 py-1.5">
+                                            <p className="text-slate-500">Active Add-ons</p>
+                                            <p className="font-semibold text-slate-100">{selectedSubscription?.active_addons?.length || 0}</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 rounded bg-slate-950/60 px-2 py-1.5">
+                                        <p className="text-[11px] text-slate-500">Trial Until</p>
+                                        <p className="font-medium text-slate-200">
+                                            {selectedSubscription?.trial_until
+                                                ? `${formatDateTime(selectedSubscription.trial_until)} (${relativeTime(selectedSubscription.trial_until)})`
+                                                : 'No active trial'}
+                                        </p>
+                                    </div>
+                                    <div className="mt-2 rounded bg-slate-950/60 px-2 py-1.5">
+                                        <p className="mb-1 text-[11px] text-slate-500">Top Actions</p>
+                                        {selectedTopActions.length === 0 ? (
+                                            <p className="text-slate-500">No action data yet</p>
+                                        ) : (
+                                            <div className="flex flex-wrap gap-1">
+                                                {selectedTopActions.map((item) => (
+                                                    <span key={`${item.action}-${item.count}`} className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-300">
+                                                        {formatActionLabel(item.action)}: {item.count}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
                                 </div>

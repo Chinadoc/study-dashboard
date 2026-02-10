@@ -8380,6 +8380,7 @@ Guidelines:
           const profile = await env.LOCKSMITH_DB.prepare(`
             SELECT
               u.id, u.email, u.name, u.picture, u.is_pro, u.is_developer, u.created_at,
+              u.trial_until,
               u.locksmith_verified, u.locksmith_verified_at, u.verification_level,
               u.nastf_verified, u.nastf_verified_at,
               COUNT(a.id) as activity_count,
@@ -8445,6 +8446,126 @@ Guidelines:
             LIMIT 100
           `).bind(targetUserId).all();
 
+          const now = Date.now();
+          const weekAgo = now - (7 * 24 * 60 * 60 * 1000);
+          const monthAgo = now - (30 * 24 * 60 * 60 * 1000);
+
+          const activityMetrics = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              COUNT(*) as total_events,
+              SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as events_7d,
+              SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as events_30d,
+              SUM(CASE WHEN action IN ('click_affiliate', 'affiliate_click') THEN 1 ELSE 0 END) as clicks_total,
+              SUM(CASE WHEN action IN ('click_affiliate', 'affiliate_click') AND created_at > ? THEN 1 ELSE 0 END) as clicks_7d,
+              SUM(CASE WHEN action IN ('click_affiliate', 'affiliate_click') AND created_at > ? THEN 1 ELSE 0 END) as clicks_30d,
+              SUM(CASE WHEN action = 'search' THEN 1 ELSE 0 END) as searches_total,
+              SUM(CASE WHEN action = 'search' AND created_at > ? THEN 1 ELSE 0 END) as searches_7d,
+              SUM(CASE WHEN action = 'search' AND created_at > ? THEN 1 ELSE 0 END) as searches_30d,
+              SUM(CASE WHEN action = 'view_vehicle' THEN 1 ELSE 0 END) as vehicle_views_total,
+              SUM(CASE WHEN action = 'view_vehicle' AND created_at > ? THEN 1 ELSE 0 END) as vehicle_views_7d,
+              SUM(CASE WHEN action = 'view_vehicle' AND created_at > ? THEN 1 ELSE 0 END) as vehicle_views_30d
+            FROM user_activity
+            WHERE user_id = ?
+          `).bind(
+            weekAgo,
+            monthAgo,
+            weekAgo,
+            monthAgo,
+            weekAgo,
+            monthAgo,
+            weekAgo,
+            monthAgo,
+            targetUserId
+          ).first<any>();
+
+          const commentMetrics = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              COUNT(*) as comments_total,
+              SUM(CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) as top_level_total,
+              SUM(CASE WHEN parent_id IS NOT NULL THEN 1 ELSE 0 END) as replies_total,
+              SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as comments_7d,
+              SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as comments_30d,
+              COALESCE(SUM(upvotes), 0) as upvotes_received
+            FROM vehicle_comments
+            WHERE user_id = ? AND COALESCE(is_deleted, 0) = 0
+          `).bind(weekAgo, monthAgo, targetUserId).first<any>();
+
+          let voteMetrics: any = null;
+          try {
+            voteMetrics = await env.LOCKSMITH_DB.prepare(`
+              SELECT
+                COUNT(*) as votes_cast_total,
+                SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END) as upvotes_cast_total,
+                SUM(CASE WHEN vote = -1 THEN 1 ELSE 0 END) as downvotes_cast_total,
+                SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as votes_cast_7d,
+                SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as votes_cast_30d
+              FROM comment_votes
+              WHERE user_id = ?
+            `).bind(weekAgo, monthAgo, targetUserId).first<any>();
+          } catch {
+            voteMetrics = null;
+          }
+
+          let reportMetrics: any = null;
+          try {
+            reportMetrics = await env.LOCKSMITH_DB.prepare(`
+              SELECT
+                COUNT(*) as reports_total,
+                SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as reports_7d,
+                SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END) as reports_30d
+              FROM comment_flags
+              WHERE reporter_id = ?
+            `).bind(weekAgo, monthAgo, targetUserId).first<any>();
+          } catch {
+            reportMetrics = null;
+          }
+
+          const topActions = await env.LOCKSMITH_DB.prepare(`
+            SELECT action, COUNT(*) as count
+            FROM user_activity
+            WHERE user_id = ?
+            GROUP BY action
+            ORDER BY count DESC
+            LIMIT 8
+          `).bind(targetUserId).all();
+
+          let activeAddons: string[] = [];
+          try {
+            const activeAddonsResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT addon_id, trial_expires_at, converted_at, canceled_at
+              FROM addon_trials
+              WHERE user_id = ?
+            `).bind(targetUserId).all();
+            activeAddons = Array.from(new Set(
+              (activeAddonsResult.results || [])
+                .filter((row: any) => {
+                  const hasActiveTrial = Number(row.trial_expires_at || 0) > now && !row.converted_at && !row.canceled_at;
+                  const hasActiveSubscription = !!row.converted_at && !row.canceled_at;
+                  return hasActiveTrial || hasActiveSubscription;
+                })
+                .map((row: any) => String(row.addon_id || '').trim())
+                .filter(Boolean)
+            ));
+          } catch {
+            activeAddons = [];
+          }
+
+          let toolSubscriptionCount = 0;
+          try {
+            const toolSubscriptionsCountRow = await env.LOCKSMITH_DB.prepare(`
+              SELECT COUNT(*) as count
+              FROM user_tool_subscriptions
+              WHERE user_id = ?
+            `).bind(targetUserId).first<{ count: number }>();
+            toolSubscriptionCount = Number(toolSubscriptionsCountRow?.count || 0);
+          } catch {
+            toolSubscriptionCount = 0;
+          }
+
+          const subscriptionTier = profile.is_developer
+            ? 'developer'
+            : (profile.is_pro ? 'pro' : 'free');
+
           return corsResponse(request, JSON.stringify({
             user: profile,
             inventory: {
@@ -8458,6 +8579,51 @@ Guidelines:
               items: inventoryRows.results || []
             },
             activity: activityRows.results || [],
+            dashboard: {
+              subscription: {
+                tier: subscriptionTier,
+                is_pro: !!profile.is_pro,
+                is_developer: !!profile.is_developer,
+                trial_until: profile.trial_until || null,
+                active_addons: activeAddons,
+                tool_subscription_count: toolSubscriptionCount,
+              },
+              behavior: {
+                last_7d: {
+                  events: Number(activityMetrics?.events_7d || 0),
+                  clicks: Number(activityMetrics?.clicks_7d || 0),
+                  searches: Number(activityMetrics?.searches_7d || 0),
+                  vehicle_views: Number(activityMetrics?.vehicle_views_7d || 0),
+                  comments: Number(commentMetrics?.comments_7d || 0),
+                  votes_cast: Number(voteMetrics?.votes_cast_7d || 0),
+                  reports: Number(reportMetrics?.reports_7d || 0),
+                },
+                last_30d: {
+                  events: Number(activityMetrics?.events_30d || 0),
+                  clicks: Number(activityMetrics?.clicks_30d || 0),
+                  searches: Number(activityMetrics?.searches_30d || 0),
+                  vehicle_views: Number(activityMetrics?.vehicle_views_30d || 0),
+                  comments: Number(commentMetrics?.comments_30d || 0),
+                  votes_cast: Number(voteMetrics?.votes_cast_30d || 0),
+                  reports: Number(reportMetrics?.reports_30d || 0),
+                },
+                totals: {
+                  events: Number(activityMetrics?.total_events || 0),
+                  clicks: Number(activityMetrics?.clicks_total || 0),
+                  searches: Number(activityMetrics?.searches_total || 0),
+                  vehicle_views: Number(activityMetrics?.vehicle_views_total || 0),
+                  comments: Number(commentMetrics?.comments_total || 0),
+                  top_level_comments: Number(commentMetrics?.top_level_total || 0),
+                  replies: Number(commentMetrics?.replies_total || 0),
+                  upvotes_received: Number(commentMetrics?.upvotes_received || 0),
+                  votes_cast: Number(voteMetrics?.votes_cast_total || 0),
+                  upvotes_cast: Number(voteMetrics?.upvotes_cast_total || 0),
+                  downvotes_cast: Number(voteMetrics?.downvotes_cast_total || 0),
+                  reports: Number(reportMetrics?.reports_total || 0),
+                },
+                top_actions: topActions.results || [],
+              },
+            },
             verification: {
               proofs: proofHistory.results || [],
               nastf: nastfHistory.results || []
@@ -12612,6 +12778,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             `).bind(make, `%${model}%`, year, year).first<any>();
           }
 
+          // 0.6. Get push_start_variants (curated push-start/non-push-start FCC info)
+          let pushStartData: any = null;
+          if (year) {
+            pushStartData = await env.LOCKSMITH_DB.prepare(`
+              SELECT push_start_trims, non_push_start_trims, smart_key_fccs, rke_fccs,
+                     base_is_push_start, all_trims_push_start_from, notes, curated
+              FROM push_start_variants
+              WHERE LOWER(make) = ? AND LOWER(model) = ? AND year = ?
+              LIMIT 1
+            `).bind(make, model, year).first<any>();
+          }
+
           // 1. Get VYP data (Priority 2 - source for Lishi, spaces, depths, MACS)
           let vypData: any = null;
           let itemNumbers: string[] = [];
@@ -13581,6 +13759,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 has_walkthrough: viData.has_walkthrough === 1,
                 has_guide: viData.has_guide === 1,
               },
+            } : null,
+
+            // Push-Start Variant Intelligence (curated ignition context for key cards)
+            push_start: pushStartData && pushStartData.curated ? {
+              push_start_trims: pushStartData.push_start_trims,
+              non_push_start_trims: pushStartData.non_push_start_trims,
+              smart_key_fccs: pushStartData.smart_key_fccs,
+              rke_fccs: pushStartData.rke_fccs,
+              base_is_push_start: pushStartData.base_is_push_start === 1,
+              all_trims_push_start_from: pushStartData.all_trims_push_start_from,
+              notes: pushStartData.notes,
             } : null,
 
             // Counts for UI badges (DEPRECATED - relies on vehicles table)
