@@ -26,6 +26,8 @@ interface RecentComment {
     verified_type: string | null;
     created_at: number;
     rank_level?: number;
+    hot_score?: number;
+    confidence_score?: number;
 }
 
 interface LeaderboardEntry {
@@ -55,6 +57,47 @@ interface ParsedVehicleKey {
     discussionHref: string;
 }
 
+function toSafeNumber(value: unknown): number {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function wilsonLowerBound(upvotes: number, downvotes: number, z = 1.96): number {
+    const n = upvotes + downvotes;
+    if (n <= 0) return 0;
+    const phat = upvotes / n;
+    const z2 = z * z;
+    const denominator = 1 + z2 / n;
+    const center = phat + z2 / (2 * n);
+    const margin = z * Math.sqrt((phat * (1 - phat) + z2 / (4 * n)) / n);
+    return Math.max(0, (center - margin) / denominator);
+}
+
+function computeHotScore(comment: RecentComment): { hotScore: number; confidence: number } {
+    const up = Math.max(toSafeNumber(comment.upvotes), 0);
+    const down = Math.max(toSafeNumber(comment.downvotes), 0);
+    const totalVotes = up + down;
+    const score = up - down;
+    const confidence = wilsonLowerBound(up, down);
+
+    const ageHours = Math.max((Date.now() - toSafeNumber(comment.created_at)) / 3600000, 0);
+    const decay = Math.exp(-ageHours / 40); // roughly one-day half-life
+    const engagementBoost = 1 + Math.log10(totalVotes + 1);
+    const scoreBoost = Math.sign(score) * Math.min(Math.abs(score), 15) * 0.01;
+    const hotScore = (confidence + scoreBoost) * engagementBoost * decay;
+
+    return { hotScore, confidence };
+}
+
+function rankTrendingComments(items: RecentComment[]): RecentComment[] {
+    return [...items]
+        .map((comment) => {
+            const { hotScore, confidence } = computeHotScore(comment);
+            return { ...comment, hot_score: hotScore, confidence_score: confidence };
+        })
+        .sort((a, b) => (b.hot_score || 0) - (a.hot_score || 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.created_at - a.created_at);
+}
+
 export default function CommunityPage() {
     const { isAuthenticated, login } = useAuth();
     const [activeTab, setActiveTab] = useState<'trending' | 'recent' | 'verified' | 'mentions' | 'leaderboard'>('trending');
@@ -81,7 +124,7 @@ export default function CommunityPage() {
             const trendingRes = await fetch(`${API_URL}/api/community/trending`);
             if (trendingRes.ok) {
                 const data = await trendingRes.json();
-                setTrendingComments(data.trending || []);
+                setTrendingComments(rankTrendingComments(data.trending || []));
             }
 
             // Fetch recent comments across all vehicles
