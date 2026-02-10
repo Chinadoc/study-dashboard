@@ -38,6 +38,9 @@ interface CommentSectionProps {
 }
 
 type SortMode = 'top' | 'new' | 'hot' | 'controversial';
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8MB before compression
+const MAX_EMBEDDED_BYTES = 700 * 1024; // 700KB after compression
 
 function getHotScore(comment: Comment): number {
     const score = comment.score || ((comment.upvotes || 0) - (comment.downvotes || 0));
@@ -76,6 +79,62 @@ function hasCommentId(items: Comment[], commentId: string): boolean {
     return false;
 }
 
+async function compressImageToDataUrl(file: File): Promise<string> {
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+        throw new Error('Only JPEG, PNG, or WEBP images are supported.');
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+        throw new Error('Image is too large. Maximum file size is 8MB.');
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    try {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('Could not read image file.'));
+            img.src = objectUrl;
+        });
+
+        const maxDimension = 1280;
+        const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Image compression is not supported in this browser.');
+        ctx.drawImage(image, 0, 0, width, height);
+
+        let quality = 0.78;
+        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        while (dataUrl.length > MAX_EMBEDDED_BYTES * 1.37 && quality > 0.45) {
+            quality -= 0.08;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+
+        if (dataUrl.length > MAX_EMBEDDED_BYTES * 1.37) {
+            throw new Error('Compressed image is still too large. Please use a smaller image.');
+        }
+
+        return dataUrl;
+    } finally {
+        URL.revokeObjectURL(objectUrl);
+    }
+}
+
+async function buildCommentContentWithImage(text: string, imageFile: File | null): Promise<string> {
+    const trimmedText = text.trim();
+    if (!imageFile) return trimmedText;
+    const dataUrl = await compressImageToDataUrl(imageFile);
+    if (!trimmedText) {
+        return `![Attachment](${dataUrl})`;
+    }
+    return `${trimmedText}\n\n![Attachment](${dataUrl})`;
+}
+
 export default function CommentSection({ make, model }: CommentSectionProps) {
     const { user, isAuthenticated, login } = useAuth();
     const [comments, setComments] = useState<Comment[]>([]);
@@ -83,6 +142,10 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     const [newComment, setNewComment] = useState('');
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState('');
+    const [newCommentImageFile, setNewCommentImageFile] = useState<File | null>(null);
+    const [newCommentImagePreview, setNewCommentImagePreview] = useState<string | null>(null);
+    const [replyImageFile, setReplyImageFile] = useState<File | null>(null);
+    const [replyImagePreview, setReplyImagePreview] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [reportingComment, setReportingComment] = useState<string | null>(null);
@@ -184,6 +247,18 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         }
     }, [savedCommentIds, vehicleKey]);
 
+    useEffect(() => {
+        return () => {
+            if (newCommentImagePreview) URL.revokeObjectURL(newCommentImagePreview);
+        };
+    }, [newCommentImagePreview]);
+
+    useEffect(() => {
+        return () => {
+            if (replyImagePreview) URL.revokeObjectURL(replyImagePreview);
+        };
+    }, [replyImagePreview]);
+
     const sortedComments = useMemo(() => sortCommentsByMode(comments, sortMode), [comments, sortMode]);
 
     const opUserId = useMemo(() => {
@@ -280,15 +355,45 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         }
     };
 
+    const validateSelectedImage = (file: File | null): file is File => {
+        if (!file) return false;
+        if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+            setError('Only JPEG, PNG, or WEBP images are supported.');
+            return false;
+        }
+        if (file.size > MAX_UPLOAD_BYTES) {
+            setError('Image is too large. Maximum file size is 8MB.');
+            return false;
+        }
+        return true;
+    };
+
+    const updateNewCommentImage = (file: File | null) => {
+        if (file && !validateSelectedImage(file)) return;
+        if (newCommentImagePreview) URL.revokeObjectURL(newCommentImagePreview);
+        setNewCommentImageFile(file);
+        setNewCommentImagePreview(file ? URL.createObjectURL(file) : null);
+        if (file) setError(null);
+    };
+
+    const updateReplyImage = (file: File | null) => {
+        if (file && !validateSelectedImage(file)) return;
+        if (replyImagePreview) URL.revokeObjectURL(replyImagePreview);
+        setReplyImageFile(file);
+        setReplyImagePreview(file ? URL.createObjectURL(file) : null);
+        if (file) setError(null);
+    };
+
     // Submit new comment
     const handleSubmitComment = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newComment.trim() || !isAuthenticated) return;
+        if ((!newComment.trim() && !newCommentImageFile) || !isAuthenticated) return;
 
         setSubmitting(true);
         setError(null);
 
         try {
+            const composedContent = await buildCommentContentWithImage(newComment, newCommentImageFile);
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: getAuthHeaders(true),
@@ -296,7 +401,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     vehicle_key: vehicleKey,
                     make,
                     model,
-                    content: newComment.trim()
+                    content: composedContent
                 })
             });
 
@@ -308,7 +413,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     user_id: user?.id || '',
                     user_name: user?.name || 'You',
                     user_picture: user?.picture || null,
-                    content: newComment.trim(),
+                    content: composedContent,
                     score: 0,
                     upvotes: 0,
                     downvotes: 0,
@@ -325,11 +430,12 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     source: 'thread',
                 });
                 setNewComment('');
+                updateNewCommentImage(null);
             } else {
                 setError(data.error || 'Failed to post comment');
             }
         } catch (err) {
-            setError('Failed to post comment');
+            setError(err instanceof Error ? err.message : 'Failed to post comment');
         } finally {
             setSubmitting(false);
         }
@@ -337,12 +443,13 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
 
     // Submit reply
     const handleSubmitReply = async (parentId: string) => {
-        if (!replyContent.trim() || !isAuthenticated) return;
+        if ((!replyContent.trim() && !replyImageFile) || !isAuthenticated) return;
 
         setSubmitting(true);
         setError(null);
 
         try {
+            const composedContent = await buildCommentContentWithImage(replyContent, replyImageFile);
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: getAuthHeaders(true),
@@ -350,7 +457,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     vehicle_key: vehicleKey,
                     make,
                     model,
-                    content: replyContent.trim(),
+                    content: composedContent,
                     parent_id: parentId
                 })
             });
@@ -363,7 +470,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     user_id: user?.id || '',
                     user_name: user?.name || 'You',
                     user_picture: user?.picture || null,
-                    content: replyContent.trim(),
+                    content: composedContent,
                     score: 0,
                     upvotes: 0,
                     downvotes: 0,
@@ -388,11 +495,12 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                 });
                 setReplyingTo(null);
                 setReplyContent('');
+                updateReplyImage(null);
             } else {
                 setError(data.error || 'Failed to post reply');
             }
         } catch (err) {
-            setError('Failed to post reply');
+            setError(err instanceof Error ? err.message : 'Failed to post reply');
         } finally {
             setSubmitting(false);
         }
@@ -622,7 +730,14 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                             {!isReply && (
                                 <button
                                     className={styles.replyBtn}
-                                    onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                    onClick={() => {
+                                        const next = replyingTo === comment.id ? null : comment.id;
+                                        setReplyingTo(next);
+                                        if (!next) {
+                                            setReplyContent('');
+                                            updateReplyImage(null);
+                                        }
+                                    }}
                                 >
                                     {replyingTo === comment.id ? 'Cancel' : 'Reply'}
                                 </button>
@@ -679,13 +794,37 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                             <textarea
                                 value={replyContent}
                                 onChange={(e) => setReplyContent(e.target.value)}
-                                placeholder="Write a reply... (Markdown supported)"
+                                placeholder="Write a reply... (Markdown supported, image optional)"
                                 className={styles.replyInput}
                                 maxLength={2000}
                             />
+                            <div className={styles.mediaRow}>
+                                <label className={styles.mediaPicker}>
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={(e) => updateReplyImage(e.target.files?.[0] || null)}
+                                    />
+                                    Attach image
+                                </label>
+                                {replyImageFile && (
+                                    <button
+                                        type="button"
+                                        className={styles.clearMediaBtn}
+                                        onClick={() => updateReplyImage(null)}
+                                    >
+                                        Remove image
+                                    </button>
+                                )}
+                            </div>
+                            {replyImagePreview && (
+                                <div className={styles.mediaPreviewWrap}>
+                                    <img src={replyImagePreview} alt="Reply attachment preview" className={styles.mediaPreview} />
+                                </div>
+                            )}
                             <button
                                 onClick={() => handleSubmitReply(comment.id)}
-                                disabled={submitting || !replyContent.trim()}
+                                disabled={submitting || (!replyContent.trim() && !replyImageFile)}
                                 className={styles.submitBtn}
                             >
                                 {submitting ? 'Posting...' : 'Reply'}
@@ -793,15 +932,39 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     <textarea
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Share your experience, tips, or ask a question..."
+                        placeholder="Share your experience, tips, or ask a question... (you can attach one image)"
                         className={styles.commentInput}
                         maxLength={2000}
                     />
+                    <div className={styles.mediaRow}>
+                        <label className={styles.mediaPicker}>
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => updateNewCommentImage(e.target.files?.[0] || null)}
+                            />
+                            Attach image
+                        </label>
+                        {newCommentImageFile && (
+                            <button
+                                type="button"
+                                className={styles.clearMediaBtn}
+                                onClick={() => updateNewCommentImage(null)}
+                            >
+                                Remove image
+                            </button>
+                        )}
+                    </div>
+                    {newCommentImagePreview && (
+                        <div className={styles.mediaPreviewWrap}>
+                            <img src={newCommentImagePreview} alt="New comment attachment preview" className={styles.mediaPreview} />
+                        </div>
+                    )}
                     <div className={styles.formFooter}>
                         <span className={styles.charCount}>{newComment.length}/2000</span>
                         <button
                             type="submit"
-                            disabled={submitting || !newComment.trim()}
+                            disabled={submitting || (!newComment.trim() && !newCommentImageFile)}
                             className={styles.submitBtn}
                         >
                             {submitting ? 'Posting...' : 'Post Comment'}
