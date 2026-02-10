@@ -308,25 +308,89 @@ export default function BittingCalculator({
     // Active keyway rules — match against compound AKS keyway values
     // AKS stores: "B106 / B109 / P1115", "HU92-P", "MIT3 / X224", etc.
     // Our rules use: "B106", "HU92", "MIT3"
-    const rules = useMemo(() => {
-        // Try exact keyway match first
-        if (keyway && KEYWAY_RULES[keyway]) return KEYWAY_RULES[keyway];
+    // Priority: structural keyway rules > hint-only keyway > lishi fallback
+    // When both keyway and lishi match, merge: structural from keyway, hint from both
+    const { rules, matchedKeyway, matchSource } = useMemo(() => {
+        const hasStructural = (r: typeof KEYWAY_RULES[string]) =>
+            !!(r.fixedPositions || r.doorOnly || r.ignitionOnly || r.macsOverride !== undefined ||
+                r.macsFallback !== undefined || r.maxConsecutiveSame || r.minDepthOccurrences);
 
-        // Try segments of compound keyway (split on " / ")
+        // Try to find a rule by resolving a keyway segment
+        const resolveSegment = (seg: string): { key: string; rule: typeof KEYWAY_RULES[string] } | null => {
+            if (KEYWAY_RULES[seg]) return { key: seg, rule: KEYWAY_RULES[seg] };
+            const bare = seg.replace(/[-_][A-Z]+$/, '');
+            if (bare !== seg && KEYWAY_RULES[bare]) return { key: bare, rule: KEYWAY_RULES[bare] };
+            return null;
+        };
+
+        // Collect all keyway segment matches
+        let keywayMatches: { key: string; rule: typeof KEYWAY_RULES[string] }[] = [];
         if (keyway) {
-            const segments = keyway.split(/\s*\/\s*/);
-            for (const seg of segments) {
-                if (KEYWAY_RULES[seg]) return KEYWAY_RULES[seg];
-                // Strip common suffixes like -P, -SVC
-                const bare = seg.replace(/[-_][A-Z]+$/, '');
-                if (bare !== seg && KEYWAY_RULES[bare]) return KEYWAY_RULES[bare];
+            // Try exact match first
+            if (KEYWAY_RULES[keyway]) {
+                keywayMatches.push({ key: keyway, rule: KEYWAY_RULES[keyway] });
+            } else {
+                // Try compound segments
+                const segments = keyway.split(/\s*\/\s*/);
+                for (const seg of segments) {
+                    const match = resolveSegment(seg);
+                    if (match) keywayMatches.push(match);
+                }
             }
         }
 
-        // Fall back to lishi tool name
-        if (lishi && KEYWAY_RULES[lishi]) return KEYWAY_RULES[lishi];
-        return null;
+        // Among keyway matches, prefer the one with structural data
+        let bestKeyway = keywayMatches.find(m => hasStructural(m.rule)) || keywayMatches[0] || null;
+
+        // Lishi fallback
+        const lishiRule = lishi && KEYWAY_RULES[lishi] ? { key: lishi, rule: KEYWAY_RULES[lishi] } : null;
+
+        if (bestKeyway) {
+            // If lishi also matched and has useful hint, merge hint into keyway rule
+            if (lishiRule && lishiRule.key !== bestKeyway.key && lishiRule.rule.hint) {
+                const merged = { ...bestKeyway.rule };
+                if (!merged.hint) {
+                    merged.hint = lishiRule.rule.hint;
+                } else if (!merged.hint.includes(lishiRule.key)) {
+                    merged.hint = merged.hint + ` | Lishi ${lishiRule.key}: ${lishiRule.rule.hint.replace(/^[^:]+:\s*/, '')}`;
+                }
+                return { rules: merged, matchedKeyway: bestKeyway.key, matchSource: 'keyway' as const };
+            }
+            return { rules: bestKeyway.rule, matchedKeyway: bestKeyway.key, matchSource: 'keyway' as const };
+        }
+
+        if (lishiRule) {
+            return { rules: lishiRule.rule, matchedKeyway: lishiRule.key, matchSource: 'lishi' as const };
+        }
+
+        return { rules: null, matchedKeyway: null, matchSource: null };
     }, [keyway, lishi]);
+
+    // Parse code series into a numeric range for validation
+    // Supports: "M1-2618", "10001-11500", "DE0001-DE11210", "G-series", etc.
+    const codeSeriesRange = useMemo(() => {
+        if (!codeSeries) return null;
+        // Match patterns like M1-2618, 10001–11500, DE0001–DE11210
+        const rangeMatch = codeSeries.match(/^([A-Z]*)0*(\d+)\s*[-–]\s*([A-Z]*)0*(\d+)$/i);
+        if (rangeMatch) {
+            const prefix = rangeMatch[1] || rangeMatch[3] || '';
+            const low = parseInt(rangeMatch[2]);
+            const high = parseInt(rangeMatch[4]);
+            if (!isNaN(low) && !isNaN(high) && high > low) {
+                return { prefix: prefix.toUpperCase(), low, high, total: high - low + 1 };
+            }
+        }
+        return null;
+    }, [codeSeries]);
+
+    // Is this vehicle "fully specified"? (code series + keyway rules + lishi)
+    const isFullySpecified = !!(codeSeries && rules && lishi && matchSource === 'keyway');
+
+    // Compound keyway segments for display
+    const keywaySegments = useMemo(() => {
+        if (!keyway) return [];
+        return keyway.split(/\s*\/\s*/).map(s => s.trim()).filter(Boolean);
+    }, [keyway]);
 
     // Effective MACS: macsOverride (AKS confirmed wrong) > AKS vehicle prop > macsFallback (safety net)
     const effectiveMacs = useMemo(() => {
@@ -771,8 +835,22 @@ export default function BittingCalculator({
                     <div className="flex items-center gap-3">
                         <span className="text-2xl">🧮</span>
                         <div>
-                            <h2 className="font-bold text-white text-lg">Bitting Calculator</h2>
-                            <p className="text-xs text-zinc-400">Code Series: <span className="text-purple-400 font-mono">{codeSeries}</span></p>
+                            <div className="flex items-center gap-2">
+                                <h2 className="font-bold text-white text-lg">Bitting Calculator</h2>
+                                {isFullySpecified && (
+                                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-900/50 border border-green-600/50 text-green-400 font-semibold">
+                                        ✅ Fully Specified
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-xs text-zinc-400">Code Series: <span className="text-purple-400 font-mono">{codeSeries}</span></p>
+                                {codeSeriesRange && (
+                                    <span className="text-[9px] text-zinc-500">
+                                        ({codeSeriesRange.prefix}{String(codeSeriesRange.low).padStart(4, '0')} → {codeSeriesRange.prefix}{String(codeSeriesRange.high).padStart(4, '0')} • {codeSeriesRange.total.toLocaleString()} codes)
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <button
@@ -795,7 +873,7 @@ export default function BittingCalculator({
                     </div>
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">MACS</div>
-                        <div className="font-mono font-bold text-amber-400">{macs}</div>
+                        <div className="font-mono font-bold text-amber-400">{macsIsNone ? 'None' : effectiveMacs}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">Combos</div>
@@ -808,7 +886,20 @@ export default function BittingCalculator({
                     {keyway && (
                         <div className="text-center">
                             <div className="text-[10px] text-zinc-500 uppercase">Keyway</div>
-                            <div className="font-mono font-bold text-green-400 text-sm">{keyway}</div>
+                            {keywaySegments.length > 1 ? (
+                                <div className="flex items-center justify-center gap-1 flex-wrap">
+                                    {keywaySegments.map((seg, i) => (
+                                        <span key={seg} className={`font-mono font-bold text-sm ${seg === matchedKeyway
+                                                ? 'text-green-400'
+                                                : 'text-zinc-500'
+                                            }`}>
+                                            {seg === matchedKeyway && '✓'}{seg}{i < keywaySegments.length - 1 ? ' /' : ''}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="font-mono font-bold text-green-400 text-sm">{keyway}</div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -1136,8 +1227,8 @@ export default function BittingCalculator({
                             </span>
                             <span className={`text-sm ${macsViolations.length > 0 ? 'text-red-300' : 'text-green-300'}`}>
                                 {macsViolations.length > 0
-                                    ? `MACS Violation! Adjacent cuts exceed ${macs}`
-                                    : `MACS OK (max ${macs})`
+                                    ? `MACS Violation! Adjacent cuts exceed ${effectiveMacs}`
+                                    : macsIsNone ? 'MACS: None (no restriction)' : `MACS OK (max ${effectiveMacs})`
                                 }
                             </span>
                         </div>

@@ -9,7 +9,7 @@ import BladeKeysCard, { BladeKeysData } from '@/components/vehicle/BladeKeysCard
 
 interface FccDetail {
     fcc: string;
-    oem: string[];
+    oem: (string | { number: string; label?: string })[];
     title: string;
     frequency: string | null;
 }
@@ -528,7 +528,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                                         {detail.oem.length > 0 && (
                                             <div className="flex flex-wrap gap-0.5 mt-1">
                                                 {detail.oem.slice(0, 3).map((oem, j) => (
-                                                    <span key={j} className="px-1 py-0.5 bg-zinc-700/50 rounded text-zinc-400 font-mono" title={detail.title}>{oem}</span>
+                                                    <span key={j} className="px-1 py-0.5 bg-zinc-700/50 rounded text-zinc-400 font-mono" title={detail.title}>{typeof oem === 'string' ? oem : oem.number}</span>
                                                 ))}
                                                 {detail.oem.length > 3 && <span className="text-zinc-600 px-1">+{detail.oem.length - 3}</span>}
                                             </div>

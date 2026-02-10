@@ -7,7 +7,7 @@ export interface BladeEntry {
     keyway: string | null;
     chip: string | null;
     imageUrl: string | null;
-    oemParts: string[];
+    oemParts: (string | { number: string; label?: string })[];
     purpose: string;    // "For Starting", "Door / Trunk", "Inside FOBIK"
     partNumber: string | null;
     productCount: number;
@@ -111,7 +111,7 @@ export default function BladeKeysCard({ data, bitting }: BladeKeysCardProps) {
                                                 key={j}
                                                 className="px-1 py-0.5 bg-zinc-700/50 rounded text-[9px] font-mono text-zinc-400"
                                             >
-                                                {oem}
+                                                {typeof oem === 'string' ? oem : oem.number}
                                             </span>
                                         ))}
                                         {entry.oemParts.length > 3 && (
