@@ -488,11 +488,26 @@ export default function VehicleDetailClient() {
     const [activeSection, setActiveSection] = useState('specs');
 
     const missingYear = Boolean(make && model && !year);
+    const unresolvedRouteParams = !make || !model || !year;
 
     useEffect(() => {
         if (!missingYear) return;
         router.replace(`/browse?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
     }, [missingYear, make, model, router]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (!unresolvedRouteParams || missingYear) return;
+
+        // Prevent indefinite "Loading route parameters..." when route parsing fails.
+        const fallbackTimer = window.setTimeout(() => {
+            router.replace('/browse');
+        }, 1200);
+
+        return () => {
+            window.clearTimeout(fallbackTimer);
+        };
+    }, [unresolvedRouteParams, missingYear, router]);
 
     // Track section visibility with Intersection Observer
     useEffect(() => {
@@ -611,7 +626,12 @@ export default function VehicleDetailClient() {
     }
 
     if (!make || !model || !year) {
-        return <div className="container mx-auto p-12 text-center text-zinc-400">Loading route parameters...</div>;
+        return (
+            <div className="container mx-auto p-12 text-center text-zinc-400">
+                <p>Resolving vehicle route...</p>
+                <p className="mt-2 text-xs text-zinc-500">If this does not resolve, redirecting to Browse.</p>
+            </div>
+        );
     }
 
     if (loading) {
@@ -1337,4 +1357,3 @@ export default function VehicleDetailClient() {
         </div>
     );
 }
-
