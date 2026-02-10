@@ -172,6 +172,7 @@ function transformProducts(products: any[], targetModel?: string): any[] {
             frequency: p.frequency,
             keyway: p.keyway,
             buttons: p.buttons,
+            button_count: p.button_count || null,
             priceRange: p.price ? `$${p.price}` : undefined,
             oem: Array.isArray(p.oem_part_numbers) ? p.oem_part_numbers.map((n: string) => ({ number: n })) : [],
             image: p.image_url,
@@ -254,27 +255,31 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
             return;
         }
 
-        // Extract button count from name (case-insensitive) or buttons field
+        // Extract button count: prefer pre-computed button_count from DB, then parse from name/buttons text
         let buttonCount = 0;
-        const btnMatchName = name.match(/(\d)-btn/i) || name.match(/(\d)-button/i) || name.match(/(\d)\s*btn/i) || name.match(/(\d)\s*button/i) || name.match(/(\d)b\s/i);
-        if (btnMatchName) {
-            buttonCount = parseInt(btnMatchName[1], 10);
-        } else if (key.buttons) {
-            const btnStr = String(key.buttons);
-            // Try numeric first
-            const btnNum = typeof key.buttons === 'number' ? key.buttons : parseInt(btnStr.match(/\d+/)?.[0] || '0', 10);
-            if (btnNum > 0) {
-                buttonCount = btnNum;
-            } else {
-                // Count slash-separated labels: "L/U/T/RS/P" → 5, "Lock Unlock Trunk Panic" → 4
-                const slashParts = btnStr.split('/').filter(Boolean);
-                if (slashParts.length > 1) {
-                    buttonCount = slashParts.length;
+        if (key.button_count && key.button_count > 0) {
+            buttonCount = typeof key.button_count === 'number' ? key.button_count : parseInt(String(key.button_count), 10);
+        } else {
+            const btnMatchName = name.match(/(\d)-btn/i) || name.match(/(\d)-button/i) || name.match(/(\d)\s*btn/i) || name.match(/(\d)\s*button/i) || name.match(/(\d)b\s/i);
+            if (btnMatchName) {
+                buttonCount = parseInt(btnMatchName[1], 10);
+            } else if (key.buttons) {
+                const btnStr = String(key.buttons);
+                // Try numeric first
+                const btnNum = typeof key.buttons === 'number' ? key.buttons : parseInt(btnStr.match(/\d+/)?.[0] || '0', 10);
+                if (btnNum > 0) {
+                    buttonCount = btnNum;
                 } else {
-                    // Count space-separated words (each = a button): "Lock Unlock Trunk Panic" → 4
-                    const words = btnStr.trim().split(/\s+/).filter(w => w.length > 1);
-                    if (words.length >= 2 && words.length <= 7) {
-                        buttonCount = words.length;
+                    // Count slash-separated labels: "L/U/T/RS/P" → 5, "Lock Unlock Trunk Panic" → 4
+                    const slashParts = btnStr.split('/').filter(Boolean);
+                    if (slashParts.length > 1) {
+                        buttonCount = slashParts.length;
+                    } else {
+                        // Count space-separated words (each = a button): "Lock Unlock Trunk Panic" → 4
+                        const words = btnStr.trim().split(/\s+/).filter(w => w.length > 1);
+                        if (words.length >= 2 && words.length <= 7) {
+                            buttonCount = words.length;
+                        }
                     }
                 }
             }

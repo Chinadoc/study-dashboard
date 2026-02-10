@@ -7356,6 +7356,83 @@ Guidelines:
         }
       }
 
+      // GET /api/verification/history - Admin/reviewer approval history
+      if (path === "/api/verification/history" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const requesterId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          const roleCaps = await getReviewerCapabilities(env, requesterId);
+          if (!userIsDev && !roleCaps.verification && !roleCaps.nastf) {
+            return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+          }
+
+          const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '100', 10), 1), 300);
+          const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
+          const userId = (url.searchParams.get('user_id') || '').trim();
+          const statusParam = (url.searchParams.get('status') || 'approved').trim().toLowerCase();
+          const validStatuses = new Set(['approved', 'rejected', 'pending', 'all']);
+          const normalizedStatus = validStatuses.has(statusParam) ? statusParam : 'approved';
+
+          const whereParts: string[] = [];
+          const params: Array<string | number> = [];
+          if (normalizedStatus !== 'all') {
+            whereParts.push(`lp.status = ?`);
+            params.push(normalizedStatus);
+          }
+          if (userId) {
+            whereParts.push(`lp.user_id = ?`);
+            params.push(userId);
+          }
+          if (!userIsDev && roleCaps.nastf && !roleCaps.verification) {
+            whereParts.push(`lp.proof_type = 'nastf_vsp'`);
+          }
+
+          const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : '';
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              lp.id, lp.user_id, lp.proof_type, lp.proof_image_url, lp.status,
+              lp.created_at, lp.reviewed_at, lp.rejection_reason, lp.admin_notes,
+              u.name as user_name, u.email as user_email, u.picture as user_picture,
+              u.locksmith_verified, u.locksmith_verified_at, u.verification_level, u.nastf_verified,
+              reviewer.name as reviewed_by_name, reviewer.email as reviewed_by_email
+            FROM locksmith_proofs lp
+            LEFT JOIN users u ON lp.user_id = u.id
+            LEFT JOIN users reviewer ON lp.reviewed_by = reviewer.id
+            ${whereClause}
+            ORDER BY COALESCE(lp.reviewed_at, lp.created_at) DESC
+            LIMIT ? OFFSET ?
+          `).bind(...params, limit, offset).all();
+
+          const countRow = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count
+            FROM locksmith_proofs lp
+            ${whereClause}
+          `).bind(...params).first<{ count: number }>();
+          const total = Number(countRow?.count || 0);
+          const history = (result.results || []) as any[];
+
+          return corsResponse(request, JSON.stringify({
+            history,
+            pagination: {
+              limit,
+              offset,
+              total,
+              has_more: offset + history.length < total,
+              next_offset: offset + history.length
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // POST /api/verification/review - Admin approves or rejects a proof
       if (path === "/api/verification/review" && request.method === "POST") {
         try {
@@ -8277,6 +8354,115 @@ Guidelines:
         `).all();
 
           return corsResponse(request, JSON.stringify({ users: users.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // Admin: Get one user's support overview (developer only)
+      if (path.match(/^\/api\/admin\/users\/[^/]+\/overview$/) && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          const rawUserId = path.split('/')[4] || '';
+          const targetUserId = decodeURIComponent(rawUserId).trim();
+          if (!targetUserId) {
+            return corsResponse(request, JSON.stringify({ error: "Missing user ID" }), 400);
+          }
+
+          const profile = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              u.id, u.email, u.name, u.picture, u.is_pro, u.is_developer, u.created_at,
+              u.locksmith_verified, u.locksmith_verified_at, u.verification_level,
+              u.nastf_verified, u.nastf_verified_at,
+              COUNT(a.id) as activity_count,
+              MAX(a.created_at) as last_activity
+            FROM users u
+            LEFT JOIN user_activity a ON a.user_id = u.id
+            WHERE u.id = ?
+            GROUP BY u.id
+          `).bind(targetUserId).first<any>();
+
+          if (!profile) {
+            return corsResponse(request, JSON.stringify({ error: "User not found" }), 404);
+          }
+
+          const inventoryRows = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, item_key, type, qty, used, vehicle, amazon_link, updated_at
+            FROM inventory
+            WHERE user_id = ?
+            ORDER BY updated_at DESC
+            LIMIT 300
+          `).bind(targetUserId).all();
+
+          const inventorySummary = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              COALESCE(SUM(CASE WHEN type = 'key' THEN qty ELSE 0 END), 0) as keys_qty,
+              COALESCE(SUM(CASE WHEN type = 'blank' THEN qty ELSE 0 END), 0) as blanks_qty,
+              COALESCE(SUM(qty), 0) as total_qty,
+              COUNT(*) as item_rows,
+              MAX(updated_at) as last_updated_at
+            FROM inventory
+            WHERE user_id = ?
+          `).bind(targetUserId).first<any>();
+
+          const activityRows = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, user_id, action, details, user_agent, created_at
+            FROM user_activity
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT 150
+          `).bind(targetUserId).all();
+
+          const proofHistory = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              lp.id, lp.proof_type, lp.proof_image_url, lp.status,
+              lp.created_at, lp.reviewed_at, lp.rejection_reason, lp.admin_notes,
+              reviewer.name as reviewed_by_name, reviewer.email as reviewed_by_email
+            FROM locksmith_proofs lp
+            LEFT JOIN users reviewer ON lp.reviewed_by = reviewer.id
+            WHERE lp.user_id = ?
+            ORDER BY COALESCE(lp.reviewed_at, lp.created_at) DESC
+            LIMIT 200
+          `).bind(targetUserId).all();
+
+          const nastfHistory = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              nv.id, nv.proof_type, nv.proof_image_url, nv.status,
+              nv.created_at, nv.reviewed_at, nv.rejection_reason,
+              reviewer.name as reviewed_by_name, reviewer.email as reviewed_by_email
+            FROM nastf_verifications nv
+            LEFT JOIN users reviewer ON nv.reviewed_by = reviewer.id
+            WHERE nv.user_id = ?
+            ORDER BY COALESCE(nv.reviewed_at, nv.created_at) DESC
+            LIMIT 100
+          `).bind(targetUserId).all();
+
+          return corsResponse(request, JSON.stringify({
+            user: profile,
+            inventory: {
+              summary: inventorySummary || {
+                keys_qty: 0,
+                blanks_qty: 0,
+                total_qty: 0,
+                item_rows: 0,
+                last_updated_at: null
+              },
+              items: inventoryRows.results || []
+            },
+            activity: activityRows.results || [],
+            verification: {
+              proofs: proofHistory.results || [],
+              nastf: nastfHistory.results || []
+            }
+          }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
@@ -12564,6 +12750,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 c.title,
                 c.product_type,
                 c.buttons,
+                c.button_count,
                 c.fcc_id,
                 c.oem_part_numbers,
                 c.battery,
@@ -12738,22 +12925,24 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               let buttonCount: string | null = null;
               const isBladeTypeForBtn = ['Emergency Key', 'Mechanical Key', 'Blade', 'Transponder Key'].includes(baseType);
               if (!isBladeTypeForBtn) {
-                // Match: "5-Btn", "5-Button", "5-B " (as in "3-B FOBIK")
-                const btnMatch = (row.title || '').match(/(\d)-(?:Btn|Button|B\b)/i);
-                if (btnMatch) {
-                  buttonCount = btnMatch[1];
-                } else if (row.buttons) {
-                  // Try to extract a numeric button count from the buttons field
-                  const numMatch = String(row.buttons).match(/(\d+)/);
-                  if (numMatch) {
-                    buttonCount = numMatch[1];
-                  } else {
-                    // Count slash-separated button labels (Lock/Unlock/Panic = 3)
-                    const btnParts = String(row.buttons).split('/').filter(Boolean);
-                    if (btnParts.length > 1) {
-                      buttonCount = String(btnParts.length);
+                // Prefer pre-computed button_count column (populated from buttons text)
+                if (row.button_count && row.button_count > 0) {
+                  buttonCount = String(row.button_count);
+                } else {
+                  // Fallback: parse from title or buttons text
+                  const btnMatch = (row.title || '').match(/(\d)-(?:Btn|Button|B\b)/i);
+                  if (btnMatch) {
+                    buttonCount = btnMatch[1];
+                  } else if (row.buttons) {
+                    const numMatch = String(row.buttons).match(/(\d+)/);
+                    if (numMatch) {
+                      buttonCount = numMatch[1];
+                    } else {
+                      const btnParts = String(row.buttons).split('/').filter(Boolean);
+                      if (btnParts.length > 1) {
+                        buttonCount = String(btnParts.length);
+                      }
                     }
-                    // If only 1 part with no digit, leave as null
                   }
                 }
               }

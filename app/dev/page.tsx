@@ -66,6 +66,84 @@ interface UserData {
     last_activity: number;
 }
 
+interface VerificationHistoryItem {
+    id: string;
+    user_id: string;
+    user_name?: string | null;
+    user_email?: string | null;
+    user_picture?: string | null;
+    proof_type: string;
+    proof_image_url?: string | null;
+    status: 'approved' | 'rejected' | 'pending';
+    created_at: number;
+    reviewed_at?: number | null;
+    reviewed_by_name?: string | null;
+    reviewed_by_email?: string | null;
+    rejection_reason?: string | null;
+    admin_notes?: string | null;
+    locksmith_verified?: number | boolean;
+    locksmith_verified_at?: number | null;
+    verification_level?: string | null;
+    nastf_verified?: number | boolean;
+}
+
+interface UserInventoryItem {
+    id: string;
+    item_key: string;
+    type: string;
+    qty: number;
+    used?: number;
+    vehicle?: string | null;
+    amazon_link?: string | null;
+    updated_at: number;
+}
+
+interface UserInventorySummary {
+    keys_qty: number;
+    blanks_qty: number;
+    total_qty: number;
+    item_rows: number;
+    last_updated_at?: number | null;
+}
+
+interface UserActivityItem {
+    id: number;
+    user_id: string;
+    action: string;
+    details: string;
+    user_agent?: string;
+    created_at: number;
+}
+
+interface UserOverviewResponse {
+    user: UserData & {
+        locksmith_verified?: number | boolean;
+        locksmith_verified_at?: number | null;
+        verification_level?: string | null;
+        nastf_verified?: number | boolean;
+        nastf_verified_at?: number | null;
+    };
+    inventory: {
+        summary: UserInventorySummary;
+        items: UserInventoryItem[];
+    };
+    activity: UserActivityItem[];
+    verification: {
+        proofs: VerificationHistoryItem[];
+        nastf: Array<{
+            id: string;
+            proof_type?: string | null;
+            proof_image_url?: string | null;
+            status: string;
+            created_at: number;
+            reviewed_at?: number | null;
+            reviewed_by_name?: string | null;
+            reviewed_by_email?: string | null;
+            rejection_reason?: string | null;
+        }>;
+    };
+}
+
 interface CoverageGaps {
     platform_gaps: {
         source: string;
@@ -307,8 +385,13 @@ export default function DevPanelPage() {
     const [moderationNotesByFlag, setModerationNotesByFlag] = useState<Record<string, string>>({});
     const [moderationHistory, setModerationHistory] = useState<ModerationHistoryItem[]>([]);
     const [verificationQueue, setVerificationQueue] = useState<PendingVerification[]>([]);
+    const [verificationHistory, setVerificationHistory] = useState<VerificationHistoryItem[]>([]);
     const [reviewerRoles, setReviewerRoles] = useState<ReviewerRole[]>([]);
     const [communityConversion, setCommunityConversion] = useState<CommunityConversionData | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [selectedUserOverview, setSelectedUserOverview] = useState<UserOverviewResponse | null>(null);
+    const [loadingUserOverview, setLoadingUserOverview] = useState(false);
+    const [userOverviewError, setUserOverviewError] = useState<string | null>(null);
     const [reviewerTargetUserId, setReviewerTargetUserId] = useState<string>('');
     const [reviewerCanVerification, setReviewerCanVerification] = useState<boolean>(true);
     const [reviewerCanNastf, setReviewerCanNastf] = useState<boolean>(false);
@@ -337,7 +420,7 @@ export default function DevPanelPage() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         try {
-            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes, moderationHistoryRes, verificationRes, reviewerRolesRes, communityConversionRes] = await Promise.allSettled([
+            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes, moderationHistoryRes, verificationRes, verificationHistoryRes, reviewerRolesRes, communityConversionRes] = await Promise.allSettled([
                 fetch(`${API_BASE}/api/admin/stats`, { headers }),
                 fetch(`${API_BASE}/api/admin/cloudflare`, { headers }),
                 fetch(`${API_BASE}/api/admin/activity?limit=50`, { headers }),
@@ -348,6 +431,7 @@ export default function DevPanelPage() {
                 fetch(`${API_BASE}/api/moderation/queue`, { headers }),
                 fetch(`${API_BASE}/api/moderation/history?limit=100`, { headers }),
                 fetch(`${API_BASE}/api/verification/pending`, { headers }),
+                fetch(`${API_BASE}/api/verification/history?limit=150&status=approved`, { headers }),
                 fetch(`${API_BASE}/api/reviewer-roles`, { headers }),
                 fetch(`${API_BASE}/api/community/conversion?days=30`, { headers })
             ]);
@@ -396,6 +480,10 @@ export default function DevPanelPage() {
                 setVerificationError(null);
             } else if (verificationRes.status === 'fulfilled' && !verificationRes.value.ok) {
                 setVerificationError('Failed to load verification queue');
+            }
+            if (verificationHistoryRes.status === 'fulfilled' && verificationHistoryRes.value.ok) {
+                const data = await verificationHistoryRes.value.json();
+                setVerificationHistory(Array.isArray(data.history) ? data.history : []);
             }
             if (reviewerRolesRes.status === 'fulfilled' && reviewerRolesRes.value.ok) {
                 const data = await reviewerRolesRes.value.json();
@@ -530,6 +618,39 @@ export default function DevPanelPage() {
         } finally {
             setReviewingVerificationId(null);
         }
+    };
+
+    const fetchUserOverview = async (targetUserId: string) => {
+        const token = getSessionToken();
+        if (!token) {
+            setUserOverviewError('Missing session token');
+            return;
+        }
+        setSelectedUserId(targetUserId);
+        setLoadingUserOverview(true);
+        setUserOverviewError(null);
+        try {
+            const response = await fetch(`${API_BASE}/api/admin/users/${encodeURIComponent(targetUserId)}/overview`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to load user details');
+            }
+            setSelectedUserOverview(data as UserOverviewResponse);
+        } catch (err: any) {
+            setUserOverviewError(err?.message || 'Failed to load user details');
+            setSelectedUserOverview(null);
+        } finally {
+            setLoadingUserOverview(false);
+        }
+    };
+
+    const openUserSupportView = (targetUserId: string) => {
+        setActiveTab('users');
+        void fetchUserOverview(targetUserId);
     };
 
     const saveReviewerRole = async () => {
@@ -959,45 +1080,153 @@ export default function DevPanelPage() {
             )}
 
             {activeTab === 'users' && (
-                <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
-                    <h2 className="mb-4 text-lg font-semibold text-white">All Users ({users.length})</h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b border-eurokeys-border text-left text-slate-400">
-                                    <th className="pb-3 font-medium">User</th>
-                                    <th className="pb-3 font-medium">Email</th>
-                                    <th className="pb-3 font-medium">Status</th>
-                                    <th className="pb-3 font-medium">Activity</th>
-                                    <th className="pb-3 font-medium">Last Active</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map(u => (
-                                    <tr key={u.id} className="border-b border-eurokeys-border/50">
-                                        <td className="py-3">
-                                            <div className="flex items-center gap-2">
-                                                {u.picture && <img src={u.picture} alt="" className="h-8 w-8 rounded-full" />}
-                                                <span className="font-medium text-white">{u.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 text-slate-400">{u.email}</td>
-                                        <td className="py-3">
-                                            <div className="flex gap-1">
-                                                {u.is_developer && (
-                                                    <span className="rounded bg-purple-500/20 px-2 py-0.5 text-xs text-purple-400">Dev</span>
-                                                )}
-                                                {u.is_pro && (
-                                                    <span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-400">Pro</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="py-3 text-slate-300">{u.activity_count || 0} events</td>
-                                        <td className="py-3 text-slate-500">{u.last_activity ? timeAgo(u.last_activity) : 'Never'}</td>
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <h2 className="mb-4 text-lg font-semibold text-white">All Users ({users.length})</h2>
+                        <p className="mb-3 text-xs text-slate-500">Click a user name to open inventory, activity, and verification support details.</p>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-eurokeys-border text-left text-slate-400">
+                                        <th className="pb-3 font-medium">User</th>
+                                        <th className="pb-3 font-medium">Email</th>
+                                        <th className="pb-3 font-medium">Status</th>
+                                        <th className="pb-3 font-medium">Activity</th>
+                                        <th className="pb-3 font-medium">Last Active</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {users.map((u) => {
+                                        const isSelected = selectedUserId === u.id;
+                                        return (
+                                            <tr key={u.id} className={`border-b border-eurokeys-border/50 ${isSelected ? 'bg-eurokeys-purple/10' : ''}`}>
+                                                <td className="py-3">
+                                                    <div className="flex items-center gap-2">
+                                                        {u.picture && <img src={u.picture} alt="" className="h-8 w-8 rounded-full" />}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => void fetchUserOverview(u.id)}
+                                                            className="font-medium text-white hover:text-eurokeys-purple underline-offset-2 hover:underline"
+                                                        >
+                                                            {u.name || u.email}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 text-slate-400">{u.email}</td>
+                                                <td className="py-3">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {u.is_developer && (
+                                                            <span className="rounded bg-purple-500/20 px-2 py-0.5 text-xs text-purple-400">Dev</span>
+                                                        )}
+                                                        {u.is_pro && (
+                                                            <span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-400">Pro</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 text-slate-300">{u.activity_count || 0} events</td>
+                                                <td className="py-3 text-slate-500">{u.last_activity ? timeAgo(u.last_activity) : 'Never'}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-4">
+                        <div className="mb-2 flex items-center justify-between">
+                            <h3 className="text-sm font-semibold text-white">User Support View</h3>
+                            {selectedUserOverview?.user?.id && (
+                                <button
+                                    type="button"
+                                    onClick={() => void fetchUserOverview(selectedUserOverview.user.id)}
+                                    className="rounded border border-slate-600 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700"
+                                >
+                                    Refresh
+                                </button>
+                            )}
+                        </div>
+                        {!selectedUserId ? (
+                            <p className="text-sm text-slate-500">Select a user from the table.</p>
+                        ) : loadingUserOverview ? (
+                            <p className="text-sm text-slate-400">Loading user details...</p>
+                        ) : userOverviewError ? (
+                            <p className="text-sm text-red-300">{userOverviewError}</p>
+                        ) : !selectedUserOverview ? (
+                            <p className="text-sm text-slate-500">No user details loaded.</p>
+                        ) : (
+                            <div className="space-y-3 text-xs">
+                                <div className="rounded border border-slate-700 bg-slate-900/60 p-2.5">
+                                    <p className="font-semibold text-slate-100">{selectedUserOverview.user.name || selectedUserOverview.user.email}</p>
+                                    <p className="text-slate-400">{selectedUserOverview.user.email}</p>
+                                    <div className="mt-2 flex flex-wrap gap-1">
+                                        {(selectedUserOverview.user.locksmith_verified || selectedUserOverview.user.nastf_verified) ? (
+                                            <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[11px] text-emerald-300">Verified</span>
+                                        ) : (
+                                            <span className="rounded bg-slate-700 px-1.5 py-0.5 text-[11px] text-slate-300">Unverified</span>
+                                        )}
+                                        {selectedUserOverview.user.verification_level && (
+                                            <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[11px] text-blue-300">
+                                                {selectedUserOverview.user.verification_level}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="rounded border border-slate-700 bg-slate-900/60 p-2.5">
+                                    <p className="mb-1 font-semibold text-slate-200">Inventory Snapshot</p>
+                                    <p className="text-slate-400">
+                                        Total {selectedUserOverview.inventory.summary.total_qty || 0} items
+                                        ({selectedUserOverview.inventory.summary.keys_qty || 0} keys, {selectedUserOverview.inventory.summary.blanks_qty || 0} blanks)
+                                    </p>
+                                    <div className="mt-2 max-h-32 space-y-1 overflow-y-auto">
+                                        {selectedUserOverview.inventory.items.length === 0 ? (
+                                            <p className="text-slate-500">No inventory rows</p>
+                                        ) : selectedUserOverview.inventory.items.slice(0, 20).map((item) => (
+                                            <div key={item.id} className="flex items-center justify-between rounded bg-slate-950/60 px-2 py-1">
+                                                <span className="text-slate-300">{item.item_key}</span>
+                                                <span className="text-slate-400">{item.qty}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="rounded border border-slate-700 bg-slate-900/60 p-2.5">
+                                    <p className="mb-1 font-semibold text-slate-200">Verification History</p>
+                                    <div className="max-h-36 space-y-1 overflow-y-auto">
+                                        {selectedUserOverview.verification.proofs.length === 0 ? (
+                                            <p className="text-slate-500">No proof records</p>
+                                        ) : selectedUserOverview.verification.proofs.slice(0, 20).map((proof) => (
+                                            <div key={proof.id} className="rounded bg-slate-950/60 px-2 py-1">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-slate-300">{PROOF_TYPE_LABELS[proof.proof_type] || proof.proof_type}</span>
+                                                    <span className={`${proof.status === 'approved' ? 'text-emerald-300' : proof.status === 'rejected' ? 'text-red-300' : 'text-amber-300'}`}>
+                                                        {proof.status}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[11px] text-slate-500">
+                                                    {proof.reviewed_at ? timeAgo(proof.reviewed_at) : timeAgo(proof.created_at)}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="rounded border border-slate-700 bg-slate-900/60 p-2.5">
+                                    <p className="mb-1 font-semibold text-slate-200">Recent Activity</p>
+                                    <div className="max-h-36 space-y-1 overflow-y-auto">
+                                        {selectedUserOverview.activity.length === 0 ? (
+                                            <p className="text-slate-500">No activity rows</p>
+                                        ) : selectedUserOverview.activity.slice(0, 25).map((a) => (
+                                            <div key={`${a.id}-${a.created_at}`} className="flex items-center justify-between rounded bg-slate-950/60 px-2 py-1">
+                                                <span className="text-slate-300">{a.action.replace(/_/g, ' ')}</span>
+                                                <span className="text-[11px] text-slate-500">{timeAgo(a.created_at)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -1532,7 +1761,13 @@ export default function DevPanelPage() {
                                                     </span>
                                                 </div>
                                                 <p className="mt-1 text-sm text-slate-300">
-                                                    {proof.user_name || 'Unknown User'} {proof.user_email ? `(${proof.user_email})` : ''}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openUserSupportView(proof.user_id)}
+                                                        className="text-left hover:text-eurokeys-purple hover:underline"
+                                                    >
+                                                        {proof.user_name || 'Unknown User'} {proof.user_email ? `(${proof.user_email})` : ''}
+                                                    </button>
                                                 </p>
                                             </div>
                                         </div>
@@ -1616,6 +1851,69 @@ export default function DevPanelPage() {
                             })}
                         </div>
                     )}
+
+                    <div className="mt-5 rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                        <div className="mb-2 flex items-center justify-between">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Approved Verification History</p>
+                            <span className="text-[11px] text-slate-500">{verificationHistory.length} records</span>
+                        </div>
+                        {verificationHistory.length === 0 ? (
+                            <p className="text-xs text-slate-500">No approval history found yet.</p>
+                        ) : (
+                            <div className="max-h-80 space-y-1.5 overflow-y-auto">
+                                {verificationHistory.slice(0, 120).map((item) => {
+                                    const proofUrl = normalizeProofUrl(item.proof_image_url || '');
+                                    return (
+                                        <div key={item.id} className="rounded border border-slate-700 bg-slate-950/60 px-2.5 py-2 text-xs text-slate-300">
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                                <div>
+                                                    <p className="font-medium text-slate-100">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openUserSupportView(item.user_id)}
+                                                            className="text-left hover:text-eurokeys-purple hover:underline"
+                                                        >
+                                                            {item.user_name || item.user_email || item.user_id}
+                                                        </button>
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-500">
+                                                        {PROOF_TYPE_LABELS[item.proof_type] || item.proof_type}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${item.status === 'approved' ? 'bg-emerald-500/20 text-emerald-300' : item.status === 'rejected' ? 'bg-red-500/20 text-red-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                                                        {item.status}
+                                                    </span>
+                                                    <p className="mt-1 text-[11px] text-slate-500">
+                                                        {item.reviewed_at ? timeAgo(item.reviewed_at) : timeAgo(item.created_at)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-slate-500">
+                                                <span>Reviewer: {item.reviewed_by_name || item.reviewed_by_email || 'Unknown'}</span>
+                                                {item.verification_level && (
+                                                    <span>Level: {item.verification_level}</span>
+                                                )}
+                                                {(item.nastf_verified === 1 || item.nastf_verified === true) && (
+                                                    <span>NASTF</span>
+                                                )}
+                                            </div>
+                                            {proofUrl && (
+                                                <a
+                                                    href={proofUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="mt-1 inline-flex rounded border border-blue-500/40 bg-blue-500/15 px-1.5 py-0.5 text-[11px] text-blue-200 hover:bg-blue-500/25"
+                                                >
+                                                    Open proof
+                                                </a>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
