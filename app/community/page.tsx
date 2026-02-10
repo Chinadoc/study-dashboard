@@ -65,6 +65,13 @@ interface ContentPreview {
     imageUrl: string | null;
 }
 
+interface OptimisticPost {
+    id: string;
+    content: string;
+    created_at: number;
+    status: 'pending' | 'posted' | 'failed';
+}
+
 function toSafeNumber(value: unknown): number {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
@@ -180,7 +187,7 @@ async function buildCommentContentWithImage(text: string, imageFile: File | null
 }
 
 export default function CommunityPage() {
-    const { isAuthenticated, login } = useAuth();
+    const { isAuthenticated, login, user } = useAuth();
     const [activeTab, setActiveTab] = useState<'trending' | 'recent' | 'verified' | 'mentions' | 'leaderboard'>('trending');
     const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
     const [verifiedPearls, setVerifiedPearls] = useState<RecentComment[]>([]);
@@ -191,12 +198,19 @@ export default function CommunityPage() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [engagementError, setEngagementError] = useState<string | null>(null);
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    const [commentingOn, setCommentingOn] = useState<string | null>(null);
     const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+    const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
     const [replyImageFiles, setReplyImageFiles] = useState<Record<string, File | null>>({});
     const [replyImagePreviews, setReplyImagePreviews] = useState<Record<string, string>>({});
+    const [commentImageFiles, setCommentImageFiles] = useState<Record<string, File | null>>({});
+    const [commentImagePreviews, setCommentImagePreviews] = useState<Record<string, string>>({});
     const [pendingVotes, setPendingVotes] = useState<Record<string, boolean>>({});
     const [pendingReplies, setPendingReplies] = useState<Record<string, boolean>>({});
+    const [pendingComments, setPendingComments] = useState<Record<string, boolean>>({});
     const [localVotes, setLocalVotes] = useState<Record<string, number>>({});
+    const [optimisticReplies, setOptimisticReplies] = useState<Record<string, OptimisticPost[]>>({});
+    const [optimisticComments, setOptimisticComments] = useState<Record<string, OptimisticPost[]>>({});
 
     const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
 

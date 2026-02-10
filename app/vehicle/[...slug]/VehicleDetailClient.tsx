@@ -780,7 +780,13 @@ export default function VehicleDetailClient() {
 
     // Deduplicate keys by type (3-btn, 4-btn, blade) - consolidate ALL sources including AKS
     // This merges cards with same family + button count, aggregating FCC IDs
-    const mergedKeys = consolidateKeysByButtonCount(rawKeys, specs);
+    let mergedKeys = consolidateKeysByButtonCount(rawKeys, specs);
+
+    // If aksBladeKeys is available, the dedicated BladeKeysCard renders detailed blade info
+    // (transponder, emergency, Lishi). Remove the simpler blade card from mergedKeys to avoid duplication.
+    if (aksBladeKeys && aksBladeKeys.entries && aksBladeKeys.entries.length > 0) {
+        mergedKeys = mergedKeys.filter(k => k.type !== 'blade');
+    }
 
     // Extract pearls and images - ensure they are arrays
     const rawPearls = data.pearls?.pearls;
