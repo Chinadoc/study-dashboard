@@ -313,12 +313,19 @@ export default function CommunityPage() {
 
     const updateCommentEverywhere = (commentId: string, updater: (comment: RecentComment) => RecentComment) => {
         const apply = (comments: RecentComment[]) => comments.map(c => (c.id === commentId ? updater(c) : c));
-        setTrendingComments(prev => apply(prev));
+        setTrendingComments(prev => rankTrendingComments(apply(prev)));
         setRecentComments(prev => apply(prev));
         setVerifiedPearls(prev => apply(prev));
     };
 
-    const handleUpvote = async (comment: RecentComment) => {
+    const getEffectiveVote = (comment: RecentComment): number => {
+        if (localVotes[comment.id] !== undefined) {
+            return localVotes[comment.id];
+        }
+        return Number(comment.user_vote || 0);
+    };
+
+    const handleVote = async (comment: RecentComment, voteDirection: 1 | -1) => {
         if (!isAuthenticated) {
             login();
             return;
@@ -330,7 +337,7 @@ export default function CommunityPage() {
 
         try {
             const currentVote = await getCurrentVote(comment);
-            const targetVote = currentVote === 1 ? 0 : 1;
+            const targetVote = currentVote === voteDirection ? 0 : voteDirection;
 
             const response = await fetch(`${API_URL}/api/vehicle-comments/vote`, {
                 method: 'POST',
@@ -351,16 +358,19 @@ export default function CommunityPage() {
                 let upvotes = c.upvotes || 0;
                 let downvotes = c.downvotes || 0;
 
-                if (currentVote === 0 && targetVote === 1) {
-                    upvotes += 1;
-                } else if (currentVote === 1 && targetVote === 0) {
+                if (currentVote === 1) {
                     upvotes = Math.max(0, upvotes - 1);
-                } else if (currentVote === -1 && targetVote === 1) {
-                    upvotes += 1;
+                } else if (currentVote === -1) {
                     downvotes = Math.max(0, downvotes - 1);
                 }
 
-                return { ...c, upvotes, downvotes };
+                if (targetVote === 1) {
+                    upvotes += 1;
+                } else if (targetVote === -1) {
+                    downvotes += 1;
+                }
+
+                return { ...c, upvotes, downvotes, user_vote: targetVote };
             });
             emitCommunityUpdate({
                 action: 'vote',
@@ -537,15 +547,25 @@ export default function CommunityPage() {
                                                     </div>
                                                 </div>
                                                 <div className={styles.cardFooter}>
-                                                    <span className={`${styles.score} ${score >= 5 ? styles.highScore : ''}`}>▲ {score}</span>
+                                                    <span className={`${styles.score} ${score >= 5 ? styles.highScore : ''} ${score < 0 ? styles.negativeScore : ''}`}>
+                                                        Score {score > 0 ? `+${score}` : score}
+                                                    </span>
                                                     <div className={styles.engagementActions}>
                                                         <button
                                                             type="button"
-                                                            className={`${styles.actionBtn} ${(localVotes[comment.id] === 1 || comment.user_vote === 1) ? styles.actionBtnActive : ''}`}
-                                                            onClick={() => void handleUpvote(comment)}
+                                                            className={`${styles.actionBtn} ${getEffectiveVote(comment) === 1 ? styles.actionBtnUpvoted : ''}`}
+                                                            onClick={() => void handleVote(comment, 1)}
                                                             disabled={pendingVotes[comment.id]}
                                                         >
-                                                            {pendingVotes[comment.id] ? 'Voting...' : (localVotes[comment.id] === 1 || comment.user_vote === 1) ? 'Upvoted' : 'Upvote'}
+                                                            {pendingVotes[comment.id] ? 'Voting...' : getEffectiveVote(comment) === 1 ? 'Upvoted' : 'Upvote'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className={`${styles.actionBtn} ${getEffectiveVote(comment) === -1 ? styles.actionBtnDownvoted : ''}`}
+                                                            onClick={() => void handleVote(comment, -1)}
+                                                            disabled={pendingVotes[comment.id]}
+                                                        >
+                                                            {pendingVotes[comment.id] ? 'Voting...' : getEffectiveVote(comment) === -1 ? 'Downvoted' : 'Downvote'}
                                                         </button>
                                                         <button
                                                             type="button"
@@ -602,6 +622,7 @@ export default function CommunityPage() {
                                 ) : (
                                     recentComments.map(comment => {
                                         const vehicle = parseVehicleKey(comment.vehicle_key);
+                                        const score = comment.upvotes - (comment.downvotes || 0);
                                         return (
                                             <div key={comment.id} className={`${styles.commentCard} ${comment.is_verified ? styles.verified : ''}`}>
                                                 <div className={styles.cardHeader}>
@@ -633,15 +654,25 @@ export default function CommunityPage() {
                                                     </div>
                                                 </div>
                                                 <div className={styles.cardFooter}>
-                                                    <span className={styles.score}>▲ {comment.upvotes}</span>
+                                                    <span className={`${styles.score} ${score < 0 ? styles.negativeScore : ''}`}>
+                                                        Score {score > 0 ? `+${score}` : score}
+                                                    </span>
                                                     <div className={styles.engagementActions}>
                                                         <button
                                                             type="button"
-                                                            className={`${styles.actionBtn} ${(localVotes[comment.id] === 1 || comment.user_vote === 1) ? styles.actionBtnActive : ''}`}
-                                                            onClick={() => void handleUpvote(comment)}
+                                                            className={`${styles.actionBtn} ${getEffectiveVote(comment) === 1 ? styles.actionBtnUpvoted : ''}`}
+                                                            onClick={() => void handleVote(comment, 1)}
                                                             disabled={pendingVotes[comment.id]}
                                                         >
-                                                            {pendingVotes[comment.id] ? 'Voting...' : (localVotes[comment.id] === 1 || comment.user_vote === 1) ? 'Upvoted' : 'Upvote'}
+                                                            {pendingVotes[comment.id] ? 'Voting...' : getEffectiveVote(comment) === 1 ? 'Upvoted' : 'Upvote'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className={`${styles.actionBtn} ${getEffectiveVote(comment) === -1 ? styles.actionBtnDownvoted : ''}`}
+                                                            onClick={() => void handleVote(comment, -1)}
+                                                            disabled={pendingVotes[comment.id]}
+                                                        >
+                                                            {pendingVotes[comment.id] ? 'Voting...' : getEffectiveVote(comment) === -1 ? 'Downvoted' : 'Downvote'}
                                                         </button>
                                                         <button
                                                             type="button"
@@ -698,6 +729,7 @@ export default function CommunityPage() {
                                 ) : (
                                     verifiedPearls.map(comment => {
                                         const vehicle = parseVehicleKey(comment.vehicle_key);
+                                        const score = comment.upvotes - (comment.downvotes || 0);
                                         return (
                                             <div key={comment.id} className={`${styles.commentCard} ${styles.verified}`}>
                                                 <div className={styles.cardHeader}>
@@ -721,14 +753,24 @@ export default function CommunityPage() {
                                                         )}
                                                     </div>
                                                     <div className={styles.engagementActions}>
-                                                        <span className={styles.score}>▲ {comment.upvotes}</span>
+                                                        <span className={`${styles.score} ${score < 0 ? styles.negativeScore : ''}`}>
+                                                            Score {score > 0 ? `+${score}` : score}
+                                                        </span>
                                                         <button
                                                             type="button"
-                                                            className={`${styles.actionBtn} ${(localVotes[comment.id] === 1 || comment.user_vote === 1) ? styles.actionBtnActive : ''}`}
-                                                            onClick={() => void handleUpvote(comment)}
+                                                            className={`${styles.actionBtn} ${getEffectiveVote(comment) === 1 ? styles.actionBtnUpvoted : ''}`}
+                                                            onClick={() => void handleVote(comment, 1)}
                                                             disabled={pendingVotes[comment.id]}
                                                         >
-                                                            {pendingVotes[comment.id] ? 'Voting...' : (localVotes[comment.id] === 1 || comment.user_vote === 1) ? 'Upvoted' : 'Upvote'}
+                                                            {pendingVotes[comment.id] ? 'Voting...' : getEffectiveVote(comment) === 1 ? 'Upvoted' : 'Upvote'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className={`${styles.actionBtn} ${getEffectiveVote(comment) === -1 ? styles.actionBtnDownvoted : ''}`}
+                                                            onClick={() => void handleVote(comment, -1)}
+                                                            disabled={pendingVotes[comment.id]}
+                                                        >
+                                                            {pendingVotes[comment.id] ? 'Voting...' : getEffectiveVote(comment) === -1 ? 'Downvoted' : 'Downvote'}
                                                         </button>
                                                         <button
                                                             type="button"
