@@ -966,7 +966,7 @@ export default function CommunityPage() {
                                 ) : (
                                     mentions.map(mention => {
                                         const vehicle = parseVehicleKey(mention.vehicle_key);
-                                        const mentionHref = `${vehicle.discussionHref}#comment-${encodeURIComponent(mention.comment_id)}`;
+                                        const mentionHref = `${vehicle.detailHref}#comment-${encodeURIComponent(mention.comment_id)}`;
                                         const preview = toPreviewContent(mention.content, 150);
                                         return (
                                             <div key={mention.id} className={`${styles.mentionCard} ${!mention.is_read ? styles.unread : ''}`}>
