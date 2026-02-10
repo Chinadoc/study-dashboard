@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KeyCards Mockup — Current vs Proposed</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e4e4e7; min-height: 100vh; padding: 32px; }
+
+  .page-title { text-align: center; font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; color: #a78bfa; }
+  .page-sub { text-align: center; font-size: 0.85rem; color: #71717a; margin-bottom: 32px; }
+
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 900px) { .comparison { grid-template-columns: 1fr; } }
+
+  .side { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; }
+  .side-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; padding: 6px 12px; border-radius: 8px; display: inline-block; }
+  .side-label.current { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .side-label.proposed { background: rgba(34,197,94,0.15); color: #22c55e; }
+
+  .section-header { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-header .count { font-size: 0.8rem; font-weight: 400; color: #71717a; }
+
+  /* ======== CURRENT (OLD) CARDS ======== */
+  .old-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .old-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; text-align: center; }
+  .old-card .badge { display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 8px; }
+  .old-card .badge.smart { background: rgba(139,92,246,0.2); color: #a78bfa; }
+  .old-card .badge.remote { background: rgba(245,158,11,0.2); color: #f59e0b; }
+  .old-card .badge.blade { background: rgba(6,182,212,0.2); color: #06b6d4; }
+  .old-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .old-card .btn-label { font-size: 0.8rem; color: #a1a1aa; margin-bottom: 10px; }
+  .old-card .img-placeholder { width: 100%; height: 100px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; opacity: 0.3; margin-bottom: 10px; }
+  .old-card .fcc-box { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px; margin-bottom: 8px; }
+  .old-card .fcc-label { font-size: 0.6rem; color: #71717a; }
+  .old-card .fcc-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #eab308; font-size: 0.85rem; }
+  .old-card .specs { font-size: 0.7rem; color: #a1a1aa; text-align: left; margin-bottom: 8px; line-height: 1.8; }
+  .old-card .specs strong { color: #e4e4e7; }
+  .old-card .oem-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .old-card .oem-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; padding: 2px 6px; background: rgba(255,255,255,0.05); border-radius: 4px; color: #a1a1aa; }
+  .old-card .actions { display: flex; gap: 6px; }
+  .old-card .actions button { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+  .old-card .btn-inv { background: #3f3f46; color: white; }
+  .old-card .btn-buy { background: rgba(234,179,8,0.9); color: black; }
+
+  .old-card .variant-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+  .old-card .variant-tab { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: #71717a; cursor: pointer; }
+  .old-card .variant-tab.active { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.4); color: #c4b5fd; }
+
+  /* ======== PROPOSED (NEW) PANELS ======== */
+  .new-panels { display: flex; flex-direction: column; gap: 12px; }
+  .new-panel { border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
+  .new-panel:hover { border-color: rgba(139,92,246,0.25); }
+
+  .panel-header { padding: 10px 14px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .panel-title { display: flex; align-items: center; gap: 8px; }
+  .panel-title .name { font-weight: 700; font-size: 0.95rem; }
+  .panel-title .badge { font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .panel-title .badge.smart { background: rgba(139,92,246,0.2); color: #a78bfa; }
+  .panel-title .badge.remote { background: rgba(245,158,11,0.2); color: #f59e0b; }
+  .panel-title .badge.blade { background: rgba(6,182,212,0.2); color: #06b6d4; }
+
+  .panel-specs { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 5px; font-size: 0.72rem; color: #a1a1aa; }
+  .panel-specs strong { color: #e4e4e7; }
+
+  .variant-row { display: flex; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+  .variant-row:last-child { border-bottom: none; }
+  .variant-row:hover { background: rgba(139,92,246,0.06); }
+
+  .v-thumb { width: 32px; height: 32px; background: rgba(0,0,0,0.3); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+  .v-btn { font-weight: 700; font-size: 0.82rem; min-width: 55px; flex-shrink: 0; }
+  .v-fcc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #a78bfa; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v-oem { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #71717a; min-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v-price { font-size: 0.78rem; color: #22c55e; font-weight: 600; min-width: 65px; text-align: right; flex-shrink: 0; }
+  .v-buy { font-size: 0.72rem; color: #f59e0b; text-decoration: none; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.2); transition: all 0.15s; flex-shrink: 0; white-space: nowrap; cursor: pointer; }
+  .v-buy:hover { background: rgba(245,158,11,0.25); border-color: rgba(245,158,11,0.4); }
+  .v-stock { font-size: 0.65rem; font-weight: 700; color: #22c55e; background: rgba(34,197,94,0.15); padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .v-inv { font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; cursor: pointer; flex-shrink: 0; }
+  .v-inv:hover { background: rgba(255,255,255,0.12); color: white; }
+
+  /* Height comparison banner */
+  .height-note { margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 0.75rem; text-align: center; }
+  .height-note.bad { background: rgba(239,68,68,0.08); color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
+  .height-note.good { background: rgba(34,197,94,0.08); color: #4ade80; border: 1px solid rgba(34,197,94,0.15); }
+</style>
+</head>
+<body>
+
+<div class="page-title">🔐 Key Configurations — Layout Comparison</div>
+<div class="page-sub">2013 Dodge Charger • 3 key types, 7 FCC variants</div>
+
+<div class="comparison">
+
+  <!-- ======== CURRENT (OLD) ======== -->
+  <div class="side">
+    <span class="side-label current">❌ CURRENT — Tall Cards</span>
+    <div class="section-header">🔐 Key Configurations <span class="count">(3 types)</span></div>
+
+    <div class="old-grid">
+      <!-- Card 1: Smart Key -->
+      <div class="old-card">
+        <span class="badge smart">SMART</span>
+        <h3>Smart Key</h3>
+        <p class="btn-label">5-Button</p>
+        <div class="variant-tabs">
+          <span class="variant-tab">3-Btn</span>
+          <span class="variant-tab">4-Btn</span>
+          <span class="variant-tab active">5-Btn</span>
+        </div>
+        <div class="img-placeholder">🔑</div>
+        <div class="fcc-box">
+          <div class="fcc-label">FCC ID</div>
+          <div class="fcc-id">M3N-40821302</div>
+        </div>
+        <div class="specs">
+          <div>Freq: <strong style="color:#34d399">433 MHz</strong></div>
+          <div>Chip: <strong>Hitag AES</strong></div>
+          <div>Blade: <strong style="font-family:monospace">Y172</strong></div>
+          <div>Battery: <strong>CR2032</strong></div>
+        </div>
+        <div class="oem-tags">
+          <span class="oem-tag">68394195AA</span>
+          <span class="oem-tag">68394196AA</span>
+          <span class="oem-tag">+2</span>
+        </div>
+        <div class="actions">
+          <button class="btn-inv">📦</button>
+          <button class="btn-buy">🛒 Buy</button>
+        </div>
+      </div>
+
+      <!-- Card 2: Remote -->
+      <div class="old-card">
+        <span class="badge remote">REMOTE</span>
+        <h3>Remote Keyless Entry</h3>
+        <p class="btn-label">4-Button</p>
+        <div class="variant-tabs">
+          <span class="variant-tab">3-Btn</span>
+          <span class="variant-tab active">4-Btn</span>
+        </div>
+        <div class="img-placeholder">🔑</div>
+        <div class="fcc-box">
+          <div class="fcc-label">FCC ID</div>
+          <div class="fcc-id">GQ4-53T</div>
+        </div>
+        <div class="specs">
+          <div>Freq: <strong style="color:#34d399">433 MHz</strong></div>
+          <div>Chip: <strong>Hitag AES</strong></div>
+          <div>Battery: <strong>CR2032</strong></div>
+        </div>
+        <div class="oem-tags">
+          <span class="oem-tag">56046955AG</span>
+          <span class="oem-tag">56046956AH</span>
+        </div>
+        <div class="actions">
+          <button class="btn-inv">📦</button>
+          <button class="btn-buy">🛒 Buy</button>
+        </div>
+      </div>
+
+      <!-- Card 3: Blade -->
+      <div class="old-card">
+        <span class="badge blade">BLADE</span>
+        <h3>Blade Keys (Y172)</h3>
+        <p class="btn-label">Emergency</p>
+        <div class="img-placeholder">🗝️</div>
+        <div class="specs">
+          <div>Blade: <strong style="font-family:monospace">Y172</strong></div>
+        </div>
+        <div class="oem-tags">
+          <span class="oem-tag">Y172-PT</span>
+        </div>
+        <div class="actions">
+          <button class="btn-inv">📦</button>
+          <button class="btn-buy">🛒 Buy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="height-note bad">~480px tall • Cards overflow on narrow screens • Variant tabs hide data</div>
+  </div>
+
+  <!-- ======== PROPOSED (NEW) ======== -->
+  <div class="side">
+    <span class="side-label proposed">✅ PROPOSED — Compact Panels</span>
+    <div class="section-header">🔐 Key Configurations <span class="count">(3 types)</span></div>
+
+    <div class="new-panels">
+
+      <!-- Panel 1: Smart Key -->
+      <div class="new-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="name">Smart Key</span>
+            <span class="badge smart">SMART</span>
+          </div>
+          <div class="panel-specs">
+            <span>Chip: <strong>Hitag AES</strong></span>
+            <span>Battery: <strong>CR2032</strong></span>
+            <span>Freq: <strong>433 MHz</strong></span>
+            <span>Blade: <strong>Y172</strong></span>
+          </div>
+        </div>
+        <div>
+          <div class="variant-row">
+            <div class="v-thumb">🔑</div>
+            <div class="v-btn">3-Btn</div>
+            <div class="v-fcc">M3N-40821302</div>
+            <div class="v-oem">68394195AA</div>
+            <div class="v-price">$35 - $89</div>
+            <span class="v-inv" title="Add to inventory">📦</span>
+            <span class="v-buy">Buy ▸</span>
+          </div>
+          <div class="variant-row">
+            <div class="v-thumb">🔑</div>
+            <div class="v-btn">4-Btn</div>
+            <div class="v-fcc">M3N-40821302</div>
+            <div class="v-oem">68394196AA</div>
+            <div class="v-price">$42 - $95</div>
+            <span class="v-inv" title="Add to inventory">📦</span>
+            <span class="v-buy">Buy ▸</span>
+          </div>
+          <div class="variant-row">
+            <div class="v-thumb">🔑</div>
+            <div class="v-btn">5-Btn</div>
+            <div class="v-fcc">GQ4-54T</div>
+            <div class="v-oem">68394197AA</div>
+            <span class="v-stock">✓ 2</span>
+            <div class="v-price">$45 - $99</div>
+            <span class="v-inv" title="Add to inventory">📦</span>
+            <span class="v-buy">Buy ▸</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Remote -->
+      <div class="new-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="name">Remote Keyless Entry</span>
+            <span class="badge remote">REMOTE</span>
+          </div>
+          <div class="panel-specs">
+            <span>Chip: <strong>Hitag AES</strong></span>
+            <span>Battery: <strong>CR2032</strong></span>
+            <span>Freq: <strong>433 MHz</strong></span>
+          </div>
+        </div>
+        <div>
+          <div class="variant-row">
+            <div class="v-thumb">🔑</div>
+            <div class="v-btn">3-Btn</div>
+            <div class="v-fcc">GQ4-53T</div>
+            <div class="v-oem">56046955AG</div>
+            <div class="v-price">$28 - $69</div>
+            <span class="v-inv" title="Add to inventory">📦</span>
+            <span class="v-buy">Buy ▸</span>
+          </div>
+          <div class="variant-row">
+            <div class="v-thumb">🔑</div>
+            <div class="v-btn">4-Btn</div>
+            <div class="v-fcc">GQ4-53T</div>
+            <div class="v-oem">56046956AH</div>
+            <div class="v-price">$32 - $75</div>
+            <span class="v-inv" title="Add to inventory">📦</span>
+            <span class="v-buy">Buy ▸</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Blade -->
+      <div class="new-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="name">Blade Keys</span>
+            <span class="badge blade">BLADE</span>
+          </div>
+          <div class="panel-specs">
+            <span>Blade: <strong>Y172</strong></span>
+          </div>
+        </div>
+        <div>
+          <div class="variant-row">
+            <div class="v-thumb">🗝️</div>
+            <div class="v-btn">Emergency</div>
+            <div class="v-fcc">Y172-PT</div>
+            <div class="v-oem"></div>
+            <div class="v-price">$2 - $15</div>
+            <span class="v-inv" title="Add to inventory">📦</span>
+            <span class="v-buy">Buy ▸</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="height-note good">~290px tall • All variants visible at once • No hidden data • Responsive</div>
+  </div>
+
+</div>
+
+</body>
+</html>

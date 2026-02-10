@@ -483,21 +483,26 @@ async function fetchPremiumVehicleData(make, model, year) {
                 }
             },
 
-            // Keys array - consolidated by category with price ranges
+            // Keys array - grouped by key type with variant sub-rows
             keys: (() => {
-                // Categorize all products
-                const isShell = (p) => p.title?.toLowerCase().includes('shell');
-                const isBlade = (p) => p.title?.toLowerCase().includes('emergency') ||
-                    p.title?.toLowerCase().includes('blade');
-                const isSmartKey = (p) => !isShell(p) && !isBlade(p);
-
-                const smartKeyProducts = keyProducts.filter(isSmartKey);
-                const bladeProducts = keyProducts.filter(isBlade);
+                // Classify product key type from title
+                const classifyKeyType = (p) => {
+                    const t = (p.title || '').toLowerCase();
+                    if (t.includes('shell')) return null; // Skip shells
+                    if (t.includes('emergency') || (t.includes('blade') && !t.includes('key'))) return 'blade';
+                    if (t.includes('transponder')) return 'Transponder Key';
+                    if (t.includes('remote head') || t.includes('rhk') || t.includes('flip')) return 'Remote Head Key';
+                    if (t.includes('fobik')) return 'FOBIK';
+                    if (t.includes('smart') || t.includes('prox') || t.includes('sk ')) return 'Smart Key';
+                    // Check button labels for proximity clues
+                    if (p.buttons && (p.buttons.includes('Remote Start') || p.buttons.includes('RS'))) return 'Smart Key';
+                    return 'Smart Key'; // Default for unclassified
+                };
 
                 // Helper: extract button count from title or buttons field
                 const getButtonCount = (p) => {
                     const match = p.title?.match(/(\d)-[Bb](utton|tn)/);
-                    return match ? match[1] : (p.buttons?.split(' ')?.length || 5);
+                    return match ? match[1] : (p.buttons?.split(/[\/• ]+/)?.filter(b => b.trim()).length || '?');
                 };
 
                 // Helper: calculate price range from product group
@@ -511,89 +516,121 @@ async function fetchPremiumVehicleData(make, model, year) {
                     return min === max ? `$${min.toFixed(2)}` : `$${min.toFixed(0)} - $${max.toFixed(0)}`;
                 };
 
-                // Group smart keys by button count
-                const smartKeyGroups = {};
-                smartKeyProducts.forEach(p => {
-                    const btnCount = getButtonCount(p);
-                    if (!smartKeyGroups[btnCount]) smartKeyGroups[btnCount] = [];
-                    smartKeyGroups[btnCount].push(p);
+                // Group products by key type first
+                const typeGroups = {};
+                const bladeProducts = [];
+                keyProducts.forEach(p => {
+                    const ktype = classifyKeyType(p);
+                    if (!ktype) return; // shell, skip
+                    if (ktype === 'blade') { bladeProducts.push(p); return; }
+                    if (!typeGroups[ktype]) typeGroups[ktype] = [];
+                    typeGroups[ktype].push(p);
                 });
 
-                // Build consolidated key cards
-                const consolidatedKeys = [];
+                // Badge mapping
+                const badgeMap = {
+                    'Smart Key': 'PROX',
+                    'FOBIK': 'PROX',
+                    'Remote Head Key': 'REMOTE',
+                    'Transponder Key': 'BLADE'
+                };
 
-                // Add one card per button configuration
-                Object.entries(smartKeyGroups).forEach(([btnCount, products]) => {
-                    // Pick best representative (OEM NEW preferred for image/details)
-                    const best = products.sort((a, b) => {
+                // Build type-grouped structure
+                const keyTypeGroups = [];
+
+                Object.entries(typeGroups).forEach(([typeName, products]) => {
+                    // Sub-group by FCC within each type
+                    const fccGroups = {};
+                    products.forEach(p => {
+                        const fcc = p.fcc_id || 'unknown';
+                        if (!fccGroups[fcc]) fccGroups[fcc] = [];
+                        fccGroups[fcc].push(p);
+                    });
+
+                    // Pick shared specs from best representative across all products in type
+                    const bestOverall = products.sort((a, b) => {
                         const score = (t) => t?.includes('OEM NEW') ? 3 : t?.includes('REFURB') ? 2 : 1;
                         return score(b.title) - score(a.title);
                     })[0];
 
-                    consolidatedKeys.push({
-                        name: `${btnCount}-Button Smart Key`,
-                        fcc: best.fcc_id || detail.specs?.fcc_id || 'Unknown',
-                        type: 'prox',
-                        buttons: best.buttons || 'Lock • Unlock • Panic',
-                        freq: (parseFloat(best.frequency?.replace(/[^\d.]/g, '')) || 433) + ' MHz',
-                        chip: detail.vyp?.chips?.[0] || detail.specs?.chip || 'ID49',
-                        battery: best.battery || derivedBattery.battery,
-                        oem: (best.oem_part_numbers || []).map(pn => ({ number: pn, label: 'OEM' })),
-                        priceRange: getPriceRange(products),
-                        image: best.image_url,
-                        emergencyIncluded: best.title?.toLowerCase().includes('emergency') || true,
+                    // Build variant rows (one per FCC)
+                    const variants = Object.entries(fccGroups).map(([fcc, fccProducts]) => {
+                        const best = [...fccProducts].sort((a, b) => {
+                            const score = (t) => t?.includes('OEM NEW') ? 3 : t?.includes('REFURB') ? 2 : 1;
+                            return score(b.title) - score(a.title);
+                        })[0];
 
-                        // Emergency Key / Lishi Info
+                        const allBtnCounts = [...new Set(fccProducts.map(p => getButtonCount(p)).filter(Boolean))]
+                            .map(Number).filter(n => !isNaN(n)).sort((a, b) => b - a);
+
+                        return {
+                            fcc: fcc !== 'unknown' ? fcc : detail.specs?.fcc_id || 'Unknown',
+                            buttons: allBtnCounts.length > 0 ? allBtnCounts.join('/') : '?',
+                            buttonCounts: allBtnCounts,
+                            image: best.image_url,
+                            priceRange: getPriceRange(fccProducts),
+                            oem: (best.oem_part_numbers || []).slice(0, 3),
+                            productCount: fccProducts.length
+                        };
+                    });
+
+                    // Sort variants by highest button count desc
+                    variants.sort((a, b) => (b.buttonCounts[0] || 0) - (a.buttonCounts[0] || 0));
+
+                    keyTypeGroups.push({
+                        typeName,
+                        badge: badgeMap[typeName] || 'KEY',
+                        chip: detail.vyp?.chips?.[0] || detail.specs?.chip || bestOverall.chip || 'ID49',
+                        battery: bestOverall.battery || derivedBattery.battery,
+                        frequency: (parseFloat(bestOverall.frequency?.replace(/[^\d.]/g, '')) || 433) + ' MHz',
                         blade: detail.specs?.keyway || 'HU100',
-                        profile: detail.specs?.keyway || 'HU100',
-                        cuts: 10,
-                        style: 'Laser',
-                        lishi: detail.specs?.lishi || 'HU100'
+                        variants
                     });
                 });
 
-                // Add emergency blade as separate card if exists
+                // Add blade type if blade products exist
                 if (bladeProducts.length > 0) {
-                    const blade = bladeProducts[0];
-                    consolidatedKeys.push({
-                        name: 'Emergency Key Blade',
-                        type: 'blade',
-                        fcc: blade.fcc_id || '',
-                        buttons: null,
-                        freq: null,
+                    keyTypeGroups.push({
+                        typeName: 'Emergency Key Blade',
+                        badge: 'BLADE',
                         chip: null,
                         battery: null,
-                        oem: (blade.oem_part_numbers || []).map(pn => ({ number: pn, label: 'OEM' })),
-                        priceRange: getPriceRange(bladeProducts),
-                        image: blade.image_url,
+                        frequency: null,
                         blade: detail.specs?.keyway || 'HU100',
-                        profile: detail.specs?.keyway || 'HU100',
-                        cuts: 10,
-                        style: 'Laser',
-                        lishi: detail.specs?.lishi || 'HU100'
+                        variants: [{
+                            fcc: '',
+                            buttons: 'Physical',
+                            buttonCounts: [],
+                            image: bladeProducts[0].image_url,
+                            priceRange: getPriceRange(bladeProducts),
+                            oem: (bladeProducts[0].oem_part_numbers || []).slice(0, 3),
+                            productCount: bladeProducts.length
+                        }]
                     });
                 }
 
                 // Fallback if no products
-                if (consolidatedKeys.length === 0) {
-                    consolidatedKeys.push({
-                        name: '3-Button Smart Key',
-                        fcc: detail.specs?.fcc_id || 'YG0G21TB2',
-                        type: 'prox',
-                        buttons: 'Lock • Unlock • Panic',
-                        freq: '433 MHz',
+                if (keyTypeGroups.length === 0) {
+                    keyTypeGroups.push({
+                        typeName: 'Smart Key',
+                        badge: 'PROX',
                         chip: detail.vyp?.chips?.[0] || detail.specs?.chip || 'ID49',
                         battery: derivedBattery.battery,
-                        oem: parseOemParts(detail.vyp?.oem_parts).map(pn => ({ number: pn, label: 'OEM' })),
+                        frequency: '433 MHz',
                         blade: detail.specs?.keyway || 'HU100',
-                        profile: detail.specs?.keyway || 'HU100',
-                        cuts: 10,
-                        style: 'Laser',
-                        lishi: detail.specs?.lishi || 'HU100'
+                        variants: [{
+                            fcc: detail.specs?.fcc_id || 'Unknown',
+                            buttons: '3',
+                            buttonCounts: [3],
+                            image: null,
+                            priceRange: null,
+                            oem: parseOemParts(detail.vyp?.oem_parts).slice(0, 3),
+                            productCount: 0
+                        }]
                     });
                 }
 
-                return consolidatedKeys;
+                return keyTypeGroups;
             })(),
 
             // Mechanical data

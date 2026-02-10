@@ -11626,6 +11626,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           interface AksKeyConfig {
             keyType: string;
             buttonCount: string | null;
+            buttonCounts: string[];
             fccIds: string[];
             fccDetails: FccDetail[];
             oemParts: { number: string; label: string | null }[];
@@ -11645,7 +11646,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           if (year) {
             // Query aks_products_complete for comprehensive product data
-            // Falls back to aks_products + aks_products_detail for R2 images
+            // Uses aks_product_vehicle_years (built from product compatible_vehicles)
+            // supplemented by aks_vehicles_by_year.product_item_ids
             const keyConfigResult = await env.LOCKSMITH_DB.prepare(`
               SELECT 
                 c.page_id,
@@ -11731,9 +11733,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               }
             }
 
-            // Group by key type → button count
+            // Group by key type → FCC ID (consolidates different button counts for the same FCC)
             const keyTypeGroups: Record<string, Record<string, {
               fccIds: Set<string>;
+              buttonCounts: Set<string>;
               fccDetailMap: Map<string, { oem: Set<string>; titles: string[]; frequency: string | null }>;
               oemParts: Map<string, { title: string; reusable: string | null; cloneable: string | null; fcc: string | null }>;
               chips: Set<string>;
@@ -11746,6 +11749,35 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               images: string[];
               productCount: number;
             }>> = {};
+
+            // Helper: extract and normalize FCC IDs from a raw fcc_id string
+            const parseFccIds = (fccRaw: string | null): string[] => {
+              if (!fccRaw) return [];
+              // Remove parenthesized annotations like "(PROX)" or "(OEM)"
+              const cleanedFccRaw = fccRaw.replace(/\s*\([^)]*\)/g, '');
+              const rawParts = cleanedFccRaw.split(',').map((f: string) => f.trim()).filter((f: string) => f);
+              const fccs: string[] = [];
+              // Words that are NOT FCC IDs (common annotations in FCC fields)
+              const nonFccWords = new Set(['KEYLESS', 'GO', 'PROX', 'PROXIMITY', 'OEM', 'NEW', 'REFURB', 'AFTERMARKET', 'REMOTE', 'KEY', 'FOB', 'SMART', 'PUSH', 'START', 'BUTTON', 'TRUNK']);
+              // FCC ID pattern: alphanumeric with optional dashes, at least 5 chars, contains both letters and digits
+              const isFccLike = (s: string) => /^[A-Z0-9]+-?[A-Z0-9]+$/i.test(s) && s.length >= 5 && /[A-Z]/i.test(s) && /[0-9]/.test(s);
+              for (const part of rawParts) {
+                const subParts = part.split(/\s+/);
+                if (subParts.length > 1) {
+                  // Multi-word part: extract only FCC-like tokens, skip English words
+                  const fccTokens = subParts.filter(s => isFccLike(s) && !nonFccWords.has(s.toUpperCase()));
+                  if (fccTokens.length > 0) {
+                    fccs.push(...fccTokens);
+                  } else {
+                    // No FCC-like tokens found, push the whole thing as-is
+                    fccs.push(part);
+                  }
+                } else {
+                  fccs.push(part);
+                }
+              }
+              return fccs.map(f => f.replace(/O(\d)/g, '0$1').trim()).filter(f => f && f.length >= 5);
+            };
 
             // Cross-vehicle title filter: exclude products whose title clearly names a different vehicle
             const CROSS_VEHICLE_MAKES = ['Lincoln', 'Kia', 'Toyota', 'Honda', 'Ford', 'Jeep', 'Dodge', 'Chrysler', 'Chevrolet', 'Cadillac', 'Buick', 'GMC', 'BMW', 'Audi', 'Mercedes', 'Nissan', 'Hyundai', 'Subaru', 'Mazda', 'Volkswagen', 'Acura', 'Infiniti', 'Lexus', 'Ram', 'Mitsubishi', 'Volvo', 'Jaguar', 'Fiat', 'Mini', 'Scion', 'Saturn', 'Mercury', 'Plymouth', 'Pontiac', 'Oldsmobile', 'Tesla', 'Suzuki'];
@@ -11812,20 +11844,28 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                     if (btnParts.length > 1) {
                       buttonCount = String(btnParts.length);
                     }
-                    // If only 1 part with no digit, leave as null → groups as 'other'
+                    // If only 1 part with no digit, leave as null
                   }
                 }
               }
+
+              // Determine FCC-based grouping key
+              // Products with the same FCC but different button counts merge into one card
+              const isBladeType = ['Emergency Key', 'Mechanical Key', 'Blade'].includes(baseType);
+              const productFccs = parseFccIds(row.fcc_id);
+              const fccGroupKey = isBladeType || productFccs.length === 0
+                ? 'no-fcc'
+                : productFccs[0]; // Group by primary (first) FCC ID
 
               // Initialize key type group
               if (!keyTypeGroups[baseType]) {
                 keyTypeGroups[baseType] = {};
               }
 
-              const btnKey = buttonCount || 'other';
-              if (!keyTypeGroups[baseType][btnKey]) {
-                keyTypeGroups[baseType][btnKey] = {
+              if (!keyTypeGroups[baseType][fccGroupKey]) {
+                keyTypeGroups[baseType][fccGroupKey] = {
                   fccIds: new Set(),
+                  buttonCounts: new Set(),
                   fccDetailMap: new Map(),
                   oemParts: new Map(),
                   chips: new Set(),
@@ -11840,37 +11880,23 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 };
               }
 
-              const group = keyTypeGroups[baseType][btnKey];
+              const group = keyTypeGroups[baseType][fccGroupKey];
+
+              // Collect button count into the group (instead of using it as grouping key)
+              if (buttonCount) {
+                group.buttonCounts.add(buttonCount);
+              }
 
               // Aggregate data
               // Skip FCC aggregation for blade/emergency/mechanical keys (no RF transmitter)
-              const isBladeType = ['Emergency Key', 'Mechanical Key', 'Blade'].includes(baseType);
+              // (isBladeType already determined above for grouping key)
               const fccRaw = row.fcc_id;
               const oemRaw = row.oem_part_numbers;
               // Clean frequency — filter out "0" and "--" as invalid
               const freqRaw = row.frequency && row.frequency !== '0' && row.frequency !== '--' ? row.frequency : null;
 
-              if (fccRaw && !isBladeType) {
-                // Step 1: Strip parenthetical chip annotations like (HITAG2), (AES), (PEPS)
-                const cleanedFccRaw = fccRaw.replace(/\s*\([^)]*\)/g, '');
-                // Step 2: Split by comma, then also split remaining entries by space
-                // (handles "M3N-40821302 2AOKM-CYV11" → two separate FCCs)
-                const rawParts = cleanedFccRaw.split(',').map((f: string) => f.trim()).filter((f: string) => f);
-                const fccs: string[] = [];
-                for (const part of rawParts) {
-                  // If it contains a space, check if it's multiple FCCs
-                  // FCC IDs follow pattern: letters+digits with hyphens (e.g., M3N-40821302, IYZ-C01C, 2AOKM-CYV11)
-                  const subParts = part.split(/\s+/);
-                  if (subParts.length > 1 && subParts.every((s: string) => /^[A-Z0-9]+-?[A-Z0-9]+$/i.test(s) && s.length >= 5)) {
-                    fccs.push(...subParts);
-                  } else {
-                    fccs.push(part);
-                  }
-                }
-                for (const fcc of fccs) {
-                  // Normalize O→0 typos and skip chip-only strings
-                  const normalizedFcc = fcc.replace(/O(\d)/g, '0$1').trim();
-                  if (!normalizedFcc || normalizedFcc.length < 5) continue;
+              if (!isBladeType && productFccs.length > 0) {
+                for (const normalizedFcc of productFccs) {
                   group.fccIds.add(normalizedFcc);
 
                   // Track per-FCC details for tooltips
@@ -11879,8 +11905,6 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   }
                   const detail = group.fccDetailMap.get(normalizedFcc)!;
                   if (oemRaw) {
-                    // Split OEM by common delimiters (comma, semicolon, or space between part numbers)
-                    // Filter out parenthetical suffixes like (AA-AD), short fragments, and "Multiple"
                     oemRaw.split(/[,;\s]+/).map((o: string) => o.trim()).filter((o: string) => o && o !== 'Multiple' && o.length > 3 && !o.startsWith('(')).forEach((o: string) => detail.oem.add(o));
                   }
                   if (row.title) detail.titles.push(row.title);
@@ -11933,8 +11957,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
 
             // Flatten to array format
-            for (const [keyType, buttonGroups] of Object.entries(keyTypeGroups)) {
-              for (const [btnKey, group] of Object.entries(buttonGroups)) {
+            for (const [keyType, fccGroups] of Object.entries(keyTypeGroups)) {
+              for (const [fccKey, group] of Object.entries(fccGroups)) {
                 // Pick best image: prefer R2 (any), then CDN (any)
                 const r2Image = group.images.find(img => img.startsWith('r2:'));
                 const cdnImage = group.images.find(img => img.startsWith('cdn:'));
@@ -11957,9 +11981,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   });
                 }
 
+                // Sorted button counts (descending) for display
+                const sortedButtonCounts = Array.from(group.buttonCounts).sort((a, b) => parseInt(b) - parseInt(a));
+                // Primary button count = highest, for backward compatibility
+                const primaryButtonCount = sortedButtonCounts[0] || null;
+
                 aksKeyConfigs.push({
                   keyType,
-                  buttonCount: btnKey === 'other' ? null : btnKey,
+                  buttonCount: primaryButtonCount,
+                  buttonCounts: sortedButtonCounts,
                   fccIds: Array.from(group.fccIds).slice(0, 8),
                   fccDetails: fccDetails.slice(0, 8),
                   oemParts: Array.from(group.oemParts.entries()).slice(0, 10).map(([num, meta]) => {

@@ -5185,30 +5185,151 @@
             gap: 8px;
         }
 
-        /* Key Config Carousel */
+        /* Key Config Panels (grouped layout) */
         .m3-config-carousel {
             display: flex;
-            gap: 16px;
-            overflow-x: auto;
-            padding: 8px 0;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
+            flex-direction: column;
+            gap: 12px;
+            padding: 0;
         }
 
-        .m3-config-carousel::-webkit-scrollbar {
-            height: 6px;
+        .m3-key-panel {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+            transition: border-color 0.2s;
         }
 
-        .m3-config-carousel::-webkit-scrollbar-track {
-            background: var(--bg-tertiary);
-            border-radius: 3px;
+        .m3-key-panel:hover {
+            border-color: rgba(139, 92, 246, 0.4);
         }
 
-        .m3-config-carousel::-webkit-scrollbar-thumb {
-            background: var(--brand-primary);
-            border-radius: 3px;
+        .m3-key-panel-header {
+            padding: 10px 14px;
+            background: rgba(139, 92, 246, 0.06);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.12);
         }
 
+        .m3-key-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .m3-key-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .m3-key-panel-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 14px;
+            margin-top: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .m3-key-panel-specs strong {
+            color: var(--text-primary);
+        }
+
+        .m3-key-variants {
+            padding: 0;
+        }
+
+        .m3-key-variant-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            min-height: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.15s;
+            font-size: 0.82rem;
+        }
+
+        .m3-key-variant-row:last-child {
+            border-bottom: none;
+        }
+
+        .m3-key-variant-row:hover {
+            background: rgba(139, 92, 246, 0.06);
+        }
+
+        .m3-variant-stock {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .m3-variant-buttons {
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            min-width: 55px;
+            flex-shrink: 0;
+        }
+
+        .m3-variant-fcc {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .m3-variant-fcc a {
+            color: var(--brand-primary, #a78bfa);
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .m3-variant-fcc a:hover {
+            text-decoration: underline;
+        }
+
+        .m3-variant-chip,
+        .m3-variant-battery {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            min-width: 50px;
+            flex-shrink: 0;
+        }
+
+        .m3-variant-buy {
+            font-size: 0.75rem;
+            color: #f59e0b;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            transition: all 0.15s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .m3-variant-buy:hover {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        /* Legacy config card styles (kept for backward compat) */
         .m3-config-card {
             flex: 0 0 280px;
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
@@ -5563,8 +5684,14 @@
                 text-align: center;
             }
 
-            .m3-config-card {
-                flex: 0 0 260px;
+            .m3-key-variant-row {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .m3-variant-chip,
+            .m3-variant-battery {
+                display: none;
             }
 
             .m3-mechanical-grid {

@@ -344,10 +344,6 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     <h3 className="font-bold text-xl text-white group-hover:text-purple-300 transition-colors">
                         {config.name || 'Key'}
                     </h3>
-                    {/* Button count as subtitle */}
-                    <p className="text-sm text-zinc-400 mt-0.5">
-                        {effective.buttons ? `${effective.buttons}-Button` : ''}
-                    </p>
                 </div>
                 {/* Badges container */}
                 <div className="flex flex-col items-end gap-1">
@@ -467,18 +463,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         </div>
                     );
                 })()}
-                {effective.keyway && (
-                    <div className="text-xs truncate">
-                        <span className="text-zinc-500">Blade: </span>
-                        <span className="text-white font-mono">{effective.keyway}</span>
-                    </div>
-                )}
-                {effective.battery && (
-                    <div className="text-xs">
-                        <span className="text-zinc-500">Battery: </span>
-                        <span className="text-white">{effective.battery}</span>
-                    </div>
-                )}
+
 
             </div>
 

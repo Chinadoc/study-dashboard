@@ -10,12 +10,12 @@ import CalendarView from '@/components/business/CalendarView';
 import GoalProgress from '@/components/business/GoalProgress';
 import InvoiceBuilder from '@/components/business/InvoiceBuilder';
 import PipelineView from '@/components/business/PipelineView';
-import DispatchQueueView from '@/components/business/DispatchQueueView';
-import MyJobsView from '@/components/business/MyJobsView';
+import DailyTrackerBoard from '@/components/business/DailyTrackerBoard';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import { getTechniciansFromStorage, Technician } from '@/lib/technicianTypes';
 import { useFleet } from '@/contexts/FleetContext';
 import ForceSyncButton from '@/components/business/ForceSyncButton';
+import { useAutoStatusTransitions } from '@/lib/useAutoStatusTransitions';
 import Link from 'next/link';
 
 type JobsSubTab = 'all' | 'pipeline' | 'dispatch' | 'myjobs' | 'calendar' | 'analytics';
@@ -46,6 +46,9 @@ function JobsPageContent() {
     const [schedulingLead, setSchedulingLead] = useState<PipelineLead | null>(null);
 
     const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
+
+    // Auto-transition: appointment → accepted 2hrs before scheduled time
+    useAutoStatusTransitions({ jobs: jobLogs, updateJobLog });
     const { getStats: getPipelineStats, deleteLead } = usePipelineLeads();
     const stats = getJobStats();
 
@@ -241,6 +244,13 @@ function JobsPageContent() {
         });
     };
 
+    const handleUpdateJobStatus = (jobId: string, status: JobLog['status']) => {
+        const updates: Partial<JobLog> = { status };
+        if (status === 'in_progress') updates.startedAt = Date.now();
+        if (status === 'completed' || status === 'closed') updates.completedAt = Date.now();
+        updateJobLog(jobId, updates);
+    };
+
     const subtabs = [
         { id: 'all', label: 'All Jobs', icon: '📝', count: jobLogs.length },
         { id: 'pipeline', label: 'Pipeline', icon: '📥', count: activeLeadsCount > 0 ? activeLeadsCount : undefined },
@@ -357,31 +367,24 @@ function JobsPageContent() {
             )}
 
             {activeSubTab === 'dispatch' && (
-                <div className="space-y-6">
-                    {/* Dispatch Queue - Unassigned Jobs */}
-                    <DispatchQueueView
-                        jobs={jobLogs}
-                        technicians={technicians}
-                        currentUserId={currentMember?.id || currentUserId}
-                        currentUserRole={fleetRole || 'owner'}
-                        onClaimJob={handleClaimJob}
-                        onAssignJob={handleAssignJob}
-                        onUnclaimJob={handleUnclaimJob}
-                    />
-
-                    {/* My Jobs View - if technician has claimed jobs */}
-                    {currentUserId && (
-                        <div className="mt-8 pt-6 border-t border-slate-700">
-                            <MyJobsView
-                                jobs={jobLogs}
-                                technicianId={currentUserId}
-                                onStartJob={handleStartJob}
-                                onCompleteJob={handleCompleteJob}
-                                onUnclaimJob={handleUnclaimJob}
-                            />
-                        </div>
-                    )}
-                </div>
+                <DailyTrackerBoard
+                    jobs={jobLogs}
+                    technicians={technicians}
+                    currentUserId={currentMember?.id || currentUserId}
+                    currentUserRole={fleetRole || 'owner'}
+                    onClaimJob={handleClaimJob}
+                    onAssignJob={handleAssignJob}
+                    onUnclaimJob={handleUnclaimJob}
+                    onStartJob={handleStartJob}
+                    onCompleteJob={handleCompleteJob}
+                    onUpdateStatus={handleUpdateJobStatus}
+                    onAddJob={() => {
+                        setEditingJob(null);
+                        setPrefillData(null);
+                        setPrefillDate(undefined);
+                        setJobModalOpen(true);
+                    }}
+                />
             )}
 
             {activeSubTab === 'pipeline' && (

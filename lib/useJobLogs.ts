@@ -66,8 +66,12 @@ export interface JobLog {
 
     // Dispatch timestamps (for aging calculations)
     claimedAt?: number;      // When tech claimed/was assigned
+    acceptedAt?: number;     // When auto-transitioned from appointment
     startedAt?: number;      // When work began (in_progress)
     completedAt?: number;    // When job finished
+
+    // Audit trail
+    createdBy?: string;      // Name of user who created the job
 
     // Legacy time fields (deprecated, use timestamps above)
     startTime?: string;

@@ -253,55 +253,174 @@
 }
 
 /* ======================================
-   KEY TYPE CARDS
+   KEY TYPE PANELS (Grouped Layout)
    ====================================== */
+.vd-key-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vd-key-panel {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    transition: border-color 0.2s;
+}
+
+.vd-key-panel:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.vd-key-panel-header {
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vd-key-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vd-key-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.vd-key-panel-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--vd-text-secondary);
+}
+
+.vd-key-panel-specs strong {
+    color: var(--vd-text-primary);
+}
+
+.vd-key-variants {
+    padding: 0;
+}
+
+.vd-key-variant-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    min-height: 48px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.15s;
+}
+
+.vd-key-variant-row:last-child {
+    border-bottom: none;
+}
+
+.vd-key-variant-row:hover {
+    background: rgba(139, 92, 246, 0.06);
+}
+
+.vd-variant-thumb {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.vd-variant-thumb-placeholder {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+
+.vd-variant-buttons {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--vd-text-primary);
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+.vd-variant-fcc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--vd-purple);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vd-variant-price {
+    font-size: 0.78rem;
+    color: var(--vd-green);
+    font-weight: 600;
+    min-width: 70px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.vd-variant-buy {
+    font-size: 0.75rem;
+    color: var(--vd-amber);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    transition: all 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.vd-variant-buy:hover {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.4);
+    transform: translateX(2px);
+}
+
+/* Responsive: stack variant row items on mobile */
+@media (max-width: 600px) {
+    .vd-key-variant-row {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px 12px;
+    }
+
+    .vd-variant-fcc {
+        flex-basis: 100%;
+        order: 10;
+    }
+
+    .vd-key-panel-specs {
+        gap: 4px 10px;
+        font-size: 0.7rem;
+    }
+}
+
+/* Legacy key card styles (kept for backward compat) */
 .vd-key-types-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
-}
-
-.vd-key-card {
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.vd-key-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.vd-key-card.purple {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.02) 100%);
-    border: 1px solid var(--vd-border-purple);
-}
-
-.vd-key-card.cyan {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.02) 100%);
-    border: 1px solid var(--vd-border-cyan);
-}
-
-.vd-key-card.amber {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.02) 100%);
-    border: 1px solid var(--vd-border-amber);
-}
-
-.vd-key-card-header {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.vd-key-card-body {
-    padding: 12px;
-    text-align: center;
-}
-
-.vd-key-card-footer {
-    padding: 0 12px 12px;
-    font-size: 0.75rem;
-    color: var(--vd-text-secondary);
 }
 
 /* ======================================

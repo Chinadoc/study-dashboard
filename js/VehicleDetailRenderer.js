@@ -183,13 +183,19 @@ class VehicleDetailRenderer {
     }
 
     /**
-     * Render key type cards (3-button, 4-button, emergency)
+     * Render key type panels (grouped by type with variant sub-rows)
      */
     renderKeyTypes() {
         const keys = this.data.keys || [];
         if (keys.length === 0) return '';
 
-        const mech = this.data.mechanical || {};
+        // Check if data is in new grouped format (has typeName) or legacy flat format
+        const isGrouped = keys[0] && keys[0].typeName;
+
+        if (!isGrouped) {
+            // Legacy flat format - render old style
+            return this.renderKeyTypesLegacy(keys);
+        }
 
         return `
             <div class="vd-card" style="border-color: rgba(139, 92, 246, 0.4);">
@@ -197,70 +203,105 @@ class VehicleDetailRenderer {
                     <span class="icon">🔑</span>
                     Key Types for This Vehicle
                 </div>
-                <div class="vd-key-types-grid">
-                    ${keys.map((key, i) => this.renderKeyCard(key, i)).join('')}
-                    ${mech.keyway ? this.renderEmergencyKeyCard(mech) : ''}
+                <div class="vd-key-panels">
+                    ${keys.map((group, i) => this.renderKeyTypePanel(group, i)).join('')}
                 </div>
             </div>
         `;
     }
 
     /**
-     * Render individual key card
+     * Render a single key type panel with variant rows
      */
-    renderKeyCard(key, index) {
-        const colors = ['green', 'purple', 'cyan'];
+    renderKeyTypePanel(group, index) {
+        const colors = ['green', 'purple', 'cyan', 'amber'];
         const color = colors[index % colors.length];
-        const colorVar = color === 'green' ? '--vd-green' : color === 'purple' ? '--vd-purple' : '--vd-cyan';
+        const colorVar = color === 'green' ? '--vd-green' : color === 'purple' ? '--vd-purple' : color === 'cyan' ? '--vd-cyan' : '--vd-amber';
+
+        const badgeColors = {
+            'PROX': { bg: 'rgba(34, 197, 94, 0.25)', text: '#22c55e' },
+            'REMOTE': { bg: 'rgba(245, 158, 11, 0.25)', text: '#f59e0b' },
+            'BLADE': { bg: 'rgba(6, 182, 212, 0.25)', text: '#06b6d4' },
+            'KEY': { bg: 'rgba(139, 92, 246, 0.25)', text: '#8b5cf6' }
+        };
+        const bc = badgeColors[group.badge] || badgeColors['KEY'];
+
+        // Shared specs row (only for non-blade types)
+        const specsRow = group.chip ? `
+            <div class="vd-key-panel-specs">
+                ${group.chip ? `<span>Chip: <strong>${group.chip}</strong></span>` : ''}
+                ${group.battery ? `<span>Battery: <strong>${group.battery}</strong></span>` : ''}
+                ${group.frequency ? `<span>Freq: <strong>${group.frequency}</strong></span>` : ''}
+                ${group.blade ? `<span>Blade: <strong>${group.blade}</strong></span>` : ''}
+            </div>` : '';
 
         return `
-            <div class="vd-key-card ${color}">
-                <div class="vd-key-card-header" style="background: rgba(var(--${color}-rgb), 0.2); border-bottom-color: rgba(var(--${color}-rgb), 0.3);">
-                    <div style="font-weight: 700; color: var(${colorVar}); font-size: 0.95rem;">${key.buttons}-Button ${key.type === 'prox' ? 'Smart Key' : 'Key'}</div>
-                    <div style="font-size: 0.75rem; color: var(--vd-text-secondary);">${key.trims || 'All Trims'}</div>
-                </div>
-                <div class="vd-key-card-body">
-                    ${key.image ? `<img src="${key.image}" alt="${key.buttons}-Button Key" style="width: 100px; height: auto; border-radius: 8px; margin-bottom: 10px;">` : ''}
-                    <div style="font-size: 0.8rem; color: var(--vd-text-primary); margin-bottom: 8px;">
-                        ${(key.button_labels || ['Lock', 'Unlock', 'Panic'].slice(0, key.buttons)).map(b => `<strong>${b}</strong>`).join(' • ')}
+            <div class="vd-key-panel">
+                <div class="vd-key-panel-header">
+                    <div class="vd-key-panel-title">
+                        <span style="font-weight: 700; color: var(${colorVar}); font-size: 0.95rem;">${group.typeName}</span>
+                        <span class="vd-key-badge" style="background: ${bc.bg}; color: ${bc.text};">${group.badge}</span>
                     </div>
+                    ${specsRow}
                 </div>
-                <div class="vd-key-card-footer">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                        <span><strong>FCC:</strong> ${key.fcc_id}</span>
-                        <span><strong>Freq:</strong> ${key.frequency_mhz} MHz</span>
-                        <span><strong>Battery:</strong> ${key.battery}</span>
-                        <span><strong>Chip:</strong> ${key.chip}</span>
-                    </div>
-                    ${key.price ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--vd-green); font-size: 0.85rem; font-weight: 600;">${key.price}</div>` : ''}
+                <div class="vd-key-variants">
+                    ${group.variants.map(v => this.renderVariantRow(v, group)).join('')}
                 </div>
             </div>
         `;
     }
 
     /**
-     * Render emergency key card
+     * Render a compact variant row (one per FCC ID)
      */
-    renderEmergencyKeyCard(mech) {
+    renderVariantRow(variant, group) {
+        const amazonTag = 'eurokeys-20';
+        const amazonQuery = `${variant.fcc} key fob`;
+        const amazonUrl = variant.fcc ? `https://www.amazon.com/s?k=${encodeURIComponent(amazonQuery)}&tag=${amazonTag}` : '#';
+
+        const btnLabel = variant.buttonCounts && variant.buttonCounts.length > 0
+            ? variant.buttonCounts.map(b => `${b}-Btn`).join(' / ')
+            : variant.buttons || '?';
+
         return `
-            <div class="vd-key-card amber">
-                <div class="vd-key-card-header" style="background: rgba(245, 158, 11, 0.2); border-bottom-color: rgba(245, 158, 11, 0.3);">
-                    <div style="font-weight: 700; color: var(--vd-amber); font-size: 0.95rem;">Emergency Key Blade</div>
-                    <div style="font-size: 0.75rem; color: var(--vd-text-secondary);">Physical Access Only</div>
+            <div class="vd-key-variant-row">
+                ${variant.image ? `<img src="${variant.image}" alt="Key" class="vd-variant-thumb">` : '<div class="vd-variant-thumb-placeholder">🔑</div>'}
+                <div class="vd-variant-buttons">${btnLabel}</div>
+                <div class="vd-variant-fcc" title="${variant.fcc}">${variant.fcc || '—'}</div>
+                ${variant.priceRange ? `<div class="vd-variant-price">${variant.priceRange}</div>` : '<div class="vd-variant-price" style="opacity:0.4">—</div>'}
+                ${variant.fcc ? `<a href="${amazonUrl}" target="_blank" class="vd-variant-buy" onclick="logActivity && logActivity('affiliate_click', {type:'key_variant', fcc:'${variant.fcc}'})">Buy ▸</a>` : ''}
+            </div>
+        `;
+    }
+
+    /**
+     * Legacy flat format renderer (backward compat)
+     */
+    renderKeyTypesLegacy(keys) {
+        const mech = this.data.mechanical || {};
+        return `
+            <div class="vd-card" style="border-color: rgba(139, 92, 246, 0.4);">
+                <div class="vd-card-title" style="color: var(--vd-purple);">
+                    <span class="icon">🔑</span>
+                    Key Types for This Vehicle
                 </div>
-                <div class="vd-key-card-body">
-                    <div style="font-size: 0.8rem; color: var(--vd-text-primary); margin-bottom: 8px;">
-                        <strong>Door Unlock</strong> • Backup Start
-                    </div>
-                </div>
-                <div class="vd-key-card-footer">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                        <span><strong>Blade:</strong> ${mech.blank || 'N/A'}</span>
-                        <span><strong>Profile:</strong> ${mech.keyway}</span>
-                        <span><strong>Cut:</strong> ${mech.cuts || 10}-Cut</span>
-                        <span><strong>Style:</strong> Laser</span>
-                    </div>
-                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--vd-amber); font-size: 0.85rem; font-weight: 600;">Included w/ Fob</div>
+                <div class="vd-key-panels">
+                    ${keys.map((key, i) => `
+                        <div class="vd-key-panel">
+                            <div class="vd-key-panel-header">
+                                <div class="vd-key-panel-title">
+                                    <span style="font-weight: 700; color: var(--vd-green); font-size: 0.95rem;">${key.name || 'Key'}</span>
+                                </div>
+                            </div>
+                            <div class="vd-key-variants">
+                                <div class="vd-key-variant-row">
+                                    ${key.image ? `<img src="${key.image}" alt="Key" class="vd-variant-thumb">` : ''}
+                                    <div class="vd-variant-fcc">${key.fcc || key.fcc_id || '—'}</div>
+                                    ${key.priceRange ? `<div class="vd-variant-price">${key.priceRange}</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
         `;

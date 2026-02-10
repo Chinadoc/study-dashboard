@@ -6,12 +6,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import { usePipelineLeads, PipelineLead } from '@/lib/usePipelineLeads';
 import PipelineView from '@/components/business/PipelineView';
-import DispatchQueueView from '@/components/business/DispatchQueueView';
-import MyJobsView from '@/components/business/MyJobsView';
+import DailyTrackerBoard from '@/components/business/DailyTrackerBoard';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { getTechniciansFromStorage, Technician } from '@/lib/technicianTypes';
 import { useFleet } from '@/contexts/FleetContext';
 import TourBanner from '@/components/onboarding/TourBanner';
+import { useAutoStatusTransitions } from '@/lib/useAutoStatusTransitions';
 
 type DispatcherTab = 'pipeline' | 'dispatch' | 'my-jobs';
 
@@ -39,6 +39,9 @@ export default function DispatcherPage() {
     const [pipelineSuccess, setPipelineSuccess] = useState<string | null>(null);
 
     const { jobLogs, addJobLog, updateJobLog, getRecentCustomers } = useJobLogs();
+
+    // Auto-transition: appointment → accepted 2hrs before
+    useAutoStatusTransitions({ jobs: jobLogs, updateJobLog });
     const { getStats: getPipelineStats, deleteLead } = usePipelineLeads();
     const { role: fleetRole, currentMember, isFleetMember, members } = useFleet();
 
@@ -243,6 +246,13 @@ export default function DispatcherPage() {
         updateJobLog(jobId, { status: 'completed', completedAt: Date.now() });
     };
 
+    const handleUpdateJobStatus = (jobId: string, status: JobLog['status']) => {
+        const updates: Partial<JobLog> = { status };
+        if (status === 'in_progress') updates.startedAt = Date.now();
+        if (status === 'completed' || status === 'closed') updates.completedAt = Date.now();
+        updateJobLog(jobId, updates);
+    };
+
     const tabs = [
         { id: 'pipeline', label: 'Pipeline', icon: '📥', count: activeLeadsCount > 0 ? activeLeadsCount : undefined },
         { id: 'dispatch', label: 'Dispatch', icon: '🚚', count: unassignedJobs.length > 0 ? unassignedJobs.length : undefined },
@@ -318,7 +328,7 @@ export default function DispatcherPage() {
                 )}
 
                 {activeTab === 'dispatch' && (
-                    <DispatchQueueView
+                    <DailyTrackerBoard
                         jobs={jobLogs}
                         technicians={technicians}
                         currentUserId={currentMember?.id || currentUserId}
@@ -326,16 +336,10 @@ export default function DispatcherPage() {
                         onClaimJob={handleClaimJob}
                         onAssignJob={handleAssignJob}
                         onUnclaimJob={handleUnclaimJob}
-                    />
-                )}
-
-                {activeTab === 'my-jobs' && currentUserId && (
-                    <MyJobsView
-                        jobs={jobLogs}
-                        technicianId={currentUserId}
                         onStartJob={handleStartJob}
                         onCompleteJob={handleCompleteJob}
-                        onUnclaimJob={handleUnclaimJob}
+                        onUpdateStatus={handleUpdateJobStatus}
+                        onAddJob={() => setJobModalOpen(true)}
                     />
                 )}
             </div>

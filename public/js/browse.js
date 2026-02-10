@@ -3703,7 +3703,7 @@ window.showInlineInsightPopover = function (element, event) {
     }
 };
 
-// Render horizontal scrolling key config cards
+// Render grouped key config panels (grouped by key type with variant rows)
 function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
     if (!configs || configs.length === 0) {
         return '<div class="m3-empty-state">No key configurations found</div>';
@@ -3712,56 +3712,80 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
     const { year, make, model } = vehicle;
     const amazonTag = 'eurokeys-20';
 
-    return configs.map((config, idx) => {
-        // Handle both old (vehicles) and new (aks_key_configs) API schemas
-        // aks_key_configs: fccIds (array), keyType, buttonCount, chip, battery
-        // vehicles: fcc_id, key_type, buttons, chip, battery
-        const fccId = (config.fccIds && config.fccIds[0]) || config.fcc_id || 'N/A';
+    // Group configs by keyType
+    const typeGroups = {};
+    configs.forEach(config => {
         const keyType = config.keyType || config.config_type || config.key_type || 'Smart Key';
-        const buttons = config.buttonCount || config.buttons || config.button_count || '?';
-        const chip = config.chip || config.chip_family || 'N/A';
-        const battery = config.battery || 'CR2032';
+        if (!typeGroups[keyType]) typeGroups[keyType] = [];
+        typeGroups[keyType].push(config);
+    });
 
-        // Check inventory status
-        const stockCount = inventory[fccId] || 0;
-        const inStock = stockCount > 0;
+    // Badge mapping
+    const badgeMap = {
+        'Smart Key': { label: 'PROX', bg: 'rgba(34, 197, 94, 0.25)', color: '#22c55e' },
+        'FOBIK': { label: 'PROX', bg: 'rgba(34, 197, 94, 0.25)', color: '#22c55e' },
+        'Remote Keyless Entry': { label: 'REMOTE', bg: 'rgba(245, 158, 11, 0.25)', color: '#f59e0b' },
+        'Remote Head Key': { label: 'REMOTE', bg: 'rgba(245, 158, 11, 0.25)', color: '#f59e0b' },
+        'Transponder Key': { label: 'BLADE', bg: 'rgba(6, 182, 212, 0.25)', color: '#06b6d4' }
+    };
+    const defaultBadge = { label: 'KEY', bg: 'rgba(139, 92, 246, 0.25)', color: '#a78bfa' };
 
-        // Build Amazon affiliate link
-        const amazonQuery = `${year} ${make} ${model} key fob ${fccId} `;
-        const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(amazonQuery)}&tag=${amazonTag}`;
+    return Object.entries(typeGroups).map(([typeName, typeConfigs]) => {
+        const badge = badgeMap[typeName] || defaultBadge;
 
-        // Determine key image based on type
-        const keyImage = keyType.toLowerCase().includes('smart') || keyType.toLowerCase().includes('prox')
-            ? '/assets/images/keys/smart-key-generic.png'
-            : '/assets/images/keys/flip-key-generic.png';
+        // Get shared specs from first config
+        const first = typeConfigs[0];
+        const chip = first.chip || first.chip_family || '';
+        const battery = first.battery || '';
+        const freq = first.frequency || '';
+
+        // Build variant rows
+        const variantRows = typeConfigs.map(config => {
+            const fccId = (config.fccIds && config.fccIds[0]) || config.fcc_id || 'N/A';
+            const btnCounts = config.buttonCounts || (config.buttonCount ? [config.buttonCount] : null);
+            const buttons = btnCounts ? btnCounts.join('/') : (config.buttons || config.button_count || '?');
+            const stockCount = inventory[fccId] || 0;
+            const inStock = stockCount > 0;
+
+            const amazonQuery = `${year} ${make} ${model} key fob ${fccId}`;
+            const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(amazonQuery)}&tag=${amazonTag}`;
+
+            // Extra FCCs badge
+            const extraFccs = config.fccIds && config.fccIds.length > 1
+                ? `<span style="font-size: 0.65rem; opacity: 0.6; margin-left: 4px;">+${config.fccIds.length - 1}</span>`
+                : '';
+
+            return `
+                <div class="m3-key-variant-row">
+                    ${inStock ? `<span class="m3-variant-stock">✓ ${stockCount}</span>` : ''}
+                    <div class="m3-variant-buttons">${buttons}-Btn</div>
+                    <div class="m3-variant-fcc">
+                        <a href="${amazonUrl}" target="_blank" onclick="logActivity && logActivity('affiliate_click', {type:'m3_config', fcc:'${fccId}'})">${fccId}</a>
+                        ${extraFccs}
+                    </div>
+                    <div class="m3-variant-chip">${config.chip || chip || '—'}</div>
+                    <div class="m3-variant-battery">${config.battery || battery || '—'}</div>
+                    <a href="${amazonUrl}" target="_blank" class="m3-variant-buy" onclick="logActivity && logActivity('affiliate_click', {type:'m3_buy', fcc:'${fccId}'})">Buy ▸</a>
+                </div>
+            `;
+        }).join('');
 
         return `
-            <div class="m3-config-card ${idx === 0 ? 'primary' : ''}">
-                ${inStock ? `<div class="m3-stock-badge">✓ In Stock: ${stockCount}</div>` : ''}
-                <div class="m3-config-image">
-                    <img src="${keyImage}" alt="${keyType}" onerror="this.src='/assets/images/keys/key-placeholder.png'">
+            <div class="m3-key-panel">
+                <div class="m3-key-panel-header">
+                    <div class="m3-key-panel-title">
+                        <span>${typeName}</span>
+                        <span class="m3-key-badge" style="background: ${badge.bg}; color: ${badge.color};">${badge.label}</span>
+                    </div>
+                    ${chip || battery ? `
+                        <div class="m3-key-panel-specs">
+                            ${chip ? `<span>Chip: <strong>${chip}</strong></span>` : ''}
+                            ${battery ? `<span>Battery: <strong>${battery}</strong></span>` : ''}
+                            ${freq ? `<span>Freq: <strong>${freq}</strong></span>` : ''}
+                        </div>` : ''}
                 </div>
-                <div class="m3-config-details">
-                    <div class="m3-config-fcc">
-                        <a href="${amazonUrl}" target="_blank" onclick="logActivity && logActivity('affiliate_click', {type:'m3_config', fcc:'${fccId}'})">
-                            FCC ID: ${fccId}
-                        </a>
-                        ${renderInlineInsight('fcc')}
-                    </div>
-                    <div class="m3-config-specs">
-                        <div class="m3-spec-row">
-                            <span>Button Count:</span>
-                            <span>${buttons}</span>
-                        </div>
-                        <div class="m3-spec-row">
-                            <span>Chip Type:</span>
-                            <span>${chip}</span>
-                        </div>
-                        <div class="m3-spec-row">
-                            <span>Battery:</span>
-                            <span>${battery}</span>
-                        </div>
-                    </div>
+                <div class="m3-key-variants">
+                    ${variantRows}
                 </div>
             </div>
         `;

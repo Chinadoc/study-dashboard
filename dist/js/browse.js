@@ -3712,9 +3712,14 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
     const amazonTag = 'eurokeys-20';
 
     return configs.map((config, idx) => {
-        const fccId = config.fcc_id || 'N/A';
-        const keyType = config.config_type || config.key_type || 'Smart Key';
-        const buttons = config.buttons || config.button_count || '?';
+        const fccId = (config.fccIds && config.fccIds[0]) || config.fcc_id || 'N/A';
+        const keyType = config.keyType || config.config_type || config.key_type || 'Smart Key';
+        // Use buttonCounts array (new) or buttonCount (legacy) or buttons (old)
+        const btnCounts = config.buttonCounts || (config.buttonCount ? [config.buttonCount] : null);
+        const buttons = btnCounts ? btnCounts[0] : (config.buttons || config.button_count || '?');
+        const btnVariant = btnCounts && btnCounts.length > 1
+            ? ` <span style="font-size: 0.7rem; opacity: 0.7;">(also ${btnCounts.slice(1).map(b => b + '-Btn').join(', ')})</span>`
+            : '';
         const chip = config.chip || config.chip_family || 'N/A';
         const battery = config.battery || 'CR2032';
 
@@ -3747,7 +3752,7 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
                     <div class="m3-config-specs">
                         <div class="m3-spec-row">
                             <span>Button Count:</span>
-                            <span>${buttons}</span>
+                            <span>${buttons}${btnVariant}</span>
                         </div>
                         <div class="m3-spec-row">
                             <span>Chip Type:</span>

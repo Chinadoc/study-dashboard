@@ -758,8 +758,9 @@ export default function VehicleDetailClient() {
             : keysFromPBT.length > 0 ? keysFromPBT
                 : keysFromVYP;
 
-    // Deduplicate keys by type (3-btn, 4-btn, blade) - only needed for legacy sources
-    const mergedKeys = keysFromAks.length > 0 ? keysFromAks : consolidateKeysByButtonCount(rawKeys, specs);
+    // Deduplicate keys by type (3-btn, 4-btn, blade) - consolidate ALL sources including AKS
+    // This merges cards with same family + button count, aggregating FCC IDs
+    const mergedKeys = consolidateKeysByButtonCount(rawKeys, specs);
 
     // Extract pearls and images - ensure they are arrays
     const rawPearls = data.pearls?.pearls;
