@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -37,6 +37,45 @@ interface CommentSectionProps {
     model: string;
 }
 
+type SortMode = 'top' | 'new' | 'hot' | 'controversial';
+
+function getHotScore(comment: Comment): number {
+    const score = comment.score || ((comment.upvotes || 0) - (comment.downvotes || 0));
+    const ageHours = Math.max((Date.now() - comment.created_at) / 3600000, 1);
+    return score / Math.pow(ageHours + 2, 1.35);
+}
+
+function getControversialScore(comment: Comment): number {
+    const up = Math.max(comment.upvotes || 0, 0);
+    const down = Math.max(comment.downvotes || 0, 0);
+    const total = up + down;
+    if (total === 0) return -1;
+    const balance = 1 - (Math.abs(up - down) / total);
+    return balance * Math.log10(total + 1);
+}
+
+function sortCommentsByMode(items: Comment[], mode: SortMode): Comment[] {
+    const withSortedReplies = items.map((item) => ({
+        ...item,
+        replies: sortCommentsByMode(item.replies || [], mode),
+    }));
+
+    return withSortedReplies.sort((a, b) => {
+        if (mode === 'new') return b.created_at - a.created_at;
+        if (mode === 'hot') return getHotScore(b) - getHotScore(a);
+        if (mode === 'controversial') return getControversialScore(b) - getControversialScore(a);
+        return b.score - a.score || b.upvotes - a.upvotes || b.created_at - a.created_at;
+    });
+}
+
+function hasCommentId(items: Comment[], commentId: string): boolean {
+    for (const comment of items) {
+        if (comment.id === commentId) return true;
+        if (comment.replies?.length && hasCommentId(comment.replies, commentId)) return true;
+    }
+    return false;
+}
+
 export default function CommentSection({ make, model }: CommentSectionProps) {
     const { user, isAuthenticated, login } = useAuth();
     const [comments, setComments] = useState<Comment[]>([]);
@@ -49,6 +88,12 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     const [reportingComment, setReportingComment] = useState<string | null>(null);
     const [reportReason, setReportReason] = useState<string>('misinformation');
     const [nastfOnly, setNastfOnly] = useState(false);
+    const [sortMode, setSortMode] = useState<SortMode>('top');
+    const [collapsedReplies, setCollapsedReplies] = useState<Record<string, boolean>>({});
+    const [visibleReplyCount, setVisibleReplyCount] = useState<Record<string, number>>({});
+    const [highlightedCommentId, setHighlightedCommentId] = useState<string | null>(null);
+    const [copiedCommentId, setCopiedCommentId] = useState<string | null>(null);
+    const highlightTimerRef = useRef<number | null>(null);
 
     const vehicleKey = `${make.toLowerCase()}_${model.toLowerCase()}`;
     const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
@@ -99,6 +144,68 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         });
         return unsubscribe;
     }, [fetchComments, vehicleKey]);
+
+    const sortedComments = useMemo(() => sortCommentsByMode(comments, sortMode), [comments, sortMode]);
+
+    const setHighlightedTemporarily = useCallback((commentId: string) => {
+        setHighlightedCommentId(commentId);
+        if (highlightTimerRef.current) {
+            window.clearTimeout(highlightTimerRef.current);
+        }
+        highlightTimerRef.current = window.setTimeout(() => {
+            setHighlightedCommentId((prev) => (prev === commentId ? null : prev));
+            highlightTimerRef.current = null;
+        }, 2500);
+    }, []);
+
+    const focusCommentFromHash = useCallback((smooth = false) => {
+        if (typeof window === 'undefined') return;
+        const hash = window.location.hash || '';
+        if (!hash.startsWith('#comment-')) return;
+        const commentId = decodeURIComponent(hash.slice('#comment-'.length));
+        if (!commentId || !hasCommentId(comments, commentId)) return;
+
+        const target = document.getElementById(`comment-${commentId}`);
+        if (target) {
+            target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'center' });
+            setHighlightedTemporarily(commentId);
+        }
+    }, [comments, setHighlightedTemporarily]);
+
+    useEffect(() => {
+        focusCommentFromHash(false);
+    }, [focusCommentFromHash]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const handleHashChange = () => focusCommentFromHash(true);
+        window.addEventListener('hashchange', handleHashChange);
+        return () => {
+            window.removeEventListener('hashchange', handleHashChange);
+        };
+    }, [focusCommentFromHash]);
+
+    useEffect(() => {
+        return () => {
+            if (highlightTimerRef.current) {
+                window.clearTimeout(highlightTimerRef.current);
+            }
+        };
+    }, []);
+
+    const handleCopyPermalink = async (commentId: string) => {
+        if (typeof window === 'undefined') return;
+        const permalink = `${window.location.origin}${window.location.pathname}${window.location.search}#comment-${encodeURIComponent(commentId)}`;
+        try {
+            await navigator.clipboard.writeText(permalink);
+            setCopiedCommentId(commentId);
+            window.setTimeout(() => {
+                setCopiedCommentId((prev) => (prev === commentId ? null : prev));
+            }, 1400);
+        } catch {
+            setError('Could not copy permalink');
+        }
+    };
 
     // Submit new comment
     const handleSubmitComment = async (e: React.FormEvent) => {
@@ -374,9 +481,18 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     // Render a single comment
     const renderComment = (comment: Comment, isReply = false) => {
         const rank = getRankBadge(comment.rank_level);
+        const replyLimit = visibleReplyCount[comment.id] ?? 3;
+        const hasReplies = comment.replies.length > 0;
+        const repliesCollapsed = collapsedReplies[comment.id] ?? false;
+        const visibleReplies = hasReplies ? comment.replies.slice(0, replyLimit) : [];
+        const remainingReplies = hasReplies ? Math.max(comment.replies.length - visibleReplies.length, 0) : 0;
 
         return (
-            <div key={comment.id} className={`${styles.comment} ${isReply ? styles.reply : ''} ${comment.is_verified ? styles.verified : ''}`}>
+            <div
+                key={comment.id}
+                id={`comment-${comment.id}`}
+                className={`${styles.comment} ${isReply ? styles.reply : ''} ${comment.is_verified ? styles.verified : ''} ${highlightedCommentId === comment.id ? styles.highlightedComment : ''}`}
+            >
                 <div className={styles.voteColumn}>
                     <button
                         className={`${styles.voteBtn} ${comment.user_vote === 1 ? styles.upvoted : ''}`}
@@ -443,6 +559,13 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                                     {reportingComment === comment.id ? 'Cancel' : '⚑ Report'}
                                 </button>
                             )}
+                            <button
+                                className={styles.permalinkBtn}
+                                onClick={() => void handleCopyPermalink(comment.id)}
+                                type="button"
+                            >
+                                {copiedCommentId === comment.id ? 'Copied' : 'Link'}
+                            </button>
                         </div>
                     )}
 
@@ -487,9 +610,34 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                         </div>
                     )}
 
-                    {comment.replies.length > 0 && (
+                    {hasReplies && (
                         <div className={styles.replies}>
-                            {comment.replies.map(reply => renderComment(reply, true))}
+                            <div className={styles.replyControls}>
+                                <button
+                                    type="button"
+                                    className={styles.replyToggleBtn}
+                                    onClick={() => setCollapsedReplies((prev) => ({ ...prev, [comment.id]: !repliesCollapsed }))}
+                                >
+                                    {repliesCollapsed ? `Show replies (${comment.replies.length})` : `Hide replies (${comment.replies.length})`}
+                                </button>
+                            </div>
+                            {!repliesCollapsed && (
+                                <>
+                                    {visibleReplies.map(reply => renderComment(reply, true))}
+                                    {remainingReplies > 0 && (
+                                        <button
+                                            type="button"
+                                            className={styles.loadMoreRepliesBtn}
+                                            onClick={() => setVisibleReplyCount((prev) => ({
+                                                ...prev,
+                                                [comment.id]: (prev[comment.id] ?? 3) + 5
+                                            }))}
+                                        >
+                                            Load {Math.min(remainingReplies, 5)} more repl{Math.min(remainingReplies, 5) === 1 ? 'y' : 'ies'}
+                                        </button>
+                                    )}
+                                </>
+                            )}
                         </div>
                     )}
                 </div>
@@ -522,6 +670,25 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
             </div>
 
             {error && <div className={styles.error}>{error}</div>}
+
+            <div className={styles.sortBar}>
+                <span className={styles.sortLabel}>Sort:</span>
+                {[
+                    { id: 'top' as const, label: 'Top' },
+                    { id: 'new' as const, label: 'New' },
+                    { id: 'hot' as const, label: 'Hot' },
+                    { id: 'controversial' as const, label: 'Controversial' },
+                ].map((mode) => (
+                    <button
+                        key={mode.id}
+                        type="button"
+                        className={`${styles.sortBtn} ${sortMode === mode.id ? styles.sortBtnActive : ''}`}
+                        onClick={() => setSortMode(mode.id)}
+                    >
+                        {mode.label}
+                    </button>
+                ))}
+            </div>
 
             {/* New comment form */}
             {isAuthenticated ? (
@@ -580,7 +747,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                         No comments yet. Be the first to share your experience!
                     </p>
                 ) : (
-                    comments.map(comment => renderComment(comment))
+                    sortedComments.map(comment => renderComment(comment))
                 )}
             </div>
         </div>
