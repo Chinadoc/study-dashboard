@@ -227,16 +227,13 @@ export default function KeyCards({ keys, vehicleInfo, pearls, bladeKeys, bitting
                     <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-zinc-900 to-transparent pointer-events-none" />
                 </div>
             ) : (
-                /* Flex layout for 2-4 keys - equal width fill */
+                /* Responsive grid layout for 2-4 keys */
                 <div
-                    className="flex gap-4 min-h-[320px]"
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: keyCount === 1 ? '1fr'
-                            : keyCount === 2 ? 'repeat(2, 1fr)'
-                                : keyCount === 3 ? 'repeat(3, 1fr)'
-                                    : 'repeat(4, 1fr)'
-                    }}
+                    className={`grid gap-4 min-h-[320px] ${keyCount === 1 ? 'grid-cols-1'
+                            : keyCount === 2 ? 'grid-cols-1 sm:grid-cols-2'
+                                : keyCount === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+                        }`}
                 >
                     {keys.map((key, index) => (
                         <KeyCard key={`key-grid-${index}-${key.name}`} config={key} vehicleInfo={vehicleInfo} />
