@@ -264,6 +264,17 @@
     margin-bottom: 0;
 }
 
+.commentAttachmentPreview {
+    display: block;
+    width: min(100%, 320px);
+    max-height: 240px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.45);
+    margin-top: 0.55rem;
+}
+
 .cardFooter {
     display: flex;
     justify-content: space-between;

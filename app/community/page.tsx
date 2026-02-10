@@ -57,6 +57,11 @@ interface ParsedVehicleKey {
     discussionHref: string;
 }
 
+interface ContentPreview {
+    text: string;
+    imageUrl: string | null;
+}
+
 function toSafeNumber(value: unknown): number {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
@@ -96,6 +101,25 @@ function rankTrendingComments(items: RecentComment[]): RecentComment[] {
             return { ...comment, hot_score: hotScore, confidence_score: confidence };
         })
         .sort((a, b) => (b.hot_score || 0) - (a.hot_score || 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.created_at - a.created_at);
+}
+
+function toPreviewContent(content: string, maxLength: number): ContentPreview {
+    const safeContent = String(content || '');
+    let firstImageUrl: string | null = null;
+    const textWithoutImages = safeContent
+        .replace(/!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (_, rawUrl: string) => {
+            if (!firstImageUrl) {
+                firstImageUrl = rawUrl.trim();
+            }
+            return '';
+        })
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+
+    const baseText = textWithoutImages || (firstImageUrl ? 'Image attachment' : '');
+    const text = baseText.length > maxLength ? `${baseText.slice(0, maxLength)}...` : baseText;
+
+    return { text, imageUrl: firstImageUrl };
 }
 
 export default function CommunityPage() {
@@ -515,6 +539,7 @@ export default function CommunityPage() {
                                     trendingComments.map(comment => {
                                         const vehicle = parseVehicleKey(comment.vehicle_key);
                                         const score = comment.upvotes - (comment.downvotes || 0);
+                                        const preview = toPreviewContent(comment.content, 200);
                                         return (
                                             <div key={comment.id} className={`${styles.commentCard} ${comment.is_verified ? styles.verified : ''} ${score >= 5 ? styles.hot : ''}`}>
                                                 <div className={styles.cardHeader}>
@@ -542,8 +567,11 @@ export default function CommunityPage() {
                                                     </div>
                                                     <div className={styles.commentContent}>
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                            {comment.content.length > 200 ? comment.content.slice(0, 200) + '...' : comment.content}
+                                                            {preview.text}
                                                         </ReactMarkdown>
+                                                        {preview.imageUrl && (
+                                                            <img src={preview.imageUrl} alt="Comment attachment" className={styles.commentAttachmentPreview} loading="lazy" />
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className={styles.cardFooter}>
@@ -623,6 +651,7 @@ export default function CommunityPage() {
                                     recentComments.map(comment => {
                                         const vehicle = parseVehicleKey(comment.vehicle_key);
                                         const score = comment.upvotes - (comment.downvotes || 0);
+                                        const preview = toPreviewContent(comment.content, 200);
                                         return (
                                             <div key={comment.id} className={`${styles.commentCard} ${comment.is_verified ? styles.verified : ''}`}>
                                                 <div className={styles.cardHeader}>
@@ -649,8 +678,11 @@ export default function CommunityPage() {
                                                     </div>
                                                     <div className={styles.commentContent}>
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                            {comment.content.length > 200 ? comment.content.slice(0, 200) + '...' : comment.content}
+                                                            {preview.text}
                                                         </ReactMarkdown>
+                                                        {preview.imageUrl && (
+                                                            <img src={preview.imageUrl} alt="Comment attachment" className={styles.commentAttachmentPreview} loading="lazy" />
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className={styles.cardFooter}>
@@ -830,6 +862,7 @@ export default function CommunityPage() {
                                     mentions.map(mention => {
                                         const vehicle = parseVehicleKey(mention.vehicle_key);
                                         const mentionHref = `${vehicle.discussionHref}#comment-${encodeURIComponent(mention.comment_id)}`;
+                                        const preview = toPreviewContent(mention.content, 150);
                                         return (
                                             <div key={mention.id} className={`${styles.mentionCard} ${!mention.is_read ? styles.unread : ''}`}>
                                                 <div className={styles.mentionHeader}>
@@ -844,8 +877,11 @@ export default function CommunityPage() {
                                                 </div>
                                                 <div className={styles.mentionContent}>
                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                        {mention.content.length > 150 ? mention.content.slice(0, 150) + '...' : mention.content}
+                                                        {preview.text}
                                                     </ReactMarkdown>
+                                                    {preview.imageUrl && (
+                                                        <img src={preview.imageUrl} alt="Mention attachment" className={styles.commentAttachmentPreview} loading="lazy" />
+                                                    )}
                                                 </div>
                                                 <div className={styles.mentionFooter}>
                                                     <span className={styles.mentionTime}>{formatTime(mention.created_at)}</span>
