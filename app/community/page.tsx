@@ -6,6 +6,7 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import NASTFBadge from '@/components/NASTFBadge';
+import { emitCommunityUpdate, subscribeCommunityUpdates } from '@/lib/communitySync';
 import styles from './community.module.css';
 
 // API base URL - use environment variable or default to production
@@ -140,6 +141,13 @@ export default function CommunityPage() {
             window.removeEventListener('focus', handleFocus);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
+    }, [fetchData]);
+
+    useEffect(() => {
+        const unsubscribe = subscribeCommunityUpdates(() => {
+            void fetchData(true);
+        });
+        return unsubscribe;
     }, [fetchData]);
 
     const formatTime = (timestamp: number) => {
@@ -311,6 +319,12 @@ export default function CommunityPage() {
 
                 return { ...c, upvotes, downvotes };
             });
+            emitCommunityUpdate({
+                action: 'vote',
+                vehicleKey: comment.vehicle_key,
+                commentId: comment.id,
+                source: 'hub',
+            });
         } catch (err: any) {
             setEngagementError(err?.message || 'Failed to vote');
         } finally {
@@ -351,6 +365,12 @@ export default function CommunityPage() {
 
             setReplyDrafts(prev => ({ ...prev, [comment.id]: '' }));
             setReplyingTo(null);
+            emitCommunityUpdate({
+                action: 'reply',
+                vehicleKey: comment.vehicle_key,
+                commentId: comment.id,
+                source: 'hub',
+            });
             void fetchData(true);
         } catch (err: any) {
             setEngagementError(err?.message || 'Failed to post reply');

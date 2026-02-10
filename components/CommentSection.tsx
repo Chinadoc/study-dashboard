@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import NASTFBadge from './NASTFBadge';
+import { emitCommunityUpdate, subscribeCommunityUpdates } from '@/lib/communitySync';
 import styles from './CommentSection.module.css';
 
 // API base URL - use environment variable or default to production
@@ -91,6 +92,14 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         void fetchComments();
     }, [fetchComments]);
 
+    useEffect(() => {
+        const unsubscribe = subscribeCommunityUpdates((detail) => {
+            if (detail.vehicleKey && detail.vehicleKey !== vehicleKey) return;
+            void fetchComments();
+        });
+        return unsubscribe;
+    }, [fetchComments, vehicleKey]);
+
     // Submit new comment
     const handleSubmitComment = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -129,6 +138,12 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     replies: []
                 };
                 setComments(prev => [newCommentObj, ...prev]);
+                emitCommunityUpdate({
+                    action: 'comment',
+                    vehicleKey,
+                    commentId: data.comment_id,
+                    source: 'thread',
+                });
                 setNewComment('');
             } else {
                 setError(data.error || 'Failed to post comment');
@@ -185,6 +200,12 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     }
                     return c;
                 }));
+                emitCommunityUpdate({
+                    action: 'reply',
+                    vehicleKey,
+                    commentId: data.comment_id,
+                    source: 'thread',
+                });
                 setReplyingTo(null);
                 setReplyContent('');
             } else {
@@ -263,6 +284,12 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     return updateVote(c);
                 }));
                 setError(null);
+                emitCommunityUpdate({
+                    action: 'vote',
+                    vehicleKey,
+                    commentId,
+                    source: 'thread',
+                });
             }
         } catch (err) {
             console.error('Vote failed:', err);
