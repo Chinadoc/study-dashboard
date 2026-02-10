@@ -452,6 +452,15 @@
     margin-top: 0.5rem;
 }
 
+.mentionFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-left: 36px;
+    margin-top: 0.5rem;
+}
+
 /* Leaderboard */
 .leaderboard {
     display: flex;

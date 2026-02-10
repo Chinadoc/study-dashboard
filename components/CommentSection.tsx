@@ -93,6 +93,9 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     const [visibleReplyCount, setVisibleReplyCount] = useState<Record<string, number>>({});
     const [highlightedCommentId, setHighlightedCommentId] = useState<string | null>(null);
     const [copiedCommentId, setCopiedCommentId] = useState<string | null>(null);
+    const [savedCommentIds, setSavedCommentIds] = useState<Record<string, boolean>>({});
+    const [showSavedOnly, setShowSavedOnly] = useState(false);
+    const [watchedThread, setWatchedThread] = useState(false);
     const highlightTimerRef = useRef<number | null>(null);
 
     const vehicleKey = `${make.toLowerCase()}_${model.toLowerCase()}`;
@@ -145,7 +148,53 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         return unsubscribe;
     }, [fetchComments, vehicleKey]);
 
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const savedRaw = localStorage.getItem(`eurokeys:saved-comments:${vehicleKey}`);
+            const savedIds = savedRaw ? JSON.parse(savedRaw) : [];
+            if (Array.isArray(savedIds)) {
+                const next: Record<string, boolean> = {};
+                savedIds.forEach((id) => {
+                    if (typeof id === 'string' && id) next[id] = true;
+                });
+                setSavedCommentIds(next);
+            }
+        } catch {
+            // Ignore malformed saved comments payload.
+        }
+        try {
+            const watchedRaw = localStorage.getItem('eurokeys:watched-threads');
+            const watched = watchedRaw ? JSON.parse(watchedRaw) : [];
+            setWatchedThread(Array.isArray(watched) && watched.includes(vehicleKey));
+        } catch {
+            setWatchedThread(false);
+        }
+    }, [vehicleKey]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const ids = Object.entries(savedCommentIds)
+                .filter(([, saved]) => saved)
+                .map(([id]) => id);
+            localStorage.setItem(`eurokeys:saved-comments:${vehicleKey}`, JSON.stringify(ids));
+        } catch {
+            // Ignore localStorage write failures.
+        }
+    }, [savedCommentIds, vehicleKey]);
+
     const sortedComments = useMemo(() => sortCommentsByMode(comments, sortMode), [comments, sortMode]);
+
+    const opUserId = useMemo(() => {
+        const candidates = [...comments].filter((c) => !c.is_deleted && c.user_id).sort((a, b) => a.created_at - b.created_at);
+        return candidates[0]?.user_id || null;
+    }, [comments]);
+
+    const visibleTopLevelComments = useMemo(() => {
+        if (!showSavedOnly) return sortedComments;
+        return sortedComments.filter((comment) => savedCommentIds[comment.id]);
+    }, [showSavedOnly, sortedComments, savedCommentIds]);
 
     const setHighlightedTemporarily = useCallback((commentId: string) => {
         setHighlightedCommentId(commentId);
@@ -204,6 +253,30 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
             }, 1400);
         } catch {
             setError('Could not copy permalink');
+        }
+    };
+
+    const toggleSaveComment = (commentId: string) => {
+        setSavedCommentIds((prev) => ({
+            ...prev,
+            [commentId]: !prev[commentId],
+        }));
+    };
+
+    const toggleWatchThread = () => {
+        const nextWatched = !watchedThread;
+        setWatchedThread(nextWatched);
+        if (typeof window === 'undefined') return;
+        try {
+            const watchedRaw = localStorage.getItem('eurokeys:watched-threads');
+            const watched = watchedRaw ? JSON.parse(watchedRaw) : [];
+            const watchedList = Array.isArray(watched) ? watched.filter((id) => typeof id === 'string') : [];
+            const nextList = nextWatched
+                ? Array.from(new Set([...watchedList, vehicleKey]))
+                : watchedList.filter((id) => id !== vehicleKey);
+            localStorage.setItem('eurokeys:watched-threads', JSON.stringify(nextList));
+        } catch {
+            // Ignore localStorage write failures.
         }
     };
 
@@ -519,6 +592,9 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                         <span className={styles.userName}>
                             {comment.is_deleted ? '[deleted]' : (comment.user_name || 'Anonymous')}
                         </span>
+                        {!comment.is_deleted && opUserId && comment.user_id === opUserId && (
+                            <span className={styles.opBadge}>OP</span>
+                        )}
                         {!comment.is_deleted && comment.rank_level && (
                             <span className={styles.rankBadge} title={rank.name}>
                                 {rank.icon}
@@ -565,6 +641,13 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                                 type="button"
                             >
                                 {copiedCommentId === comment.id ? 'Copied' : 'Link'}
+                            </button>
+                            <button
+                                className={styles.permalinkBtn}
+                                onClick={() => toggleSaveComment(comment.id)}
+                                type="button"
+                            >
+                                {savedCommentIds[comment.id] ? 'Saved' : 'Save'}
                             </button>
                         </div>
                     )}
@@ -667,6 +750,13 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                         <NASTFBadge size="sm" showTooltip={false} /> Only
                     </span>
                 </label>
+                <button
+                    type="button"
+                    onClick={toggleWatchThread}
+                    className={styles.watchThreadBtn}
+                >
+                    {watchedThread ? '★ Watching' : '☆ Watch Thread'}
+                </button>
             </div>
 
             {error && <div className={styles.error}>{error}</div>}
@@ -688,6 +778,13 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                         {mode.label}
                     </button>
                 ))}
+                <button
+                    type="button"
+                    className={`${styles.sortBtn} ${showSavedOnly ? styles.sortBtnActive : ''}`}
+                    onClick={() => setShowSavedOnly((prev) => !prev)}
+                >
+                    Saved
+                </button>
             </div>
 
             {/* New comment form */}
@@ -742,12 +839,12 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
 
             {/* Comments list */}
             <div className={styles.commentsList}>
-                {comments.length === 0 ? (
+                {visibleTopLevelComments.length === 0 ? (
                     <p className={styles.noComments}>
-                        No comments yet. Be the first to share your experience!
+                        {showSavedOnly ? 'No saved comments yet for this vehicle.' : 'No comments yet. Be the first to share your experience!'}
                     </p>
                 ) : (
-                    sortedComments.map(comment => renderComment(comment))
+                    visibleTopLevelComments.map(comment => renderComment(comment))
                 )}
             </div>
         </div>

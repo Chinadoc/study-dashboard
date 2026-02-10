@@ -787,6 +787,7 @@ export default function CommunityPage() {
                                 ) : (
                                     mentions.map(mention => {
                                         const vehicle = parseVehicleKey(mention.vehicle_key);
+                                        const mentionHref = `${vehicle.discussionHref}#comment-${encodeURIComponent(mention.comment_id)}`;
                                         return (
                                             <div key={mention.id} className={`${styles.mentionCard} ${!mention.is_read ? styles.unread : ''}`}>
                                                 <div className={styles.mentionHeader}>
@@ -804,7 +805,12 @@ export default function CommunityPage() {
                                                         {mention.content.length > 150 ? mention.content.slice(0, 150) + '...' : mention.content}
                                                     </ReactMarkdown>
                                                 </div>
-                                                <div className={styles.mentionTime}>{formatTime(mention.created_at)}</div>
+                                                <div className={styles.mentionFooter}>
+                                                    <span className={styles.mentionTime}>{formatTime(mention.created_at)}</span>
+                                                    <Link href={mentionHref} className={styles.viewLink}>
+                                                        Jump to Mention →
+                                                    </Link>
+                                                </div>
                                             </div>
                                         );
                                     })

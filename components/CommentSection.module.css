@@ -65,6 +65,22 @@
     color: #B8860B;
 }
 
+.watchThreadBtn {
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    background: rgba(99, 102, 241, 0.12);
+    color: #c7d2fe;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.watchThreadBtn:hover {
+    background: rgba(99, 102, 241, 0.2);
+}
+
 .sortBar {
     display: flex;
     align-items: center;
@@ -320,6 +336,18 @@
     color: var(--text-primary, #fff);
 }
 
+.opBadge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fde68a;
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: 999px;
+    padding: 0.1rem 0.36rem;
+}
+
 .timestamp {
     font-size: 0.8rem;
     color: var(--text-muted, rgba(255, 255, 255, 0.4));
@@ -451,6 +479,11 @@
     .sortBtn {
         font-size: 0.74rem;
         padding: 0.26rem 0.55rem;
+    }
+
+    .watchThreadBtn {
+        font-size: 0.74rem;
+        padding: 0.38rem 0.58rem;
     }
 
     .reply {
