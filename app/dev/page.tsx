@@ -162,6 +162,19 @@ interface ModerationFlag {
     reporter_email?: string | null;
 }
 
+interface ModerationHistoryItem {
+    id: string;
+    flag_id: string;
+    comment_id: string;
+    vehicle_key: string;
+    resolution: 'dismissed' | 'deleted' | 'warning_issued';
+    delete_comment: boolean;
+    note?: string | null;
+    resolved_at: number;
+    moderator_name?: string | null;
+    moderator_email?: string | null;
+}
+
 interface PendingVerification {
     id: string;
     user_id: string;
@@ -251,6 +264,8 @@ export default function DevPanelPage() {
     const [users, setUsers] = useState<UserData[]>([]);
     const [coverageGaps, setCoverageGaps] = useState<CoverageGaps | null>(null);
     const [moderationQueue, setModerationQueue] = useState<ModerationFlag[]>([]);
+    const [moderationNotesByFlag, setModerationNotesByFlag] = useState<Record<string, string>>({});
+    const [moderationHistory, setModerationHistory] = useState<ModerationHistoryItem[]>([]);
     const [verificationQueue, setVerificationQueue] = useState<PendingVerification[]>([]);
     const [resolvingFlagId, setResolvingFlagId] = useState<string | null>(null);
     const [moderationError, setModerationError] = useState<string | null>(null);
@@ -265,6 +280,7 @@ export default function DevPanelPage() {
     const [expandedActivityId, setExpandedActivityId] = useState<number | null>(null);
 
     const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+    const MOD_HISTORY_KEY = 'eurokeys:moderation-history';
     const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
 
     // Fetch all data on mount
@@ -364,6 +380,7 @@ export default function DevPanelPage() {
             setModerationError('Missing session token');
             return;
         }
+        const moderatorNote = (moderationNotesByFlag[flag.flag_id] || '').trim();
         setResolvingFlagId(flag.flag_id);
         setModerationError(null);
         try {
@@ -384,6 +401,23 @@ export default function DevPanelPage() {
                 throw new Error(data.error || 'Failed to resolve report');
             }
             setModerationQueue((prev) => prev.filter((item) => item.flag_id !== flag.flag_id));
+            setModerationNotesByFlag((prev) => {
+                const next = { ...prev };
+                delete next[flag.flag_id];
+                return next;
+            });
+            setModerationHistory((prev) => [{
+                id: `mod_history_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+                flag_id: flag.flag_id,
+                comment_id: flag.comment_id,
+                vehicle_key: flag.vehicle_key,
+                resolution,
+                delete_comment: deleteComment,
+                note: moderatorNote || null,
+                resolved_at: Date.now(),
+                moderator_name: user?.name || null,
+                moderator_email: user?.email || null,
+            }, ...prev].slice(0, 100));
         } catch (err: any) {
             setModerationError(err?.message || 'Failed to resolve report');
         } finally {
@@ -447,6 +481,28 @@ export default function DevPanelPage() {
             fetchAllData();
         }
     }, [user, isDeveloper, fetchAllData]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !user || !isDeveloper) return;
+        try {
+            const raw = localStorage.getItem(MOD_HISTORY_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(parsed)) {
+                setModerationHistory(parsed.slice(0, 100));
+            }
+        } catch {
+            // Ignore malformed local moderation history.
+        }
+    }, [user, isDeveloper, MOD_HISTORY_KEY]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !user || !isDeveloper) return;
+        try {
+            localStorage.setItem(MOD_HISTORY_KEY, JSON.stringify(moderationHistory.slice(0, 100)));
+        } catch {
+            // Ignore localStorage write failures.
+        }
+    }, [moderationHistory, user, isDeveloper, MOD_HISTORY_KEY]);
 
     if (loading) {
         return (
@@ -1342,6 +1398,45 @@ export default function DevPanelPage() {
                         </div>
                     )}
 
+                    <div className="mb-4 rounded-lg border border-slate-700 bg-slate-900/50 p-3">
+                        <div className="mb-2 flex items-center justify-between">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Recent Moderation Actions</p>
+                            {moderationHistory.length > 0 && (
+                                <button
+                                    onClick={() => setModerationHistory([])}
+                                    className="rounded border border-slate-600 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700"
+                                >
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+                        {moderationHistory.length === 0 ? (
+                            <p className="text-xs text-slate-500">No moderation actions recorded yet.</p>
+                        ) : (
+                            <div className="space-y-1.5">
+                                {moderationHistory.slice(0, 8).map((entry) => {
+                                    const vehicle = parseVehicleKey(entry.vehicle_key);
+                                    return (
+                                        <div key={entry.id} className="rounded border border-slate-700 bg-slate-950/60 px-2.5 py-2 text-xs text-slate-300">
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="font-semibold text-slate-100">{entry.resolution.replace(/_/g, ' ')}</span>
+                                                    <a href={vehicle.href} className="text-eurokeys-purple hover:text-indigo-300">
+                                                        {vehicle.label}
+                                                    </a>
+                                                </div>
+                                                <span className="text-slate-500">{timeAgo(entry.resolved_at)}</span>
+                                            </div>
+                                            {entry.note ? (
+                                                <p className="mt-1 text-slate-400">Note: {entry.note}</p>
+                                            ) : null}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
                     {moderationQueue.length === 0 ? (
                         <div className="rounded-lg border border-eurokeys-border bg-slate-800/40 px-4 py-5 text-sm text-slate-400">
                             No pending comment reports.
@@ -1382,6 +1477,14 @@ export default function DevPanelPage() {
                                                 <span className="font-medium text-slate-300">Reporter details:</span> {flag.details}
                                             </div>
                                         )}
+
+                                        <textarea
+                                            value={moderationNotesByFlag[flag.flag_id] || ''}
+                                            onChange={(e) => setModerationNotesByFlag((prev) => ({ ...prev, [flag.flag_id]: e.target.value }))}
+                                            placeholder="Moderator note (optional, saved in local timeline)"
+                                            className="mb-2 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs text-slate-200 placeholder:text-slate-500"
+                                            disabled={isResolving}
+                                        />
 
                                         <div className="flex flex-wrap gap-2">
                                             <button
