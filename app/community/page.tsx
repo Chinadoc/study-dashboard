@@ -293,8 +293,9 @@ export default function CommunityPage() {
     useEffect(() => {
         return () => {
             Object.values(replyImagePreviews).forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
+            Object.values(commentImagePreviews).forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
         };
-    }, [replyImagePreviews]);
+    }, [replyImagePreviews, commentImagePreviews]);
 
     const formatTime = (timestamp: number) => {
         const diff = Date.now() - timestamp;
@@ -384,7 +385,7 @@ export default function CommunityPage() {
         return ranks[level - 1] || ranks[0];
     };
 
-    const validateReplyImage = (file: File | null): file is File => {
+    const validateSelectedImage = (file: File | null): file is File => {
         if (!file) return false;
         if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
             setEngagementError('Only JPEG, PNG, or WEBP images are supported.');
@@ -398,7 +399,7 @@ export default function CommunityPage() {
     };
 
     const setReplyImageForComment = (commentId: string, file: File | null) => {
-        if (file && !validateReplyImage(file)) return;
+        if (file && !validateSelectedImage(file)) return;
 
         setReplyImageFiles((prev) => {
             if (file) return { ...prev, [commentId]: file };
@@ -419,6 +420,28 @@ export default function CommunityPage() {
         if (file) setEngagementError(null);
     };
 
+    const setCommentImageForCard = (cardId: string, file: File | null) => {
+        if (file && !validateSelectedImage(file)) return;
+
+        setCommentImageFiles((prev) => {
+            if (file) return { ...prev, [cardId]: file };
+            const next = { ...prev };
+            delete next[cardId];
+            return next;
+        });
+        setCommentImagePreviews((prev) => {
+            const next = { ...prev };
+            if (next[cardId]) URL.revokeObjectURL(next[cardId]);
+            if (file) {
+                next[cardId] = URL.createObjectURL(file);
+            } else {
+                delete next[cardId];
+            }
+            return next;
+        });
+        if (file) setEngagementError(null);
+    };
+
     const toggleReplyComposer = (commentId: string) => {
         if (replyingTo === commentId) {
             setReplyImageForComment(commentId, null);
@@ -428,7 +451,27 @@ export default function CommunityPage() {
         if (replyingTo) {
             setReplyImageForComment(replyingTo, null);
         }
+        if (commentingOn) {
+            setCommentImageForCard(commentingOn, null);
+            setCommentingOn(null);
+        }
         setReplyingTo(commentId);
+    };
+
+    const toggleCommentComposer = (cardId: string) => {
+        if (commentingOn === cardId) {
+            setCommentImageForCard(cardId, null);
+            setCommentingOn(null);
+            return;
+        }
+        if (commentingOn) {
+            setCommentImageForCard(commentingOn, null);
+        }
+        if (replyingTo) {
+            setReplyImageForComment(replyingTo, null);
+            setReplyingTo(null);
+        }
+        setCommentingOn(cardId);
     };
 
     const getCurrentVote = async (comment: RecentComment): Promise<number> => {
@@ -548,8 +591,18 @@ export default function CommunityPage() {
         setEngagementError(null);
         setPendingReplies(prev => ({ ...prev, [comment.id]: true }));
 
+        const optimisticReplyId = `optimistic-reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        let content = '';
         try {
-            const content = await buildCommentContentWithImage(replyText, replyImageFile);
+            content = await buildCommentContentWithImage(replyText, replyImageFile);
+            setOptimisticReplies((prev) => ({
+                ...prev,
+                [comment.id]: [
+                    { id: optimisticReplyId, content, created_at: Date.now(), status: 'pending' },
+                    ...(prev[comment.id] || []),
+                ],
+            }));
+
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: {
@@ -568,6 +621,14 @@ export default function CommunityPage() {
                 throw new Error(data.error || 'Failed to post reply');
             }
 
+            setOptimisticReplies((prev) => ({
+                ...prev,
+                [comment.id]: (prev[comment.id] || []).map((item) => (
+                    item.id === optimisticReplyId
+                        ? { ...item, id: String(data.comment_id || item.id), status: 'posted' }
+                        : item
+                )),
+            }));
             setReplyDrafts(prev => ({ ...prev, [comment.id]: '' }));
             setReplyImageForComment(comment.id, null);
             setReplyingTo(null);
@@ -577,11 +638,117 @@ export default function CommunityPage() {
                 commentId: comment.id,
                 source: 'hub',
             });
-            void fetchData(true);
         } catch (err: any) {
+            setOptimisticReplies((prev) => ({
+                ...prev,
+                [comment.id]: (prev[comment.id] || []).map((item) => (
+                    item.id === optimisticReplyId
+                        ? { ...item, status: 'failed' }
+                        : item
+                )),
+            }));
             setEngagementError(err?.message || 'Failed to post reply');
         } finally {
             setPendingReplies(prev => ({ ...prev, [comment.id]: false }));
+        }
+    };
+
+    const handleTopLevelCommentSubmit = async (comment: RecentComment) => {
+        if (!isAuthenticated) {
+            login();
+            return;
+        }
+
+        const draftText = commentDrafts[comment.id] || '';
+        const draftImage = commentImageFiles[comment.id] || null;
+        if ((!draftText.trim() && !draftImage) || pendingComments[comment.id]) return;
+
+        setEngagementError(null);
+        setPendingComments((prev) => ({ ...prev, [comment.id]: true }));
+
+        const optimisticCardCommentId = `optimistic-comment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const optimisticRecentId = `optimistic-recent-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        try {
+            const content = await buildCommentContentWithImage(draftText, draftImage);
+
+            setOptimisticComments((prev) => ({
+                ...prev,
+                [comment.id]: [
+                    { id: optimisticCardCommentId, content, created_at: Date.now(), status: 'pending' },
+                    ...(prev[comment.id] || []),
+                ],
+            }));
+
+            const optimisticRecentComment: RecentComment = {
+                id: optimisticRecentId,
+                vehicle_key: comment.vehicle_key,
+                user_name: user?.name || 'You',
+                user_picture: user?.picture || null,
+                content,
+                upvotes: 0,
+                downvotes: 0,
+                user_vote: 0,
+                nastf_verified: false,
+                is_verified: false,
+                verified_type: null,
+                created_at: Date.now(),
+                rank_level: undefined,
+            };
+            setRecentComments((prev) => [optimisticRecentComment, ...prev]);
+
+            const response = await fetch(`${API_URL}/api/vehicle-comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getSessionToken()}`
+                },
+                body: JSON.stringify({
+                    vehicle_key: comment.vehicle_key,
+                    content
+                })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to post comment');
+            }
+
+            setOptimisticComments((prev) => ({
+                ...prev,
+                [comment.id]: (prev[comment.id] || []).map((item) => (
+                    item.id === optimisticCardCommentId
+                        ? { ...item, id: String(data.comment_id || item.id), status: 'posted' }
+                        : item
+                )),
+            }));
+            setRecentComments((prev) => prev.map((item) => (
+                item.id === optimisticRecentId
+                    ? { ...item, id: String(data.comment_id || item.id) }
+                    : item
+            )));
+
+            setCommentDrafts((prev) => ({ ...prev, [comment.id]: '' }));
+            setCommentImageForCard(comment.id, null);
+            setCommentingOn(null);
+            emitCommunityUpdate({
+                action: 'comment',
+                vehicleKey: comment.vehicle_key,
+                commentId: String(data.comment_id || ''),
+                source: 'hub',
+            });
+        } catch (err: any) {
+            setRecentComments((prev) => prev.filter((item) => item.id !== optimisticRecentId));
+            setOptimisticComments((prev) => ({
+                ...prev,
+                [comment.id]: (prev[comment.id] || []).map((item) => (
+                    item.id === optimisticCardCommentId
+                        ? { ...item, status: 'failed' }
+                        : item
+                )),
+            }));
+            setEngagementError(err?.message || 'Failed to post comment');
+        } finally {
+            setPendingComments((prev) => ({ ...prev, [comment.id]: false }));
         }
     };
 
@@ -653,6 +820,104 @@ export default function CommunityPage() {
                     </button>
                 </div>
             </form>
+        );
+    };
+
+    const renderCommentComposer = (comment: RecentComment) => {
+        const commentText = commentDrafts[comment.id] || '';
+        const commentImagePreview = commentImagePreviews[comment.id] || null;
+        const hasCommentImage = Boolean(commentImageFiles[comment.id]);
+        const postDisabled = pendingComments[comment.id] || (!commentText.trim() && !hasCommentImage);
+
+        return (
+            <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleTopLevelCommentSubmit(comment); }}>
+                <textarea
+                    className={styles.replyInput}
+                    value={commentText}
+                    onChange={(e) => setCommentDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                    rows={3}
+                    placeholder="Start a new top-level comment for this vehicle... (image optional)"
+                    maxLength={2000}
+                />
+                <div className={styles.replyMediaRow}>
+                    <label className={styles.replyMediaPicker}>
+                        <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0] || null;
+                                setCommentImageForCard(comment.id, file);
+                                e.currentTarget.value = '';
+                            }}
+                            disabled={pendingComments[comment.id]}
+                        />
+                        Attach image
+                    </label>
+                    {hasCommentImage && (
+                        <button
+                            type="button"
+                            className={styles.replyMediaClear}
+                            onClick={() => setCommentImageForCard(comment.id, null)}
+                            disabled={pendingComments[comment.id]}
+                        >
+                            Remove image
+                        </button>
+                    )}
+                </div>
+                {commentImagePreview && (
+                    <img
+                        src={commentImagePreview}
+                        alt="New comment attachment preview"
+                        className={styles.replyAttachmentPreview}
+                    />
+                )}
+                <div className={styles.replyActions}>
+                    <button
+                        type="button"
+                        className={styles.replyBtnSecondary}
+                        onClick={() => {
+                            setCommentImageForCard(comment.id, null);
+                            setCommentingOn(null);
+                        }}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        className={styles.replyBtnPrimary}
+                        disabled={postDisabled}
+                    >
+                        {pendingComments[comment.id] ? 'Posting...' : 'Post Comment'}
+                    </button>
+                </div>
+            </form>
+        );
+    };
+
+    const renderOptimisticItems = (items: OptimisticPost[] | undefined, label: string) => {
+        if (!items || items.length === 0) return null;
+        return (
+            <div className={styles.localActivityList}>
+                {items.map((item) => {
+                    const preview = toPreviewContent(item.content, 140);
+                    return (
+                        <div key={item.id} className={styles.localActivityItem}>
+                            <div className={styles.localActivityMeta}>
+                                <span>{label}</span>
+                                <span className={`${styles.localStatusTag} ${item.status === 'pending' ? styles.localStatusPending : item.status === 'posted' ? styles.localStatusPosted : styles.localStatusFailed}`}>
+                                    {item.status === 'pending' ? 'Sending' : item.status === 'posted' ? 'Posted' : 'Failed'}
+                                </span>
+                            </div>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {preview.text}
+                            </ReactMarkdown>
+                            {preview.imageUrl && (
+                                <img src={preview.imageUrl} alt="Attached media" className={styles.localActivityImage} loading="lazy" />
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
         );
     };
 
@@ -802,12 +1067,22 @@ export default function CommunityPage() {
                                                         >
                                                             {replyingTo === comment.id ? 'Cancel' : 'Reply'}
                                                         </button>
+                                                        <button
+                                                            type="button"
+                                                            className={styles.actionBtn}
+                                                            onClick={() => toggleCommentComposer(comment.id)}
+                                                        >
+                                                            {commentingOn === comment.id ? 'Cancel' : 'Comment'}
+                                                        </button>
                                                         <Link href={vehicle.discussionHref} className={styles.viewLink}>
                                                             View Discussion →
                                                         </Link>
                                                     </div>
                                                 </div>
+                                                {renderOptimisticItems(optimisticReplies[comment.id], 'Your reply')}
+                                                {renderOptimisticItems(optimisticComments[comment.id], 'Your comment')}
                                                 {replyingTo === comment.id && renderReplyComposer(comment)}
+                                                {commentingOn === comment.id && renderCommentComposer(comment)}
                                             </div>
                                         );
                                     })
@@ -886,12 +1161,22 @@ export default function CommunityPage() {
                                                         >
                                                             {replyingTo === comment.id ? 'Cancel' : 'Reply'}
                                                         </button>
+                                                        <button
+                                                            type="button"
+                                                            className={styles.actionBtn}
+                                                            onClick={() => toggleCommentComposer(comment.id)}
+                                                        >
+                                                            {commentingOn === comment.id ? 'Cancel' : 'Comment'}
+                                                        </button>
                                                         <Link href={vehicle.discussionHref} className={styles.viewLink}>
                                                             View Discussion →
                                                         </Link>
                                                     </div>
                                                 </div>
+                                                {renderOptimisticItems(optimisticReplies[comment.id], 'Your reply')}
+                                                {renderOptimisticItems(optimisticComments[comment.id], 'Your comment')}
                                                 {replyingTo === comment.id && renderReplyComposer(comment)}
+                                                {commentingOn === comment.id && renderCommentComposer(comment)}
                                             </div>
                                         );
                                     })
@@ -957,12 +1242,22 @@ export default function CommunityPage() {
                                                         >
                                                             {replyingTo === comment.id ? 'Cancel' : 'Reply'}
                                                         </button>
+                                                        <button
+                                                            type="button"
+                                                            className={styles.actionBtn}
+                                                            onClick={() => toggleCommentComposer(comment.id)}
+                                                        >
+                                                            {commentingOn === comment.id ? 'Cancel' : 'Comment'}
+                                                        </button>
                                                         <Link href={vehicle.discussionHref} className={styles.viewLink}>
                                                             View Discussion →
                                                         </Link>
                                                     </div>
                                                 </div>
+                                                {renderOptimisticItems(optimisticReplies[comment.id], 'Your reply')}
+                                                {renderOptimisticItems(optimisticComments[comment.id], 'Your comment')}
                                                 {replyingTo === comment.id && renderReplyComposer(comment)}
+                                                {commentingOn === comment.id && renderCommentComposer(comment)}
                                             </div>
                                         );
                                     })
