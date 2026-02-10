@@ -233,6 +233,204 @@
     transform: translateY(-1px);
 }
 
+/* Admin review queue */
+.adminSection {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adminHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.adminHeader h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.adminDescription {
+    margin: 0.45rem 0 0.9rem;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.adminRefreshBtn {
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    background: rgba(99, 102, 241, 0.2);
+    color: #c7d2fe;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.38rem 0.72rem;
+    cursor: pointer;
+}
+
+.adminRefreshBtn:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.3);
+}
+
+.adminRefreshBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.adminEmpty {
+    padding: 0.8rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.86rem;
+}
+
+.adminGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.9rem;
+}
+
+.pendingCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.pendingMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.pendingUser {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.pendingAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    object-fit: cover;
+}
+
+.pendingUserName {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.pendingUserEmail {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.pendingProofType {
+    display: inline-block;
+    width: fit-content;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 9999px;
+    padding: 0.16rem 0.5rem;
+}
+
+.pendingDate {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.pendingImageLink {
+    display: block;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pendingImage {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.adminTextarea,
+.adminInput {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(15, 23, 42, 0.6);
+    color: #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    padding: 0.45rem 0.6rem;
+    font-family: inherit;
+}
+
+.adminTextarea {
+    min-height: 66px;
+    resize: vertical;
+}
+
+.adminTextarea:focus,
+.adminInput:focus {
+    outline: none;
+    border-color: rgba(99, 102, 241, 0.65);
+}
+
+.adminActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.adminApproveBtn,
+.adminRejectBtn {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 0.48rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.adminApproveBtn {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.adminApproveBtn:hover:not(:disabled) {
+    background: rgba(34, 197, 94, 0.28);
+}
+
+.adminRejectBtn {
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+}
+
+.adminRejectBtn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.26);
+}
+
+.adminApproveBtn:disabled,
+.adminRejectBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
     .container {
@@ -240,6 +438,10 @@
     }
 
     .proofGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .adminGrid {
         grid-template-columns: 1fr;
     }
 }

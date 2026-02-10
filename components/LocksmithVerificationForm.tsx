@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './LocksmithVerificationForm.module.css';
 
@@ -22,6 +22,17 @@ interface VerificationStatus {
     rejected_proofs: ProofStatus[];
 }
 
+interface PendingVerification {
+    id: string;
+    user_id: string;
+    proof_type: string;
+    proof_image_url: string;
+    created_at: number;
+    user_name?: string | null;
+    user_email?: string | null;
+    user_picture?: string | null;
+}
+
 const PROOF_TYPES = [
     { id: 'nastf_vsp', name: 'NASTF VSP Card', description: 'Photo of your NASTF Vehicle Security Professional card', icon: '🛡️', premium: true },
     { id: 'business_license', name: 'Business License', description: 'State/local business license showing locksmith services', icon: '📄' },
@@ -33,13 +44,83 @@ const PROOF_TYPES = [
 ];
 
 export default function LocksmithVerificationForm() {
-    const { isAuthenticated, login } = useAuth();
+    const { isAuthenticated, login, isDeveloper } = useAuth();
     const [status, setStatus] = useState<VerificationStatus | null>(null);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [pendingVerifications, setPendingVerifications] = useState<PendingVerification[]>([]);
+    const [loadingPending, setLoadingPending] = useState(false);
+    const [pendingError, setPendingError] = useState<string | null>(null);
+    const [reviewingProofId, setReviewingProofId] = useState<string | null>(null);
+    const [adminNotesByProof, setAdminNotesByProof] = useState<Record<string, string>>({});
+    const [rejectionReasonByProof, setRejectionReasonByProof] = useState<Record<string, string>>({});
+
     const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
+    const getProofTypeName = (proofType: string) => PROOF_TYPES.find(p => p.id === proofType)?.name || proofType;
+
+    const fetchPendingVerifications = useCallback(async () => {
+        if (!isAuthenticated || !isDeveloper) return;
+
+        setLoadingPending(true);
+        setPendingError(null);
+        try {
+            const response = await fetch(`${API_URL}/api/verification/pending`, {
+                headers: {
+                    'Authorization': `Bearer ${getSessionToken()}`
+                }
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to load pending verifications');
+            }
+            setPendingVerifications(Array.isArray(data.verifications) ? data.verifications : []);
+        } catch (err: any) {
+            setPendingError(err?.message || 'Failed to load pending verifications');
+        } finally {
+            setLoadingPending(false);
+        }
+    }, [isAuthenticated, isDeveloper]);
+
+    const reviewVerification = async (proofId: string, action: 'approve' | 'reject') => {
+        const rejectionReason = (rejectionReasonByProof[proofId] || '').trim();
+        const adminNotes = (adminNotesByProof[proofId] || '').trim();
+        if (action === 'reject' && !rejectionReason) {
+            setPendingError('Rejection reason is required to reject a proof.');
+            return;
+        }
+
+        setReviewingProofId(proofId);
+        setPendingError(null);
+        setSuccess(null);
+        try {
+            const response = await fetch(`${API_URL}/api/verification/review`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getSessionToken()}`
+                },
+                body: JSON.stringify({
+                    proof_id: proofId,
+                    action,
+                    rejection_reason: action === 'reject' ? rejectionReason : undefined,
+                    admin_notes: adminNotes || undefined,
+                })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || `Failed to ${action} proof`);
+            }
+
+            setPendingVerifications(prev => prev.filter(item => item.id !== proofId));
+            setSuccess(action === 'approve' ? 'Proof approved.' : 'Proof rejected.');
+        } catch (err: any) {
+            setPendingError(err?.message || `Failed to ${action} proof`);
+        } finally {
+            setReviewingProofId(null);
+        }
+    };
 
     // Fetch verification status
     useEffect(() => {
@@ -63,6 +144,11 @@ export default function LocksmithVerificationForm() {
 
         fetchStatus();
     }, [isAuthenticated]);
+
+    useEffect(() => {
+        if (!isAuthenticated || !isDeveloper) return;
+        void fetchPendingVerifications();
+    }, [isAuthenticated, isDeveloper, fetchPendingVerifications]);
 
     const getProofStatus = (proofType: string): 'none' | 'pending' | 'approved' | 'rejected' => {
         if (!status) return 'none';
@@ -217,6 +303,98 @@ export default function LocksmithVerificationForm() {
                     );
                 })}
             </div>
+
+            {isDeveloper && (
+                <div className={styles.adminSection}>
+                    <div className={styles.adminHeader}>
+                        <h3>Admin Review Queue</h3>
+                        <button
+                            type="button"
+                            onClick={() => void fetchPendingVerifications()}
+                            className={styles.adminRefreshBtn}
+                            disabled={loadingPending}
+                        >
+                            {loadingPending ? 'Refreshing...' : 'Refresh'}
+                        </button>
+                    </div>
+                    <p className={styles.adminDescription}>
+                        Pending locksmith verification uploads from all users.
+                    </p>
+
+                    {pendingError && <div className={styles.error}>{pendingError}</div>}
+
+                    {loadingPending ? (
+                        <div className={styles.loading}>Loading pending verifications...</div>
+                    ) : pendingVerifications.length === 0 ? (
+                        <div className={styles.adminEmpty}>No pending verification proofs.</div>
+                    ) : (
+                        <div className={styles.adminGrid}>
+                            {pendingVerifications.map((proof) => {
+                                const isReviewing = reviewingProofId === proof.id;
+                                return (
+                                    <div key={proof.id} className={styles.pendingCard}>
+                                        <div className={styles.pendingMeta}>
+                                            <div className={styles.pendingUser}>
+                                                {proof.user_picture ? (
+                                                    <img src={proof.user_picture} alt="" className={styles.pendingAvatar} />
+                                                ) : null}
+                                                <div>
+                                                    <div className={styles.pendingUserName}>{proof.user_name || 'Unknown User'}</div>
+                                                    <div className={styles.pendingUserEmail}>{proof.user_email || 'No email'}</div>
+                                                </div>
+                                            </div>
+                                            <div className={styles.pendingProofType}>{getProofTypeName(proof.proof_type)}</div>
+                                            <div className={styles.pendingDate}>
+                                                Submitted {new Date(proof.created_at).toLocaleString()}
+                                            </div>
+                                        </div>
+
+                                        <a href={proof.proof_image_url} target="_blank" rel="noreferrer" className={styles.pendingImageLink}>
+                                            <img src={proof.proof_image_url} alt={`${getProofTypeName(proof.proof_type)} proof`} className={styles.pendingImage} />
+                                        </a>
+
+                                        <textarea
+                                            className={styles.adminTextarea}
+                                            placeholder="Admin notes (optional)"
+                                            value={adminNotesByProof[proof.id] || ''}
+                                            onChange={(e) => setAdminNotesByProof(prev => ({ ...prev, [proof.id]: e.target.value }))}
+                                            disabled={isReviewing}
+                                        />
+
+                                        <input
+                                            type="text"
+                                            className={styles.adminInput}
+                                            placeholder="Rejection reason (required only if rejecting)"
+                                            value={rejectionReasonByProof[proof.id] || ''}
+                                            onChange={(e) => setRejectionReasonByProof(prev => ({ ...prev, [proof.id]: e.target.value }))}
+                                            disabled={isReviewing}
+                                        />
+
+                                        <div className={styles.adminActions}>
+                                            <button
+                                                type="button"
+                                                className={styles.adminApproveBtn}
+                                                onClick={() => void reviewVerification(proof.id, 'approve')}
+                                                disabled={isReviewing}
+                                            >
+                                                {isReviewing ? 'Working...' : 'Approve'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.adminRejectBtn}
+                                                onClick={() => void reviewVerification(proof.id, 'reject')}
+                                                disabled={isReviewing}
+                                            >
+                                                {isReviewing ? 'Working...' : 'Reject'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

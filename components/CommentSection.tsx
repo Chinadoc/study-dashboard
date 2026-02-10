@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -50,33 +50,46 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     const [nastfOnly, setNastfOnly] = useState(false);
 
     const vehicleKey = `${make.toLowerCase()}_${model.toLowerCase()}`;
+    const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
+    const getAuthHeaders = (includeJsonContentType = false): Record<string, string> => {
+        const token = getSessionToken();
+        const headers: Record<string, string> = {};
+        if (includeJsonContentType) {
+            headers['Content-Type'] = 'application/json';
+        }
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        return headers;
+    };
 
     // Fetch comments
-    useEffect(() => {
-        const fetchComments = async () => {
-            try {
-                let url = `${API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
-                if (nastfOnly) {
-                    url += '&nastf_only=true';
-                }
-                const response = await fetch(url, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
-                    }
-                });
-                const data = await response.json();
-                if (data.comments) {
-                    setComments(data.comments);
-                }
-            } catch (err) {
-                console.error('Failed to fetch comments:', err);
-            } finally {
-                setLoading(false);
+    const fetchComments = useCallback(async () => {
+        try {
+            setLoading(true);
+            let url = `${API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+            if (nastfOnly) {
+                url += '&nastf_only=true';
             }
-        };
-
-        fetchComments();
+            const response = await fetch(url, {
+                headers: getAuthHeaders()
+            });
+            const data = await response.json();
+            if (data.comments) {
+                setComments(data.comments);
+            } else {
+                setComments([]);
+            }
+        } catch (err) {
+            console.error('Failed to fetch comments:', err);
+        } finally {
+            setLoading(false);
+        }
     }, [make, model, nastfOnly]);
+
+    useEffect(() => {
+        void fetchComments();
+    }, [fetchComments]);
 
     // Submit new comment
     const handleSubmitComment = async (e: React.FormEvent) => {
@@ -89,10 +102,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         try {
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
-                },
+                headers: getAuthHeaders(true),
                 body: JSON.stringify({
                     vehicle_key: vehicleKey,
                     make,
@@ -118,7 +128,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     is_deleted: false,
                     replies: []
                 };
-                setComments([newCommentObj, ...comments]);
+                setComments(prev => [newCommentObj, ...prev]);
                 setNewComment('');
             } else {
                 setError(data.error || 'Failed to post comment');
@@ -140,10 +150,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         try {
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
-                },
+                headers: getAuthHeaders(true),
                 body: JSON.stringify({
                     vehicle_key: vehicleKey,
                     make,
@@ -172,7 +179,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                 };
 
                 // Add reply to parent comment
-                setComments(comments.map(c => {
+                setComments(prev => prev.map(c => {
                     if (c.id === parentId) {
                         return { ...c, replies: [...c.replies, newReply] };
                     }
@@ -200,16 +207,19 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         try {
             const response = await fetch(`${API_URL}/api/vehicle-comments/vote`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
-                },
+                headers: getAuthHeaders(true),
                 body: JSON.stringify({ comment_id: commentId, vote })
             });
 
+            const data = await response.json().catch(() => ({} as { error?: string }));
+            if (!response.ok) {
+                setError(data.error || 'Vote failed');
+                return;
+            }
+
             if (response.ok) {
                 // Optimistically update vote
-                setComments(comments.map(c => {
+                setComments(prev => prev.map(c => {
                     const updateVote = (comment: Comment): Comment => {
                         if (comment.id === commentId) {
                             const oldVote = comment.user_vote;
@@ -252,9 +262,11 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                     };
                     return updateVote(c);
                 }));
+                setError(null);
             }
         } catch (err) {
             console.error('Vote failed:', err);
+            setError('Vote failed');
         }
     };
 
@@ -268,10 +280,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         try {
             const response = await fetch(`${API_URL}/api/vehicle-comments/flag`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('session_token') || ''}`
-                },
+                headers: getAuthHeaders(true),
                 body: JSON.stringify({ comment_id: commentId, reason: reportReason })
             });
 
