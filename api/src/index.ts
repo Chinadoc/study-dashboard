@@ -5304,6 +5304,55 @@ Guidelines:
       // VEHICLE COMMENTS ENDPOINTS (Public Job Notes)
       // ==============================================
 
+      // POST /api/vehicle-comments/upload-media - Upload comment attachment image (requires auth)
+      if (path === "/api/vehicle-comments/upload-media" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to upload media" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const formData = await request.formData();
+          const fileEntry = formData.get('file');
+
+          if (!fileEntry || typeof fileEntry === 'string') {
+            return corsResponse(request, JSON.stringify({ error: "Missing file" }), 400);
+          }
+
+          const file = fileEntry as unknown as File;
+          const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+          if (!allowedTypes.has(file.type)) {
+            return corsResponse(request, JSON.stringify({ error: "Only JPEG, PNG, and WEBP images are supported" }), 400);
+          }
+          if (file.size > 8 * 1024 * 1024) {
+            return corsResponse(request, JSON.stringify({ error: "Image too large (max 8MB)" }), 400);
+          }
+
+          const extByMime: Record<string, string> = {
+            'image/jpeg': 'jpg',
+            'image/png': 'png',
+            'image/webp': 'webp',
+          };
+          const fileExt = extByMime[file.type] || 'jpg';
+          const mediaKey = `community/comments/${userId}/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${fileExt}`;
+          const fileBuffer = await file.arrayBuffer();
+
+          await env.ASSETS_BUCKET.put(mediaKey, fileBuffer, {
+            httpMetadata: {
+              contentType: file.type,
+              cacheControl: 'public, max-age=31536000, immutable'
+            }
+          });
+
+          const imageUrl = `https://pub-6f55decd53fc486a97f4a7c74e53f6c4.r2.dev/${mediaKey}`;
+          return corsResponse(request, JSON.stringify({ success: true, media_url: imageUrl, media_key: mediaKey }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // GET /api/vehicle-comments - Fetch comments for a vehicle (with threading)
       if (path === "/api/vehicle-comments" && request.method === "GET") {
         try {

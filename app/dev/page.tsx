@@ -186,6 +186,14 @@ interface PendingVerification {
     user_picture?: string | null;
 }
 
+function normalizeProofUrl(rawUrl: string): string {
+    const value = String(rawUrl || '').trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    const stripped = value.replace(/^\/+/, '');
+    return `https://pub-6f55decd53fc486a97f4a7c74e53f6c4.r2.dev/${stripped}`;
+}
+
 // Helper to format bytes
 const formatBytes = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -1308,6 +1316,7 @@ export default function DevPanelPage() {
                         <div className="space-y-3">
                             {verificationQueue.map((proof) => {
                                 const isReviewing = reviewingVerificationId === proof.id;
+                                const proofUrl = normalizeProofUrl(proof.proof_image_url);
                                 return (
                                     <div key={proof.id} className="rounded-xl border border-eurokeys-border bg-slate-900/60 p-4">
                                         <div className="mb-3 flex items-start justify-between gap-3">
@@ -1326,18 +1335,47 @@ export default function DevPanelPage() {
                                             </div>
                                         </div>
 
-                                        <a
-                                            href={proof.proof_image_url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="mb-3 block w-fit"
-                                        >
-                                            <img
-                                                src={proof.proof_image_url}
-                                                alt={`${PROOF_TYPE_LABELS[proof.proof_type] || proof.proof_type} proof`}
-                                                className="max-h-64 rounded-lg border border-slate-700 object-contain"
-                                            />
-                                        </a>
+                                        {proofUrl ? (
+                                            <>
+                                                <div className="mb-2 flex flex-wrap gap-2">
+                                                    <a
+                                                        href={proofUrl}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="rounded border border-blue-500/40 bg-blue-500/15 px-2.5 py-1 text-xs font-medium text-blue-200 hover:bg-blue-500/25"
+                                                    >
+                                                        Open Proof
+                                                    </a>
+                                                    <a
+                                                        href={proofUrl}
+                                                        download
+                                                        className="rounded border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-slate-700"
+                                                    >
+                                                        Download
+                                                    </a>
+                                                </div>
+                                                <a
+                                                    href={proofUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="mb-2 block w-fit"
+                                                >
+                                                    <img
+                                                        src={proofUrl}
+                                                        alt={`${PROOF_TYPE_LABELS[proof.proof_type] || proof.proof_type} proof`}
+                                                        className="max-h-64 rounded-lg border border-slate-700 object-contain"
+                                                        onError={(e) => {
+                                                            e.currentTarget.style.display = 'none';
+                                                        }}
+                                                    />
+                                                </a>
+                                                <p className="mb-3 break-all text-[11px] text-slate-500">{proofUrl}</p>
+                                            </>
+                                        ) : (
+                                            <div className="mb-3 rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                                                Proof file URL is missing for this submission.
+                                            </div>
+                                        )}
 
                                         <textarea
                                             className="mb-2 w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500"
