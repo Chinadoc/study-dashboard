@@ -145,6 +145,23 @@ interface CoverageGaps {
     active_filter?: string | null;
 }
 
+interface ModerationFlag {
+    flag_id: string;
+    comment_id: string;
+    reason: string;
+    details?: string | null;
+    flag_created: number;
+    reporter_id: string;
+    content: string;
+    vehicle_key: string;
+    comment_author_id: string;
+    comment_author_name?: string | null;
+    flag_count?: number | null;
+    comment_created: number;
+    reporter_name?: string | null;
+    reporter_email?: string | null;
+}
+
 // Helper to format bytes
 const formatBytes = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -212,29 +229,34 @@ export default function DevPanelPage() {
     const [clickData, setClickData] = useState<ClickData[]>([]);
     const [users, setUsers] = useState<UserData[]>([]);
     const [coverageGaps, setCoverageGaps] = useState<CoverageGaps | null>(null);
+    const [moderationQueue, setModerationQueue] = useState<ModerationFlag[]>([]);
+    const [resolvingFlagId, setResolvingFlagId] = useState<string | null>(null);
+    const [moderationError, setModerationError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps' | 'moderation'>('overview');
     const [activityFilter, setActivityFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [expandedActivityId, setExpandedActivityId] = useState<number | null>(null);
 
     const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+    const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
 
     // Fetch all data on mount
     const fetchAllData = useCallback(async () => {
         setIsLoading(true);
-        const token = localStorage.getItem('session_token');
+        const token = getSessionToken();
         const headers = { 'Authorization': `Bearer ${token}` };
 
         try {
-            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes] = await Promise.allSettled([
+            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes] = await Promise.allSettled([
                 fetch(`${API_BASE}/api/admin/stats`, { headers }),
                 fetch(`${API_BASE}/api/admin/cloudflare`, { headers }),
                 fetch(`${API_BASE}/api/admin/activity?limit=50`, { headers }),
                 fetch(`${API_BASE}/api/admin/intelligence/inventory`, { headers }),
                 fetch(`${API_BASE}/api/admin/intelligence/clicks`, { headers }),
                 fetch(`${API_BASE}/api/admin/users`, { headers }),
-                fetch(`${API_BASE}/api/admin/coverage-gaps${categoryFilter ? `?category=${categoryFilter}` : ''}`, { headers })
+                fetch(`${API_BASE}/api/admin/coverage-gaps${categoryFilter ? `?category=${categoryFilter}` : ''}`, { headers }),
+                fetch(`${API_BASE}/api/moderation/queue`, { headers })
             ]);
 
             if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
@@ -264,12 +286,76 @@ export default function DevPanelPage() {
                 const data = await gapsRes.value.json();
                 setCoverageGaps(data);
             }
+            if (moderationRes.status === 'fulfilled' && moderationRes.value.ok) {
+                const data = await moderationRes.value.json();
+                setModerationQueue(data.flags || []);
+                setModerationError(null);
+            } else if (moderationRes.status === 'fulfilled' && !moderationRes.value.ok) {
+                setModerationError('Failed to load moderation queue');
+            }
         } catch (e) {
             console.error('Failed to fetch dev data:', e);
         } finally {
             setIsLoading(false);
         }
     }, []);
+
+    const parseVehicleKey = (vehicleKey: string): { label: string; href: string } => {
+        const raw = String(vehicleKey || '');
+        const separator = raw.includes('|') ? '|' : (raw.includes('_') ? '_' : '');
+        const parts = (separator ? raw.split(separator) : [raw]).map((part) => part.trim()).filter(Boolean);
+        if (parts.length < 2) {
+            return { label: raw || 'Vehicle', href: '/browse' };
+        }
+        let year: string | null = null;
+        if (/^\d{4}$/.test(parts[parts.length - 1])) {
+            year = parts.pop() || null;
+        }
+        const make = parts[0];
+        const model = parts.slice(1).join(' ');
+        const label = `${make} ${model}${year ? ` ${year}` : ''}`.trim();
+        const href = year
+            ? `/vehicle/${encodeURIComponent(make.toLowerCase())}/${encodeURIComponent(model.toLowerCase())}/${year}#comments`
+            : `/browse?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+        return { label, href };
+    };
+
+    const resolveModerationFlag = async (
+        flag: ModerationFlag,
+        resolution: 'dismissed' | 'deleted' | 'warning_issued',
+        deleteComment: boolean
+    ) => {
+        const token = getSessionToken();
+        if (!token) {
+            setModerationError('Missing session token');
+            return;
+        }
+        setResolvingFlagId(flag.flag_id);
+        setModerationError(null);
+        try {
+            const response = await fetch(`${API_BASE}/api/moderation/resolve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    flag_id: flag.flag_id,
+                    resolution,
+                    delete_comment: deleteComment,
+                }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to resolve report');
+            }
+            setModerationQueue((prev) => prev.filter((item) => item.flag_id !== flag.flag_id));
+        } catch (err: any) {
+            setModerationError(err?.message || 'Failed to resolve report');
+        } finally {
+            setResolvingFlagId(null);
+        }
+    };
 
     // Redirect non-developers
     useEffect(() => {
@@ -326,7 +412,7 @@ export default function DevPanelPage() {
 
             {/* Tab Navigation */}
             <div className="mb-6 flex gap-2 border-b border-eurokeys-border pb-2">
-                {(['overview', 'users', 'activity', 'gaps'] as const).map(tab => (
+                {(['overview', 'users', 'activity', 'gaps', 'moderation'] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -339,6 +425,7 @@ export default function DevPanelPage() {
                         {tab === 'users' && '👥 Users'}
                         {tab === 'activity' && '📋 Activity'}
                         {tab === 'gaps' && '🔍 Coverage Gaps'}
+                        {tab === 'moderation' && `🛡️ Moderation (${moderationQueue.length})`}
                     </button>
                 ))}
             </div>
@@ -1052,6 +1139,97 @@ export default function DevPanelPage() {
                             <p className="text-sm text-slate-500">All vehicles have FCC data</p>
                         )}
                     </div>
+                </div>
+            )}
+
+            {activeTab === 'moderation' && (
+                <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                    <div className="mb-4 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-white">Comment Moderation Queue</h2>
+                        <button
+                            onClick={fetchAllData}
+                            disabled={isLoading}
+                            className="rounded-lg border border-eurokeys-border bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 disabled:opacity-50"
+                        >
+                            Refresh Queue
+                        </button>
+                    </div>
+
+                    {moderationError && (
+                        <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+                            {moderationError}
+                        </div>
+                    )}
+
+                    {moderationQueue.length === 0 ? (
+                        <div className="rounded-lg border border-eurokeys-border bg-slate-800/40 px-4 py-5 text-sm text-slate-400">
+                            No pending comment reports.
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {moderationQueue.map((flag) => {
+                                const isResolving = resolvingFlagId === flag.flag_id;
+                                const vehicle = parseVehicleKey(flag.vehicle_key);
+                                return (
+                                    <div key={flag.flag_id} className="rounded-xl border border-eurokeys-border bg-slate-900/60 p-4">
+                                        <div className="mb-2 flex items-start justify-between gap-3">
+                                            <div>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-xs font-semibold uppercase text-yellow-300">
+                                                        {flag.reason.replace(/_/g, ' ')}
+                                                    </span>
+                                                    <a href={vehicle.href} className="text-sm font-medium text-eurokeys-purple hover:text-indigo-300">
+                                                        {vehicle.label}
+                                                    </a>
+                                                </div>
+                                                <p className="mt-1 text-xs text-slate-500">
+                                                    Reported by {flag.reporter_name || flag.reporter_email || 'Unknown'} • {timeAgo(flag.flag_created)}
+                                                </p>
+                                            </div>
+                                            <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-xs text-red-300">
+                                                {flag.flag_count || 1} flag{(flag.flag_count || 1) === 1 ? '' : 's'}
+                                            </span>
+                                        </div>
+
+                                        <div className="mb-2 rounded-lg border border-slate-700 bg-slate-950/50 p-3">
+                                            <p className="text-xs uppercase tracking-wide text-slate-500">Comment</p>
+                                            <p className="mt-1 text-sm text-slate-200 whitespace-pre-wrap">{flag.content}</p>
+                                        </div>
+
+                                        {flag.details && (
+                                            <div className="mb-2 text-xs text-slate-400">
+                                                <span className="font-medium text-slate-300">Reporter details:</span> {flag.details}
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-wrap gap-2">
+                                            <button
+                                                onClick={() => void resolveModerationFlag(flag, 'dismissed', false)}
+                                                disabled={isResolving}
+                                                className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 disabled:opacity-50"
+                                            >
+                                                {isResolving ? 'Working...' : 'Dismiss'}
+                                            </button>
+                                            <button
+                                                onClick={() => void resolveModerationFlag(flag, 'warning_issued', false)}
+                                                disabled={isResolving}
+                                                className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-3 py-1.5 text-xs font-medium text-amber-200 hover:bg-amber-500/25 disabled:opacity-50"
+                                            >
+                                                {isResolving ? 'Working...' : 'Warn User'}
+                                            </button>
+                                            <button
+                                                onClick={() => void resolveModerationFlag(flag, 'deleted', true)}
+                                                disabled={isResolving}
+                                                className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/25 disabled:opacity-50"
+                                            >
+                                                {isResolving ? 'Working...' : 'Delete Comment'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
 
