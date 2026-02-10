@@ -382,6 +382,70 @@
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
+.replyMediaRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.55rem;
+}
+
+.replyMediaPicker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed rgba(148, 163, 184, 0.45);
+    background: rgba(15, 23, 42, 0.35);
+    color: #cbd5e1;
+    border-radius: 8px;
+    padding: 0.32rem 0.66rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.replyMediaPicker:hover {
+    border-color: rgba(99, 102, 241, 0.6);
+    background: rgba(99, 102, 241, 0.14);
+    color: #dbeafe;
+}
+
+.replyMediaPicker input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.replyMediaClear {
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    background: rgba(127, 29, 29, 0.25);
+    color: #fecaca;
+    border-radius: 8px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 0.28rem 0.56rem;
+    cursor: pointer;
+}
+
+.replyMediaClear:hover:not(:disabled) {
+    background: rgba(185, 28, 28, 0.3);
+}
+
+.replyAttachmentPreview {
+    display: block;
+    width: min(100%, 280px);
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(15, 23, 42, 0.35);
+    margin-top: 0.5rem;
+}
+
 .replyActions {
     display: flex;
     justify-content: flex-end;

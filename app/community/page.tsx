@@ -11,6 +11,9 @@ import styles from './community.module.css';
 
 // API base URL - use environment variable or default to production
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8MB before compression
+const MAX_EMBEDDED_BYTES = 700 * 1024; // 700KB after compression
 
 interface RecentComment {
     id: string;
@@ -122,6 +125,60 @@ function toPreviewContent(content: string, maxLength: number): ContentPreview {
     return { text, imageUrl: firstImageUrl };
 }
 
+async function compressImageToDataUrl(file: File): Promise<string> {
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+        throw new Error('Only JPEG, PNG, or WEBP images are supported.');
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+        throw new Error('Image is too large. Maximum file size is 8MB.');
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    try {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('Could not read image file.'));
+            img.src = objectUrl;
+        });
+
+        const maxDimension = 1280;
+        const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Image compression is not supported in this browser.');
+        ctx.drawImage(image, 0, 0, width, height);
+
+        let quality = 0.78;
+        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        while (dataUrl.length > MAX_EMBEDDED_BYTES * 1.37 && quality > 0.45) {
+            quality -= 0.08;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+
+        if (dataUrl.length > MAX_EMBEDDED_BYTES * 1.37) {
+            throw new Error('Compressed image is still too large. Please use a smaller image.');
+        }
+
+        return dataUrl;
+    } finally {
+        URL.revokeObjectURL(objectUrl);
+    }
+}
+
+async function buildCommentContentWithImage(text: string, imageFile: File | null): Promise<string> {
+    const trimmedText = text.trim();
+    if (!imageFile) return trimmedText;
+    const dataUrl = await compressImageToDataUrl(imageFile);
+    if (!trimmedText) return `![Attachment](${dataUrl})`;
+    return `${trimmedText}\n\n![Attachment](${dataUrl})`;
+}
+
 export default function CommunityPage() {
     const { isAuthenticated, login } = useAuth();
     const [activeTab, setActiveTab] = useState<'trending' | 'recent' | 'verified' | 'mentions' | 'leaderboard'>('trending');
@@ -135,6 +192,8 @@ export default function CommunityPage() {
     const [engagementError, setEngagementError] = useState<string | null>(null);
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+    const [replyImageFiles, setReplyImageFiles] = useState<Record<string, File | null>>({});
+    const [replyImagePreviews, setReplyImagePreviews] = useState<Record<string, string>>({});
     const [pendingVotes, setPendingVotes] = useState<Record<string, boolean>>({});
     const [pendingReplies, setPendingReplies] = useState<Record<string, boolean>>({});
     const [localVotes, setLocalVotes] = useState<Record<string, number>>({});
@@ -216,6 +275,12 @@ export default function CommunityPage() {
         });
         return unsubscribe;
     }, [fetchData]);
+
+    useEffect(() => {
+        return () => {
+            Object.values(replyImagePreviews).forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
+        };
+    }, [replyImagePreviews]);
 
     const formatTime = (timestamp: number) => {
         const diff = Date.now() - timestamp;
@@ -303,6 +368,53 @@ export default function CommunityPage() {
             { name: 'Legend', icon: '👑' }
         ];
         return ranks[level - 1] || ranks[0];
+    };
+
+    const validateReplyImage = (file: File | null): file is File => {
+        if (!file) return false;
+        if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+            setEngagementError('Only JPEG, PNG, or WEBP images are supported.');
+            return false;
+        }
+        if (file.size > MAX_UPLOAD_BYTES) {
+            setEngagementError('Image is too large. Maximum file size is 8MB.');
+            return false;
+        }
+        return true;
+    };
+
+    const setReplyImageForComment = (commentId: string, file: File | null) => {
+        if (file && !validateReplyImage(file)) return;
+
+        setReplyImageFiles((prev) => {
+            if (file) return { ...prev, [commentId]: file };
+            const next = { ...prev };
+            delete next[commentId];
+            return next;
+        });
+        setReplyImagePreviews((prev) => {
+            const next = { ...prev };
+            if (next[commentId]) URL.revokeObjectURL(next[commentId]);
+            if (file) {
+                next[commentId] = URL.createObjectURL(file);
+            } else {
+                delete next[commentId];
+            }
+            return next;
+        });
+        if (file) setEngagementError(null);
+    };
+
+    const toggleReplyComposer = (commentId: string) => {
+        if (replyingTo === commentId) {
+            setReplyImageForComment(commentId, null);
+            setReplyingTo(null);
+            return;
+        }
+        if (replyingTo) {
+            setReplyImageForComment(replyingTo, null);
+        }
+        setReplyingTo(commentId);
     };
 
     const getCurrentVote = async (comment: RecentComment): Promise<number> => {
@@ -415,13 +527,15 @@ export default function CommunityPage() {
             return;
         }
 
-        const content = (replyDrafts[comment.id] || '').trim();
-        if (!content || pendingReplies[comment.id]) return;
+        const replyText = replyDrafts[comment.id] || '';
+        const replyImageFile = replyImageFiles[comment.id] || null;
+        if ((!replyText.trim() && !replyImageFile) || pendingReplies[comment.id]) return;
 
         setEngagementError(null);
         setPendingReplies(prev => ({ ...prev, [comment.id]: true }));
 
         try {
+            const content = await buildCommentContentWithImage(replyText, replyImageFile);
             const response = await fetch(`${API_URL}/api/vehicle-comments`, {
                 method: 'POST',
                 headers: {
@@ -441,6 +555,7 @@ export default function CommunityPage() {
             }
 
             setReplyDrafts(prev => ({ ...prev, [comment.id]: '' }));
+            setReplyImageForComment(comment.id, null);
             setReplyingTo(null);
             emitCommunityUpdate({
                 action: 'reply',
@@ -454,6 +569,77 @@ export default function CommunityPage() {
         } finally {
             setPendingReplies(prev => ({ ...prev, [comment.id]: false }));
         }
+    };
+
+    const renderReplyComposer = (comment: RecentComment) => {
+        const replyText = replyDrafts[comment.id] || '';
+        const replyImagePreview = replyImagePreviews[comment.id] || null;
+        const hasReplyImage = Boolean(replyImageFiles[comment.id]);
+        const postDisabled = pendingReplies[comment.id] || (!replyText.trim() && !hasReplyImage);
+
+        return (
+            <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleReplySubmit(comment); }}>
+                <textarea
+                    className={styles.replyInput}
+                    value={replyText}
+                    onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                    rows={3}
+                    placeholder="Add a reply... (image optional)"
+                    maxLength={2000}
+                />
+                <div className={styles.replyMediaRow}>
+                    <label className={styles.replyMediaPicker}>
+                        <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0] || null;
+                                setReplyImageForComment(comment.id, file);
+                                e.currentTarget.value = '';
+                            }}
+                            disabled={pendingReplies[comment.id]}
+                        />
+                        Attach image
+                    </label>
+                    {hasReplyImage && (
+                        <button
+                            type="button"
+                            className={styles.replyMediaClear}
+                            onClick={() => setReplyImageForComment(comment.id, null)}
+                            disabled={pendingReplies[comment.id]}
+                        >
+                            Remove image
+                        </button>
+                    )}
+                </div>
+                {replyImagePreview && (
+                    <img
+                        src={replyImagePreview}
+                        alt="Reply attachment preview"
+                        className={styles.replyAttachmentPreview}
+                    />
+                )}
+                <div className={styles.replyActions}>
+                    <button
+                        type="button"
+                        className={styles.replyBtnSecondary}
+                        onClick={() => {
+                            setReplyImageForComment(comment.id, null);
+                            setReplyingTo(null);
+                        }}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        className={styles.replyBtnPrimary}
+                        disabled={postDisabled}
+                    >
+                        {pendingReplies[comment.id] ? 'Posting...' : 'Post Reply'}
+                    </button>
+                </div>
+            </form>
+        );
     };
 
     const markMentionsRead = async () => {
@@ -598,7 +784,7 @@ export default function CommunityPage() {
                                                         <button
                                                             type="button"
                                                             className={styles.actionBtn}
-                                                            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                                            onClick={() => toggleReplyComposer(comment.id)}
                                                         >
                                                             {replyingTo === comment.id ? 'Cancel' : 'Reply'}
                                                         </button>
@@ -607,34 +793,7 @@ export default function CommunityPage() {
                                                         </Link>
                                                     </div>
                                                 </div>
-                                                {replyingTo === comment.id && (
-                                                    <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleReplySubmit(comment); }}>
-                                                        <textarea
-                                                            className={styles.replyInput}
-                                                            value={replyDrafts[comment.id] || ''}
-                                                            onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
-                                                            rows={3}
-                                                            placeholder="Add a reply..."
-                                                            maxLength={2000}
-                                                        />
-                                                        <div className={styles.replyActions}>
-                                                            <button
-                                                                type="button"
-                                                                className={styles.replyBtnSecondary}
-                                                                onClick={() => setReplyingTo(null)}
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                            <button
-                                                                type="submit"
-                                                                className={styles.replyBtnPrimary}
-                                                                disabled={pendingReplies[comment.id] || !(replyDrafts[comment.id] || '').trim()}
-                                                            >
-                                                                {pendingReplies[comment.id] ? 'Posting...' : 'Post Reply'}
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                )}
+                                                {replyingTo === comment.id && renderReplyComposer(comment)}
                                             </div>
                                         );
                                     })
@@ -709,7 +868,7 @@ export default function CommunityPage() {
                                                         <button
                                                             type="button"
                                                             className={styles.actionBtn}
-                                                            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                                            onClick={() => toggleReplyComposer(comment.id)}
                                                         >
                                                             {replyingTo === comment.id ? 'Cancel' : 'Reply'}
                                                         </button>
@@ -718,34 +877,7 @@ export default function CommunityPage() {
                                                         </Link>
                                                     </div>
                                                 </div>
-                                                {replyingTo === comment.id && (
-                                                    <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleReplySubmit(comment); }}>
-                                                        <textarea
-                                                            className={styles.replyInput}
-                                                            value={replyDrafts[comment.id] || ''}
-                                                            onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
-                                                            rows={3}
-                                                            placeholder="Add a reply..."
-                                                            maxLength={2000}
-                                                        />
-                                                        <div className={styles.replyActions}>
-                                                            <button
-                                                                type="button"
-                                                                className={styles.replyBtnSecondary}
-                                                                onClick={() => setReplyingTo(null)}
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                            <button
-                                                                type="submit"
-                                                                className={styles.replyBtnPrimary}
-                                                                disabled={pendingReplies[comment.id] || !(replyDrafts[comment.id] || '').trim()}
-                                                            >
-                                                                {pendingReplies[comment.id] ? 'Posting...' : 'Post Reply'}
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                )}
+                                                {replyingTo === comment.id && renderReplyComposer(comment)}
                                             </div>
                                         );
                                     })
@@ -807,7 +939,7 @@ export default function CommunityPage() {
                                                         <button
                                                             type="button"
                                                             className={styles.actionBtn}
-                                                            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                                            onClick={() => toggleReplyComposer(comment.id)}
                                                         >
                                                             {replyingTo === comment.id ? 'Cancel' : 'Reply'}
                                                         </button>
@@ -816,34 +948,7 @@ export default function CommunityPage() {
                                                         </Link>
                                                     </div>
                                                 </div>
-                                                {replyingTo === comment.id && (
-                                                    <form className={styles.replyComposer} onSubmit={(e) => { e.preventDefault(); void handleReplySubmit(comment); }}>
-                                                        <textarea
-                                                            className={styles.replyInput}
-                                                            value={replyDrafts[comment.id] || ''}
-                                                            onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
-                                                            rows={3}
-                                                            placeholder="Add a reply..."
-                                                            maxLength={2000}
-                                                        />
-                                                        <div className={styles.replyActions}>
-                                                            <button
-                                                                type="button"
-                                                                className={styles.replyBtnSecondary}
-                                                                onClick={() => setReplyingTo(null)}
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                            <button
-                                                                type="submit"
-                                                                className={styles.replyBtnPrimary}
-                                                                disabled={pendingReplies[comment.id] || !(replyDrafts[comment.id] || '').trim()}
-                                                            >
-                                                                {pendingReplies[comment.id] ? 'Posting...' : 'Post Reply'}
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                )}
+                                                {replyingTo === comment.id && renderReplyComposer(comment)}
                                             </div>
                                         );
                                     })
