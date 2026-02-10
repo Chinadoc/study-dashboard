@@ -50,6 +50,10 @@ const KEYWAY_RULES: Record<string, {
     macsFallback?: number; // Use this MACS when AKS vehicle data doesn't provide one. AKS wins when present.
     codeSeries?: string; // Known code series range (informational display only)
     angular?: boolean; // Uses angles not depths
+    linkedPositions?: Record<number, number>; // Position X should match Position Y (e.g., GM Golden Rule: P1≈P9, P2≈P10)
+    positionHints?: Record<number, { likely: number[]; reason: string }>; // Statistical likelihood for unknown positions
+    avoidPositionDepths?: Record<number, number[]>; // Position X should avoid these depths (structural/statistical)
+    decodeWorkflow?: string; // Locksmith decode strategy for this keyway
     hint?: string;
 }> = {
     // === FORD ===
@@ -58,7 +62,8 @@ const KEYWAY_RULES: Record<string, {
         doorOnly: [3, 4, 5, 6, 7, 8, 9, 10],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         codeSeries: '10001–11500',
-        hint: '🔒 Ford HU101: MACS=2, 4 depths. P10=2 (retention). Door P3-10, Ign P1-10. ⚠️ EU W9 variant (Mondeo/Fiesta 2017+): door reads P1-9 only (P10 absent). NA 2020+ (F-150/Bronco/Escape): see HU198.'
+        decodeWorkflow: '🔓 HU101 door → P3-P10 readable. P10 is always depth 2 (checksum — if you read anything else, re-decode). P1&P2 must progress. ~1,500 valid codes.',
+        hint: '🔒 Ford HU101: MACS=2, 4 depths. P10=2 (retention checksum). Door P3-10, Ign P1-10. ⚠️ EU W9 variant (Mondeo/Fiesta 2017+): door reads P1-9 only (P10 absent). NA 2020+ (F-150/Bronco/Escape): see HU198.'
     },
     'HU198': {
         doorOnly: [3, 4, 5, 6, 7, 8, 9, 10],
@@ -84,12 +89,16 @@ const KEYWAY_RULES: Record<string, {
         macsOverride: 999,
         doorOnly: [4, 5, 6, 7, 8, 9, 10],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7],
+        linkedPositions: { 1: 9, 2: 10 },
+        decodeWorkflow: '🔓 CY24 door → P4-10 readable. Golden Rule: P1≈P9, P2≈P10. Enter door decode → P1&2 auto-suggested.',
         hint: '🚪 GM HU100: MACS=None. Door P4-10(V)/P5-8(Z), Ign P1-7. "Golden Rule": P1&2 ≈ P9&10.'
     },
     'HU100-10': {
         macsOverride: 999,
         doorOnly: [4, 5, 6, 7, 8, 9, 10],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7],
+        linkedPositions: { 1: 9, 2: 10 },
+        decodeWorkflow: '🔓 HU100 door → P4-10 readable. Golden Rule: P1≈P9, P2≈P10. Enter door decode → auto-suggest P1&2.',
         hint: '🚪 GM HU100-10: MACS=None. Door P5-10, Ign P1-7(9). "Golden Rule": P1&2 depths ≈ P9&10.'
     },
     'B111': {
@@ -114,7 +123,8 @@ const KEYWAY_RULES: Record<string, {
         doorOnly: [2, 3, 4, 5, 6, 7, 8],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7, 8],
         codeSeries: 'M0001–M2618',
-        hint: '🚪 Chrysler Y159: 8-cut, Door P2-8, Ign P1-8. ~2600 codes. P1 variable—progress from door decode.'
+        decodeWorkflow: '🔓 CY24 door → P2-P8 readable (7 cuts). P1 is blind. Only ~2,618 valid M-codes exist — with 7 known positions, typically only 1-2 valid P1 options. Cut shallowest first.',
+        hint: '🚪 Chrysler Y159: 8-cut, Door P2-8, Ign P1-8. ~2,618 M-codes total. P1 near-deterministic from door decode — cross-reference InstaCode M-series for exact match.'
     },
     'Y157': {
         hint: '💡 Chrysler Y157: 7 positions (older series). Shares depth system with Y159 but shorter blade/fewer active cuts. Triangular head vs Y159 oval. Do NOT auto-inherit Y159 — spacing differs.'
@@ -122,9 +132,12 @@ const KEYWAY_RULES: Record<string, {
     // === NISSAN ===
     'NSN14': {
         macsOverride: 2,
+        fixedPositions: { 1: 3 },
         doorOnly: [3, 4, 5, 6, 7, 8, 9, 10],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        hint: '🚪 Nissan NSN14: 10-pos, 4 depths, MACS=2. Door P3-10. Some ign 11-wafer with P1 fixed=3 (Lishi doc).'
+        positionHints: { 2: { likely: [2, 3], reason: 'P2 constrained by MACS from fixed P1=3' } },
+        decodeWorkflow: '🔓 NSN14 door → P3-P10 readable (8 cuts). P1=3 (dummy, fixed). P2 must progress. With MACS=2, P2 constrained by P3. Try shallowest valid first.',
+        hint: '🚪 Nissan NSN14: 10-pos, 4 depths, MACS=2. Door P3-10. P1=3 fixed (dummy cut — Lishi/forensic confirmed). Progress P2 only.'
     },
     'DA34': {
         macsFallback: 3,
@@ -175,8 +188,8 @@ const KEYWAY_RULES: Record<string, {
         macsFallback: 2,
         hint: '💡 PSA VA2T: 6 wafers, 6 depths, MACS=2. Door & ign use same full bitting. No door/ign split. Series 1234Q5678H.'
     },
-    'CY24': {
-        hint: '💡 PSA CY24: Older edge-cut key (pre-VA2/VA2T). 6–8 cuts, 4 depths, MACS~3. For modern PSA use VA2T instead.'
+    'CY24-PSA': {
+        hint: '💡 PSA CY24 (Citroën/Peugeot): Older edge-cut key (pre-VA2/VA2T). 6–8 cuts, 4 depths, MACS~3. ⚠️ NOT the Chrysler CY24 Lishi tool — that picks Y157/Y159 keyways.'
     },
     // === VOLVO ===
     'NE66': {
@@ -190,7 +203,8 @@ const KEYWAY_RULES: Record<string, {
     'HU66': {
         macsFallback: 2,
         codeSeries: '01-06000 / 6001-8110',
-        hint: '💡 VAG HU66: 8-cut internal laser, 4 depths, MACS=2 (1↔4 forbidden). Gen 1: 1-up/1-down wafers. Gen 2/3: paired wafers. ⚠️ NOT HU162T (MQB 2015+ edge-cut with sidebar).'
+        avoidPositionDepths: { 8: [4] },
+        hint: '💡 VAG HU66: 8-cut internal laser, 4 depths, MACS=2 (1↔4 forbidden). P8 rarely depth 4 (tip integrity). Gen 1: 1-up/1-down wafers. Gen 2/3: paired wafers. ⚠️ NOT HU162T (MQB 2015+ edge-cut with sidebar).'
     },
     'HU66-Kessy': {
         macsFallback: 2,
@@ -434,6 +448,45 @@ export default function BittingCalculator({
     // Refs for auto-advance
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+    // Linked position suggestions — BIDIRECTIONAL
+    // e.g., GM Golden Rule: {1: 9, 2: 10} means P1≈P9, P2≈P10
+    // If P9 is known and P1 is unknown → suggest P1=P9 depth
+    // If P1 is known and P9 is unknown → also suggest P9=P1 depth
+    const linkedPositionSuggestions = useMemo(() => {
+        if (!rules?.linkedPositions) return {} as Record<number, { suggestedDepth: number; sourcePos: number }>;
+        const suggestions: Record<number, { suggestedDepth: number; sourcePos: number }> = {};
+        for (const [targetPosStr, sourcePosNum] of Object.entries(rules.linkedPositions)) {
+            const targetPos = Number(targetPosStr);
+            const sourceIdx = sourcePosNum - 1;
+            const targetIdx = targetPos - 1;
+            // Forward: source known → suggest target
+            if (sourceIdx >= 0 && sourceIdx < positions.length && positions[sourceIdx] > 0 &&
+                targetIdx >= 0 && targetIdx < positions.length && (positions[targetIdx] <= 0)) {
+                suggestions[targetPos] = { suggestedDepth: positions[sourceIdx], sourcePos: sourcePosNum };
+            }
+            // Reverse: target known → suggest source
+            if (targetIdx >= 0 && targetIdx < positions.length && positions[targetIdx] > 0 &&
+                sourceIdx >= 0 && sourceIdx < positions.length && (positions[sourceIdx] <= 0)) {
+                suggestions[sourcePosNum] = { suggestedDepth: positions[targetIdx], sourcePos: targetPos };
+            }
+        }
+        return suggestions;
+    }, [rules, positions]);
+
+    // Avoid-depth warnings (e.g., HU66 P8 should avoid depth 4)
+    const avoidDepthWarnings = useMemo(() => {
+        if (!rules?.avoidPositionDepths) return [] as { pos: number; depth: number; avoided: number[] }[];
+        const warnings: { pos: number; depth: number; avoided: number[] }[] = [];
+        for (const [posStr, avoidedDepths] of Object.entries(rules.avoidPositionDepths)) {
+            const pos = Number(posStr);
+            const idx = pos - 1;
+            if (idx >= 0 && idx < positions.length && positions[idx] > 0 && avoidedDepths.includes(positions[idx])) {
+                warnings.push({ pos, depth: positions[idx], avoided: avoidedDepths });
+            }
+        }
+        return warnings;
+    }, [rules, positions]);
+
     // Count unknown/special positions (includes ?, X, A, B, T, and blank)
     const unknownPositions = useMemo(() =>
         positions.map((v, i) => isUnknownOrSpecial(v) ? i : -1).filter(i => i >= 0),
@@ -471,14 +524,23 @@ export default function BittingCalculator({
         return { totalCombinations, maxBlanksNeeded };
     }, [positions, maxDepth]);
 
-    // Calculate progressive cutting order (shallow to deep)
+    // Calculate progressive cutting order (shallow to deep), influenced by forensic hints
     const cuttingOrder = useMemo(() => {
         const ordered = positions
             .map((depth, index) => ({ index, depth }))
             .filter(p => p.depth > 0) // Only known exact positions
-            .sort((a, b) => a.depth - b.depth);
+            .sort((a, b) => {
+                // Primary: sort by depth (shallow to deep)
+                if (a.depth !== b.depth) return a.depth - b.depth;
+                // Secondary: prefer positions with positionHints (forensically significant)
+                const posA = a.index + 1;
+                const posB = b.index + 1;
+                const hintA = rules?.positionHints?.[posA] ? 0 : 1;
+                const hintB = rules?.positionHints?.[posB] ? 0 : 1;
+                return hintA - hintB;
+            });
         return ordered.map((p, order) => ({ ...p, order: order + 1 }));
-    }, [positions]);
+    }, [positions, rules]);
 
     const nextToCut = useMemo(() => {
         if (cuttingOrder.length === 0) return null;
@@ -777,6 +839,57 @@ export default function BittingCalculator({
             };
 
             generateCombinations(0, []);
+
+            // Smart forensic sort: prefer linked-position matches, deprioritize avoided depths
+            if (results.length > 1 && rules) {
+                results.sort((a, b) => {
+                    let scoreA = 0, scoreB = 0;
+
+                    // Boost: results matching linked position suggestions
+                    if (rules.linkedPositions) {
+                        for (const [targetStr, sourceNum] of Object.entries(rules.linkedPositions)) {
+                            const tIdx = Number(targetStr) - 1;
+                            const sIdx = sourceNum - 1;
+                            if (tIdx < a.length && sIdx < a.length) {
+                                if (a[tIdx] === a[sIdx]) scoreA += 10;
+                                if (b[tIdx] === b[sIdx]) scoreB += 10;
+                            }
+                        }
+                    }
+
+                    // Boost: results matching positionHints likely values
+                    if (rules.positionHints) {
+                        for (const [posStr, hint] of Object.entries(rules.positionHints)) {
+                            const idx = Number(posStr) - 1;
+                            if (idx < a.length) {
+                                if (hint.likely.includes(Number(a[idx]))) scoreA += 5;
+                                if (hint.likely.includes(Number(b[idx]))) scoreB += 5;
+                            }
+                        }
+                    }
+
+                    // Penalty: results using avoided depths
+                    if (rules.avoidPositionDepths) {
+                        for (const [posStr, avoidedDepths] of Object.entries(rules.avoidPositionDepths)) {
+                            const idx = Number(posStr) - 1;
+                            if (idx < a.length) {
+                                if (avoidedDepths.includes(Number(a[idx]))) scoreA -= 8;
+                                if (avoidedDepths.includes(Number(b[idx]))) scoreB -= 8;
+                            }
+                        }
+                    }
+
+                    // Higher score = better = should come first
+                    if (scoreA !== scoreB) return scoreB - scoreA;
+
+                    // Tiebreaker: shallowest first (progressive cutting)
+                    for (let i = 0; i < a.length; i++) {
+                        const dA = Number(a[i]), dB = Number(b[i]);
+                        if (dA !== dB) return dA - dB;
+                    }
+                    return 0;
+                });
+            }
         }
 
         setMatchingCodes(results);
@@ -882,6 +995,11 @@ export default function BittingCalculator({
                                 ? `${(combinationStats.totalCombinations / 1000).toFixed(1)}k`
                                 : combinationStats.totalCombinations}
                         </div>
+                        {codeSeriesRange && (
+                            <div className="text-[8px] text-zinc-600" title={`Only ${codeSeriesRange.total.toLocaleString()} of ${Math.pow(maxDepth, spaces).toLocaleString()} theoretical combos are valid codes`}>
+                                of {Math.pow(maxDepth, spaces).toLocaleString()} theoretical
+                            </div>
+                        )}
                     </div>
                     {keyway && (
                         <div className="text-center">
@@ -890,8 +1008,8 @@ export default function BittingCalculator({
                                 <div className="flex items-center justify-center gap-1 flex-wrap">
                                     {keywaySegments.map((seg, i) => (
                                         <span key={seg} className={`font-mono font-bold text-sm ${seg === matchedKeyway
-                                                ? 'text-green-400'
-                                                : 'text-zinc-500'
+                                            ? 'text-green-400'
+                                            : 'text-zinc-500'
                                             }`}>
                                             {seg === matchedKeyway && '✓'}{seg}{i < keywaySegments.length - 1 ? ' /' : ''}
                                         </span>
@@ -980,6 +1098,46 @@ export default function BittingCalculator({
                         <p className="text-[11px] text-zinc-500 leading-relaxed">
                             {rules.hint}
                         </p>
+
+                        {/* Decode Workflow Guide */}
+                        {rules.decodeWorkflow && (
+                            <div className="p-2.5 bg-indigo-900/20 rounded-lg border border-indigo-700/40">
+                                <div className="flex items-start gap-2">
+                                    <span className="text-xs">🔓</span>
+                                    <p className="text-[11px] text-indigo-300 leading-relaxed">
+                                        <span className="font-semibold text-indigo-200">Decode Strategy: </span>
+                                        {rules.decodeWorkflow.replace(/^🔓\s*/, '')}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Linked Position Suggestions */}
+                        {Object.keys(linkedPositionSuggestions).length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                                {Object.entries(linkedPositionSuggestions).map(([pos, { suggestedDepth, sourcePos }]) => (
+                                    <button
+                                        key={`linked-${pos}`}
+                                        onClick={() => handlePositionChange(Number(pos) - 1, suggestedDepth)}
+                                        className="text-[10px] px-2 py-0.5 bg-cyan-900/40 border border-cyan-600/50 text-cyan-300 rounded-full hover:bg-cyan-800/60 transition-all cursor-pointer"
+                                        title={`Golden Rule: P${pos} should match P${sourcePos}. Click to apply.`}
+                                    >
+                                        🔗 P{pos}→{suggestedDepth} (≈P{sourcePos})
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Avoid-Depth Warnings */}
+                        {avoidDepthWarnings.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                                {avoidDepthWarnings.map(({ pos, depth, avoided }) => (
+                                    <span key={`avoid-${pos}`} className="text-[10px] px-2 py-0.5 bg-yellow-900/40 border border-yellow-600/50 text-yellow-300 rounded-full">
+                                        ⚠️ P{pos}={depth} (depth {avoided.join(',')} rare here)
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -1093,8 +1251,14 @@ export default function BittingCalculator({
                                                                 ? 'text-amber-500'
                                                                 : 'text-zinc-500'
                                             }`}>
-                                            {isFixed ? '🔒' : posNum}
+                                            {isFixed ? '🔒' : linkedPositionSuggestions[posNum] ? '🔗' : posNum}
                                         </span>
+                                        {/* Position hint for unknown positions */}
+                                        {isUnknown && !isInactive && rules?.positionHints?.[posNum] && (
+                                            <span className="text-[8px] text-indigo-400/70 mt-0.5" title={rules.positionHints[posNum].reason}>
+                                                ≈{rules.positionHints[posNum].likely.join(',')}
+                                            </span>
+                                        )}
                                     </div>
                                 );
                             })}
