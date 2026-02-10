@@ -366,21 +366,21 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                                             <button
                                                 key={model}
                                                 onClick={() => handleModelSelect(model)}
-                                                className="aspect-square flex flex-col items-center justify-center gap-0.5 p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                                className="aspect-square flex flex-col items-center justify-end p-1 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all overflow-hidden relative"
                                             >
                                                 {!hasError ? (
                                                     <img
                                                         src={imageSrc}
                                                         alt={model}
-                                                        className="w-10 h-8 object-contain flex-shrink-0"
+                                                        className="absolute inset-0 w-full h-full object-contain p-1 pt-0.5 pb-4"
                                                         onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
                                                     />
                                                 ) : (
-                                                    <div className="w-10 h-8 rounded bg-gray-700/50 flex items-center justify-center">
-                                                        <span className="text-lg">🚗</span>
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <span className="text-3xl">🚗</span>
                                                     </div>
                                                 )}
-                                                <span className="text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-2">
+                                                <span className="relative z-10 text-[10px] text-gray-200 font-medium text-center leading-tight line-clamp-1 w-full">
                                                     {model}
                                                 </span>
                                             </button>

@@ -28,6 +28,16 @@ interface KeyVariant {
     hasRemoteStart?: boolean;
 }
 
+interface PushStartInfo {
+    push_start_trims: string | null;
+    non_push_start_trims: string | null;
+    smart_key_fccs: string | null;
+    rke_fccs: string | null;
+    base_is_push_start: boolean;
+    all_trims_push_start_from: number | string | null;
+    notes: string | null;
+}
+
 interface KeyConfig {
     name: string;
     familyBadge?: string;
@@ -46,6 +56,12 @@ interface KeyConfig {
     blade?: string;
     profile?: string;
     variants?: KeyVariant[];
+    pushStartContext?: {
+        isPushStart: boolean | null;  // true = push-start key, false = non-prox, null = unknown
+        trims: string | null;        // Which trims this applies to
+        note: string | null;         // Curated explanation (artifact, accessory, etc.)
+        allPush: boolean;            // Vehicle is all push-start
+    };
 }
 
 interface Pearl {
@@ -59,6 +75,7 @@ interface KeyCardsProps {
     keys: KeyConfig[];
     vehicleInfo?: { make: string; model: string; year: number };
     bladeKeys?: BladeKeysData | null;
+    pushStartInfo?: PushStartInfo | null;
     bitting?: {
         spaces: string | null;
         depths: string | null;
@@ -163,8 +180,55 @@ function KeyConfigPearlTags({ pearls }: { pearls: KeyCardsProps['pearls'] }) {
     );
 }
 
-export default function KeyCards({ keys, vehicleInfo, pearls, bladeKeys, bitting }: KeyCardsProps) {
+// Normalize FCC for comparison (strip whitespace, lowercase)
+function normFcc(fcc: string): string {
+    return fcc.trim().replace(/[\s-]/g, '').toLowerCase();
+}
+
+// Match a key's FCCs against a comma-separated FCC list
+function fccMatchesAny(keyFcc: string | undefined, fccList: string | null): boolean {
+    if (!keyFcc || !fccList) return false;
+    const keyFccs = keyFcc.split(/[,\s]+/).filter(Boolean).map(normFcc);
+    const listFccs = fccList.split(/[,\s]+/).filter(Boolean).map(normFcc);
+    return keyFccs.some(kf => listFccs.some(lf => kf === lf || kf.includes(lf) || lf.includes(kf)));
+}
+
+export default function KeyCards({ keys, vehicleInfo, pearls, bladeKeys, bitting, pushStartInfo }: KeyCardsProps) {
     const hasBladeCard = bladeKeys && bladeKeys.entries && bladeKeys.entries.length > 0;
+
+    // Enrich keys with push-start context by matching FCCs
+    const enrichedKeys = pushStartInfo ? keys.map(key => {
+        const isSmartMatch = fccMatchesAny(key.fcc, pushStartInfo.smart_key_fccs);
+        const isRkeMatch = fccMatchesAny(key.fcc, pushStartInfo.rke_fccs);
+        const allPush = pushStartInfo.push_start_trims === 'All' ||
+            (pushStartInfo.non_push_start_trims === 'None' && !!pushStartInfo.push_start_trims);
+
+        // Also check by key type: 'prox' → push-start, 'remote'/'flip'/'transponder' → non-prox
+        const typeHint = key.type === 'prox' ? 'smart' : (key.type === 'remote' || key.type === 'flip') ? 'rke' : null;
+
+        let isPushStart: boolean | null = null;
+        let trims: string | null = null;
+        let note: string | null = null;
+
+        if (isSmartMatch || (typeHint === 'smart' && !isRkeMatch)) {
+            isPushStart = true;
+            trims = pushStartInfo.push_start_trims;
+        } else if (isRkeMatch || (typeHint === 'rke' && !isSmartMatch)) {
+            isPushStart = false;
+            trims = pushStartInfo.non_push_start_trims;
+            note = allPush ? pushStartInfo.notes : null;  // Only show artifact note on all-push vehicles
+        }
+
+        return {
+            ...key,
+            pushStartContext: {
+                isPushStart,
+                trims,
+                note,
+                allPush,
+            }
+        };
+    }) : keys;
 
     if ((!keys || keys.length === 0) && !hasBladeCard) {
         return (
@@ -205,7 +269,7 @@ export default function KeyCards({ keys, vehicleInfo, pearls, bladeKeys, bitting
                         className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-zinc-800"
                         style={{ scrollbarWidth: 'thin' }}
                     >
-                        {keys.map((key, index) => (
+                        {enrichedKeys.map((key, index) => (
                             <div
                                 key={`key-scroll-${index}-${key.name}`}
                                 className="flex-shrink-0 snap-start"
@@ -230,12 +294,12 @@ export default function KeyCards({ keys, vehicleInfo, pearls, bladeKeys, bitting
                 /* Responsive grid layout for 2-4 keys */
                 <div
                     className={`grid gap-4 min-h-[320px] ${keyCount === 1 ? 'grid-cols-1'
-                            : keyCount === 2 ? 'grid-cols-1 sm:grid-cols-2'
-                                : keyCount === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+                        : keyCount === 2 ? 'grid-cols-1 sm:grid-cols-2'
+                            : keyCount === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
                         }`}
                 >
-                    {keys.map((key, index) => (
+                    {enrichedKeys.map((key, index) => (
                         <KeyCard key={`key-grid-${index}-${key.name}`} config={key} vehicleInfo={vehicleInfo} />
                     ))}
                     {hasBladeCard && (
@@ -348,6 +412,25 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border whitespace-nowrap ${typeColors[typeLabel] || typeColors.prox}`}>
                         {config.familyBadge || typeLabel.toUpperCase()}
                     </span>
+                    {/* Push-Start Context Badge */}
+                    {config.pushStartContext?.isPushStart === true && (
+                        <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase border whitespace-nowrap bg-emerald-900/40 text-emerald-300 border-emerald-700/30"
+                            title={config.pushStartContext.trims === 'All' ? 'Push-button start standard on all trims' : `Push-start trims: ${config.pushStartContext.trims}`}
+                        >
+                            ✓ PUSH-START
+                        </span>
+                    )}
+                    {config.pushStartContext?.isPushStart === false && (
+                        <span
+                            className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase border whitespace-nowrap ${config.pushStartContext.allPush
+                                ? 'bg-amber-900/40 text-amber-300 border-amber-700/30'  // Artifact on all-push vehicle
+                                : 'bg-red-900/40 text-red-300 border-red-700/30'        // Genuine non-push key
+                                }`}
+                            title={config.pushStartContext.note || (config.pushStartContext.trims ? `Non-push trims: ${config.pushStartContext.trims}` : 'Standard key / non-push-start')}
+                        >
+                            {config.pushStartContext.allPush ? '⚠ DATA ARTIFACT' : '🔑 KEY START'}
+                        </span>
+                    )}
                     {/* Owned Badge - shows stock count or Add button */}
                     <OwnedBadge
                         fcc={effective.fcc}
@@ -387,6 +470,26 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     <span className="text-4xl opacity-30">🔑</span>
                 )}
             </div>
+
+            {/* Push-Start Context Note (visible inline, not just tooltip) */}
+            {config.pushStartContext?.isPushStart === false && config.pushStartContext.note && (
+                <div className="mb-3 px-2.5 py-2 rounded-lg bg-amber-900/20 border border-amber-800/30">
+                    <p className="text-[10px] text-amber-300/80 leading-tight line-clamp-3">
+                        <span className="font-bold">⚠ Not a primary vehicle key.</span>{' '}
+                        {config.pushStartContext.note.length > 120
+                            ? config.pushStartContext.note.substring(0, 120) + '…'
+                            : config.pushStartContext.note}
+                    </p>
+                </div>
+            )}
+            {config.pushStartContext?.isPushStart === false && !config.pushStartContext.allPush && config.pushStartContext.trims && (
+                <div className="mb-3 px-2.5 py-1.5 rounded-lg bg-red-900/20 border border-red-800/30">
+                    <p className="text-[10px] text-red-300/80 leading-tight">
+                        <span className="font-bold">🔑 Key-start trims:</span>{' '}
+                        {config.pushStartContext.trims}
+                    </p>
+                </div>
+            )}
 
             {/* Prominent FCC ID — expandable to show per-FCC details */}
             {effective.fcc && (() => {

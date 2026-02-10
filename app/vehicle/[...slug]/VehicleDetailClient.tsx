@@ -788,6 +788,7 @@ export default function VehicleDetailClient() {
     const keysFromAks = transformAksKeyConfigs(data.detail?.aks_key_configs || []);
     const aksTools = data.detail?.aks_tools || [];
     const aksBladeKeys = data.detail?.aks_blade_keys || null;
+    const pushStartInfo = data.detail?.push_start || null;
     const keysFromProducts = transformProducts(data.products?.products || [], model);
     const keysFromPBT = transformProductsByType(productsByType);
     const keysFromVYP = classifyVypProducts(vyp, specs);
@@ -1237,6 +1238,7 @@ export default function VehicleDetailClient() {
                             keys={mergedKeys}
                             vehicleInfo={{ make, model, year }}
                             bladeKeys={aksBladeKeys}
+                            pushStartInfo={pushStartInfo}
                             bitting={{
                                 spaces: fullSpecs.spaces || null,
                                 depths: fullSpecs.depths || null,
