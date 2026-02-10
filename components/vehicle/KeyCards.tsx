@@ -506,8 +506,9 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                                 <button
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowFccDetails(!showFccDetails); }}
                                     className="text-yellow-400/60 text-sm ml-1 hover:text-yellow-300 transition-colors"
+                                    title={`${fccIds.length} FCC IDs for this key type`}
                                 >
-                                    +{fccIds.length - 1} {showFccDetails ? '▼' : '▶'}
+                                    {fccIds.length} FCCs {showFccDetails ? '▼' : '▶'}
                                 </button>
                             )}
                         </div>
@@ -554,12 +555,43 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     const chipLower = effective.chip.toLowerCase();
                     const isVATS = chipLower.includes('vats') || chipLower.includes('resistor') ||
                         chipLower.includes('resister') || chipLower.includes('ohms');
+
+                    // Normalize chip names to standard IDs
+                    const normalizeChip = (raw: string): { id: string; detail: string } | null => {
+                        const l = raw.toLowerCase();
+                        if (l.includes('hitag aes') || (l.includes('nxp') && l.includes('aes')))
+                            return { id: 'Hitag AES (4A)', detail: raw };
+                        if (l.includes('pcf7939') || l.includes('id49'))
+                            return { id: 'ID49', detail: raw };
+                        if (l.includes('philips 46') || l.includes('id46') || l.includes('pcf7941') || l.includes('pcf7936'))
+                            return { id: 'ID46', detail: raw };
+                        if (l.includes('texas 4d') || l.includes('id4d') || l.includes('4d63') || l.includes('4d60'))
+                            return { id: 'ID4D', detail: raw };
+                        if (l.includes('hitag 3') || l.includes('hitag3') || l.includes('id47') || l.includes('pcf7953'))
+                            return { id: 'ID47', detail: raw };
+                        if (l.includes('hitag 2') || l.includes('hitag2') || l.includes('pcf7945') || l.includes('pcf7946'))
+                            return { id: 'ID46 (Hitag2)', detail: raw };
+                        if (l.includes('megamos 48') || l.includes('id48') || l.includes('megamos crypto'))
+                            return { id: 'ID48', detail: raw };
+                        if (l.includes('texas aes') || l.includes('dsp+') || l.includes('id8a'))
+                            return { id: 'ID8A', detail: raw };
+                        return null;
+                    };
+                    const normalized = !isVATS ? normalizeChip(effective.chip) : null;
+
                     return (
-                        <div className="text-xs truncate">
+                        <div className="text-xs">
                             <span className="text-zinc-500">Chip: </span>
-                            <span className={isVATS ? 'text-amber-400' : 'text-white'}>
-                                {isVATS ? 'VATS (Resistor)' : effective.chip}
-                            </span>
+                            {isVATS ? (
+                                <span className="text-amber-400">VATS (Resistor)</span>
+                            ) : normalized ? (
+                                <span className="text-white">
+                                    <span className="font-bold">{normalized.id}</span>
+                                    <span className="text-zinc-500 text-[10px] ml-1">({normalized.detail})</span>
+                                </span>
+                            ) : (
+                                <span className="text-white">{effective.chip}</span>
+                            )}
                         </div>
                     );
                 })()}

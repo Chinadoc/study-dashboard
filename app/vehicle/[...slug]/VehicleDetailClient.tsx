@@ -848,19 +848,20 @@ export default function VehicleDetailClient() {
             buttons: k.buttons || null
         }));
 
-    // Build allFccs array with key type context for +1 display
+    // Build allFccs array with key type context for FCC popup display
     const allFccsRaw = keysFromAks
         .filter((k: any) => k.fcc)
         .flatMap((k: any) =>
-            String(k.fcc).split(/[,\s]+/).filter(Boolean).map((fcc: string) => ({
+            String(k.fcc).split(/[\s,]+/).filter(Boolean).map((fcc: string) => ({
                 fcc: fcc.trim().replace(/O(\d)/g, '0$1'), // Normalize O→0 typos
                 keyType: k.name || 'Key',
-                buttons: k.buttons || null
+                buttons: k.buttons || null,
+                frequency: k.frequency || null
             }))
         );
 
     // Deduplicate FCCs - keep only unique FCC values
-    const fccMap = new Map<string, { fcc: string; keyType: string; buttons: string | null }>();
+    const fccMap = new Map<string, { fcc: string; keyType: string; buttons: string | null; frequency: string | null }>();
     for (const entry of allFccsRaw) {
         if (!fccMap.has(entry.fcc)) {
             fccMap.set(entry.fcc, entry);
@@ -878,7 +879,8 @@ export default function VehicleDetailClient() {
             finalAllFccs = fccIds.map((fcc: string) => ({
                 fcc: fcc.trim(),
                 keyType: 'Key',
-                buttons: null
+                buttons: null,
+                frequency: specs.frequency || null
             }));
         }
     }

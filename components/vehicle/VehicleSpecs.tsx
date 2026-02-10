@@ -8,6 +8,58 @@ interface FccEntry {
     fcc: string;
     keyType: string;
     buttons: string | null;
+    frequency: string | null;
+}
+
+// Map FCC prefixes to known manufacturers for disambiguation
+function getFccManufacturer(fcc: string): string | null {
+    const prefix = fcc.split('-')[0]?.toUpperCase();
+    const mfgMap: Record<string, string> = {
+        'M3N': 'Continental',
+        'M3M': 'Mopar',
+        'GQ4': 'Hyundai/Kia',
+        'HYQ': 'Toyota/Hella',
+        'KR5': 'Continental',
+        'CWTWB': 'Continental',
+        'OHT': 'UJA',
+        'OUCG8D': 'Mitsubishi',
+        'KR55WK': 'Continental',
+        'NBGIDGNG1': 'Continental',
+    };
+    // Check exact prefix first, then partial matches
+    if (mfgMap[prefix]) return mfgMap[prefix];
+    for (const [key, val] of Object.entries(mfgMap)) {
+        if (fcc.toUpperCase().startsWith(key)) return val;
+    }
+    return null;
+}
+
+// Normalize raw chip names to standard chip IDs
+function normalizeChipDisplay(raw: string): { chipId: string; detail: string } | null {
+    const lower = raw.toLowerCase();
+    if (lower.includes('hitag aes') || (lower.includes('nxp') && lower.includes('aes') && lower.includes('128')))
+        return { chipId: 'Hitag AES (4A)', detail: raw };
+    if (lower.includes('pcf7939') || lower.includes('id49'))
+        return { chipId: 'ID49', detail: raw };
+    if (lower.includes('philips 46') || lower.includes('id46') || lower.includes('pcf7941') || lower.includes('pcf7936'))
+        return { chipId: 'ID46', detail: raw };
+    if (lower.includes('texas 4d') || lower.includes('id4d') || lower.includes('4d63') || lower.includes('4d60'))
+        return { chipId: 'ID4D', detail: raw };
+    if (lower.includes('texas 4c') || lower.includes('id4c'))
+        return { chipId: 'ID4C', detail: raw };
+    if (lower.includes('hitag 3') || lower.includes('hitag3') || lower.includes('id47') || lower.includes('pcf7953'))
+        return { chipId: 'ID47', detail: raw };
+    if (lower.includes('hitag 2') || lower.includes('hitag2') || lower.includes('pcf7945') || lower.includes('pcf7946'))
+        return { chipId: 'ID46 (Hitag2)', detail: raw };
+    if (lower.includes('megamos 48') || lower.includes('id48') || lower.includes('megamos crypto'))
+        return { chipId: 'ID48', detail: raw };
+    if (lower.includes('texas aes') || lower.includes('dsp+') || lower.includes('id8a') || lower.includes('8a'))
+        return { chipId: 'ID8A', detail: raw };
+    if (lower.includes('id13') || lower.includes('t5'))
+        return { chipId: 'ID13 (T5)', detail: raw };
+    if (lower.includes('id11') || lower.includes('id12'))
+        return { chipId: 'ID11/12', detail: raw };
+    return null;
 }
 
 interface ChipEntry {
@@ -449,8 +501,10 @@ function FccIdWithPopup({
             >
                 📡 {displayFcc}
                 {hasMultiple && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${showPopup ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'}`}>
-                        {showPopup ? '×' : `+${additionalCount}`}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${showPopup ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'}`}
+                        title={`${allFccCount} FCC IDs for this vehicle`}
+                    >
+                        {showPopup ? '×' : `${allFccCount} FCCs`}
                     </span>
                 )}
             </button>
@@ -520,12 +574,28 @@ function FccIdWithPopup({
                                         {category}
                                     </div>
                                     <div className="space-y-1">
-                                        {fccs.map((entry, idx) => (
-                                            <div key={`${entry.fcc}-${idx}`} className="bg-zinc-800/60 p-2 rounded-lg">
-                                                <div className="font-mono text-white text-sm">{entry.fcc}</div>
-                                                <div className="text-[10px] text-zinc-400">{entry.keyType}</div>
-                                            </div>
-                                        ))}
+                                        {fccs.map((entry, idx) => {
+                                            const mfg = getFccManufacturer(entry.fcc);
+                                            return (
+                                                <div key={`${entry.fcc}-${idx}`} className="bg-zinc-800/60 p-2 rounded-lg">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="font-mono text-white text-sm">{entry.fcc}</span>
+                                                        <div className="flex items-center gap-1.5">
+                                                            {entry.buttons && (
+                                                                <span className="text-[10px] px-1.5 py-0.5 bg-zinc-700 rounded text-zinc-300">{entry.buttons}-Btn</span>
+                                                            )}
+                                                            {entry.frequency && (
+                                                                <span className="text-[10px] px-1.5 py-0.5 bg-emerald-900/40 rounded text-emerald-400">{entry.frequency}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <span className="text-[10px] text-zinc-400">{entry.keyType}</span>
+                                                        {mfg && <span className="text-[9px] text-zinc-500 italic">({mfg})</span>}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ))}
@@ -647,6 +717,8 @@ function ChipTypeWithPopup({
         return acc;
     }, {} as Record<string, ChipEntry[]>);
 
+    const normalizedChip = normalizeChipDisplay(primaryChip);
+
     return (
         <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
@@ -658,10 +730,21 @@ function ChipTypeWithPopup({
                 onClick={() => hasMultiple && setShowPopup(!showPopup)}
                 className={`font-semibold text-white flex items-center gap-2 text-left ${hasMultiple ? 'cursor-pointer hover:text-purple-400 transition-colors' : 'cursor-default'}`}
             >
-                <GlossaryChipType chipType={primaryChip} make={make} year={year} />
+                <div className="flex flex-col">
+                    {normalizedChip ? (
+                        <>
+                            <span className="text-white font-bold">🔐 {normalizedChip.chipId}</span>
+                            <span className="text-[10px] text-zinc-500 font-normal">{normalizedChip.detail}</span>
+                        </>
+                    ) : (
+                        <GlossaryChipType chipType={primaryChip} make={make} year={year} />
+                    )}
+                </div>
                 {hasMultiple && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${showPopup ? 'bg-purple-500 text-white' : 'bg-purple-600 text-white'}`}>
-                        {showPopup ? '×' : `+${additionalCount}`}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${showPopup ? 'bg-purple-500 text-white' : 'bg-purple-600 text-white'}`}
+                        title={`${uniqueChips.length} chip types for this vehicle`}
+                    >
+                        {showPopup ? '×' : `${uniqueChips.length} chips`}
                     </span>
                 )}
             </button>
