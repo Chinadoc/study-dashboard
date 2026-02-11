@@ -13,7 +13,7 @@ import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import VideoEmbed from '@/components/vehicle/VideoEmbed';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
-import KeyConfigCards from '@/components/vehicle/KeyConfigCards';
+// KeyConfigCards removed — KeyCards is the single key configuration display
 
 import FloatingCommentTab from '@/components/FloatingCommentTab';
 import CommunityHighlight from '@/components/CommunityHighlight';
@@ -1237,14 +1237,8 @@ export default function VehicleDetailClient() {
                         />
                     </div>
 
-                    {/* VI Key Configurations with per-type tool coverage */}
-                    {intelligence?.key_configs && (
-                        <KeyConfigCards
-                            configs={intelligence.key_configs}
-                            pushStartTrims={intelligence.vi_push_start?.push_start_trims || pushStartInfo?.trims}
-                            nonPushStartTrims={intelligence.vi_push_start?.non_push_start_trims || pushStartInfo?.non_push_trims}
-                        />
-                    )}
+                    {/* KeyConfigCards removed — KeyCards below is the single key configuration display.
+                       Tool coverage lives in the ToolCoverageSidebar (right column) only. */}
 
                     {/* Related YouTube Video */}
                     <VideoEmbed make={make} model={model} year={year} />
