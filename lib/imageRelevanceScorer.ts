@@ -26,6 +26,13 @@ export interface ImageClassification {
     // Extended fields from visual audit
     years?: string;
     card_section?: string;
+    // D1 API top-level fields
+    make?: string;
+    model?: string;
+    image_type?: string;
+    year_start?: number;
+    year_end?: number;
+    section?: string;
 }
 
 export interface VehicleContext {
@@ -164,12 +171,13 @@ export function scoreImageRelevance(
     let score = 0;
     const reasons: string[] = [];
 
-    const dossierLower = (image.dossier || '').toLowerCase();
+    // Handle both D1 API format (top-level) and classification format (nested)
+    const dossierLower = (image.dossier || image.r2_key || '').toLowerCase();
     const descriptionLower = (image.description || image.classification?.description || '').toLowerCase();
     const modelLower = vehicle.model.toLowerCase();
     const makeLower = vehicle.make.toLowerCase();
 
-    // 1. Direct model match in dossier name (+50)
+    // 1. Direct model match in dossier/r2_key name (+50)
     if (dossierLower.includes(modelLower.replace(/\s+/g, '_')) ||
         dossierLower.includes(modelLower.replace(/\s+/g, '-')) ||
         dossierLower.includes(modelLower)) {
@@ -177,8 +185,8 @@ export function scoreImageRelevance(
         reasons.push(`${vehicle.model} specific`);
     }
 
-    // 2. Model match in classification (+40)
-    const classModel = (image.classification?.model || '').toLowerCase();
+    // 2. Model match in classification or top-level model (+40)
+    const classModel = (image.classification?.model || image.model || '').toLowerCase();
     if (classModel.includes(modelLower)) {
         score += 40;
         if (!reasons.includes(`${vehicle.model} specific`)) {
@@ -186,7 +194,15 @@ export function scoreImageRelevance(
         }
     }
 
-    // 3. Platform/Architecture match (+30)
+    // 3. Model mention in description (+30)
+    if (descriptionLower.includes(modelLower)) {
+        score += 30;
+        if (!reasons.some(r => r.includes(vehicle.model))) {
+            reasons.push(`Describes ${vehicle.model}`);
+        }
+    }
+
+    // 4. Platform/Architecture match (+30)
     const vehiclePlatforms = getPlatformForModel(vehicle.model);
     const combinedText = `${dossierLower} ${descriptionLower}`;
 
@@ -207,10 +223,16 @@ export function scoreImageRelevance(
         }
     }
 
-    // 4. Year overlap scoring
-    const imageYearStr = image.years || image.classification?.year ||
-        (image.suggested_years?.length ? image.suggested_years[0] : undefined);
-    const imageYearRange = parseYearRange(imageYearStr);
+    // 5. Year overlap scoring — support both D1 format (year_start/year_end) and string format
+    let imageYearRange: { start: number; end: number } | null = null;
+    if (image.year_start && image.year_end) {
+        // D1 API format: numeric year_start and year_end
+        imageYearRange = { start: image.year_start, end: image.year_end };
+    } else {
+        const imageYearStr = image.years || image.classification?.year ||
+            (image.suggested_years?.length ? image.suggested_years[0] : undefined);
+        imageYearRange = parseYearRange(imageYearStr);
+    }
 
     if (imageYearRange) {
         // Direct year match (+20)
@@ -229,15 +251,17 @@ export function scoreImageRelevance(
         }
     }
 
-    // 5. Same make (+10)
-    const imageMake = (image.classification?.make || '').toLowerCase();
+    // 6. Same make — check both classification and top-level (+10)
+    const imageMake = (image.classification?.make || image.make || '').toLowerCase();
     if (imageMake.includes(makeLower) || dossierLower.includes(makeLower)) {
         score += 10;
     }
 
-    // 6. Platform comparison/evolution images (+15 bonus)
+    // 7. Platform comparison/evolution images (+15 bonus)
     const functionalTags = image.classification?.functional_tags || [];
-    const hasComparisonTag = functionalTags.some(tag =>
+    const imageTags = image.tags || [];
+    const allTags = [...functionalTags, ...imageTags];
+    const hasComparisonTag = allTags.some(tag =>
         ['platform_comparison', 'platform_timeline', 'security_evolution', 'platform_genealogy'].includes(tag)
     );
     if (hasComparisonTag) {
@@ -245,9 +269,9 @@ export function scoreImageRelevance(
         reasons.push('Platform comparison');
     }
 
-    // 7. Security architecture images relevant to same-era vehicles (+10)
-    const cardSection = image.card_section || image.classification?.card_section;
-    if (cardSection === 'security_architecture' && score >= 10) {
+    // 8. Security architecture images relevant to same-era vehicles (+10)
+    const cardSection = image.card_section || image.classification?.card_section || image.section;
+    if ((cardSection === 'security_architecture' || image.image_type === 'platform-matrix') && score >= 10) {
         score += 10;
     }
 

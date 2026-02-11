@@ -984,11 +984,15 @@ export default function VehicleDetailClient() {
             p.target_section === 'mechanical' ||
             getTags(p).some((t: string) => ['lishi', 'hu100', '10-cut', '8-cut', 'cutting'].includes(t))
         ),
-        // CAN-FD/tool requirement pearls → VehicleSpecs CAN FD section
-        canFd: pearlsList.filter((p: any) =>
-            p.target_section === 'tool_requirement' ||
-            getTags(p).some((t: string) => ['can-fd', 'adapter'].includes(t))
-        ),
+        // CAN-FD/adapter pearls → VehicleSpecs CAN FD section
+        // Note: only route tool_requirement pearls that actually mention CAN-FD or adapters
+        canFd: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            const content = (p.content || p.pearl_content || '').toLowerCase();
+            if (tags.some((t: string) => ['can-fd', 'canfd', 'adapter', 'can-fd-adapter'].includes(t))) return true;
+            if (p.target_section === 'tool_requirement' && (content.includes('can fd') || content.includes('can-fd') || content.includes('canfd'))) return true;
+            return false;
+        }),
         // Chip/security pearls → VehicleSpecs chip section
         chip: pearlsList.filter((p: any) =>
             p.target_section === 'chip_security' ||
