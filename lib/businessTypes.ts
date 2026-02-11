@@ -448,6 +448,18 @@ export const AVAILABLE_TOOLS: ToolInfo[] = [
         subscriptionNote: 'Annual renewal ~$1,295 for software updates',
     },
     {
+        id: 'autel_km100',
+        name: 'Autel KM100',
+        shortName: 'KM100',
+        icon: '🔴',
+        badge: 'Key Maker',
+        badgeColor: '#ef4444',
+        description: 'Standalone key generation + IMMO. Ford AKL capable. Blade cutting + transponder cloning.',
+        subscriptionId: 'autel_subscription',
+        hasSubscription: true,
+        subscriptionNote: 'Annual renewal for vehicle coverage updates',
+    },
+    {
         id: 'autel_km100_not_updated',
         name: 'Autel KM100 (Not Updated)',
         shortName: 'KM100 (No Update)',
@@ -652,6 +664,7 @@ export const TOOL_OEM_RECOMMENDATIONS: Record<string, string[]> = {
     'autel_im608': ['gm_tis2web', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
     'autel_im608_pro': ['gm_tis2web', 'gm_techline_connect', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
     'autel_im608_pro2': ['gm_tis2web', 'gm_techline_connect', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
+    'autel_km100': ['gm_tis2web', 'ford_fdrs', 'toyota_tis', 'autoauth_subscription'],
     'autel_km100_not_updated': ['gm_tis2web', 'toyota_tis', 'autoauth_subscription'],
     // Lonsdor
     'lonsdor_k518s': ['toyota_tis', 'autoauth_subscription'],
