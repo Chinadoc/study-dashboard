@@ -18,6 +18,7 @@ interface KeyVariant {
     label: string;
     buttons: string;
     fcc?: string;
+    fccDetails?: FccDetail[];
     chip?: string;
     battery?: string;
     frequency?: string;
@@ -325,6 +326,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
         ...config,
         buttons: variant.buttons,
         fcc: variant.fcc,
+        fccDetails: variant.fccDetails || config.fccDetails,
         chip: variant.chip,
         battery: variant.battery,
         frequency: variant.frequency,
@@ -496,7 +498,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                 const fccIds = [...new Set(effective.fcc.split(/[\s,]+/).filter(Boolean).filter(
                     t => /^[A-Z0-9]+-?[A-Z0-9]+$/i.test(t) && t.length >= 5
                 ))];
-                const hasDetails = config.fccDetails && config.fccDetails.length > 1;
+                const hasDetails = effective.fccDetails && effective.fccDetails.length > 0;
                 return (
                     <div className="mb-3">
                         <div className="text-center py-2 bg-zinc-800/70 rounded-lg">
@@ -517,7 +519,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                             <div className="mt-1 space-y-1">
                                 {hasDetails ? (
                                     // Rich FCC details with OEM parts
-                                    config.fccDetails!.map((detail, i) => (
+                                    effective.fccDetails!.map((detail, i) => (
                                         <div key={i} className="px-2 py-1.5 bg-zinc-800/40 rounded border border-zinc-700/30 text-[10px]">
                                             <div className="flex items-center justify-between">
                                                 <span className="font-mono text-yellow-400 font-bold">{detail.fcc}</span>

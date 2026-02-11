@@ -222,6 +222,7 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
     const familyGroups: Record<string, Record<string, {
         buttons: number;
         fccIds: Set<string>;
+        fccDetails: Array<{ fcc: string; oem: any[]; title: string; frequency: string | null }>;
         oemParts: Set<string>;
         chips: Set<string>;
         batteries: Set<string>;
@@ -299,6 +300,7 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
             familyGroups[family][btnKey] = {
                 buttons: buttonCount,
                 fccIds: new Set(),
+                fccDetails: [],
                 oemParts: new Set(),
                 chips: new Set(),
                 batteries: new Set(),
@@ -316,6 +318,16 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
         // Aggregate FCC IDs
         if (key.fcc) {
             String(key.fcc).split(/[,\s]+/).filter(Boolean).forEach(f => group.fccIds.add(f.trim()));
+        }
+
+        // Aggregate fccDetails (per-FCC product titles + OEM parts)
+        if (key.fccDetails && Array.isArray(key.fccDetails)) {
+            for (const detail of key.fccDetails) {
+                // Avoid duplicates by FCC ID
+                if (!group.fccDetails.some(d => d.fcc === detail.fcc)) {
+                    group.fccDetails.push(detail);
+                }
+            }
         }
 
         // Aggregate OEM parts
@@ -394,6 +406,7 @@ function consolidateKeysByButtonCount(keys: any[], specs?: any): any[] {
                 label: `${g.buttons}-Btn`,
                 buttons: String(g.buttons),
                 fcc: Array.from(g.fccIds).slice(0, 3).join(', ') || undefined,
+                fccDetails: g.fccDetails.length > 0 ? g.fccDetails : undefined,
                 chip: Array.from(g.chips).slice(0, 2).join(', ') || undefined,
                 battery: Array.from(g.batteries)[0] || undefined,
                 frequency: Array.from(g.frequencies)[0] || undefined,
