@@ -11483,6 +11483,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           const object = await env.ASSETS_BUCKET.get(r2Key);
           if (!object) {
+            // Fallback: if key is aks_products/{filename}, try AKS CDN
+            if (r2Key.startsWith('aks_products/')) {
+              const filename = r2Key.substring('aks_products/'.length);
+              const cdnUrl = `https://images.americankeysupply.com/resize/446/${filename}`;
+              return Response.redirect(cdnUrl, 302);
+            }
+            // Also try without prefix — some old references use bare filenames
+            if (/^\d+_/.test(r2Key) && r2Key.endsWith('.jpg')) {
+              const cdnUrl = `https://images.americankeysupply.com/resize/446/${r2Key}`;
+              return Response.redirect(cdnUrl, 302);
+            }
             return corsResponse(request, JSON.stringify({ error: "Image not found", key: r2Key }), 404);
           }
 
