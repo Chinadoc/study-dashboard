@@ -513,29 +513,39 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                             )}
                         </div>
                         {/* Expanded FCC details */}
-                        {showFccDetails && hasDetails && (
+                        {showFccDetails && (
                             <div className="mt-1 space-y-1">
-                                {config.fccDetails!.map((detail, i) => (
-                                    <div key={i} className="px-2 py-1.5 bg-zinc-800/40 rounded border border-zinc-700/30 text-[10px]">
-                                        <div className="flex items-center justify-between">
-                                            <span className="font-mono text-yellow-400 font-bold">{detail.fcc}</span>
-                                            {detail.frequency && (
-                                                <span className="text-emerald-400 font-medium">{detail.frequency}</span>
+                                {hasDetails ? (
+                                    // Rich FCC details with OEM parts
+                                    config.fccDetails!.map((detail, i) => (
+                                        <div key={i} className="px-2 py-1.5 bg-zinc-800/40 rounded border border-zinc-700/30 text-[10px]">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-mono text-yellow-400 font-bold">{detail.fcc}</span>
+                                                {detail.frequency && (
+                                                    <span className="text-emerald-400 font-medium">{detail.frequency}</span>
+                                                )}
+                                            </div>
+                                            {detail.title && (
+                                                <div className="text-zinc-500 truncate mt-0.5">{detail.title}</div>
+                                            )}
+                                            {detail.oem.length > 0 && (
+                                                <div className="flex flex-wrap gap-0.5 mt-1">
+                                                    {detail.oem.slice(0, 3).map((oem, j) => (
+                                                        <span key={j} className="px-1 py-0.5 bg-zinc-700/50 rounded text-zinc-400 font-mono" title={detail.title}>{typeof oem === 'string' ? oem : oem.number}</span>
+                                                    ))}
+                                                    {detail.oem.length > 3 && <span className="text-zinc-600 px-1">+{detail.oem.length - 3}</span>}
+                                                </div>
                                             )}
                                         </div>
-                                        {detail.title && (
-                                            <div className="text-zinc-500 truncate mt-0.5">{detail.title}</div>
-                                        )}
-                                        {detail.oem.length > 0 && (
-                                            <div className="flex flex-wrap gap-0.5 mt-1">
-                                                {detail.oem.slice(0, 3).map((oem, j) => (
-                                                    <span key={j} className="px-1 py-0.5 bg-zinc-700/50 rounded text-zinc-400 font-mono" title={detail.title}>{typeof oem === 'string' ? oem : oem.number}</span>
-                                                ))}
-                                                {detail.oem.length > 3 && <span className="text-zinc-600 px-1">+{detail.oem.length - 3}</span>}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
+                                    ))
+                                ) : (
+                                    // Fallback: show raw FCC IDs when fccDetails is not populated
+                                    fccIds.map((fcc, i) => (
+                                        <div key={i} className="px-2 py-1.5 bg-zinc-800/40 rounded border border-zinc-700/30 text-[10px]">
+                                            <span className="font-mono text-yellow-400 font-bold">{fcc}</span>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         )}
                     </div>
