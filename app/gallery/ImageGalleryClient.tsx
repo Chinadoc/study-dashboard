@@ -18,14 +18,33 @@ interface GalleryImage {
 }
 
 const MAKE_TAGS = [
-  'Acura', 'Alfa', 'Bmw', 'Cadillac', 'Dodge', 'Ford', 'Genesis', 'Gmc',
-  'Honda', 'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lexus', 'Mazda',
-  'Mercedes', 'Nissan', 'Ram', 'Rivian', 'Stellantis', 'Subaru', 'Tesla',
-  'Toyota', 'Volvo', 'Vw'
+  'Acura', 'Alfa Romeo', 'Audi', 'BMW', 'Cadillac', 'Chevrolet', 'Chrysler',
+  'Dodge', 'Ford', 'Genesis', 'GM', 'GMC', 'Honda', 'Hyundai', 'Infiniti',
+  'Jaguar', 'Jeep', 'Kia', 'Land Rover', 'Lexus', 'Lincoln', 'Mazda',
+  'Mercedes-Benz', 'Mitsubishi', 'Nissan', 'Porsche', 'Ram', 'Rivian',
+  'Stellantis', 'Subaru', 'Tesla', 'Toyota', 'VAG', 'Volkswagen', 'Volvo'
 ];
 
 const TOPIC_TAGS = [
-  'AKL', 'CHIP', 'ECU', 'PATS', 'Programming', 'SGW', 'Security', 'Smart Key'
+  'AKL', 'Key Programming', 'Smart Key', 'Transponder', 'Immobilizer',
+  'Security', 'Forensic', 'CAN-FD', 'SGW', 'Gateway', 'Bypass',
+  'FCC ID', 'VIN Decoding', 'Bitting', 'Lishi', 'Push Start',
+];
+
+const TOOL_TAGS = [
+  'Autel', 'Autel IM608', 'OBDSTAR', 'VVDI', 'Xhorse', 'Abrites',
+  'Lonsdor', 'Smart Pro', 'Yanhua ACDP', 'CGDI', 'XTOOL', 'J2534',
+];
+
+const CONTENT_TAGS = [
+  'Architecture Diagram', 'Flowchart', 'Diagram', 'Wiring Diagram',
+  'Pinout', 'Reference Table', 'Comparison Matrix', 'Troubleshooting',
+  'Procedure', 'Component Location', 'Cost Analysis',
+];
+
+const SYSTEM_TAGS = [
+  'BCM', 'BDC', 'CAS3', 'CAS4', 'FEM', 'FBS3', 'FBS4', 'FBS5',
+  'EIS', 'EZS', 'KVM', 'MQB', 'MLB', 'PATS', 'EEPROM', 'Global B',
 ];
 
 const YEAR_TAGS = [
@@ -585,7 +604,7 @@ export default function ImageGalleryClient() {
         <div className="tag-groups">
           <div className="tag-group">
             <span className="tag-group-label">Makes:</span>
-            {MAKE_TAGS.slice(0, 12).map((tag) => (
+            {MAKE_TAGS.slice(0, 18).map((tag) => (
               <button
                 key={tag}
                 className={`tag-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
@@ -598,6 +617,42 @@ export default function ImageGalleryClient() {
           <div className="tag-group">
             <span className="tag-group-label">Topics:</span>
             {TOPIC_TAGS.map((tag) => (
+              <button
+                key={tag}
+                className={`tag-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          <div className="tag-group">
+            <span className="tag-group-label">Tools:</span>
+            {TOOL_TAGS.map((tag) => (
+              <button
+                key={tag}
+                className={`tag-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          <div className="tag-group">
+            <span className="tag-group-label">Content:</span>
+            {CONTENT_TAGS.map((tag) => (
+              <button
+                key={tag}
+                className={`tag-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          <div className="tag-group">
+            <span className="tag-group-label">Systems:</span>
+            {SYSTEM_TAGS.map((tag) => (
               <button
                 key={tag}
                 className={`tag-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
