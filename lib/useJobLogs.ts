@@ -93,6 +93,7 @@ export interface JobLog {
 
     // Additional details
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
+    referralCustomer?: string;         // Name of referring customer (when referralSource = 'referral')
     toolId?: string;               // Owned tool ID used on this job
     toolUsed?: string;             // Human-readable tool name
     toolCapabilityNote?: string;   // Field note attached when verifying capability

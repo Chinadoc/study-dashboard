@@ -15,8 +15,9 @@ export default function BusinessDashboard() {
     const { inventory } = useInventory();
     const stats = getJobStats();
 
-    // Today's jobs
-    const today = new Date().toISOString().split('T')[0];
+    // Today's jobs — use local date to avoid UTC mismatch (e.g. 11 PM CST = next day in UTC)
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const todayJobs = useMemo(() =>
         jobLogs.filter(j => j.date === today),
         [jobLogs, today]

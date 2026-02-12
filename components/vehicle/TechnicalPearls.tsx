@@ -21,6 +21,7 @@ interface Pearl {
     is_critical?: boolean;
     score?: number;
     comment_count?: number;
+    target_section?: string;
 }
 
 interface TechnicalPearlsProps {
@@ -45,6 +46,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
     const [suggestedContent, setSuggestedContent] = useState('');
     const [editReason, setEditReason] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
     const { isAuthenticated } = useAuth();
 
     const vehicleKey = `${make.toLowerCase()}_${model.toLowerCase()}`;
@@ -197,14 +199,30 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
         );
     }
 
-    // Group pearls by type/category
+    // Map target_section values to human-readable group labels
+    const sectionLabels: Record<string, string> = {
+        'hardware': 'Hardware Notes',
+        'security': 'Security Architecture',
+        'tools': 'Tool Requirements',
+        'tool_requirement': 'Tool Requirements',
+        'troubleshooting': 'Troubleshooting',
+        'procedure': 'Procedure Notes',
+        'warning_alert': 'Warnings',
+        'voltage': 'Voltage & BCM',
+        'fcc_hardware': 'FCC & Frequency',
+        'chip_security': 'Chip & Immobilizer',
+        'mechanical': 'Mechanical / Lishi',
+    };
+
+    // Group pearls by target_section (with fallback to category/pearl_type)
     const groupedPearls: Record<string, Pearl[]> = {};
     pearls.forEach(pearl => {
-        const type = pearl.category || pearl.pearl_type || 'General';
-        if (!groupedPearls[type]) {
-            groupedPearls[type] = [];
+        const rawSection = pearl.target_section || pearl.category || pearl.pearl_type || 'General';
+        const label = sectionLabels[rawSection] || rawSection;
+        if (!groupedPearls[label]) {
+            groupedPearls[label] = [];
         }
-        groupedPearls[type].push(pearl);
+        groupedPearls[label].push(pearl);
     });
 
     const getTitle = (pearl: Pearl): string => {
@@ -242,7 +260,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                            {typePearls.slice(0, 6).map((pearl, index) => {
+                            {(expandedGroups[type] ? typePearls : typePearls.slice(0, 4)).map((pearl, index) => {
                                 const pearlId = pearl.id ?? index;
                                 const isExpanded = expandedId === pearlId;
                                 const riskClass = getRiskClass(pearl);
@@ -358,6 +376,17 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                                 );
                             })}
                         </div>
+                        {typePearls.length > 4 && (
+                            <button
+                                onClick={() => setExpandedGroups(prev => ({ ...prev, [type]: !prev[type] }))}
+                                className="mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                            >
+                                {expandedGroups[type]
+                                    ? '▲ Show less'
+                                    : `▼ Show ${typePearls.length - 4} more`
+                                }
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
@@ -425,11 +454,16 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
 
 function getTypeIcon(type: string): string {
     const icons: Record<string, string> = {
-        'Alert': '🚨',
-        'AKL Procedure': '🔑',
-        'Add Key Procedure': '➕',
-        'Tool Alert': '🔧',
-        'FCC Registry': '📡',
+        'Hardware Notes': '🔩',
+        'Security Architecture': '🔐',
+        'Tool Requirements': '🔧',
+        'Troubleshooting': '🔍',
+        'Procedure Notes': '📋',
+        'Warnings': '⚠️',
+        'Voltage & BCM': '⚡',
+        'FCC & Frequency': '📡',
+        'Chip & Immobilizer': '🔒',
+        'Mechanical / Lishi': '🗝️',
         'General': '💡',
     };
     return icons[type] || '💎';

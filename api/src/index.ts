@@ -1139,7 +1139,7 @@ export default {
             fleet_id, technician_id, technician_name,
             status, claimed_at, started_at, completed_at, priority, source,
             parts_cost, key_cost, service_cost, miles_driven, gas_cost,
-            referral_source, synced_at, sync_status, device_id, data
+            referral_source, referral_customer, synced_at, sync_status, device_id, data
           FROM job_logs WHERE user_id = ?`;
           const params: any[] = [userId];
 
@@ -1198,6 +1198,7 @@ export default {
               milesDriven: row.miles_driven,
               gasCost: row.gas_cost,
               referralSource: row.referral_source,
+              referralCustomer: row.referral_customer,
               createdAt: row.created_at,
               updatedAt: row.updated_at || row.created_at,
               syncedAt: row.synced_at,
@@ -1255,8 +1256,8 @@ export default {
               fleet_id, technician_id, technician_name,
               status, claimed_at, started_at, completed_at, priority, source,
               parts_cost, key_cost, service_cost, miles_driven, gas_cost,
-              referral_source, synced_at, sync_status, device_id, data
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              referral_source, referral_customer, synced_at, sync_status, device_id, data
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
             jobId, userId, createdAt, updatedAt,
             job.vehicle || null,
@@ -1285,6 +1286,7 @@ export default {
             job.milesDriven || null,
             job.gasCost || null,
             job.referralSource || null,
+            job.referralCustomer || null,
             Date.now(),
             'synced',
             job.deviceId || null,
@@ -1364,8 +1366,8 @@ export default {
                 fleet_id, technician_id, technician_name,
                 status, claimed_at, started_at, completed_at, priority, source,
                 parts_cost, key_cost, service_cost, miles_driven, gas_cost,
-                referral_source, synced_at, sync_status, device_id, data
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                referral_source, referral_customer, synced_at, sync_status, device_id, data
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).bind(
               jobId, userId, createdAt, updatedAt,
               job.vehicle || null,
@@ -1394,6 +1396,7 @@ export default {
               job.milesDriven || null,
               job.gasCost || null,
               job.referralSource || null,
+              job.referralCustomer || null,
               serverTime,
               'synced',
               jobDeviceId,
@@ -5687,8 +5690,9 @@ Guidelines:
             return corsResponse(request, JSON.stringify({ error: "Posting too fast. Please wait a minute and try again." }), 429);
           }
 
-          // Generate comment ID
-          const commentId = `cmt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          // Generate numeric comment ID (INTEGER PRIMARY KEY requires integer)
+          const commentId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+          const commentIdStr = String(commentId);
 
           await env.LOCKSMITH_DB.prepare(`
             INSERT INTO vehicle_comments (id, vehicle_key, user_id, user_name, user_picture, content, parent_id, job_type, tool_used, created_at)
@@ -5699,7 +5703,7 @@ Guidelines:
           try {
             await env.LOCKSMITH_DB.prepare(
               "INSERT INTO user_activity (user_id, action, details, created_at) VALUES (?, ?, ?, ?)"
-            ).bind(userId, parent_id ? 'reply_comment' : 'add_comment', JSON.stringify({ vehicle_key: effectiveKey, comment_id: commentId }), Date.now()).run();
+            ).bind(userId, parent_id ? 'reply_comment' : 'add_comment', JSON.stringify({ vehicle_key: effectiveKey, comment_id: commentIdStr }), Date.now()).run();
           } catch (e) { /* non-critical */ }
 
           // Notifications + mentions (non-blocking)
@@ -5722,7 +5726,7 @@ Guidelines:
                   'New reply',
                   `${userName} replied to your comment`,
                   parentComment.vehicle_key || effectiveKey,
-                  commentId,
+                  commentIdStr,
                   Date.now(),
                   JSON.stringify({ parent_comment_id: parent_id })
                 ).run();
@@ -5752,7 +5756,7 @@ Guidelines:
               await env.LOCKSMITH_DB.prepare(`
                 INSERT INTO comment_mentions (id, comment_id, mentioner_id, mentioned_user_id, is_read, created_at)
                 VALUES (?, ?, ?, ?, 0, ?)
-              `).bind(mentionId, commentId, userId, targetUser.id, Date.now()).run();
+              `).bind(mentionId, commentIdStr, userId, targetUser.id, Date.now()).run();
 
               const notificationId = `notif_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
               await env.LOCKSMITH_DB.prepare(`
@@ -5765,7 +5769,7 @@ Guidelines:
                 'Mention',
                 `${userName} mentioned you`,
                 effectiveKey,
-                commentId,
+                commentIdStr,
                 Date.now(),
                 JSON.stringify({ handle })
               ).run();
@@ -5779,14 +5783,14 @@ Guidelines:
             parent_id ? 'reply_create' : 'comment_create',
             userId,
             effectiveKey,
-            commentId,
+            commentIdStr,
             { has_image: String(content).includes('![') }
           );
 
           return corsResponse(request, JSON.stringify({
             success: true,
             message: parent_id ? "Reply added!" : "Comment added!",
-            comment_id: commentId
+            comment_id: commentIdStr
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -6620,10 +6624,19 @@ Guidelines:
           const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '20', 10), 1), 100);
           const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
 
+          // Get current user for vote status (optional)
+          let currentUserId: string | null = null;
+          const sessionToken = getSessionToken(request);
+          if (sessionToken) {
+            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+            if (payload?.sub) currentUserId = payload.sub as string;
+          }
+
           const result = await env.LOCKSMITH_DB.prepare(`
             SELECT 
               vc.id, vc.vehicle_key, vc.user_id, vc.user_name, vc.user_picture,
-              vc.content, vc.upvotes, vc.job_type, vc.tool_used, vc.created_at,
+              vc.content, vc.upvotes, COALESCE(vc.downvotes, 0) as downvotes,
+              vc.job_type, vc.tool_used, vc.created_at,
               ur.rank_level,
               COALESCE(u.nastf_verified, 0) as nastf_verified
             FROM vehicle_comments vc
@@ -6641,6 +6654,22 @@ Guidelines:
           `).first<{ count: number }>();
           const comments = (result.results || []) as any[];
           const totalCount = Number(total?.count || 0);
+
+          // Attach user_vote if authenticated
+          if (currentUserId && comments.length > 0) {
+            const commentIds = comments.map((c: any) => c.id);
+            const votesResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT comment_id, vote FROM comment_votes
+              WHERE user_id = ? AND comment_id IN (${commentIds.map(() => '?').join(',')})
+            `).bind(currentUserId, ...commentIds).all();
+            const userVotes: Record<string, number> = {};
+            for (const v of (votesResult.results || []) as any[]) {
+              userVotes[v.comment_id] = v.vote;
+            }
+            for (const c of comments) {
+              c.user_vote = userVotes[c.id] || 0;
+            }
+          }
 
           return corsResponse(request, JSON.stringify({
             comments,
@@ -6697,6 +6726,14 @@ Guidelines:
           const daysAgo = Math.min(parseInt(url.searchParams.get('days') || '7'), 30); // Cap at 30 days
           const cutoffTime = Date.now() - (daysAgo * 24 * 60 * 60 * 1000);
 
+          // Get current user for vote status (optional)
+          let currentUserId: string | null = null;
+          const sessionToken = getSessionToken(request);
+          if (sessionToken) {
+            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+            if (payload?.sub) currentUserId = payload.sub as string;
+          }
+
           const result = await env.LOCKSMITH_DB.prepare(`
             SELECT 
               vc.id, vc.vehicle_key, vc.user_id, vc.user_name, vc.user_picture,
@@ -6726,6 +6763,22 @@ Guidelines:
           const trending = (result.results || []) as any[];
           const totalCount = Number(total?.count || 0);
 
+          // Attach user_vote if authenticated
+          if (currentUserId && trending.length > 0) {
+            const commentIds = trending.map((c: any) => c.id);
+            const votesResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT comment_id, vote FROM comment_votes
+              WHERE user_id = ? AND comment_id IN (${commentIds.map(() => '?').join(',')})
+            `).bind(currentUserId, ...commentIds).all();
+            const userVotes: Record<string, number> = {};
+            for (const v of (votesResult.results || []) as any[]) {
+              userVotes[v.comment_id] = v.vote;
+            }
+            for (const c of trending) {
+              c.user_vote = userVotes[c.id] || 0;
+            }
+          }
+
           return corsResponse(request, JSON.stringify({
             trending,
             period_days: daysAgo,
@@ -6747,6 +6800,15 @@ Guidelines:
         try {
           const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '20', 10), 1), 100);
           const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10), 0);
+
+          // Get current user for vote status (optional)
+          let currentUserId: string | null = null;
+          const sessionToken = getSessionToken(request);
+          if (sessionToken) {
+            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+            if (payload?.sub) currentUserId = payload.sub as string;
+          }
+
           const result = await env.LOCKSMITH_DB.prepare(`
             SELECT
               vc.id, vc.vehicle_key, vc.user_id, vc.user_name, vc.user_picture,
@@ -6774,6 +6836,22 @@ Guidelines:
           `).first<{ count: number }>();
           const verified = (result.results || []) as any[];
           const totalCount = Number(total?.count || 0);
+
+          // Attach user_vote if authenticated
+          if (currentUserId && verified.length > 0) {
+            const commentIds = verified.map((c: any) => c.id);
+            const votesResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT comment_id, vote FROM comment_votes
+              WHERE user_id = ? AND comment_id IN (${commentIds.map(() => '?').join(',')})
+            `).bind(currentUserId, ...commentIds).all();
+            const userVotes: Record<string, number> = {};
+            for (const v of (votesResult.results || []) as any[]) {
+              userVotes[v.comment_id] = v.vote;
+            }
+            for (const c of verified) {
+              c.user_vote = userVotes[c.id] || 0;
+            }
+          }
 
           return corsResponse(request, JSON.stringify({
             verified,
@@ -10342,20 +10420,26 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           // Use model_family from junction table for variant grouping
           // This replaces the old 90-line suffix-stripping algorithm with pre-computed families
-          const familySql = `
-            SELECT model_family, GROUP_CONCAT(DISTINCT model) as variants
-            FROM aks_product_vehicle_years
-            WHERE LOWER(make) = LOWER(?)
-            GROUP BY model_family
-            HAVING COUNT(DISTINCT model) > 1
-          `;
-          const familyResult = await env.LOCKSMITH_DB.prepare(familySql).bind(make).all();
+          // Wrapped in try-catch because model_family column may not exist in all environments
           const familyMap = new Map<string, string[]>();
-          for (const row of (familyResult.results || []) as any[]) {
-            const variants = (row.variants || '').split(',').filter((v: string) => v !== row.model_family).sort();
-            if (variants.length > 0) {
-              familyMap.set(row.model_family, variants);
+          try {
+            const familySql = `
+              SELECT model_family, GROUP_CONCAT(DISTINCT model) as variants
+              FROM aks_product_vehicle_years
+              WHERE LOWER(make) = LOWER(?)
+              GROUP BY model_family
+              HAVING COUNT(DISTINCT model) > 1
+            `;
+            const familyResult = await env.LOCKSMITH_DB.prepare(familySql).bind(make).all();
+            for (const row of (familyResult.results || []) as any[]) {
+              const variants = (row.variants || '').split(',').filter((v: string) => v !== row.model_family).sort();
+              if (variants.length > 0) {
+                familyMap.set(row.model_family, variants);
+              }
             }
+          } catch (e) {
+            // model_family column may not exist - skip family grouping gracefully
+            console.log('model_family query skipped:', (e as any)?.message);
           }
 
           // Build merged models list using model_family groupings
@@ -12850,7 +12934,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             `).bind(make, `%${model}%`, year).first<any>();
           }
 
-          // 1.6. Get ALL FCCs from aks_vehicle_products → aks_products (for FCC breakdown popup)
+          // 1.6. Get ALL FCCs from aks_product_vehicle_years → aks_products_complete (for FCC breakdown popup)
           interface FccEntry {
             fcc: string;
             keyType: string;
@@ -12861,9 +12945,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           if (year) {
             const fccResult = await env.LOCKSMITH_DB.prepare(`
               SELECT DISTINCT c.fcc_id, c.product_type, c.buttons, c.title
-              FROM aks_product_vehicle_years pvy
-              JOIN aks_products_complete c ON pvy.item_id = c.item_id
-              WHERE LOWER(pvy.make) = ? AND LOWER(pvy.model) LIKE LOWER(?) AND pvy.year = ?
+              FROM aks_product_vehicle_years apvy
+              JOIN aks_products_complete c ON apvy.item_id = c.item_id
+              WHERE LOWER(apvy.make) = ? AND LOWER(apvy.model) LIKE LOWER(?) AND apvy.year = ?
                 AND c.fcc_id IS NOT NULL AND c.fcc_id != ''
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
             `).bind(make, `%${model}%`, year).all<any>();
@@ -12916,7 +13000,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
 
           // 1.7. Get AKS key configurations grouped by key type → button count
-          // Uses: aks_vehicle_products → aks_products_complete (comprehensive product data)
+          // Uses: aks_product_vehicle_years → aks_products_complete (comprehensive product data)
           interface FccDetail {
             fcc: string;
             oem: string[];
@@ -12946,8 +13030,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           if (year) {
             // Query aks_products_complete for comprehensive product data
-            // Uses aks_product_vehicle_years (built from product compatible_vehicles)
-            // supplemented by aks_vehicles_by_year.product_item_ids
+            // Uses aks_product_vehicle_years (built from product compatible_vehicles declarations)
             const keyConfigResult = await env.LOCKSMITH_DB.prepare(`
               SELECT 
                 c.page_id,
@@ -12969,11 +13052,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 CASE WHEN c.image_filename IS NOT NULL AND c.image_filename != '' 
                   THEN 'aks_products/' || c.image_filename 
                   ELSE NULL END as image_r2_key
-              FROM aks_product_vehicle_years pvy
-              JOIN aks_products_complete c ON pvy.item_id = c.item_id
-              WHERE LOWER(pvy.make) = ? 
-                AND LOWER(pvy.model) LIKE LOWER(?) 
-                AND pvy.year = ?
+              FROM aks_product_vehicle_years apvy
+              JOIN aks_products_complete c ON apvy.item_id = c.item_id
+              WHERE LOWER(apvy.make) = ? 
+                AND LOWER(apvy.model) LIKE LOWER(?) 
+                AND apvy.year = ?
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%flip%'
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%tool%'
@@ -12988,51 +13071,6 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%flip blade%'
               ORDER BY c.product_type, c.buttons DESC
             `).bind(make, `%${model}%`, year).all<any>();
-
-            // Secondary lookup: also fetch products via aks_vehicles_by_year.product_item_ids
-            // This fills junction table gaps (e.g., KOBJXF18A products not linked to Range Rover)
-            const seenItemIds = new Set((keyConfigResult.results || []).map((r: any) => String(r.item_id)));
-            if (aksVehicleData?.product_item_ids) {
-              try {
-                const itemIds: string[] = JSON.parse(aksVehicleData.product_item_ids);
-                const missingIds = itemIds.filter(id => !seenItemIds.has(id));
-                if (missingIds.length > 0) {
-                  const placeholders = missingIds.map(() => '?').join(',');
-                  const supplemental = await env.LOCKSMITH_DB.prepare(`
-                    SELECT page_id, item_id, title, product_type, buttons, fcc_id,
-                      oem_part_numbers, battery, frequency, chip, keyway, model_name,
-                      image_url as cdn_image, reusable, cloneable,
-                      CASE WHEN image_filename IS NOT NULL AND image_filename != ''
-                        THEN 'aks_products/' || image_filename ELSE NULL END as image_r2_key
-                    FROM aks_products_complete
-                    WHERE item_id IN (${placeholders})
-                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%shell%'
-                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%flip%'
-                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%tool%'
-                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%lishi%'
-                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%ignition%'
-                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%lock%'
-                      AND COALESCE(product_type, '') != 'Key'
-                      AND LOWER(COALESCE(product_type, '')) NOT LIKE '%other%'
-                      AND LOWER(COALESCE(title, '')) NOT LIKE '%shell only%'
-                      AND LOWER(COALESCE(title, '')) NOT LIKE '%case only%'
-                      AND LOWER(COALESCE(title, '')) NOT LIKE '%-pack%'
-                      AND LOWER(COALESCE(title, '')) NOT LIKE '%flip blade%'
-                    ORDER BY product_type, buttons DESC
-                  `).bind(...missingIds.map(id => parseInt(id) || id)).all<any>();
-
-                  // Merge supplemental products into main result set
-                  for (const row of (supplemental.results || [])) {
-                    if (!seenItemIds.has(String(row.item_id))) {
-                      seenItemIds.add(String(row.item_id));
-                      (keyConfigResult.results as any[]).push(row);
-                    }
-                  }
-                }
-              } catch (e) {
-                // Ignore parse errors on product_item_ids
-              }
-            }
 
             // Group by key type → FCC ID (consolidates different button counts for the same FCC)
             const keyTypeGroups: Record<string, Record<string, {
@@ -13458,7 +13496,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           if (itemNumbers.length > 0) {
             const placeholders = itemNumbers.map(() => "?").join(",");
 
-            // No year filter needed — products are already filtered by year via aks_vehicle_products junction
+            // No year filter needed — products are already filtered by year via aks_product_vehicle_years junction
             const yearFilter = "";
 
             const aksResult = await env.LOCKSMITH_DB.prepare(`
@@ -13640,6 +13678,26 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
           }
 
+          // 4.5 Fetch dossier images from D1 for this vehicle
+          let dossierImages: any[] = [];
+          try {
+            const diQuery = year
+              ? `SELECT id, r2_path, context, source_doc, tags FROM dossier_images WHERE LOWER(make) = ? AND (LOWER(model) = ? OR model IS NULL) AND (year_start IS NULL OR year_start <= ?) AND (year_end IS NULL OR year_end >= ?) ORDER BY year_start DESC LIMIT 20`
+              : `SELECT id, r2_path, context, source_doc, tags FROM dossier_images WHERE LOWER(make) = ? AND (LOWER(model) = ? OR model IS NULL) LIMIT 20`;
+            const diParams = year ? [make, model, year, year] : [make, model];
+            const diResult = await env.LOCKSMITH_DB.prepare(diQuery).bind(...diParams).all<any>();
+            if (diResult?.results) {
+              const WORKER_BASE = url.origin;
+              dossierImages = diResult.results.map((row: any) => ({
+                id: row.id,
+                url: `${WORKER_BASE}/api/r2/${encodeURIComponent(row.r2_path)}`,
+                context: row.context,
+                source_doc: row.source_doc,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+              }));
+            }
+          } catch { /* dossier images are non-critical */ }
+
           // 5. Build combined response with priority rules
           // Priority: enrichments (0) > AKS vehicles (1) > VYP (2) > vehicles (3 - DEPRECATED, lowest priority)
           // NOTE: The vehicles table is scheduled for deletion. Do NOT add new dependencies on it.
@@ -13659,8 +13717,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               year: year,
               year_range: vehicleData ? { start: vehicleData.year_start, end: vehicleData.year_end } : null,
               // Priority: VI > enrichments > vehicles (DEPRECATED fallback)
-              immobilizer_system: viData?.immo_system || viData?.architecture || enrichmentData?.immobilizer_system || vehicleData?.immobilizer_system || null,
-              platform: viData?.platform || enrichmentData?.platform || vehicleData?.platform || null,
+              immobilizer_system: viData?.immo_system || viData?.architecture || enrichmentData?.immobilizer_system || null,
+              platform: viData?.platform || enrichmentData?.platform || null,
               protocol_type: enrichmentData?.protocol_type || null,
               security_gateway: enrichmentData?.security_gateway || null,
               key_type: viData?.key_type || vehicleData?.key_type || null,
@@ -13934,7 +13992,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               alerts: vehicleData?.alert_count || 0,
               has_akl: vehicleData?.has_akl_procedure || false,
               has_add_key: vehicleData?.has_add_key_procedure || false
-            }
+            },
+
+            // Dossier images from research documents
+            dossier_images: dossierImages.length > 0 ? dossierImages : null,
           };
 
           return corsResponse(request, JSON.stringify(response));
@@ -14076,7 +14137,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       // ==============================================
       // VEHICLE PRODUCTS V2 ENDPOINT - Using New Normalized AKS Tables
       // ==============================================
-      // Uses: aks_vehicles_by_year + aks_vehicle_products (junction) + aks_products
+      // Uses: aks_vehicles_by_year + aks_product_vehicle_years (junction) + aks_products
       // Returns: Products grouped by type (Smart Key 4-btn, Emergency Blade, etc.)
       //          with aggregated OEM parts per type
 
@@ -14099,12 +14160,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           // 2. Get all products for this vehicle via junction table
           const productsResult = await env.LOCKSMITH_DB.prepare(`
-            SELECT p.*, vp.section
-            FROM aks_vehicle_products vp
-            JOIN aks_products p ON vp.product_page_id = p.page_id
-            WHERE LOWER(vp.make) = ? 
-              AND LOWER(vp.model) LIKE ? 
-              AND vp.year = ?
+            SELECT p.*
+            FROM aks_product_vehicle_years apvy
+            JOIN aks_products p ON CAST(apvy.item_id AS TEXT) = CAST(p.item_id AS TEXT)
+            WHERE LOWER(apvy.make) = ? 
+              AND LOWER(apvy.model) LIKE ? 
+              AND apvy.year = ?
             ORDER BY p.product_type, p.buttons DESC
           `).bind(make.toLowerCase(), `%${model.toLowerCase()}%`, year).all();
 
@@ -14515,9 +14576,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
               // Try AKS products table as fallback
               const aksMatch = await env.LOCKSMITH_DB.prepare(`
-                SELECT DISTINCT p.oem_part_number, p.fcc_id, vp.make, vp.model, vp.year
+                SELECT DISTINCT p.oem_part_number, p.fcc_id, apvy.make, apvy.model, apvy.year
                 FROM aks_products p
-                JOIN aks_vehicle_products vp ON p.page_id = vp.product_page_id
+                JOIN aks_product_vehicle_years apvy ON CAST(p.item_id AS TEXT) = apvy.item_id
                 WHERE UPPER(p.oem_part_number) LIKE ?
                 LIMIT 1
               `).bind(`%${oem}%`).first<{

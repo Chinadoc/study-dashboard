@@ -335,14 +335,7 @@ function LishiToolWithPearl({
                     </button>
                 )}
             </div>
-            {lishiSource && (
-                <div className={`text-[9px] mt-1 px-2 py-0.5 rounded-full inline-block ${lishiSource === 'enrichments' ? 'bg-green-900/40 text-green-400' :
-                    lishiSource === 'vyp' ? 'bg-purple-900/40 text-purple-400' :
-                        'bg-zinc-800 text-zinc-500'
-                    }`}>
-                    {lishiSource === 'vyp' ? 'VYP' : lishiSource}
-                </div>
-            )}
+            {/* Source badge removed — VYP/enrichments are internal provenance labels, not useful to locksmiths */}
             {/* Expandable pearl - positioned as overlay to avoid cramped grid */}
             {showPearl && pearl && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowPearl(false)}>

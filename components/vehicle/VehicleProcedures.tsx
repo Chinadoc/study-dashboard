@@ -253,7 +253,16 @@ export default function VehicleProcedures({
     }
 
     // If no procedures, show a polished placeholder with clickable tabs
+    // Check if we have contextual pearls even without parsed procedures
+    const addKeyHasPearls = procedures?.addKey?.pearls && procedures.addKey.pearls.length > 0;
+    const aklHasPearls = procedures?.akl?.pearls && procedures.akl.pearls.length > 0;
+
     if (!hasAddKey && !hasAkl) {
+        // Get pearls for the active tab
+        const currentTabPearls = activeTab === 'addKey'
+            ? procedures?.addKey?.pearls
+            : procedures?.akl?.pearls;
+
         return (
             <div className="space-y-6">
                 {/* Clickable Procedure Tabs - both show same "Coming Soon" */}
@@ -266,6 +275,11 @@ export default function VehicleProcedures({
                             }`}
                     >
                         🔑 Add Smart Key
+                        {addKeyHasPearls && (
+                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-600/30 text-amber-400">
+                                {procedures!.addKey!.pearls!.length} tips
+                            </span>
+                        )}
                     </button>
                     <button
                         onClick={() => setActiveTab('akl')}
@@ -275,6 +289,11 @@ export default function VehicleProcedures({
                             }`}
                     >
                         🚨 All Keys Lost (AKL)
+                        {aklHasPearls && (
+                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-600/30 text-amber-400">
+                                {procedures!.akl!.pearls!.length} tips
+                            </span>
+                        )}
                     </button>
                 </div>
 
@@ -293,6 +312,11 @@ export default function VehicleProcedures({
                         Browse Available Dossiers →
                     </a>
                 </div>
+
+                {/* Contextual pearls as tips — available even without full procedures */}
+                {currentTabPearls && currentTabPearls.length > 0 && (
+                    <CollapsiblePearls pearls={currentTabPearls} />
+                )}
 
                 {/* Tool Status Section */}
                 <div className="glass p-4">

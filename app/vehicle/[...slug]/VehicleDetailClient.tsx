@@ -594,7 +594,6 @@ export default function VehicleDetailClient() {
             setError(null);
             try {
                 const queryParams = `make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
-                const makeOnlyParams = `make=${encodeURIComponent(make)}`;
 
                 // First batch: vehicle-specific data
                 const [detailRes, productsRes, walkthroughsRes, pearlsRes, imagesRes, proceduresRes] = await Promise.all([
@@ -602,7 +601,7 @@ export default function VehicleDetailClient() {
                     fetch(`${API_BASE}/api/vehicle-products?${queryParams}`).catch(() => null),
                     fetch(`${API_BASE}/api/walkthroughs?${queryParams}`).catch(() => null),
                     fetch(`${API_BASE}/api/pearls?${queryParams}`).catch(() => null),
-                    fetch(`${API_BASE}/api/images?${makeOnlyParams}`).catch(() => null), // Images at make level (cross-pollinated)
+                    fetch(`${API_BASE}/api/images?${queryParams}`).catch(() => null), // Images filtered by make+model+year
                     fetch(`${API_BASE}/api/procedures?${queryParams}`).catch(() => null), // New procedure packages
                 ]);
 
@@ -613,37 +612,7 @@ export default function VehicleDetailClient() {
                 const images = imagesRes?.ok ? await imagesRes.json() : { images: [] };
                 const procedurePackages = proceduresRes?.ok ? await proceduresRes.json() : { procedures: [] };
 
-                // Fallback: If no model-specific pearls, fetch make-level pearls
-                if (!pearls.pearls?.length) {
-                    const makePearlsRes = await fetch(`${API_BASE}/api/pearls?${makeOnlyParams}`).catch(() => null);
-                    pearls = makePearlsRes?.ok ? await makePearlsRes.json() : { pearls: [] };
-                }
-
-                // Cross-pollination: If still no pearls, fetch from related makes by architecture
-                if (!pearls.pearls?.length) {
-                    const architecture = detail.header?.immobilizer_system || '';
-                    const ARCHITECTURE_MAKES: Record<string, string[]> = {
-                        'GM PK3 / PK3+ / PEPS': ['Chevrolet', 'GMC', 'Cadillac'],
-                        'Global A': ['Chevrolet', 'GMC', 'Cadillac'],
-                        'Global B': ['Chevrolet', 'GMC', 'Cadillac'],
-                    };
-
-                    // Find related makes for this architecture
-                    const relatedMakes = Object.entries(ARCHITECTURE_MAKES)
-                        .filter(([arch]) => architecture.toLowerCase().includes(arch.toLowerCase().split(' ')[0]))
-                        .flatMap(([, makes]) => makes)
-                        .filter(m => m.toLowerCase() !== make.toLowerCase());
-
-                    // Fetch pearls from the first related make that has data
-                    for (const relatedMake of relatedMakes) {
-                        const relatedPearlsRes = await fetch(`${API_BASE}/api/pearls?make=${encodeURIComponent(relatedMake)}`).catch(() => null);
-                        const relatedPearls = relatedPearlsRes?.ok ? await relatedPearlsRes.json() : { pearls: [] };
-                        if (relatedPearls.pearls?.length > 0) {
-                            pearls = { ...relatedPearls, source: `cross-pollinated from ${relatedMake}` };
-                            break;
-                        }
-                    }
-                }
+                // No fallback — showing no pearls is better than showing wrong vehicle's pearls
 
                 setData({ detail, products, walkthroughs, pearls, images, procedurePackages });
 
@@ -741,6 +710,14 @@ export default function VehicleDetailClient() {
         const hasMechanical = productTypes.some(t => t.toLowerCase().includes('mechanical'));
         const hasFlip = productTypes.some(t => t.toLowerCase().includes('flip'));
 
+        // Determine if this is a proximity/smart key or a basic remote
+        // Look for explicit smart/proximity indicators in product types
+        const isProximity = productTypes.some((t: any) => {
+            const lower = String(t).toLowerCase();
+            return lower.includes('smart') || lower.includes('proximity') || lower.includes('prox') || lower.includes('push');
+        });
+        const remoteType = isProximity ? 'prox' : 'remote';
+
         const keys: any[] = [];
 
         // If we have specific button configs, create a card for each
@@ -751,7 +728,7 @@ export default function VehicleDetailClient() {
                 const features = btnNum === '4' ? ' w/Start or Hatch' : btnNum === '5' ? ' w/Hatch' : '';
                 keys.push({
                     name: `${btnNum}-Button Remote${features}`,
-                    type: 'prox',
+                    type: remoteType,
                     buttons: btnNum,
                     fcc: fccIds.slice(0, 3).join(', '),
                     chip: chips[0]?.replace(/PHILIPS\s*/i, ''),
@@ -764,7 +741,7 @@ export default function VehicleDetailClient() {
             // Generic remote if no specific buttons detected
             keys.push({
                 name: 'Remote Key Fob',
-                type: 'prox',
+                type: remoteType,
                 fcc: fccIds.slice(0, 3).join(', '),
                 chip: chips[0]?.replace(/PHILIPS\s*/i, ''),
                 battery: 'CR2032',
@@ -1012,10 +989,16 @@ export default function VehicleDetailClient() {
             (p.pearl_content || '').toLowerCase().match(/\b(8a-ba|8a|h-chip|g-chip|id47|fbb|fla)\b/)
         ),
         // FCC/hardware pearls → VehicleSpecs FCC section
-        fcc: pearlsList.filter((p: any) =>
-            p.target_section === 'fcc_hardware' ||
-            (p.pearl_content || '').toLowerCase().match(/\b(hyq|m3n|fcc|315\s*mhz|433\s*mhz)\b/)
-        ),
+        // Exclude CAN bus/gateway architecture pearls that happen to mention FCC IDs
+        fcc: pearlsList.filter((p: any) => {
+            const content = (p.pearl_content || p.content || '').toLowerCase();
+            const isFccTargeted = p.target_section === 'fcc_hardware';
+            const mentionsFcc = !!content.match(/\b(hyq|m3n|fcc|315\s*mhz|433\s*mhz)\b/);
+            // Exclude pearls primarily about CAN bus, gateways, or network topology
+            const isCanBusPearl = content.includes('gateway') && (content.includes('can fd') || content.includes('topology') || content.includes('network'));
+            if (isCanBusPearl && !isFccTargeted) return false;
+            return isFccTargeted || mentionsFcc;
+        }),
         // Key configuration pearls → KeyCards section
         keyConfig: pearlsList.filter((p: any) =>
             getTags(p).some((t: string) => ['5-button', '4-button', 'inventory', 'strattec', 'remote-start'].includes(t))
@@ -1077,6 +1060,20 @@ export default function VehicleDetailClient() {
         business: pearlsList.filter((p: any) =>
             getTags(p).some((t: string) => ['nastf', 'pin', 'tds', 'acdelco'].includes(t))
         ),
+        // Hardware pearls → KeyCards section (hardware context)
+        hardware: pearlsList.filter((p: any) =>
+            p.target_section === 'hardware' &&
+            !getTags(p).some((t: string) => ['lishi', 'can-fd', 'canfd', 'adapter'].includes(t))
+        ),
+        // Security architecture pearls → chip/security section
+        security: pearlsList.filter((p: any) =>
+            p.target_section === 'security' &&
+            !(p.pearl_content || '').toLowerCase().match(/\b(8a-ba|8a|h-chip|g-chip|id47|fbb|fla)\b/)
+        ),
+        // Tools pearls → Procedures section
+        tools: pearlsList.filter((p: any) =>
+            p.target_section === 'tools' || p.target_section === 'tool_requirement'
+        ),
     };
 
     // Collect all routed pearl IDs to exclude from general section
@@ -1095,6 +1092,9 @@ export default function VehicleDetailClient() {
         ...routedPearls.obp,
         ...routedPearls.troubleshooting,
         ...routedPearls.business,
+        ...routedPearls.hardware,
+        ...routedPearls.security,
+        ...routedPearls.tools,
     ].map(p => p.id));
 
     // General pearls = those not routed anywhere specific
@@ -1188,7 +1188,6 @@ export default function VehicleDetailClient() {
                 year={year}
                 prevYear={year > 1990 ? year - 1 : null}
                 nextYear={year < new Date().getFullYear() + 1 ? year + 1 : null}
-                platform={header.platform}
                 architecture={header.immobilizer_system}
                 canFd={header.can_fd_required === 1 || header.can_fd_required === true}
                 specs={{
@@ -1333,9 +1332,9 @@ export default function VehicleDetailClient() {
                                 menu_path: addKeyWalkthrough.menu_path || addKeyWalkthrough.platform_code,
                                 pearls: routedPearls.addKey
                             } : routedPearls.addKey.length > 0 ? {
-                                // Third fallback: Build procedure from pearls (pass as rawText for parsing)
+                                // No real procedure — just pass pearls as contextual tips
+                                // VehicleProcedures will show "Coming Soon" with pearl tips attached
                                 title: 'Add Key Procedure',
-                                rawText: routedPearls.addKey.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
                                 pearls: routedPearls.addKey
                             } : undefined,
                             akl: aklProcedure ? {
@@ -1353,10 +1352,9 @@ export default function VehicleDetailClient() {
                                 menu_path: aklWalkthrough.menu_path || aklWalkthrough.platform_code,
                                 pearls: routedPearls.akl
                             } : routedPearls.akl.length > 0 ? {
-                                // Third fallback: Build procedure from pearls (pass as rawText for parsing)
+                                // No real procedure — just pass pearls as contextual tips
                                 title: 'All Keys Lost (AKL) Procedure',
                                 risk_level: 'high' as const,
-                                rawText: routedPearls.akl.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
                                 pearls: routedPearls.akl
                             } : undefined,
                         }} />

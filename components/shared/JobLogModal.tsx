@@ -57,6 +57,7 @@ export interface JobFormData {
     milesDriven?: number; // Miles driven for gas calculation
     gasCost?: number;     // Auto-calculated from miles (3.5$/gal at 30mpg = $0.117/mile)
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
+    referralCustomer?: string;
     toolId?: string;
     toolLabel?: string;
     capabilityNote?: string;
@@ -986,13 +987,21 @@ export default function JobLogModal({
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Referral</label>
                                 <select value={formData.referralSource || ''}
-                                    onChange={e => setFormData(prev => ({ ...prev, referralSource: e.target.value as JobFormData['referralSource'] || undefined }))}
+                                    onChange={e => setFormData(prev => ({ ...prev, referralSource: e.target.value as JobFormData['referralSource'] || undefined, referralCustomer: e.target.value !== 'referral' ? undefined : prev.referralCustomer }))}
                                     className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30">
                                     <option value="">Select...</option>
                                     {REFERRAL_SOURCES.map(source => (<option key={source.value} value={source.value}>{source.label}</option>))}
                                 </select>
                             </div>
                         </div>
+                        {formData.referralSource === 'referral' && (
+                            <div>
+                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Referred By</label>
+                                <input type="text" placeholder="Customer name who referred" value={formData.referralCustomer || ''}
+                                    onChange={e => setFormData(prev => ({ ...prev, referralCustomer: e.target.value }))}
+                                    className="w-full bg-zinc-900/60 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 placeholder-zinc-600" />
+                            </div>
+                        )}
                         <div className="flex items-center gap-3 flex-wrap">
                             {availableFleets.length > 0 && (
                                 <div className="flex items-center gap-1.5">

@@ -601,6 +601,60 @@ async function main() {
   console.log(`   ✅ ${platformCount[0]?.cnt || 0} vehicles enriched with platform data`);
 
   // ============================================================
+  // STEP 2b: Precision override from vehicle_platform_map
+  //   - Uses exact model matching + year overlap (not fuzzy make-only)
+  //   - Picks the most specific platform_code for each vehicle
+  //   - Joins to platform_security for security metadata
+  // ============================================================
+  console.log('\n🔧 Step 2b: Precision platform override from vehicle_platform_map...');
+
+  // Single query: get all VI vehicles that match a vehicle_platform_map entry
+  const vpmMatches = queryD1(`
+    SELECT vi.id, vpm.platform_code, 
+           COALESCE(ps.description, vpm.platform_code) as arch_desc,
+           ps.security_level, ps.obd_typical, ps.bench_typical, 
+           ps.sgw_required, ps.can_fd_required,
+           vpm.mention_count
+    FROM vehicle_intelligence vi
+    INNER JOIN vehicle_platform_map vpm 
+      ON LOWER(REPLACE(vi.model, '-', ' ')) = LOWER(vpm.model)
+      AND vi.year_start <= vpm.year_end
+      AND vi.year_end >= vpm.year_start
+    LEFT JOIN platform_security ps 
+      ON vpm.platform_code = ps.platform_code
+    ORDER BY vi.id, vpm.mention_count DESC
+  `);
+
+  // Deduplicate: keep only the best match per VI id (highest mention_count, first seen)
+  const bestByViId = new Map<number, typeof vpmMatches[0]>();
+  for (const m of vpmMatches) {
+    if (!bestByViId.has(m.id)) {
+      bestByViId.set(m.id, m);
+    }
+  }
+
+  // Build batch UPDATEs
+  const vpmBatch: string[] = [];
+  for (const [viId, m] of bestByViId) {
+    const platformCode = (m.platform_code || '').replace(/'/g, "''");
+    const archDesc = (m.arch_desc || m.platform_code || '').replace(/'/g, "''");
+    const secLevel = m.security_level ? `'${m.security_level}'` : 'NULL';
+    const obd = m.obd_typical ?? 1;
+    const bench = m.bench_typical ?? 0;
+    const adapterType = m.can_fd_required ? "'CAN FD'" : (m.sgw_required ? "'SGW Bypass'" : "'Standard OBD'");
+
+    vpmBatch.push(`UPDATE vehicle_intelligence SET platform = '${platformCode}', architecture = '${archDesc}', security_level = ${secLevel}, obd_supported = ${obd}, bench_required = ${bench}, adapter_type = ${adapterType} WHERE id = ${viId}`);
+  }
+
+  // Execute in batches of 50
+  for (let i = 0; i < vpmBatch.length; i += 50) {
+    const chunk = vpmBatch.slice(i, i + 50);
+    executeD1(chunk.join(';\n'));
+    process.stdout.write(`   Batch ${Math.floor(i / 50) + 1}/${Math.ceil(vpmBatch.length / 50)}\r`);
+  }
+  console.log(`\n   ✅ ${bestByViId.size} vehicles overridden with precise platform data from vehicle_platform_map`);
+
+  // ============================================================
   // STEP 3: Enrich with tool coverage
   // ============================================================
   console.log('\n🔧 Step 3: Enriching with tool coverage...');

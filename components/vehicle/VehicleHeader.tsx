@@ -10,7 +10,6 @@ interface VehicleHeaderProps {
     year: number;
     prevYear?: number | null;
     nextYear?: number | null;
-    platform?: string;
     architecture?: string;
     canFd?: boolean;
     specs?: {
@@ -29,7 +28,6 @@ export default function VehicleHeader({
     year,
     prevYear,
     nextYear,
-    platform,
     architecture,
     canFd,
     specs = {},
@@ -76,13 +74,8 @@ export default function VehicleHeader({
                                 {year} {make} {model}
                             </h1>
                             <div className="flex flex-wrap gap-2 mt-2">
-                                {platform && (
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-900/40 text-purple-300 border border-purple-700/30">
-                                        {platform}
-                                    </span>
-                                )}
                                 {architecture && (
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-900/40 text-blue-300 border border-blue-700/30">
+                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/40 text-emerald-300 border border-emerald-700/30">
                                         {architecture}
                                     </span>
                                 )}

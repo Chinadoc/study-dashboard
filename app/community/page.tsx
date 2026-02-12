@@ -293,7 +293,7 @@ export default function CommunityPage() {
             const authHeaders = isAuthenticated ? { 'Authorization': `Bearer ${getSessionToken()}` } : undefined;
 
             // Fetch trending comments (highest score in last 7 days)
-            const trendingRes = await fetch(`${API_URL}/api/community/trending?limit=${PAGE_SIZE}&offset=0`);
+            const trendingRes = await fetch(`${API_URL}/api/community/trending?limit=${PAGE_SIZE}&offset=0`, authHeaders ? { headers: authHeaders } : undefined);
             if (trendingRes.ok) {
                 const data = await trendingRes.json();
                 setTrendingComments(rankTrendingComments(data.trending || []));
@@ -301,7 +301,7 @@ export default function CommunityPage() {
             }
 
             // Fetch recent comments across all vehicles
-            const recentRes = await fetch(`${API_URL}/api/community/recent?limit=${PAGE_SIZE}&offset=0`);
+            const recentRes = await fetch(`${API_URL}/api/community/recent?limit=${PAGE_SIZE}&offset=0`, authHeaders ? { headers: authHeaders } : undefined);
             if (recentRes.ok) {
                 const data = await recentRes.json();
                 setRecentComments(data.comments || []);
@@ -309,7 +309,7 @@ export default function CommunityPage() {
             }
 
             // Fetch verified pearls
-            const verifiedRes = await fetch(`${API_URL}/api/community/verified?limit=${PAGE_SIZE}&offset=0`);
+            const verifiedRes = await fetch(`${API_URL}/api/community/verified?limit=${PAGE_SIZE}&offset=0`, authHeaders ? { headers: authHeaders } : undefined);
             if (verifiedRes.ok) {
                 const data = await verifiedRes.json();
                 setVerifiedPearls(data.verified || []);
@@ -1020,7 +1020,8 @@ export default function CommunityPage() {
         if (loadingMoreTab || !hasMoreTrending) return;
         setLoadingMoreTab('trending');
         try {
-            const response = await fetch(`${API_URL}/api/community/trending?limit=${PAGE_SIZE}&offset=${trendingComments.length}`);
+            const authHeaders = isAuthenticated ? { headers: { 'Authorization': `Bearer ${getSessionToken()}` } } : undefined;
+            const response = await fetch(`${API_URL}/api/community/trending?limit=${PAGE_SIZE}&offset=${trendingComments.length}`, authHeaders);
             if (!response.ok) return;
             const data = await response.json();
             setTrendingComments((prev) => rankTrendingComments(mergeById(prev, data.trending || [])));
@@ -1036,7 +1037,8 @@ export default function CommunityPage() {
         if (loadingMoreTab || !hasMoreRecent) return;
         setLoadingMoreTab('recent');
         try {
-            const response = await fetch(`${API_URL}/api/community/recent?limit=${PAGE_SIZE}&offset=${recentComments.length}`);
+            const authHeaders = isAuthenticated ? { headers: { 'Authorization': `Bearer ${getSessionToken()}` } } : undefined;
+            const response = await fetch(`${API_URL}/api/community/recent?limit=${PAGE_SIZE}&offset=${recentComments.length}`, authHeaders);
             if (!response.ok) return;
             const data = await response.json();
             setRecentComments((prev) => mergeById(prev, data.comments || []));
@@ -1052,7 +1054,8 @@ export default function CommunityPage() {
         if (loadingMoreTab || !hasMoreVerified) return;
         setLoadingMoreTab('verified');
         try {
-            const response = await fetch(`${API_URL}/api/community/verified?limit=${PAGE_SIZE}&offset=${verifiedPearls.length}`);
+            const authHeaders = isAuthenticated ? { headers: { 'Authorization': `Bearer ${getSessionToken()}` } } : undefined;
+            const response = await fetch(`${API_URL}/api/community/verified?limit=${PAGE_SIZE}&offset=${verifiedPearls.length}`, authHeaders);
             if (!response.ok) return;
             const data = await response.json();
             setVerifiedPearls((prev) => mergeById(prev, data.verified || []));

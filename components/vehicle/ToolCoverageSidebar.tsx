@@ -301,7 +301,7 @@ export default function ToolCoverageSidebar({ make, model, year, intelligence }:
                 </div>
             )}
 
-            {otherFamilyTools.length > 0 && (
+            {otherFamilyTools.length > 0 && !viCoverage && (
                 <div className="mt-4 pt-4 border-t border-gray-800 space-y-2">
                     <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                         Other Families
