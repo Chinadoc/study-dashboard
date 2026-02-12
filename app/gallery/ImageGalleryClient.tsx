@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import imageManifest from '@/public/data/image_gallery_manifest.json';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePrompt from '@/components/UpgradePrompt';
 
@@ -59,6 +58,20 @@ export default function ImageGalleryClient() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentSourceImages, setCurrentSourceImages] = useState<GalleryImage[]>([]);
 
+  // Runtime-fetched manifest (not bundled at build time)
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/data/image_gallery_manifest.json', { cache: 'no-store' })
+      .then(res => res.json())
+      .then((data: { images: GalleryImage[] }) => {
+        setImages(data.images);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+  }, []);
+
   // Touch handling for swipe gestures
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -73,7 +86,7 @@ export default function ImageGalleryClient() {
     const newIndex = currentImageIndex + direction;
     if (newIndex >= 0 && newIndex < currentSourceImages.length) {
       // Check if target image is locked for non-pro users
-      const images = (imageManifest as { images: GalleryImage[] }).images;
+      // Use runtime-fetched images
       const filteredImgs = images.filter((image) => {
         if (searchQuery) {
           const query = searchQuery.toLowerCase();
@@ -159,7 +172,7 @@ export default function ImageGalleryClient() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, currentImageIndex, currentSourceImages]);
 
-  const images = (imageManifest as { images: GalleryImage[] }).images;
+  // images is now state from the runtime fetch above
 
   // Filter images based on search and tags
   const filteredImages = useMemo(() => {
@@ -575,6 +588,7 @@ export default function ImageGalleryClient() {
       <div className="header">
         <h1>📷 Image Gallery</h1>
         <p className="subtitle">Technical diagrams and reference images from dossiers</p>
+        {isLoading && <p style={{ color: '#888', marginTop: '0.5rem' }}>Loading images...</p>}
       </div>
 
       <div className="stats">
