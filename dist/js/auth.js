@@ -359,7 +359,7 @@ function signInWithGoogle() {
     // ALWAYS use the Worker URL directly for auth to bypass Cloudflare Pages _redirects
     // The Pages proxy cannot properly handle 302 redirects to external domains (Google OAuth)
     const workerAuthUrl = 'https://euro-keys.jeremy-samuels17.workers.dev/api/auth/google';
-    const redirect = encodeURIComponent(window.location.origin);
+    const redirect = encodeURIComponent(window.location.href);
     window.location.href = `${workerAuthUrl}?redirect=${redirect}`;
 }
 
@@ -598,6 +598,8 @@ async function signOut() {
         localStorage.removeItem('eurokeys_user');
         localStorage.removeItem('session_token'); // FIX: Use consistent key name
         localStorage.removeItem('eurokeys_premium_usage'); // Reset anonymous free view counters
+        localStorage.removeItem('eurokeys_inventory'); // FIX: Clear user-specific inventory cache
+        localStorage.removeItem('eurokeys_user_subscriptions'); // FIX: Clear user-specific subscriptions
         window.isAuthExpired = true; // Prevent background auth checks from restoring session
 
         updateAuthUI(false);

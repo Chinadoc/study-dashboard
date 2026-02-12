@@ -23,6 +23,27 @@ interface TourState {
 }
 
 /**
+ * Check if the current pathname is "close enough" to the tour step's target.
+ * Handles Cloudflare Pages redirects like:
+ *   /vehicle/toyota/camry/2022 → /vehicle/fallback/?original=%2Fvehicle%2Ftoyota%2Fcamry%2F2022
+ */
+function isOnCorrectPage(pathname: string, targetPage: string): boolean {
+    const normalizedPath = pathname?.replace(/\/$/, '') || '';
+    const targetPath = targetPage.replace(/\/$/, '');
+
+    // Exact match
+    if (normalizedPath === targetPath) return true;
+
+    // Fallback redirect match: /vehicle/fallback is close enough for /vehicle/...
+    // The VehicleDetailClient reads the ?original= param to get the real route
+    if (targetPath.startsWith('/vehicle/') && normalizedPath.startsWith('/vehicle/')) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * useTour — Unified hook for managing any walkthrough tour.
  * Handles step navigation, page routing, and persistence.
  */
@@ -74,40 +95,33 @@ export function useTour(): TourState {
         }));
     }, [tourId, stepIndex]);
 
-    // Track which step we've already attempted navigation for
-    const [navigatedStep, setNavigatedStep] = useState<number>(-1);
-
-    // Navigate to correct page when step changes — only navigate ONCE per step
+    // Navigate to correct page when step changes — only navigate ONCE per step.
+    // Uses localStorage to track navigation attempts so the flag survives page reloads.
     useEffect(() => {
         if (!tourId || steps.length === 0) return;
         const step = steps[stepIndex];
         if (!step) return;
 
-        const normalizedPath = pathname?.replace(/\/$/, '') || '';
-        const targetPath = step.page.replace(/\/$/, '');
-
-        // If we're already on the right page, clear navigating state
-        if (normalizedPath === targetPath) {
+        // If we're already on the correct page (or close enough), done
+        if (isOnCorrectPage(pathname || '', step.page)) {
             setIsNavigating(false);
-            setNavigatedStep(stepIndex);
             return;
         }
 
-        // Only navigate once per step — prevent infinite push loop
-        if (navigatedStep === stepIndex) {
-            // Already attempted navigation for this step; clear navigating
-            // after a timeout (the page may have redirected or 404'd)
-            const timeout = setTimeout(() => {
-                setIsNavigating(false);
-            }, 2000);
-            return () => clearTimeout(timeout);
+        // Check localStorage flag: did we already navigate for this step?
+        const navKey = `${TOUR_STATE_PREFIX}${tourId}_nav`;
+        const lastNav = localStorage.getItem(navKey);
+        if (lastNav === String(stepIndex)) {
+            // Already attempted — don't navigate again, just clear the spinner
+            setIsNavigating(false);
+            return;
         }
 
-        // Navigate to the target page
+        // Navigate to the target page (once)
         setIsNavigating(true);
-        setNavigatedStep(stepIndex);
+        localStorage.setItem(navKey, String(stepIndex));
         router.push(step.page);
-    }, [tourId, stepIndex, steps, pathname, router, navigatedStep]);
+    }, [tourId, stepIndex, steps, pathname, router]);
 
     const startTour = useCallback((id: string) => {
         const tour = getTour(id);
@@ -115,15 +129,17 @@ export function useTour(): TourState {
             console.warn(`Tour "${id}" not found in registry`);
             return;
         }
+        // Clear any previous navigation flag
+        localStorage.removeItem(`${TOUR_STATE_PREFIX}${id}_nav`);
         setTourId(id);
         setSteps(tour.steps);
         setStepIndex(0);
-        setNavigatedStep(-1);
     }, []);
 
     const endTour = useCallback((markComplete: boolean) => {
         if (tourId) {
             localStorage.removeItem(`${TOUR_STATE_PREFIX}${tourId}`);
+            localStorage.removeItem(`${TOUR_STATE_PREFIX}${tourId}_nav`);
             if (markComplete) {
                 markTourComplete(tourId);
             }
@@ -135,17 +151,25 @@ export function useTour(): TourState {
 
     const nextStep = useCallback(() => {
         if (stepIndex < steps.length - 1) {
+            // Clear navigation flag so the next step can navigate
+            if (tourId) {
+                localStorage.removeItem(`${TOUR_STATE_PREFIX}${tourId}_nav`);
+            }
             setStepIndex(prev => prev + 1);
         } else {
             endTour(true);
         }
-    }, [stepIndex, steps.length, endTour]);
+    }, [stepIndex, steps.length, endTour, tourId]);
 
     const prevStep = useCallback(() => {
         if (stepIndex > 0) {
+            // Clear navigation flag so the previous step can navigate
+            if (tourId) {
+                localStorage.removeItem(`${TOUR_STATE_PREFIX}${tourId}_nav`);
+            }
             setStepIndex(prev => prev - 1);
         }
-    }, [stepIndex]);
+    }, [stepIndex, tourId]);
 
     const skipTour = useCallback(() => {
         endTour(true);

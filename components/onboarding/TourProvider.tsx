@@ -72,6 +72,15 @@ interface TourCardProps {
 function TourCard({ step, stepIndex, totalSteps, isNavigating, onNext, onPrev, onSkip }: TourCardProps) {
     const isLast = stepIndex === totalSteps - 1;
 
+    // Allow Escape key to close tour
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onSkip();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onSkip]);
+
     return (
         <div
             className="fixed z-[10000] left-1/2 -translate-x-1/2 bottom-24 w-full max-w-md p-5
@@ -82,16 +91,26 @@ function TourCard({ step, stepIndex, totalSteps, isNavigating, onNext, onPrev, o
                         max-[768px]:left-4 max-[768px]:right-4 max-[768px]:bottom-[calc(env(safe-area-inset-bottom)+5rem)]
                         max-[768px]:translate-x-0 max-[768px]:max-w-none max-[768px]:w-auto max-[768px]:p-4"
         >
+            {/* Close button — always visible */}
+            <button
+                onClick={onSkip}
+                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center
+                           text-zinc-500 hover:text-white hover:bg-zinc-700 rounded-full transition-colors text-sm"
+                aria-label="Close tour"
+            >
+                ✕
+            </button>
+
             {/* Progress bar */}
             <div className="flex gap-1 mb-3">
                 {Array.from({ length: totalSteps }, (_, i) => (
                     <div
                         key={i}
                         className={`h-1 flex-1 rounded-full transition-colors ${i === stepIndex
-                                ? 'bg-purple-500'
-                                : i < stepIndex
-                                    ? 'bg-purple-500/50'
-                                    : 'bg-zinc-700'
+                            ? 'bg-purple-500'
+                            : i < stepIndex
+                                ? 'bg-purple-500/50'
+                                : 'bg-zinc-700'
                             }`}
                     />
                 ))}

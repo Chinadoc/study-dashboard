@@ -51,11 +51,14 @@ const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_titl
   'hyundai': { infographic: '/assets/Hyundai_Key_Programming_Field_Guide.png', pdf: '/assets/Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
   'kia': { infographic: '/assets/Hyundai_Key_Programming_Field_Guide.png', pdf: '/assets/Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
   'mazda': { infographic: '/assets/Mazda Infographic.png' },
-  'mercedes': { pdf: '/assets/Mercedes_Locksmith_Codex.pdf', pdf_title: 'Locksmith Codex' },
+  'mercedes': { infographic: '/guides/mercedes_fbs3_vs_fbs4_guide.png', pdf: '/assets/Mercedes_Locksmith_Codex.pdf', pdf_title: 'Locksmith Codex' },
+  'mercedes-benz': { infographic: '/guides/mercedes_fbs3_vs_fbs4_guide.png', pdf: '/assets/Mercedes_Locksmith_Codex.pdf', pdf_title: 'Locksmith Codex' },
+  'audi': { infographic: '/guides/audi_mqb_vs_mlb_platform_guide.png' },
   'nissan': { infographic: '/assets/Nissan infographic.png', pdf: '/assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' },
   'infiniti': { infographic: '/assets/Nissan infographic.png', pdf: '/assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' },
   // GM Brands - Global A/B Architecture
-  'chevrolet': { infographic: '/guides/Camaro_PEPS_Topology.png', pdf_title: 'Global A PEPS Guide' },
+  'chevrolet': { infographic: '/guides/gm_pk3_vs_pk3plus_guide.png', pdf_title: 'Global A PEPS Guide' },
+  'gm': { infographic: '/guides/gm_pk3_vs_pk3plus_guide.png' },
   'gmc': { pdf_title: 'Global A PEPS Guide' },
   'buick': { pdf_title: 'Global A PEPS Guide' },
   'cadillac': { pdf_title: 'Global A PEPS Guide' }
@@ -129,7 +132,7 @@ function normalizeAuthRedirect(candidate?: string | null): string {
 
     if (!isAllowedHost) return DEFAULT_AUTH_REDIRECT;
     if (!isLocalhost && url.protocol !== "https:") return DEFAULT_AUTH_REDIRECT;
-    return url.origin;
+    return url.origin + url.pathname;
   } catch {
     return DEFAULT_AUTH_REDIRECT;
   }
@@ -8413,7 +8416,7 @@ Guidelines:
           const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
           if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
-          // Get all users with activity count and last activity
+          // Get all users with activity count, last activity, and subscription fields
           const users = await env.LOCKSMITH_DB.prepare(`
           SELECT 
             u.id,
@@ -8423,6 +8426,9 @@ Guidelines:
             u.is_pro,
             u.is_developer,
             u.created_at,
+            u.subscription_status,
+            u.stripe_customer_id,
+            u.trial_until,
             COUNT(a.id) as activity_count,
             MAX(a.created_at) as last_activity
           FROM users u
@@ -9113,7 +9119,189 @@ Guidelines:
         }
       }
 
+      // Admin: Billing - Stripe Dashboard Data (developer only)
+      if (path === "/api/admin/billing") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          if (!env.STRIPE_SECRET_KEY) {
+            return corsResponse(request, JSON.stringify({ error: "Stripe not configured" }), 500);
+          }
+
+          const stripeHeaders = {
+            "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          };
+
+          // Fetch Stripe data in parallel
+          const [customersRes, subscriptionsRes, productsRes, pricesRes] = await Promise.all([
+            fetch("https://api.stripe.com/v1/customers?limit=100", { headers: stripeHeaders }),
+            fetch("https://api.stripe.com/v1/subscriptions?limit=100&status=all", { headers: stripeHeaders }),
+            fetch("https://api.stripe.com/v1/products?limit=100&active=true", { headers: stripeHeaders }),
+            fetch("https://api.stripe.com/v1/prices?limit=100&active=true", { headers: stripeHeaders }),
+          ]);
+
+          const [customersData, subscriptionsData, productsData, pricesData] = await Promise.all([
+            customersRes.json() as Promise<any>,
+            subscriptionsRes.json() as Promise<any>,
+            productsRes.json() as Promise<any>,
+            pricesRes.json() as Promise<any>,
+          ]);
+
+          // Build price lookup map
+          const priceLookup: Record<string, any> = {};
+          for (const price of (pricesData.data || [])) {
+            priceLookup[price.id] = price;
+          }
+
+          // Build product lookup map
+          const productLookup: Record<string, any> = {};
+          for (const product of (productsData.data || [])) {
+            productLookup[product.id] = product;
+          }
+
+          // Build subscription lookup by customer ID
+          const subsByCustomer: Record<string, any[]> = {};
+          for (const sub of (subscriptionsData.data || [])) {
+            const custId = typeof sub.customer === 'string' ? sub.customer : sub.customer?.id;
+            if (custId) {
+              if (!subsByCustomer[custId]) subsByCustomer[custId] = [];
+              subsByCustomer[custId].push(sub);
+            }
+          }
+
+          // Map customers with their subscriptions
+          const customers = (customersData.data || []).map((c: any) => {
+            const customerSubs = subsByCustomer[c.id] || [];
+            const activeSub = customerSubs.find((s: any) => s.status === 'active' || s.status === 'trialing');
+            let planName = 'No subscription';
+            let planAmount = 0;
+            let planInterval = '';
+            if (activeSub) {
+              const item = activeSub.items?.data?.[0];
+              const priceId = item?.price?.id || item?.plan?.id;
+              const priceObj = priceId ? (priceLookup[priceId] || item?.price) : null;
+              const productId = priceObj?.product;
+              const product = productId ? productLookup[productId] : null;
+              planName = product?.name || priceObj?.nickname || activeSub.metadata?.add_on_id || 'Unknown Plan';
+              planAmount = (priceObj?.unit_amount || 0) / 100;
+              planInterval = priceObj?.recurring?.interval || '';
+            }
+
+            return {
+              id: c.id,
+              email: c.email,
+              name: c.name || c.metadata?.name || null,
+              created: c.created * 1000,
+              metadata: c.metadata || {},
+              subscriptions: customerSubs.map((s: any) => {
+                const item = s.items?.data?.[0];
+                const priceObj = item?.price || {};
+                const productId = priceObj?.product;
+                const product = productId ? productLookup[productId] : null;
+                return {
+                  id: s.id,
+                  status: s.status,
+                  planName: product?.name || priceObj?.nickname || s.metadata?.add_on_id || 'Unknown',
+                  amount: (priceObj?.unit_amount || 0) / 100,
+                  interval: priceObj?.recurring?.interval || '',
+                  currentPeriodStart: s.current_period_start ? s.current_period_start * 1000 : null,
+                  currentPeriodEnd: s.current_period_end ? s.current_period_end * 1000 : null,
+                  trialStart: s.trial_start ? s.trial_start * 1000 : null,
+                  trialEnd: s.trial_end ? s.trial_end * 1000 : null,
+                  canceledAt: s.canceled_at ? s.canceled_at * 1000 : null,
+                  created: s.created * 1000,
+                };
+              }),
+              activePlan: planName,
+              activePlanAmount: planAmount,
+              activePlanInterval: planInterval,
+              activeSubStatus: activeSub?.status || null,
+            };
+          });
+
+          // Map products with their prices
+          const products = (productsData.data || []).map((p: any) => {
+            const productPrices = (pricesData.data || []).filter((pr: any) => pr.product === p.id);
+            return {
+              id: p.id,
+              name: p.name,
+              description: p.description,
+              active: p.active,
+              created: p.created * 1000,
+              prices: productPrices.map((pr: any) => ({
+                id: pr.id,
+                amount: (pr.unit_amount || 0) / 100,
+                currency: pr.currency,
+                interval: pr.recurring?.interval || 'one_time',
+                active: pr.active,
+              })),
+            };
+          });
+
+          // Compute summary
+          const allSubs = subscriptionsData.data || [];
+          const activeSubs = allSubs.filter((s: any) => s.status === 'active');
+          const trialingSubs = allSubs.filter((s: any) => s.status === 'trialing');
+          const canceledSubs = allSubs.filter((s: any) => s.status === 'canceled');
+          const pastDueSubs = allSubs.filter((s: any) => s.status === 'past_due');
+
+          // Calculate MRR from active + trialing subscriptions
+          let mrr = 0;
+          for (const sub of [...activeSubs, ...trialingSubs]) {
+            const item = sub.items?.data?.[0];
+            const amount = item?.price?.unit_amount || item?.plan?.amount || 0;
+            const interval = item?.price?.recurring?.interval || item?.plan?.interval || 'month';
+            if (interval === 'month') {
+              mrr += amount / 100;
+            } else if (interval === 'year') {
+              mrr += amount / 100 / 12;
+            }
+          }
+
+          // Also get addon_trials from the DB for local context
+          const addonTrials = await env.LOCKSMITH_DB.prepare(`
+            SELECT
+              at.user_id,
+              at.addon_id,
+              at.trial_started_at,
+              at.trial_expires_at,
+              at.converted_at,
+              at.canceled_at,
+              at.stripe_subscription_id,
+              u.email as user_email,
+              u.name as user_name
+            FROM addon_trials at
+            LEFT JOIN users u ON u.id = at.user_id
+            ORDER BY at.trial_started_at DESC
+            LIMIT 100
+          `).all();
+
+          return corsResponse(request, JSON.stringify({
+            customers,
+            products,
+            addonTrials: addonTrials.results || [],
+            summary: {
+              totalCustomers: customers.length,
+              activeSubscriptions: activeSubs.length,
+              trialingSubscriptions: trialingSubs.length,
+              canceledSubscriptions: canceledSubs.length,
+              pastDueSubscriptions: pastDueSubs.length,
+              mrr: Math.round(mrr * 100) / 100,
+            },
+          }));
+        } catch (err: any) {
+          console.error('/api/admin/billing error:', err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
 
       // Admin: Get Cloudflare Analytics (developer only)
       if (path === "/api/admin/cloudflare") {
@@ -13860,6 +14048,29 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
           } catch { /* dossier images are non-critical */ }
 
+          // 4.6 Fetch VPM transition guide data
+          let vpmData: any = null;
+          try {
+            const yearInt = year ? parseInt(String(year), 10) : 0;
+            const vpmQuery = yearInt
+              ? `SELECT platform_code, chassis_code, transition_note, hardware_note FROM vehicle_platform_map WHERE LOWER(make) = ? AND LOWER(model) = ? AND year_start <= ? AND year_end >= ? LIMIT 1`
+              : `SELECT platform_code, chassis_code, transition_note, hardware_note FROM vehicle_platform_map WHERE LOWER(make) = ? AND LOWER(model) = ? LIMIT 1`;
+            const vpmParams = yearInt ? [make, model, yearInt, yearInt] : [make, model];
+            const vpmResult = await env.LOCKSMITH_DB.prepare(vpmQuery).bind(...vpmParams).first<any>();
+            if (vpmResult) {
+              const WORKER_BASE = url.origin;
+              const makeKey = make.toLowerCase();
+              const makeAsset = MAKE_ASSETS[makeKey];
+              vpmData = {
+                platform_code: vpmResult.platform_code,
+                chassis_code: vpmResult.chassis_code,
+                transition_note: vpmResult.transition_note,
+                hardware_note: vpmResult.hardware_note,
+                guide_image: makeAsset?.infographic ? `${WORKER_BASE}/api/r2/${encodeURIComponent(makeAsset.infographic.replace(/^\//, ''))}` : null,
+              };
+            }
+          } catch (e: any) { console.error('VPM query error:', e?.message || e); }
+
           // 5. Build combined response with priority rules
           // Priority: enrichments (0) > AKS vehicles (1) > VYP (2) > vehicles (3 - DEPRECATED, lowest priority)
           // NOTE: The vehicles table is scheduled for deletion. Do NOT add new dependencies on it.
@@ -14160,6 +14371,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
             // Dossier images from research documents
             dossier_images: dossierImages.length > 0 ? dossierImages : null,
+
+            // VPM transition identification data
+            vpm: vpmData,
           };
 
           return corsResponse(request, JSON.stringify(response));

@@ -359,7 +359,7 @@ function signInWithGoogle() {
     // ALWAYS use the Worker URL directly for auth to bypass Cloudflare Pages _redirects
     // The Pages proxy cannot properly handle 302 redirects to external domains (Google OAuth)
     const workerAuthUrl = 'https://euro-keys.jeremy-samuels17.workers.dev/api/auth/google';
-    const redirect = encodeURIComponent(window.location.origin);
+    const redirect = encodeURIComponent(window.location.href);
     window.location.href = `${workerAuthUrl}?redirect=${redirect}`;
 }
 

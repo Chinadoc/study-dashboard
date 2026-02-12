@@ -167,7 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [captureAuthToken, verifySession]);
 
     const login = useCallback(() => {
-        const redirect = encodeURIComponent(window.location.origin);
+        const redirect = encodeURIComponent(window.location.href);
         window.location.href = `${WORKER_AUTH_URL}?redirect=${redirect}`;
     }, []);
 

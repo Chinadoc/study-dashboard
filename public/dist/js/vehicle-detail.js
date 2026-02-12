@@ -18,18 +18,6 @@ class VehicleDetailRenderer {
         this.activeProcedure = 'addkey';
     }
 
-    /** Map frequency to regional market label */
-    static _freqRegion(freq) {
-        if (!freq) return '';
-        const f = freq.toLowerCase();
-        if (f.includes('315')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
-        if (f.includes('433') || f.includes('434')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
-        if (f.includes('868')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
-        if (f.includes('902')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
-        if (f.includes('314')) return ' <span style="color:#9ca3af;font-weight:400">(🇯🇵 Japan)</span>';
-        return '';
-    }
-
     /**
      * Automatically wrap all occurrences of glossary terms in a text string
      * @param {string} text - The content text to process
@@ -86,6 +74,7 @@ class VehicleDetailRenderer {
             <div class="vehicle-detail-container">
                 ${this.renderHeader(data)}
                 ${this.renderTopRow(data)}
+                ${this.renderTransitionGuide(data)}
                 ${this.renderComments(data)}
                 ${this.renderKeyTypes(data)}
                 ${this.renderProcedures(data)}
@@ -124,15 +113,61 @@ class VehicleDetailRenderer {
      */
     renderTopRow(data) {
         return `
-            <div class="vd-two-column-layout" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; margin-bottom: 24px;">
-                ${this.renderSpecs(data.specs)}
-                ${this.renderRightColumn(data)}
+            <div class="vd-top-row">
+                <div class="vd-left-column">
+                    ${this.renderSpecs(data.specs)}
+                </div>
+                <div class="vd-right-column">
+                    ${this.renderRightColumn(data)}
+                </div>
             </div>
-            <style>
-                @media (max-width: 900px) {
-                    .vd-two-column-layout { grid-template-columns: 1fr !important; }
-                }
-            </style>
+        `;
+    }
+
+    /**
+     * Render system identification / transition guide (highlighted)
+     * Shows VPM transition_note + hardware_note + visual guide image
+     */
+    renderTransitionGuide(data) {
+        if (!data.vpm || !data.vpm.transition_note) return '';
+
+        const vpm = data.vpm;
+        const platformBadge = vpm.platform_code || 'Unknown';
+        const chassisBadge = vpm.chassis_code || '';
+
+        // Build the image section if guide_image exists
+        const imageSection = vpm.guide_image ? `
+            <div class="vd-transition-image" style="margin-top: 16px; border-radius: 12px; overflow: hidden; cursor: pointer;" onclick="this.querySelector('img')?.requestFullscreen()">
+                <img src="${vpm.guide_image}" alt="${platformBadge} Identification Guide" loading="lazy" style="width: 100%; display: block; border-radius: 12px;">
+            </div>
+        ` : '';
+
+        return `
+            <div class="vd-card" style="border: 2px solid var(--vd-amber); background: linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, rgba(139, 92, 246, 0.04) 100%);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+                    <div class="vd-card-title" style="color: var(--vd-amber); margin-bottom: 0;">
+                        <span class="icon">🔍</span>
+                        System Identification Guide
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span style="background: var(--vd-amber); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">${platformBadge}</span>
+                        ${chassisBadge ? `<span style="background: rgba(139, 92, 246, 0.2); color: var(--vd-purple); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${chassisBadge}</span>` : ''}
+                    </div>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.08); border-radius: 12px; padding: 16px; margin-bottom: ${vpm.hardware_note ? '12px' : '0'};">
+                    <div style="font-size: 0.82rem; color: #e5e7eb; line-height: 1.6;">${this.autoGlossary(vpm.transition_note)}</div>
+                </div>
+                ${vpm.hardware_note ? `
+                    <div style="background: rgba(139, 92, 246, 0.08); border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                            <span style="font-size: 0.9rem;">🔧</span>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--vd-purple); text-transform: uppercase; letter-spacing: 0.5px;">Hardware</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #d1d5db; line-height: 1.5;">${this.autoGlossary(vpm.hardware_note)}</div>
+                    </div>
+                ` : ''}
+                ${imageSection}
+            </div>
         `;
     }
 
@@ -142,22 +177,11 @@ class VehicleDetailRenderer {
     renderSpecs(specs) {
         if (!specs) return '';
 
-        // Build FCC ID display value with "+N" format for multiple IDs
-        let fccDisplay = specs.fccId || 'N/A';
-        let fccTooltip = '';
-        const fccIds = specs.fccIds || [];
-        if (fccIds.length > 1) {
-            fccDisplay = `${fccIds[0]} <span class="vd-fcc-extra" title="${fccIds.join(', ')}">+${fccIds.length - 1}</span>`;
-            fccTooltip = fccIds.join(', ');
-        } else if (fccIds.length === 1) {
-            fccDisplay = fccIds[0];
-        }
-
         const specItems = [
             { label: 'Architecture', value: specs.architecture, highlight: true },
             { label: 'CAN FD', value: specs.canFd ? 'REQUIRED' : 'Not Required', highlight: specs.canFd },
             { label: 'Chip Type', value: specs.chipType },
-            { label: 'FCC ID', value: fccDisplay, link: fccIds.length === 1 ? `https://fccid.io/${fccIds[0]}` : null, rawHtml: fccIds.length > 1 },
+            { label: 'FCC ID', value: specs.fccId, link: `https://fccid.io/${specs.fccId}` },
             { label: 'Battery', value: specs.battery },
             { label: 'Keyway / Lishi', value: specs.keyway, highlight: true }
         ].filter(s => s.value);
@@ -197,7 +221,7 @@ class VehicleDetailRenderer {
                             <div class="vd-spec-value ${item.highlight ? 'highlight' : ''}">
                                 ${item.link
                 ? `<a href="${item.link}" target="_blank" style="color: inherit; text-decoration: none;">${item.value}</a>`
-                : item.rawHtml ? item.value : item.value}
+                : item.value}
                             </div>
                         </div>
                     `).join('')}
@@ -352,7 +376,7 @@ class VehicleDetailRenderer {
                 <div class="vd-key-card-footer">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                         ${key.fcc ? `<span><strong>FCC:</strong> ${key.fcc}</span>` : ''}
-                        ${key.freq ? `<span><strong>Freq:</strong> ${key.freq}${VehicleDetailRenderer._freqRegion(key.freq)}</span>` : ''}
+                        ${key.freq ? `<span><strong>Freq:</strong> ${key.freq}</span>` : ''}
                         ${key.chip ? `<span><strong>Chip:</strong> ${key.chip}</span>` : ''}
                         ${key.battery ? `<span><strong>Battery:</strong> ${key.battery}</span>` : ''}
                     </div>

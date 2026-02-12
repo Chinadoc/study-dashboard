@@ -64,6 +64,71 @@ interface UserData {
     created_at: number;
     activity_count: number;
     last_activity: number;
+    subscription_status?: string;
+    stripe_customer_id?: string;
+    trial_until?: string;
+}
+
+interface StripeCustomer {
+    id: string;
+    email: string;
+    name: string | null;
+    created: number;
+    metadata: Record<string, string>;
+    subscriptions: StripeSubscription[];
+    activePlan: string;
+    activePlanAmount: number;
+    activePlanInterval: string;
+    activeSubStatus: string | null;
+}
+
+interface StripeSubscription {
+    id: string;
+    status: string;
+    planName: string;
+    amount: number;
+    interval: string;
+    currentPeriodStart: number | null;
+    currentPeriodEnd: number | null;
+    trialStart: number | null;
+    trialEnd: number | null;
+    canceledAt: number | null;
+    created: number;
+}
+
+interface StripeProduct {
+    id: string;
+    name: string;
+    description: string | null;
+    active: boolean;
+    created: number;
+    prices: { id: string; amount: number; currency: string; interval: string; active: boolean }[];
+}
+
+interface AddonTrial {
+    user_id: string;
+    addon_id: string;
+    trial_started_at: string;
+    trial_expires_at: string;
+    converted_at: string | null;
+    canceled_at: string | null;
+    stripe_subscription_id: string | null;
+    user_email: string;
+    user_name: string;
+}
+
+interface BillingData {
+    customers: StripeCustomer[];
+    products: StripeProduct[];
+    addonTrials: AddonTrial[];
+    summary: {
+        totalCustomers: number;
+        activeSubscriptions: number;
+        trialingSubscriptions: number;
+        canceledSubscriptions: number;
+        pastDueSubscriptions: number;
+        mrr: number;
+    };
 }
 
 interface VerificationHistoryItem {
@@ -467,6 +532,7 @@ export default function DevPanelPage() {
     const [verificationHistory, setVerificationHistory] = useState<VerificationHistoryItem[]>([]);
     const [reviewerRoles, setReviewerRoles] = useState<ReviewerRole[]>([]);
     const [communityConversion, setCommunityConversion] = useState<CommunityConversionData | null>(null);
+    const [billingData, setBillingData] = useState<BillingData | null>(null);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [selectedUserOverview, setSelectedUserOverview] = useState<UserOverviewResponse | null>(null);
     const [loadingUserOverview, setLoadingUserOverview] = useState(false);
@@ -483,7 +549,7 @@ export default function DevPanelPage() {
     const [verificationNotes, setVerificationNotes] = useState<Record<string, string>>({});
     const [verificationRejectReasons, setVerificationRejectReasons] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps' | 'moderation' | 'verification'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'gaps' | 'moderation' | 'verification' | 'billing'>('overview');
     const [activityFilter, setActivityFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [expandedActivityId, setExpandedActivityId] = useState<number | null>(null);
@@ -499,7 +565,7 @@ export default function DevPanelPage() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         try {
-            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes, moderationHistoryRes, verificationRes, verificationHistoryRes, reviewerRolesRes, communityConversionRes] = await Promise.allSettled([
+            const [statsRes, cfRes, activityRes, inventoryRes, clicksRes, usersRes, gapsRes, moderationRes, moderationHistoryRes, verificationRes, verificationHistoryRes, reviewerRolesRes, communityConversionRes, billingRes] = await Promise.allSettled([
                 fetch(`${API_BASE}/api/admin/stats`, { headers }),
                 fetch(`${API_BASE}/api/admin/cloudflare`, { headers }),
                 fetch(`${API_BASE}/api/admin/activity?limit=50`, { headers }),
@@ -512,7 +578,8 @@ export default function DevPanelPage() {
                 fetch(`${API_BASE}/api/verification/pending`, { headers }),
                 fetch(`${API_BASE}/api/verification/history?limit=150&status=approved`, { headers }),
                 fetch(`${API_BASE}/api/reviewer-roles`, { headers }),
-                fetch(`${API_BASE}/api/community/conversion?days=30`, { headers })
+                fetch(`${API_BASE}/api/community/conversion?days=30`, { headers }),
+                fetch(`${API_BASE}/api/admin/billing`, { headers })
             ]);
 
             if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
@@ -571,6 +638,10 @@ export default function DevPanelPage() {
             if (communityConversionRes.status === 'fulfilled' && communityConversionRes.value.ok) {
                 const data = await communityConversionRes.value.json();
                 setCommunityConversion(data || null);
+            }
+            if (billingRes.status === 'fulfilled' && billingRes.value.ok) {
+                const data = await billingRes.value.json();
+                setBillingData(data || null);
             }
         } catch (e) {
             console.error('Failed to fetch dev data:', e);
@@ -855,7 +926,7 @@ export default function DevPanelPage() {
 
             {/* Tab Navigation */}
             <div className="mb-6 flex gap-2 border-b border-eurokeys-border pb-2">
-                {(['overview', 'users', 'activity', 'gaps', 'verification', 'moderation'] as const).map(tab => (
+                {(['overview', 'users', 'activity', 'gaps', 'verification', 'moderation', 'billing'] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -870,6 +941,7 @@ export default function DevPanelPage() {
                         {tab === 'gaps' && '🔍 Coverage Gaps'}
                         {tab === 'verification' && `🪪 Verification (${verificationQueue.length})`}
                         {tab === 'moderation' && `🛡️ Moderation (${moderationQueue.length})`}
+                        {tab === 'billing' && `💳 Billing (${billingData?.summary?.totalCustomers || 0})`}
                     </button>
                 ))}
             </div>
@@ -1206,6 +1278,16 @@ export default function DevPanelPage() {
                                                         )}
                                                         {u.is_pro && (
                                                             <span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-400">Pro</span>
+                                                        )}
+                                                        {u.subscription_status && (
+                                                            <span className={`rounded px-2 py-0.5 text-xs ${u.subscription_status === 'active' ? 'bg-green-500/20 text-green-400' :
+                                                                u.subscription_status === 'trialing' ? 'bg-blue-500/20 text-blue-400' :
+                                                                    u.subscription_status === 'canceled' ? 'bg-red-500/20 text-red-400' :
+                                                                        'bg-slate-500/20 text-slate-400'
+                                                                }`}>{u.subscription_status}</span>
+                                                        )}
+                                                        {u.stripe_customer_id && (
+                                                            <span className="rounded bg-indigo-500/20 px-2 py-0.5 text-xs text-indigo-400">Stripe</span>
                                                         )}
                                                     </div>
                                                 </td>
@@ -2204,6 +2286,235 @@ export default function DevPanelPage() {
                 </div>
             )}
 
+            {activeTab === 'billing' && (
+                <div className="space-y-6">
+                    {/* Billing Summary Cards */}
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                        <StatCard
+                            label="Total Customers"
+                            value={billingData?.summary?.totalCustomers || 0}
+                            icon="👥"
+                        />
+                        <StatCard
+                            label="Active Subscriptions"
+                            value={billingData?.summary?.activeSubscriptions || 0}
+                            icon="✅"
+                            color="green"
+                        />
+                        <StatCard
+                            label="Trialing"
+                            value={billingData?.summary?.trialingSubscriptions || 0}
+                            icon="⏳"
+                            color="yellow"
+                        />
+                        <StatCard
+                            label="Canceled"
+                            value={billingData?.summary?.canceledSubscriptions || 0}
+                            icon="❌"
+                            color="red"
+                        />
+                        <StatCard
+                            label="MRR"
+                            value={`$${(billingData?.summary?.mrr || 0).toFixed(2)}`}
+                            icon="💰"
+                            color="green"
+                        />
+                    </div>
+
+                    {/* Stripe Customers Table */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                💳 Stripe Customers
+                            </h2>
+                            <a
+                                href="https://dashboard.stripe.com/customers"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="rounded-lg border border-eurokeys-border px-3 py-1.5 text-xs text-slate-400 hover:border-eurokeys-purple/50 hover:text-slate-200"
+                            >
+                                Open in Stripe →
+                            </a>
+                        </div>
+                        {!billingData?.customers?.length ? (
+                            <p className="text-sm text-slate-500">No Stripe customers found. Check that STRIPE_SECRET_KEY is configured.</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-eurokeys-border text-left text-slate-400">
+                                            <th className="pb-3 font-medium">Customer</th>
+                                            <th className="pb-3 font-medium">Plan</th>
+                                            <th className="pb-3 font-medium">Status</th>
+                                            <th className="pb-3 font-medium">Amount</th>
+                                            <th className="pb-3 font-medium">Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {billingData.customers.map((c) => (
+                                            <tr key={c.id} className="border-b border-eurokeys-border/50">
+                                                <td className="py-3">
+                                                    <div>
+                                                        <p className="font-medium text-white">{c.name || c.email || 'Unknown'}</p>
+                                                        {c.name && <p className="text-xs text-slate-500">{c.email}</p>}
+                                                    </div>
+                                                </td>
+                                                <td className="py-3">
+                                                    <span className="text-slate-300">{c.activePlan}</span>
+                                                </td>
+                                                <td className="py-3">
+                                                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${c.activeSubStatus === 'active' ? 'bg-green-500/20 text-green-400' :
+                                                        c.activeSubStatus === 'trialing' ? 'bg-blue-500/20 text-blue-400' :
+                                                            c.activeSubStatus === 'past_due' ? 'bg-orange-500/20 text-orange-400' :
+                                                                'bg-slate-500/20 text-slate-400'
+                                                        }`}>
+                                                        {c.activeSubStatus || 'no sub'}
+                                                    </span>
+                                                </td>
+                                                <td className="py-3 text-slate-300">
+                                                    {c.activePlanAmount > 0
+                                                        ? `$${c.activePlanAmount.toFixed(2)}/${c.activePlanInterval || 'mo'}`
+                                                        : '—'}
+                                                </td>
+                                                <td className="py-3 text-slate-500">
+                                                    {new Date(c.created).toLocaleDateString()}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+
+                        {/* Expanded subscription details per customer */}
+                        {billingData?.customers?.some(c => c.subscriptions.length > 0) && (
+                            <div className="mt-4 border-t border-eurokeys-border pt-4">
+                                <h3 className="mb-3 text-sm font-semibold text-slate-300">📋 All Subscriptions</h3>
+                                <div className="space-y-2">
+                                    {billingData.customers.flatMap(c =>
+                                        c.subscriptions.map(s => (
+                                            <div key={s.id} className="flex items-center justify-between rounded-lg bg-slate-800/50 px-3 py-2">
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`h-2 w-2 rounded-full ${s.status === 'active' ? 'bg-green-400' :
+                                                        s.status === 'trialing' ? 'bg-blue-400' :
+                                                            s.status === 'canceled' ? 'bg-red-400' :
+                                                                'bg-slate-400'
+                                                        }`} />
+                                                    <div>
+                                                        <p className="text-sm text-white">{c.name || c.email}</p>
+                                                        <p className="text-xs text-slate-500">{s.planName} • {s.status}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-sm text-slate-300">
+                                                        {s.amount > 0 ? `$${s.amount.toFixed(2)}/${s.interval || 'mo'}` : 'Free trial'}
+                                                    </p>
+                                                    {s.trialEnd && (
+                                                        <p className="text-xs text-slate-500">
+                                                            Trial ends {new Date(s.trialEnd).toLocaleDateString()}
+                                                        </p>
+                                                    )}
+                                                    {s.canceledAt && (
+                                                        <p className="text-xs text-red-400">
+                                                            Canceled {new Date(s.canceledAt).toLocaleDateString()}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Products & Pricing */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+                            📦 Products & Pricing
+                        </h2>
+                        {!billingData?.products?.length ? (
+                            <p className="text-sm text-slate-500">No active products found in Stripe.</p>
+                        ) : (
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {billingData.products.map(p => (
+                                    <div key={p.id} className="rounded-lg border border-eurokeys-border bg-slate-800/50 p-4">
+                                        <h3 className="font-semibold text-white">{p.name}</h3>
+                                        {p.description && (
+                                            <p className="mt-1 text-xs text-slate-400">{p.description}</p>
+                                        )}
+                                        <div className="mt-3 space-y-1">
+                                            {p.prices.map(pr => (
+                                                <div key={pr.id} className="flex items-center justify-between">
+                                                    <span className="text-sm text-slate-300">
+                                                        ${pr.amount.toFixed(2)}/{pr.interval}
+                                                    </span>
+                                                    <span className={`rounded px-1.5 py-0.5 text-[10px] ${pr.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                                        }`}>
+                                                        {pr.active ? 'active' : 'archived'}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                            {p.prices.length === 0 && (
+                                                <p className="text-xs text-slate-500">No prices configured</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Addon Trials (from DB) */}
+                    <div className="rounded-xl border border-eurokeys-border bg-eurokeys-card p-5">
+                        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+                            🧪 Add-on Trials (Database)
+                        </h2>
+                        {!billingData?.addonTrials?.length ? (
+                            <p className="text-sm text-slate-500">No addon trials recorded.</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-eurokeys-border text-left text-slate-400">
+                                            <th className="pb-3 font-medium">User</th>
+                                            <th className="pb-3 font-medium">Add-on</th>
+                                            <th className="pb-3 font-medium">Trial Started</th>
+                                            <th className="pb-3 font-medium">Trial Expires</th>
+                                            <th className="pb-3 font-medium">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {billingData.addonTrials.map((t, i) => (
+                                            <tr key={`${t.user_id}-${t.addon_id}-${i}`} className="border-b border-eurokeys-border/50">
+                                                <td className="py-3">
+                                                    <p className="text-white">{t.user_name || t.user_email}</p>
+                                                    {t.user_name && <p className="text-xs text-slate-500">{t.user_email}</p>}
+                                                </td>
+                                                <td className="py-3 text-slate-300 capitalize">{t.addon_id?.replace(/_/g, ' ')}</td>
+                                                <td className="py-3 text-slate-500">{t.trial_started_at ? new Date(t.trial_started_at).toLocaleDateString() : '—'}</td>
+                                                <td className="py-3 text-slate-500">{t.trial_expires_at ? new Date(t.trial_expires_at).toLocaleDateString() : '—'}</td>
+                                                <td className="py-3">
+                                                    {t.converted_at ? (
+                                                        <span className="rounded bg-green-500/20 px-2 py-0.5 text-xs text-green-400">Converted</span>
+                                                    ) : t.canceled_at ? (
+                                                        <span className="rounded bg-red-500/20 px-2 py-0.5 text-xs text-red-400">Canceled</span>
+                                                    ) : t.trial_expires_at && new Date(t.trial_expires_at) > new Date() ? (
+                                                        <span className="rounded bg-blue-500/20 px-2 py-0.5 text-xs text-blue-400">Active Trial</span>
+                                                    ) : (
+                                                        <span className="rounded bg-slate-500/20 px-2 py-0.5 text-xs text-slate-400">Expired</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* Quick Links */}
             <div className="mt-8 flex flex-wrap gap-3">
                 <a
@@ -2221,6 +2532,14 @@ export default function DevPanelPage() {
                     className="flex items-center gap-2 rounded-lg border border-eurokeys-border bg-eurokeys-card px-4 py-2 text-sm text-slate-300 transition-colors hover:border-eurokeys-purple/50"
                 >
                     🐙 GitHub
+                </a>
+                <a
+                    href="https://dashboard.stripe.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-lg border border-eurokeys-border bg-eurokeys-card px-4 py-2 text-sm text-slate-300 transition-colors hover:border-eurokeys-purple/50"
+                >
+                    💳 Stripe Dashboard
                 </a>
             </div>
         </div>
