@@ -10864,7 +10864,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "make parameter required" }), 400);
           }
 
-          let sql = `SELECT * FROM vehicle_intelligence WHERE LOWER(make) = ?`;
+          let sql = `SELECT * FROM vehicle_intelligence WHERE LOWER(make) = ? AND (vehicle_type = 'car' OR vehicle_type IS NULL)`;
           const params: (string | number)[] = [make];
 
           if (model) {
@@ -10908,10 +10908,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         try {
           const makeFilter = url.searchParams.get("make")?.toLowerCase();
 
-          let whereClause = "";
+          let whereClause = "WHERE (vehicle_type = 'car' OR vehicle_type IS NULL)";
           const params: string[] = [];
           if (makeFilter) {
-            whereClause = "WHERE LOWER(make) = ?";
+            whereClause += " AND LOWER(make) = ?";
             params.push(makeFilter);
           }
 
@@ -12942,6 +12942,76 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
           let allFccs: FccEntry[] = [];
 
+          // ---- Chip normalization helper ----
+          // Collapses 50+ raw chip label variants into ~30 canonical IDs
+          // Mirrors the regex patterns in data/scripts/extract_chip_data.py
+          const normalizeChipLabel = (raw: string | null | undefined): string | null => {
+            if (!raw || raw.trim() === '' || raw === '--' || raw === '0') return null;
+            let cleaned = raw.trim()
+              .replace(/&quot;/g, '"').replace(/&amp;/g, '&')
+              .replace(/;\s*["\u201c].*$/, '').replace(/;\s*$/, '').trim();
+            const patterns: [RegExp, string][] = [
+              [/non[-\s]?transponder/i, 'NONE'], [/^none$/i, 'NONE'], [/^--$/, 'NONE'],
+              [/^no$/i, 'NONE'], [/^n\/?a$/i, 'NONE'], [/no\s*chip/i, 'NONE'],
+              [/^yes$/i, 'NONE'], [/^driver\s*\d*$/i, 'NONE'],
+              [/resist[eo]r\s*values?.*vats/i, 'VATS'], [/\bvats\b/i, 'VATS'],
+              [/hitag[\s-]*aes.*4a|4a.*hitag[\s-]*aes/i, '4A'],
+              [/\bnxp\s+aes\b/i, '4A'], [/\bhitag[\s-]*aes\b/i, '4A'],
+              [/^4a$/i, '4A'], [/^aes$/i, '4A'], [/4a\s*aes/i, '4A'],
+              [/megamos\s*aes/i, '4A'], [/mqb\s*aes/i, '4A'],
+              [/hitag[\s-]*pro.*id\s*49|id\s*49.*hitag[\s-]*pro/i, 'ID49'],
+              [/ncf295[12]/i, 'ID49'], [/pcf795[23]p/i, 'ID49'],
+              [/\bhitag[\s-]*pro\b/i, 'ID49'], [/hitagid\s*49/i, 'ID49'],
+              [/\bid\s*49\b/i, 'ID49'], [/^49$/i, 'ID49'],
+              [/dst\s*128\s*:?\s*8a/i, '8A'], [/texas\s+id\s+h[\s-]*8a/i, '8A'],
+              [/\bh[\s-]*8a\b/i, '8A'], [/^8a$/i, '8A'], [/8a\s*chip/i, '8A'],
+              [/8a\s*texas\s*crypto/i, '8A'], [/subaru\s*h\s*chip/i, '8A'],
+              [/texas.*aes.*subaru\s*h/i, '8A'], [/aes\s*ws21\s*subaru/i, '8A'],
+              [/^h[\s-]*chip$/i, '8A'], [/aes\s*6a/i, '4A'],
+              [/4d[\s-]*74.*(?:toyot|toy\s*h|h[\s-]*chip|master)/i, '4D74H'],
+              [/4d[\s-]*74/i, '4D74H'], [/toyota\s+h[\s-]*chip/i, '4D74H'],
+              [/texas\s+id\s+4d\s*h\b/i, '4D74H'],
+              [/4d[\s-]*72.*(?:g[\s-]*chip|g\b|\(g\))/i, '4D72G'],
+              [/4d[\s-]*72/i, '4D72G'], [/\bg[\s-]*chip\b.*pcf7938/i, 'ID47'],
+              [/honda\s+g[\s-]*chip/i, 'ID47'], [/\bg[\s-]*chip\b/i, '4D72G'],
+              [/\bdst\+/i, '4D72G'], [/dst[\s-]*80/i, '4D72G'],
+              [/\bdst[\s-]*aes\b/i, '8A'],
+              [/4d[\s-]*63.*128/i, '4D63-128'], [/ford\s+128[\s-]*bit/i, '4D63-128'],
+              [/4d[\s-]*63.*80/i, '4D63-80'], [/4d[\s-]*63\+/i, '4D63-80'],
+              [/4d[\s-]*63.*40/i, '4D63-40'], [/4d[\s-]*63/i, '4D63-80'],
+              [/4d[\s-]*60.*80.*subaru|subaru.*4d[\s-]*60.*80/i, '4D60-G'],
+              [/4d[\s-]*60/i, '4D60'], [/4d[\s-]*61/i, '4D61'],
+              [/4d[\s-]*62/i, '4D62'], [/4d[\s-]*64/i, '4D64'],
+              [/4d[\s-]*67/i, '4D67'], [/4d[\s-]*68/i, '4D68'],
+              [/4c\s*(?:glass|wedge|tag)/i, '4C'],
+              [/\b(?:tex|texas)\s+(?:id\s+)?4c\b/i, '4C'], [/^4c$/i, '4C'],
+              [/46\s*e.*(?:gm|new|ext)/i, 'ID46E'], [/philips?\s+46\s*e/i, 'ID46E'],
+              [/pcf7937\s*e/i, 'ID46E'], [/\b41\s*e\b/i, 'ID46E'],
+              [/gmt\s*46\b/i, 'ID46E'], [/phlips?\s*id\s*46.*(?:gm|ext)/i, 'ID46E'],
+              [/phil[il]ps?\s+(?:id\s*)?47/i, 'ID47'], [/\bid\s*47\b/i, 'ID47'],
+              [/hitag\s*3/i, 'ID47'], [/^47$/i, 'ID47'],
+              [/phil[il]ps?\s+(?:id\s*)?46/i, 'ID46'], [/\bid\s*46\b/i, 'ID46'],
+              [/46\s*chip.*hitag/i, 'ID46'], [/^46$/i, 'ID46'],
+              [/pcf7935/i, 'ID44'], [/phil[il]ps?\s+(?:id\s*)?44/i, 'ID44'],
+              [/megamos\s*44/i, 'ID44'],
+              [/meg(?:amos)?\s*(?:id\s*)?48.*vw\s*can/i, 'ID48-CAN'],
+              [/48\s*can/i, 'ID48-CAN'], [/vw\s*tp\s*23/i, 'ID48-CAN'],
+              [/mqb\s*48/i, 'ID48-CAN'],
+              [/meg(?:amos)?\s*(?:id\s*)?48.*(?:gm|pk3\+)/i, 'ID48-PK3P'],
+              [/meg(?:amos)?\s*(?:id\s*)?48/i, 'ID48'], [/^48$/i, 'ID48'],
+              [/meg(?:amos)?\s*13/i, 'ID13'], [/\bpk3\b(?!\+)/i, 'ID13'],
+              [/meg(?:amos)?\s*8e/i, 'ID8E'], [/^8e$/i, 'ID8E'],
+              [/phil[il]ps?\s+(?:id\s*)?40/i, 'ID40'],
+              [/\bt5\b/i, 'T5'], [/temic\s+8c/i, '8C'],
+              [/pcf7936/i, 'ID46'], [/pcf7937/i, 'ID46E'], [/pcf7938/i, 'ID47'],
+              [/pcf7961/i, 'ID46'], [/nxp7938/i, 'ID47'],
+            ];
+            for (const [re, canonical] of patterns) {
+              if (re.test(cleaned)) return canonical === 'NONE' ? null : canonical;
+            }
+            return cleaned; // Return original if no match
+          };
+
           if (year) {
             const fccResult = await env.LOCKSMITH_DB.prepare(`
               SELECT DISTINCT c.fcc_id, c.product_type, c.buttons, c.title
@@ -13279,7 +13349,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   }
                 }
               }
-              if (row.chip) group.chips.add(row.chip);
+              if (row.chip) { const nc = normalizeChipLabel(row.chip); if (nc) group.chips.add(nc); }
               if (row.battery) group.batteries.add(row.battery);
               if (freqRaw) group.frequencies.add(freqRaw);
               if (row.keyway) group.keyways.add(row.keyway);
@@ -13382,7 +13452,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               // Enrich with vehicle-level data (aksVehicleData has accurate keyway names)
               const vehTransponderKey = aksVehicleData?.transponder_key || null; // e.g. "Y170 (Pod)"
               const vehMechanicalKey = aksVehicleData?.mechanical_key || null;   // e.g. "Y157 / P1794"
-              const vehChipType = aksVehicleData?.chip_type || null;             // e.g. "Philips 46"
+              const vehChipType = aksVehicleData?.chip_type ? normalizeChipLabel(aksVehicleData.chip_type) : null; // normalized
 
               // Build sub-entries for each blade type
               const bladeSubEntries = bladeEntries.map(entry => {
@@ -13524,6 +13594,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               // Generate unique signature for this variation (By FCC + Buttons + Features)
               const sig = getKeySignature(row);
 
+
               // Extract or fallback button count
               const btns = extractButtons(row.title || '') || row.buttons || null;
               const features = extractFeatures(row.title || '');
@@ -13571,7 +13642,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (row.fcc_id) group.fcc_ids.push(row.fcc_id);
               if (oemParts.length > 0) group.oem_parts.push(...oemParts);
               if (row.ic) group.ic_numbers.push(row.ic);
-              if (row.chip) group.chips.push(row.chip);
+              if (row.chip) { const nc = normalizeChipLabel(row.chip); if (nc) group.chips.push(nc); }
               if (row.keyway) group.keyways.push(row.keyway);
               if (row.frequency && row.frequency !== '0' && row.frequency !== '--') group.frequencies.push(row.frequency);
               if (row.battery) group.batteries.push(row.battery);
@@ -13750,7 +13821,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               keyway_source: viData?.keyway ? "vehicle_intelligence" : (enrichmentData?.keyway ? "enrichments" : (aksVehicleData?.mechanical_key ? "aks_vehicles" : (aksConsensus.keyway ? "aks_products" : (vehicleData?.keyway ? "vehicles" : null)))),
 
               // Priority: VI > enrichments > AKS consensus > vehicles (DEPRECATED fallback)
-              chip: viData?.chip_type || enrichmentData?.chip || aksConsensus.chip || vehicleData?.chip || null,
+              chip: normalizeChipLabel(viData?.chip_type) || normalizeChipLabel(enrichmentData?.chip) || aksConsensus.chip || normalizeChipLabel(aksVehicleData?.chip_type) || normalizeChipLabel(vehicleData?.chip) || null,
               frequency: viData?.frequency || enrichmentData?.frequency || aksConsensus.frequency || vehicleData?.frequency || null,
               battery: viData?.battery || enrichmentData?.battery || aksConsensus.battery || vehicleData?.battery || null,
               buttons: vehicleData?.buttons || null,
@@ -15250,12 +15321,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       // ==============================================
 
       // Get a specific vehicle by ID (for cross-linking)
-      if (path.startsWith("/api/vehicle/")) {
+      // IMPORTANT: Only match /api/vehicle/<number> — not /api/vehicle/Make/Model/Year
+      const vehicleByIdMatch = path.match(/^\/api\/vehicle\/([0-9]+)$/);
+      if (vehicleByIdMatch) {
         try {
-          const vehicleId = parseInt(path.split("/").pop() || "", 10);
-          if (isNaN(vehicleId)) {
-            return corsResponse(request, JSON.stringify({ error: "Invalid vehicle ID" }), 400);
-          }
+          const vehicleId = parseInt(vehicleByIdMatch[1], 10);
 
           // Get vehicle info from lookup table
           const vehicle = await env.LOCKSMITH_DB.prepare(
@@ -15266,10 +15336,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "Vehicle not found" }), 404);
           }
 
-          // Get all locksmith data for this vehicle
+          // Get all locksmith data for this vehicle (match by make/model/year since no vehicle_id column)
           const locksmithData = await env.LOCKSMITH_DB.prepare(
-            "SELECT * FROM locksmith_data WHERE vehicle_id = ? ORDER BY year"
-          ).bind(vehicleId).all();
+            "SELECT * FROM locksmith_data WHERE LOWER(make) = LOWER(?) AND LOWER(model) = LOWER(?) ORDER BY year"
+          ).bind(vehicle.make, vehicle.model).all();
 
           // Get any guides for this vehicle
           const guides = await env.LOCKSMITH_DB.prepare(
