@@ -1196,6 +1196,27 @@ export default function VehicleDetailClient() {
                 }}
             />
 
+            {/* Platform Insight from dossier data */}
+            {header.platform_insight && (
+                <div className={`mt-3 px-4 py-3 rounded-xl border text-sm leading-relaxed ${header.platform_insight.includes('DEALER ONLY') || header.platform_insight.includes('🔒')
+                        ? 'bg-red-500/10 border-red-500/30 text-red-200'
+                        : header.platform_insight.includes('DANGER') || header.platform_insight.includes('MIXED') || header.platform_insight.includes('⚠️')
+                            ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+                            : 'bg-blue-500/10 border-blue-500/30 text-blue-200'
+                    }`}>
+                    <div className="flex items-start gap-2">
+                        <span className="text-lg flex-shrink-0 mt-0.5">
+                            {header.platform_insight.includes('DEALER ONLY') || header.platform_insight.includes('🔒') ? '🔒' :
+                                header.platform_insight.includes('DANGER') || header.platform_insight.includes('MIXED') ? '⚠️' : '🔧'}
+                        </span>
+                        <div>
+                            <span className="font-semibold text-xs uppercase tracking-wide opacity-70 block mb-1">Platform Insight</span>
+                            <span>{header.platform_insight.replace(/🔒 /g, '').replace(/⚠️ /g, '')}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Quick Log Job Button - Prefills vehicle data */}
             <div className="flex items-center gap-3 mt-4">
                 <a

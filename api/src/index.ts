@@ -12864,6 +12864,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                      critical_alert, service_notes, description,
                      pearl_count, comment_count, image_count, has_walkthrough, has_guide,
                      chip_type, platform, architecture, immo_system,
+                     platform_insight, chassis_code,
                      lishi, keyway, spaces, depths, macs, frequency, battery,
                      adapter_type, fcc_ids, key_type, code_series,
                      key_configurations,
@@ -12951,60 +12952,101 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               .replace(/&quot;/g, '"').replace(/&amp;/g, '&')
               .replace(/;\s*["\u201c].*$/, '').replace(/;\s*$/, '').trim();
             const patterns: [RegExp, string][] = [
+              // --- Junk / non-chip values ---
               [/non[-\s]?transponder/i, 'NONE'], [/^none$/i, 'NONE'], [/^--$/, 'NONE'],
               [/^no$/i, 'NONE'], [/^n\/?a$/i, 'NONE'], [/no\s*chip/i, 'NONE'],
               [/^yes$/i, 'NONE'], [/^driver\s*\d*$/i, 'NONE'],
+              // --- VATS ---
               [/resist[eo]r\s*values?.*vats/i, 'VATS'], [/\bvats\b/i, 'VATS'],
+              // --- Hitag AES / 4A ---
               [/hitag[\s-]*aes.*4a|4a.*hitag[\s-]*aes/i, '4A'],
               [/\bnxp\s+aes\b/i, '4A'], [/\bhitag[\s-]*aes\b/i, '4A'],
               [/^4a$/i, '4A'], [/^aes$/i, '4A'], [/4a\s*aes/i, '4A'],
-              [/megamos\s*aes/i, '4A'], [/mqb\s*aes/i, '4A'],
+              [/megamos\s*aes/i, '4A'], [/aes\s*6a/i, '4A'],
+              // --- Hitag Pro / ID49 ---
               [/hitag[\s-]*pro.*id\s*49|id\s*49.*hitag[\s-]*pro/i, 'ID49'],
               [/ncf295[12]/i, 'ID49'], [/pcf795[23]p/i, 'ID49'],
               [/\bhitag[\s-]*pro\b/i, 'ID49'], [/hitagid\s*49/i, 'ID49'],
               [/\bid\s*49\b/i, 'ID49'], [/^49$/i, 'ID49'],
+              // --- Texas 8A / H-Chip ---
               [/dst\s*128\s*:?\s*8a/i, '8A'], [/texas\s+id\s+h[\s-]*8a/i, '8A'],
               [/\bh[\s-]*8a\b/i, '8A'], [/^8a$/i, '8A'], [/8a\s*chip/i, '8A'],
               [/8a\s*texas\s*crypto/i, '8A'], [/subaru\s*h\s*chip/i, '8A'],
               [/texas.*aes.*subaru\s*h/i, '8A'], [/aes\s*ws21\s*subaru/i, '8A'],
-              [/^h[\s-]*chip$/i, '8A'], [/aes\s*6a/i, '4A'],
+              [/^h[\s-]*chip$/i, '8A'], [/toyota\s+8a\s*h/i, '8A'],
+              [/\bdst[\s-]*aes\b/i, '8A'],
+              // --- 4D74H (Toyota H-Chip) ---
               [/4d[\s-]*74.*(?:toyot|toy\s*h|h[\s-]*chip|master)/i, '4D74H'],
               [/4d[\s-]*74/i, '4D74H'], [/toyota\s+h[\s-]*chip/i, '4D74H'],
-              [/texas\s+id\s+4d\s*h\b/i, '4D74H'],
+              [/texas\s+id\s+4d\s*h\b/i, '4D74H'], [/4d\s*h\s*chip/i, '4D74H'],
+              // --- 4D72G (G-Chip) ---
               [/4d[\s-]*72.*(?:g[\s-]*chip|g\b|\(g\))/i, '4D72G'],
               [/4d[\s-]*72/i, '4D72G'], [/\bg[\s-]*chip\b.*pcf7938/i, 'ID47'],
-              [/honda\s+g[\s-]*chip/i, 'ID47'], [/\bg[\s-]*chip\b/i, '4D72G'],
+              [/honda\s+g[\s-]*chip/i, 'ID47'], [/scion\s+g[\s-]*chip/i, '4D72G'],
+              [/toyota\s+g[\s-]*chip/i, '4D72G'], [/subaru\s+g\s*chip/i, '4D72G'],
+              [/\bg[\s-]*chip\b/i, '4D72G'],
               [/\bdst\+/i, '4D72G'], [/dst[\s-]*80/i, '4D72G'],
-              [/\bdst[\s-]*aes\b/i, '8A'],
+              // --- 4D63 (Ford, bit-width matters) ---
               [/4d[\s-]*63.*128/i, '4D63-128'], [/ford\s+128[\s-]*bit/i, '4D63-128'],
               [/4d[\s-]*63.*80/i, '4D63-80'], [/4d[\s-]*63\+/i, '4D63-80'],
               [/4d[\s-]*63.*40/i, '4D63-40'], [/4d[\s-]*63/i, '4D63-80'],
+              // --- 4D60/61/62/64/67/68 ---
               [/4d[\s-]*60.*80.*subaru|subaru.*4d[\s-]*60.*80/i, '4D60-G'],
               [/4d[\s-]*60/i, '4D60'], [/4d[\s-]*61/i, '4D61'],
               [/4d[\s-]*62/i, '4D62'], [/4d[\s-]*64/i, '4D64'],
               [/4d[\s-]*67/i, '4D67'], [/4d[\s-]*68/i, '4D68'],
+              // --- 4C ---
               [/4c\s*(?:glass|wedge|tag)/i, '4C'],
               [/\b(?:tex|texas)\s+(?:id\s+)?4c\b/i, '4C'], [/^4c$/i, '4C'],
+              // --- ID46 sub-variants (MUST come before generic ID46) ---
+              // ID46E = GM Extended (GM EXT, 46E)
               [/46\s*e.*(?:gm|new|ext)/i, 'ID46E'], [/philips?\s+46\s*e/i, 'ID46E'],
-              [/pcf7937\s*e/i, 'ID46E'], [/\b41\s*e\b/i, 'ID46E'],
+              [/pcf7937\s*e/i, 'ID46E'], [/\b46\s*e\b/i, 'ID46E'],
               [/gmt\s*46\b/i, 'ID46E'], [/phlips?\s*id\s*46.*(?:gm|ext)/i, 'ID46E'],
+              [/philips?\s+id\s*46\s*(?:gm|ext)/i, 'ID46E'],
+              [/philips?\s+46\s*gm/i, 'ID46E'], [/46\s*gm\s*ext/i, 'ID46E'],
+              // ID46-CHR = Chrysler-specific
+              [/46.*chr(?:ysler)?/i, 'ID46-CHR'], [/chr(?:ysler)?\s*.*46/i, 'ID46-CHR'],
+              [/philips?\s+(?:id\s*)?46\s*\(?chr/i, 'ID46-CHR'],
+              // ID46-MITS = Mitsubishi-specific
+              [/46.*mits/i, 'ID46-MITS'], [/mits.*46/i, 'ID46-MITS'],
+              [/philips?\s+(?:id\s*)?46\s*mits/i, 'ID46-MITS'],
+              // ID46-Circle+ = GM Circle Plus variant
+              [/46.*circle[\s-]*\+?plus/i, 'ID46-Circle+'], [/circle[\s-]*\+?\s*46/i, 'ID46-Circle+'],
+              [/46\s*\(?circle\+?\)?/i, 'ID46-Circle+'],
+              // --- ID47 ---
               [/phil[il]ps?\s+(?:id\s*)?47/i, 'ID47'], [/\bid\s*47\b/i, 'ID47'],
               [/hitag\s*3/i, 'ID47'], [/^47$/i, 'ID47'],
+              // --- Generic ID46 (catch-all AFTER sub-variants) ---
               [/phil[il]ps?\s+(?:id\s*)?46/i, 'ID46'], [/\bid\s*46\b/i, 'ID46'],
               [/46\s*chip.*hitag/i, 'ID46'], [/^46$/i, 'ID46'],
+              [/hitag\s*2\b/i, 'ID46'],
+              // --- ID44 ---
               [/pcf7935/i, 'ID44'], [/phil[il]ps?\s+(?:id\s*)?44/i, 'ID44'],
               [/megamos\s*44/i, 'ID44'],
+              // --- ID48 sub-variants (MUST come before generic ID48) ---
+              // ID48-CAN = VW CAN bus protocol
               [/meg(?:amos)?\s*(?:id\s*)?48.*vw\s*can/i, 'ID48-CAN'],
-              [/48\s*can/i, 'ID48-CAN'], [/vw\s*tp\s*23/i, 'ID48-CAN'],
-              [/mqb\s*48/i, 'ID48-CAN'],
-              [/meg(?:amos)?\s*(?:id\s*)?48.*(?:gm|pk3\+)/i, 'ID48-PK3P'],
+              [/48\s*can(?:\s*chip)?/i, 'ID48-CAN'], [/vw\s*tp\s*23/i, 'ID48-CAN'],
+              // ID48-MQB = VW MQB generation (uses AES crypto)
+              [/mqb\s*(?:48|aes)/i, 'ID48-MQB'], [/48\s*mqb/i, 'ID48-MQB'],
+              [/meg(?:amos)?\s*48\s*aes/i, 'ID48-MQB'], [/meg(?:amos)?\s*aes\s*mqb/i, 'ID48-MQB'],
+              [/8e\s*mqb/i, 'ID48-MQB'],
+              // ID48-PK3+ = GM PK3+ protocol
+              [/meg(?:amos)?\s*(?:id\s*)?48.*(?:gm|pk3\+)/i, 'ID48-PK3+'],
+              // --- Generic ID48 (catch-all AFTER sub-variants) ---
               [/meg(?:amos)?\s*(?:id\s*)?48/i, 'ID48'], [/^48$/i, 'ID48'],
+              // --- Other Megamos ---
               [/meg(?:amos)?\s*13/i, 'ID13'], [/\bpk3\b(?!\+)/i, 'ID13'],
               [/meg(?:amos)?\s*8e/i, 'ID8E'], [/^8e$/i, 'ID8E'],
+              // --- ID40, T5, 8C ---
               [/phil[il]ps?\s+(?:id\s*)?40/i, 'ID40'],
               [/\bt5\b/i, 'T5'], [/temic\s+8c/i, '8C'],
+              // --- PCF chip numbers (fallback identification) ---
               [/pcf7936/i, 'ID46'], [/pcf7937/i, 'ID46E'], [/pcf7938/i, 'ID47'],
               [/pcf7961/i, 'ID46'], [/nxp7938/i, 'ID47'],
+              [/pcf7941\s*e/i, 'ID46E'], [/pcf7941\b/i, 'ID46'],
+              [/pcf7945/i, 'ID46'], [/pcf7952/i, 'ID46'], [/pcf7946/i, 'ID46'],
             ];
             for (const [re, canonical] of patterns) {
               if (re.test(cleaned)) return canonical === 'NONE' ? null : canonical;
@@ -13797,7 +13839,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               adapter_type: viData?.adapter_type || enrichmentData?.adapter_type || vehicleData?.adapter_type ||
                 (enrichmentData?.can_fd_required || vehicleData?.can_fd_required ? 'CAN FD' : 'None'),
               online_required: enrichmentData?.online_required ?? false,
-              architecture_tags: vehicleData?.architecture_tags_json ? JSON.parse(vehicleData.architecture_tags_json) : []
+              architecture_tags: vehicleData?.architecture_tags_json ? JSON.parse(vehicleData.architecture_tags_json) : [],
+              platform_insight: viData?.platform_insight || null,
+              chassis_code: viData?.chassis_code || null
             },
 
             // Specs data - Priority: VI > enrichments > AKS vehicles > VYP > vehicles (DEPRECATED)
