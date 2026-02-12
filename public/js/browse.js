@@ -3703,6 +3703,18 @@ window.showInlineInsightPopover = function (element, event) {
     }
 };
 
+// Map frequency to regional market label
+function _freqRegion(freq) {
+    if (!freq) return '';
+    const f = freq.toLowerCase();
+    if (f.includes('315')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
+    if (f.includes('433') || f.includes('434')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+    if (f.includes('868')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+    if (f.includes('902')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
+    if (f.includes('314')) return ' <span style="color:#9ca3af;font-weight:400">(🇯🇵 Japan)</span>';
+    return '';
+}
+
 // Render grouped key config panels (grouped by key type with variant rows)
 function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
     if (!configs || configs.length === 0) {
@@ -3781,7 +3793,7 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
                         <div class="m3-key-panel-specs">
                             ${chip ? `<span>Chip: <strong>${chip}</strong></span>` : ''}
                             ${battery ? `<span>Battery: <strong>${battery}</strong></span>` : ''}
-                            ${freq ? `<span>Freq: <strong>${freq}</strong></span>` : ''}
+                            ${freq ? `<span>Freq: <strong>${freq}</strong>${_freqRegion(freq)}</span>` : ''}
                         </div>` : ''}
                 </div>
                 <div class="m3-key-variants">

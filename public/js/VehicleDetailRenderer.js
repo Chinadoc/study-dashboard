@@ -14,6 +14,18 @@ class VehicleDetailRenderer {
         this.carouselStates = {};
     }
 
+    /** Map frequency to regional market label */
+    static _freqRegion(freq) {
+        if (!freq) return '';
+        const f = freq.toLowerCase();
+        if (f.includes('315')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
+        if (f.includes('433') || f.includes('434')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+        if (f.includes('868')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+        if (f.includes('902')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
+        if (f.includes('314')) return ' <span style="color:#9ca3af;font-weight:400">(🇯🇵 Japan)</span>';
+        return '';
+    }
+
     /**
      * Main render method - builds the entire page
      */
@@ -231,7 +243,7 @@ class VehicleDetailRenderer {
             <div class="vd-key-panel-specs">
                 ${group.chip ? `<span>Chip: <strong>${group.chip}</strong></span>` : ''}
                 ${group.battery ? `<span>Battery: <strong>${group.battery}</strong></span>` : ''}
-                ${group.frequency ? `<span>Freq: <strong>${group.frequency}</strong></span>` : ''}
+                ${group.frequency ? `<span>Freq: <strong>${group.frequency}</strong>${VehicleDetailRenderer._freqRegion(group.frequency)}</span>` : ''}
                 ${group.blade ? `<span>Blade: <strong>${group.blade}</strong></span>` : ''}
             </div>` : '';
 

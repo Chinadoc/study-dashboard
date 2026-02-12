@@ -18,6 +18,18 @@ class VehicleDetailRenderer {
         this.activeProcedure = 'addkey';
     }
 
+    /** Map frequency to regional market label */
+    static _freqRegion(freq) {
+        if (!freq) return '';
+        const f = freq.toLowerCase();
+        if (f.includes('315')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
+        if (f.includes('433') || f.includes('434')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+        if (f.includes('868')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+        if (f.includes('902')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
+        if (f.includes('314')) return ' <span style="color:#9ca3af;font-weight:400">(🇯🇵 Japan)</span>';
+        return '';
+    }
+
     /**
      * Automatically wrap all occurrences of glossary terms in a text string
      * @param {string} text - The content text to process
@@ -340,7 +352,7 @@ class VehicleDetailRenderer {
                 <div class="vd-key-card-footer">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                         ${key.fcc ? `<span><strong>FCC:</strong> ${key.fcc}</span>` : ''}
-                        ${key.freq ? `<span><strong>Freq:</strong> ${key.freq}</span>` : ''}
+                        ${key.freq ? `<span><strong>Freq:</strong> ${key.freq}${VehicleDetailRenderer._freqRegion(key.freq)}</span>` : ''}
                         ${key.chip ? `<span><strong>Chip:</strong> ${key.chip}</span>` : ''}
                         ${key.battery ? `<span><strong>Battery:</strong> ${key.battery}</span>` : ''}
                     </div>

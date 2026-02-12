@@ -7,6 +7,18 @@ import { useUnifiedData } from '@/lib/useUnifiedData';
 import OwnedBadge from '@/components/shared/OwnedBadge';
 import BladeKeysCard, { BladeKeysData } from '@/components/vehicle/BladeKeysCard';
 
+/** Map frequency string to regional market label */
+function getFreqRegion(freq: string | null | undefined): string {
+    if (!freq) return '';
+    const f = freq.toLowerCase();
+    if (f.includes('315')) return '🇺🇸 N. America';
+    if (f.includes('433') || f.includes('434')) return '🇪🇺 Europe';
+    if (f.includes('868')) return '🇪🇺 Europe';
+    if (f.includes('902')) return '🇺🇸 N. America';
+    if (f.includes('314.3') || f.includes('314')) return '🇯🇵 Japan';
+    return '';
+}
+
 interface FccDetail {
     fcc: string;
     oem: (string | { number: string; label?: string })[];
@@ -524,7 +536,12 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                                             <div className="flex items-center justify-between">
                                                 <span className="font-mono text-yellow-400 font-bold">{detail.fcc}</span>
                                                 {detail.frequency && (
-                                                    <span className="text-emerald-400 font-medium">{detail.frequency}</span>
+                                                    <span className="text-emerald-400 font-medium">
+                                                        {detail.frequency}
+                                                        {getFreqRegion(detail.frequency) && (
+                                                            <span className="text-zinc-500 ml-1 font-normal">({getFreqRegion(detail.frequency)})</span>
+                                                        )}
+                                                    </span>
                                                 )}
                                             </div>
                                             {detail.title && (
@@ -560,6 +577,9 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     <div className="text-xs">
                         <span className="text-zinc-500">Freq: </span>
                         <span className="text-emerald-400 font-medium">{effective.frequency}</span>
+                        {getFreqRegion(effective.frequency) && (
+                            <span className="text-zinc-500 ml-1">({getFreqRegion(effective.frequency)})</span>
+                        )}
                     </div>
                 )}
                 {effective.chip && (() => {

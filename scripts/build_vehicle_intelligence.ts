@@ -614,7 +614,11 @@ async function main() {
            COALESCE(ps.description, vpm.platform_code) as arch_desc,
            ps.security_level, ps.obd_typical, ps.bench_typical, 
            ps.sgw_required, ps.can_fd_required,
-           vpm.mention_count
+           vpm.mention_count,
+           vpm.chassis_code,
+           vpm.hardware_note,
+           vpm.transition_note,
+           vpm.dealer_constraint
     FROM vehicle_intelligence vi
     INNER JOIN vehicle_platform_map vpm 
       ON LOWER(REPLACE(vi.model, '-', ' ')) = LOWER(vpm.model)
@@ -622,7 +626,10 @@ async function main() {
       AND vi.year_end >= vpm.year_start
     LEFT JOIN platform_security ps 
       ON vpm.platform_code = ps.platform_code
-    ORDER BY vi.id, vpm.mention_count DESC
+    ORDER BY vi.id, 
+             CASE WHEN vpm.chassis_code IS NOT NULL THEN 0 ELSE 1 END,
+             vpm.mention_count DESC,
+             vpm.year_start DESC
   `);
 
   // Deduplicate: keep only the best match per VI id (highest mention_count, first seen)
