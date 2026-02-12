@@ -21,10 +21,9 @@ const NAV_CARDS: NavCard[] = [
         title: 'Vehicle Database',
         items: ['Search 800+ vehicles', 'Key programming data', 'Part numbers & pricing'],
         image: '/images/cards/browse.png',
-        href: '#finder',
+        href: '/browse',
         accentColor: '#a855f7',
         linkLabel: 'Browse by Make',
-        isScroll: true,
     },
     {
         id: 'fcc',

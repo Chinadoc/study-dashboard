@@ -6,7 +6,6 @@ import { WizardStep, WizardStepOption } from '@/components/WizardStep';
 import { MakeGrid } from '@/components/browse/MakeGrid';
 import { SearchBar } from '@/components/browse/SearchBar';
 import { MobileBrowse } from '@/components/browse/MobileBrowse';
-import { NavigationCards } from '@/components/browse/NavigationCards';
 import { PurchaseGate } from '@/components/PurchaseGate';
 import { POPULAR_MAKES } from '@/lib/make-data';
 import { parseVehicleQuery } from '@/lib/vehicle-search';
@@ -415,8 +414,7 @@ function BrowsePageContent() {
                     <>
                         <SearchBar onSearch={handleSearch} />
 
-                        {/* Navigation Cards - Home Page Feel */}
-                        <NavigationCards />
+                        {/* Navigation Cards Removed */}
 
                         {/* Cascading Columns Layout (Finder-style) */}
                         <div id="finder" className="grid grid-cols-4 gap-1 bg-gray-900/50 rounded-2xl border border-gray-700/50 h-[500px] overflow-hidden">

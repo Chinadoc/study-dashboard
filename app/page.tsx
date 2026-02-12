@@ -1,48 +1,55 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { NavigationCards } from '@/components/browse/NavigationCards';
+import { SearchBar } from '@/components/browse/SearchBar';
+import { PurchaseGate } from '@/components/PurchaseGate';
 
-export default function Home() {
+export default function HomePage() {
     const router = useRouter();
 
-    useEffect(() => {
-        // CRITICAL: Capture auth token from hash BEFORE redirecting
-        // Server-side redirects would lose the hash fragment
-        const hash = window.location.hash || '';
-
-        if (hash.includes('auth_token=')) {
-            // Extract and store token
-            let token: string | null = null;
-
-            if (hash.startsWith('#auth_token=')) {
-                token = hash.substring('#auth_token='.length);
-            } else {
-                const hashParams = new URLSearchParams(hash.slice(1));
-                token = hashParams.get('auth_token');
-            }
-
-            if (token) {
-                // Store token before any redirect
-                localStorage.setItem('session_token', token);
-                console.log('Homepage: Captured auth token from URL hash');
-            }
-
-            // Clean the hash and redirect to browse
-            window.location.replace('/browse');
+    const handleSearch = (query: string) => {
+        if (query.trim()) {
+            router.push(`/browse?q=${encodeURIComponent(query)}`);
         } else {
-            // No auth token - just redirect to browse
             router.push('/browse');
         }
-    }, [router]);
+    };
 
-    // Show a brief loading state while redirecting
     return (
-        <div className="flex min-h-[60vh] items-center justify-center">
-            <div className="text-center">
-                <div className="mb-4 h-12 w-12 mx-auto animate-spin rounded-full border-4 border-eurokeys-purple border-t-transparent" />
-                <p className="text-lg text-slate-300">Loading...</p>
-            </div>
-        </div>
+        <PurchaseGate>
+            <main className="min-h-screen bg-black text-white">
+                {/* Hero Section */}
+                <div className="relative pt-20 pb-16 md:pt-32 md:pb-24 overflow-hidden">
+                    {/* Background Glow */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-20 pointer-events-none">
+                        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600 rounded-full blur-[128px]" />
+                        <div className="absolute top-20 right-1/4 w-96 h-96 bg-blue-600 rounded-full blur-[128px]" />
+                    </div>
+
+                    <div className="relative container mx-auto px-4 text-center z-10">
+                        <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
+                            Unlock Euro Keys
+                        </h1>
+                        <p className="text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                            The ultimate resource for locksmiths. Access key programming data,
+                            FCC IDs, technical dossiers, and more.
+                        </p>
+
+                        <div className="max-w-2xl mx-auto mb-16">
+                            <SearchBar onSearch={handleSearch} placeholder="Search Year, Make, Model, or VIN..." />
+                        </div>
+
+                        <div className="max-w-5xl mx-auto text-left">
+                            <h2 className="text-xl font-semibold mb-6 text-zinc-300 pl-2 border-l-4 border-purple-500">
+                                Explore the Database
+                            </h2>
+                            <NavigationCards />
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </PurchaseGate>
     );
 }

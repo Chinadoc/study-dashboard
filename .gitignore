@@ -21,6 +21,7 @@ resources/
 ios/
 _legacy/
 images/
+!public/images/
 
 # ─── Python & Wrangler ──────────────────────────────────────────────────────
 .venv/
