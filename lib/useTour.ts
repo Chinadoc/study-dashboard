@@ -74,7 +74,10 @@ export function useTour(): TourState {
         }));
     }, [tourId, stepIndex]);
 
-    // Navigate to correct page when step changes
+    // Track which step we've already attempted navigation for
+    const [navigatedStep, setNavigatedStep] = useState<number>(-1);
+
+    // Navigate to correct page when step changes — only navigate ONCE per step
     useEffect(() => {
         if (!tourId || steps.length === 0) return;
         const step = steps[stepIndex];
@@ -83,20 +86,28 @@ export function useTour(): TourState {
         const normalizedPath = pathname?.replace(/\/$/, '') || '';
         const targetPath = step.page.replace(/\/$/, '');
 
-        // If we're already on the right page, clear navigating state.
-        // This avoids getting stuck in "..." if a previous timeout cleanup ran
-        // before it could reset state.
+        // If we're already on the right page, clear navigating state
         if (normalizedPath === targetPath) {
             setIsNavigating(false);
+            setNavigatedStep(stepIndex);
             return;
         }
 
-        // Check if we need to navigate (simple path matching)
-        if (normalizedPath !== targetPath) {
-            setIsNavigating(true);
-            router.push(step.page);
+        // Only navigate once per step — prevent infinite push loop
+        if (navigatedStep === stepIndex) {
+            // Already attempted navigation for this step; clear navigating
+            // after a timeout (the page may have redirected or 404'd)
+            const timeout = setTimeout(() => {
+                setIsNavigating(false);
+            }, 2000);
+            return () => clearTimeout(timeout);
         }
-    }, [tourId, stepIndex, steps, pathname, router]);
+
+        // Navigate to the target page
+        setIsNavigating(true);
+        setNavigatedStep(stepIndex);
+        router.push(step.page);
+    }, [tourId, stepIndex, steps, pathname, router, navigatedStep]);
 
     const startTour = useCallback((id: string) => {
         const tour = getTour(id);
@@ -107,6 +118,7 @@ export function useTour(): TourState {
         setTourId(id);
         setSteps(tour.steps);
         setStepIndex(0);
+        setNavigatedStep(-1);
     }, []);
 
     const endTour = useCallback((markComplete: boolean) => {
