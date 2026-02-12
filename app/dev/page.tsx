@@ -407,12 +407,73 @@ interface CommunityConversionData {
     funnel: Array<{ stage: string; value: number }>;
 }
 
+const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+const getSessionToken = () => typeof window !== 'undefined' ? (localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '') : '';
+
 function normalizeProofUrl(rawUrl: string): string {
     const value = String(rawUrl || '').trim();
     if (!value) return '';
-    if (/^https?:\/\//i.test(value)) return value;
-    const stripped = value.replace(/^\/+/, '');
-    return `https://pub-6f55decd53fc486a97f4a7c74e53f6c4.r2.dev/${stripped}`;
+    // Extract the R2 key from full R2 URLs or use relative path
+    let r2Key = value;
+    const r2Match = value.match(/r2\.dev\/(.+)$/);
+    if (r2Match) {
+        r2Key = r2Match[1];
+    } else if (/^https?:\/\//i.test(value)) {
+        // Non-R2 URL, return as-is
+        return value;
+    } else {
+        r2Key = value.replace(/^\/+/, '');
+    }
+    return `${API_BASE}/api/verification/image/${r2Key}`;
+}
+
+// Open a proof image in a new tab using authenticated fetch
+async function openAuthenticatedProof(url: string, download = false) {
+    const token = getSessionToken();
+    if (!token) return;
+    try {
+        const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        if (download) {
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = url.split('/').pop() || 'proof';
+            a.click();
+        } else {
+            window.open(blobUrl, '_blank');
+        }
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } catch (err) {
+        console.error('Failed to open proof:', err);
+        alert('Failed to load proof image. It may not exist or you lack access.');
+    }
+}
+
+// Authenticated proof image component
+function AuthProofImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+    const [blobSrc, setBlobSrc] = useState<string | null>(null);
+    const [failed, setFailed] = useState(false);
+
+    useEffect(() => {
+        let revoke: string | null = null;
+        const token = getSessionToken();
+        if (!token || !src) return;
+        fetch(src, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => { if (!res.ok) throw new Error(); return res.blob(); })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                revoke = url;
+                setBlobSrc(url);
+            })
+            .catch(() => setFailed(true));
+        return () => { if (revoke) URL.revokeObjectURL(revoke); };
+    }, [src]);
+
+    if (failed || !src) return null;
+    if (!blobSrc) return <div className={`${className || ''} flex items-center justify-center bg-slate-800/50`}><span className="text-xs text-slate-500">Loading…</span></div>;
+    return <img src={blobSrc} alt={alt} className={className} />;
 }
 
 // Helper to format bytes
@@ -554,9 +615,7 @@ export default function DevPanelPage() {
     const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [expandedActivityId, setExpandedActivityId] = useState<number | null>(null);
 
-    const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
     const MOD_HISTORY_KEY = 'eurokeys:moderation-history';
-    const getSessionToken = () => localStorage.getItem('session_token') || localStorage.getItem('auth_token') || '';
 
     // Fetch all data on mount
     const fetchAllData = useCallback(async () => {
@@ -2006,37 +2065,28 @@ export default function DevPanelPage() {
                                         {proofUrl ? (
                                             <>
                                                 <div className="mb-2 flex flex-wrap gap-2">
-                                                    <a
-                                                        href={proofUrl}
-                                                        target="_blank"
-                                                        rel="noreferrer"
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openAuthenticatedProof(proofUrl)}
                                                         className="rounded border border-blue-500/40 bg-blue-500/15 px-2.5 py-1 text-xs font-medium text-blue-200 hover:bg-blue-500/25"
                                                     >
                                                         Open Proof
-                                                    </a>
-                                                    <a
-                                                        href={proofUrl}
-                                                        download
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openAuthenticatedProof(proofUrl, true)}
                                                         className="rounded border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-slate-700"
                                                     >
                                                         Download
-                                                    </a>
+                                                    </button>
                                                 </div>
-                                                <a
-                                                    href={proofUrl}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="mb-2 block w-fit"
-                                                >
-                                                    <img
+                                                <div className="mb-2 block w-fit cursor-pointer" onClick={() => openAuthenticatedProof(proofUrl)}>
+                                                    <AuthProofImage
                                                         src={proofUrl}
                                                         alt={`${PROOF_TYPE_LABELS[proof.proof_type] || proof.proof_type} proof`}
                                                         className="max-h-64 rounded-lg border border-slate-700 object-contain"
-                                                        onError={(e) => {
-                                                            e.currentTarget.style.display = 'none';
-                                                        }}
                                                     />
-                                                </a>
+                                                </div>
                                                 <p className="mb-3 break-all text-[11px] text-slate-500">{proofUrl}</p>
                                             </>
                                         ) : (
@@ -2130,14 +2180,13 @@ export default function DevPanelPage() {
                                                 )}
                                             </div>
                                             {proofUrl && (
-                                                <a
-                                                    href={proofUrl}
-                                                    target="_blank"
-                                                    rel="noreferrer"
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openAuthenticatedProof(proofUrl)}
                                                     className="mt-1 inline-flex rounded border border-blue-500/40 bg-blue-500/15 px-1.5 py-0.5 text-[11px] text-blue-200 hover:bg-blue-500/25"
                                                 >
                                                     Open proof
-                                                </a>
+                                                </button>
                                             )}
                                         </div>
                                     );

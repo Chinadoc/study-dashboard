@@ -723,7 +723,7 @@ export default function ImageGalleryClient() {
                     <div
                       key={image.id}
                       className="image-card"
-                      onClick={() => isLocked ? setShowUpgradeModal(true) : openImageInLightbox(image, sourceImages)}
+                      onClick={() => isLocked ? setShowUpgradeModal(true) : openImageInLightbox(image, filteredImages)}
                       style={isLocked ? {
                         opacity: 0.4,
                         filter: 'blur(3px)',
@@ -795,7 +795,7 @@ export default function ImageGalleryClient() {
           {/* Navigation hint */}
           <div className="lightbox-hint">
             {currentSourceImages.length > 1
-              ? 'Swipe or use ← → to navigate • ESC to close'
+              ? 'Swipe or use ← → to navigate all filtered images • ESC to close'
               : 'Click anywhere or press ESC to close'}
           </div>
 

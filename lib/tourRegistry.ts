@@ -100,6 +100,7 @@ const BUSINESS_TOUR: TourStep[] = [
         title: 'Track Your Stock',
         emoji: '📦',
         content: 'Keep track of key blanks, remotes, and parts. Know what you can quote without ordering.',
+        highlightSelector: 'a[href="/business/inventory"]',
     },
     {
         id: 'job-logging',
@@ -107,6 +108,7 @@ const BUSINESS_TOUR: TourStep[] = [
         title: 'Log Jobs',
         emoji: '📋',
         content: 'Record customer jobs with vehicle, parts used, and revenue. Click "Log Job" to try it.',
+        highlightSelector: 'a[href="/business/jobs"]',
     },
     {
         id: 'dashboard',
@@ -114,6 +116,7 @@ const BUSINESS_TOUR: TourStep[] = [
         title: 'Business Dashboard',
         emoji: '📊',
         content: 'See your revenue trends, job counts, and AI-powered business insights all in one place.',
+        highlightSelector: '.max-w-6xl h1',
     },
 ];
 

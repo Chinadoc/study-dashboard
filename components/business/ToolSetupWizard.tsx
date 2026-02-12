@@ -158,8 +158,7 @@ export default function ToolSetupWizard({ onComplete, onSkip }: ToolSetupWizardP
                             icon="📝"
                             title="Log Your First Job"
                             description="Track completed jobs and revenue"
-                            href="/inventory"
-                            action="jobs"
+                            href="/business/jobs"
                         />
                         <NextStepCard
                             icon="🔔"
@@ -189,8 +188,8 @@ function ToolCard({ tool, selected, onToggle }: { tool: ToolInfo; selected: bool
         <button
             onClick={onToggle}
             className={`p-5 rounded-xl border text-left transition-all ${selected
-                    ? 'bg-gray-800 border-yellow-500/50 ring-2 ring-yellow-500/20'
-                    : 'bg-gray-900 border-gray-800 hover:border-gray-700'
+                ? 'bg-gray-800 border-yellow-500/50 ring-2 ring-yellow-500/20'
+                : 'bg-gray-900 border-gray-800 hover:border-gray-700'
                 }`}
         >
             <div className="flex items-start justify-between mb-3">
@@ -210,8 +209,8 @@ function ToolCard({ tool, selected, onToggle }: { tool: ToolInfo; selected: bool
                     </div>
                 </div>
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${selected
-                        ? 'bg-yellow-500 border-yellow-500'
-                        : 'border-gray-600'
+                    ? 'bg-yellow-500 border-yellow-500'
+                    : 'border-gray-600'
                     }`}>
                     {selected && <span className="text-black text-sm">✓</span>}
                 </div>

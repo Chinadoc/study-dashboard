@@ -10,6 +10,7 @@ import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import DossierReferences from '@/components/vehicle/DossierReferences';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
+import TransitionGuide from '@/components/vehicle/TransitionGuide';
 import VideoEmbed from '@/components/vehicle/VideoEmbed';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
@@ -100,7 +101,8 @@ function transformAksKeyConfigs(configs: any[]): any[] {
             // Fallback: if no OEM from fccDetails, parse from flat oemParts
             if (oemParts.length === 0) {
                 for (const p of (c.oemParts || [])) {
-                    for (const part of p.split(',')) {
+                    if (p == null) continue;
+                    for (const part of String(p).split(',')) {
                         const trimmed = part.trim();
                         if (trimmed && !seenOem.has(trimmed)) {
                             seenOem.add(trimmed);
@@ -667,12 +669,12 @@ export default function VehicleDetailClient() {
         if (!vypData || !vypData.product_types) return [];
 
         // Extract unique product types found in VYP to cross-reference with our knowledge base
-        const productTypes = Array.from(new Set(
+        const productTypes: string[] = Array.from(new Set(
             vypData.product_types.filter((t: any): t is string => typeof t === 'string')
         ));
-        const fccIds: string[] = (vypData.fcc_ids || []).map((f: string) => f.trim()).filter(Boolean);
-        const oemParts: string[] = [...new Set((vypData.oem_parts || []).map((p: string) => p.trim()).filter(Boolean))];
-        const chips: string[] = (vypData.chips || []).map((c: string) => c.trim()).filter(Boolean);
+        const fccIds: string[] = (vypData.fcc_ids || []).filter(Boolean).map((f: any) => String(f).trim()).filter(Boolean);
+        const oemParts: string[] = [...new Set((vypData.oem_parts || []).filter(Boolean).map((p: any) => String(p).trim()).filter(Boolean))];
+        const chips: string[] = (vypData.chips || []).filter(Boolean).map((c: any) => String(c).trim()).filter(Boolean);
 
         // Detect button configurations from product type names
         const buttonConfigs: Set<string> = new Set();
@@ -783,6 +785,7 @@ export default function VehicleDetailClient() {
     const aksTools = data.detail?.aks_tools || [];
     const aksBladeKeys = data.detail?.aks_blade_keys || null;
     const pushStartInfo = data.detail?.push_start || null;
+    const vpmData = data.detail?.vpm || null;
     const keysFromProducts = transformProducts(data.products?.products || [], model);
     const keysFromPBT = transformProductsByType(productsByType);
     const keysFromVYP = classifyVypProducts(vyp, specs);
@@ -1199,10 +1202,10 @@ export default function VehicleDetailClient() {
             {/* Platform Insight from dossier data */}
             {header.platform_insight && (
                 <div className={`mt-3 px-4 py-3 rounded-xl border text-sm leading-relaxed ${header.platform_insight.includes('DEALER ONLY') || header.platform_insight.includes('🔒')
-                        ? 'bg-red-500/10 border-red-500/30 text-red-200'
-                        : header.platform_insight.includes('DANGER') || header.platform_insight.includes('MIXED') || header.platform_insight.includes('⚠️')
-                            ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
-                            : 'bg-blue-500/10 border-blue-500/30 text-blue-200'
+                    ? 'bg-red-500/10 border-red-500/30 text-red-200'
+                    : header.platform_insight.includes('DANGER') || header.platform_insight.includes('MIXED') || header.platform_insight.includes('⚠️')
+                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+                        : 'bg-blue-500/10 border-blue-500/30 text-blue-200'
                     }`}>
                     <div className="flex items-start gap-2">
                         <span className="text-lg flex-shrink-0 mt-0.5">
@@ -1272,6 +1275,11 @@ export default function VehicleDetailClient() {
 
                     {/* KeyConfigCards removed — KeyCards below is the single key configuration display.
                        Tool coverage lives in the ToolCoverageSidebar (right column) only. */}
+
+                    {/* Platform Insight / Transition Guide */}
+                    {vpmData && (
+                        <TransitionGuide vpm={vpmData} make={make} />
+                    )}
 
                     {/* Related YouTube Video */}
                     <VideoEmbed make={make} model={model} year={year} />

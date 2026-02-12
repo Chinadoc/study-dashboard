@@ -6,6 +6,7 @@ import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import { usePipelineLeads, PipelineLead } from '@/lib/usePipelineLeads';
 import JobsDashboard from '@/components/business/JobsDashboard';
+import { useAuth } from '@/contexts/AuthContext';
 import CalendarView from '@/components/business/CalendarView';
 import GoalProgress from '@/components/business/GoalProgress';
 import InvoiceBuilder from '@/components/business/InvoiceBuilder';
@@ -32,6 +33,7 @@ export default function JobsPage() {
 function JobsPageContent() {
     const [activeSubTab, setActiveSubTab] = useState<JobsSubTab>('all');
     const [jobModalOpen, setJobModalOpen] = useState(false);
+    const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
     const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
     const [invoiceJob, setInvoiceJob] = useState<JobLog | undefined>(undefined);
     const [editingJob, setEditingJob] = useState<JobLog | null>(null);
@@ -46,6 +48,20 @@ function JobsPageContent() {
     const [schedulingLead, setSchedulingLead] = useState<PipelineLead | null>(null);
 
     const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
+    const { hasBusinessTools } = useAuth();
+
+    // Free tier limit
+    const FREE_JOBS = 1;
+    const completedJobs = jobLogs.filter(j => j.status === 'completed').length;
+    const isOverFreeLimit = !hasBusinessTools && completedJobs >= FREE_JOBS;
+
+    const openJobModal = () => {
+        if (isOverFreeLimit) {
+            setShowUpgradePrompt(true);
+            return;
+        }
+        setJobModalOpen(true);
+    };
 
     // Auto-transition: appointment → accepted 2hrs before scheduled time
     useAutoStatusTransitions({ jobs: jobLogs, updateJobLog });
@@ -316,7 +332,7 @@ function JobsPageContent() {
                         setEditingJob(null);
                         setPrefillData(null);
                         setPrefillDate(undefined);
-                        setJobModalOpen(true);
+                        openJobModal();
                     }}
                     onDeleteJob={deleteJobLog}
                     onEditJob={(job) => {
@@ -361,7 +377,7 @@ function JobsPageContent() {
                     jobLogs={jobLogs}
                     onAddJob={(date) => {
                         setPrefillDate(date);
-                        setJobModalOpen(true);
+                        openJobModal();
                     }}
                 />
             )}
@@ -382,7 +398,7 @@ function JobsPageContent() {
                         setEditingJob(null);
                         setPrefillData(null);
                         setPrefillDate(undefined);
-                        setJobModalOpen(true);
+                        openJobModal();
                     }}
                 />
             )}
@@ -409,7 +425,7 @@ function JobsPageContent() {
             {activeSubTab === 'myjobs' && (
                 <div className="space-y-4">
                     <button
-                        onClick={() => setJobModalOpen(true)}
+                        onClick={() => openJobModal()}
                         className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black text-lg rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all"
                     >
                         📝 Log New Job
@@ -467,6 +483,33 @@ function JobsPageContent() {
                     prefillStatus={editingJob?.status}
                     prefillNotes={editingJob?.notes || schedulingLead?.notes}
                 />
+            )}
+
+            {/* Free Tier Upgrade Prompt */}
+            {showUpgradePrompt && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+                    <div className="bg-zinc-900 border border-amber-500/40 rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
+                        <div className="text-5xl mb-4">🔒</div>
+                        <h3 className="text-2xl font-black text-white mb-2">Free Tier Limit Reached</h3>
+                        <p className="text-zinc-400 mb-6">
+                            You&apos;ve used your {FREE_JOBS} free job{FREE_JOBS !== 1 ? 's' : ''}. Upgrade to log unlimited jobs, track revenue, and unlock business analytics.
+                        </p>
+                        <div className="flex gap-3 justify-center">
+                            <button
+                                onClick={() => setShowUpgradePrompt(false)}
+                                className="px-5 py-2.5 text-zinc-400 hover:text-white transition-colors text-sm"
+                            >
+                                Maybe Later
+                            </button>
+                            <a
+                                href="/business/tools"
+                                className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold rounded-xl hover:from-amber-400 hover:to-yellow-400 transition-all text-sm"
+                            >
+                                Upgrade → Free Trial
+                            </a>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Invoice Builder Modal */}

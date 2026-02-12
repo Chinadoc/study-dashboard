@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import dossierManifest from '@/data/dossier_manifest.json';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import TourBanner from '@/components/onboarding/TourBanner';
 
-const FREE_DOSSIER_LIMIT = 3;
+const FREE_OPEN_LIMIT = 3;
+const OPENED_STORAGE_KEY = 'eurokeys_dossiers_opened';
 
 interface DossierSection {
   heading: string;
@@ -97,6 +98,41 @@ export default function DossierLibraryClient() {
   const [selectedMake, setSelectedMake] = useState('All Makes');
   const [expandedDossier, setExpandedDossier] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [openedIds, setOpenedIds] = useState<string[]>([]);
+
+  // Load opened dossier IDs from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(OPENED_STORAGE_KEY);
+      if (stored) setOpenedIds(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, []);
+
+  const openDossierGated = useCallback((dossier: Dossier) => {
+    // Pro / dossier subscribers bypass the limit
+    if (hasDossiers) {
+      window.open(dossier.embed_url, '_blank');
+      return;
+    }
+
+    // Already opened this one? Let them re-open it (doesn't count again)
+    if (openedIds.includes(dossier.id)) {
+      window.open(dossier.embed_url, '_blank');
+      return;
+    }
+
+    // Check if they've hit the free limit
+    if (openedIds.length >= FREE_OPEN_LIMIT) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    // Open and track
+    const updated = [...openedIds, dossier.id];
+    setOpenedIds(updated);
+    try { localStorage.setItem(OPENED_STORAGE_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
+    window.open(dossier.embed_url, '_blank');
+  }, [hasDossiers, openedIds]);
 
   const dossiers = dossierManifest as Dossier[];
 
@@ -183,7 +219,7 @@ export default function DossierLibraryClient() {
   };
 
   const openDossier = (dossier: Dossier) => {
-    window.open(dossier.embed_url, '_blank');
+    openDossierGated(dossier);
   };
 
   return (
@@ -531,122 +567,95 @@ export default function DossierLibraryClient() {
         </div>
       ) : (
         <>
-          {(() => {
-            let globalIndex = 0;
-            return groupedByMake.map(([make, makeDossiers]) => (
-              <div key={make} className="make-section">
-                <div className="make-header">
-                  <h2>{make}</h2>
-                  <span className="make-count">{makeDossiers.length} docs</span>
-                </div>
+          {groupedByMake.map(([make, makeDossiers]) => (
+            <div key={make} className="make-section">
+              <div className="make-header">
+                <h2>{make}</h2>
+                <span className="make-count">{makeDossiers.length} docs</span>
+              </div>
 
-                <div className="dossier-grid">
-                  {makeDossiers.map((dossier) => {
-                    const currentIndex = globalIndex++;
-                    const isLocked = !hasDossiers && currentIndex >= FREE_DOSSIER_LIMIT;
-
-                    return (
-                      <div
-                        key={dossier.id}
-                        className="dossier-card"
-                        style={isLocked ? { opacity: 0.5, filter: 'blur(2px)', cursor: 'pointer' } : {}}
-                        onClick={() => isLocked && setShowUpgradeModal(true)}
-                      >
-                        <div className="card-header">
-                          <h3 className="card-title">
-                            {isLocked && <span style={{ marginRight: '0.5rem' }}>🔒</span>}
-                            {dossier.title}
-                          </h3>
-                          <div className="card-meta">
-                            <span className="section-count">
-                              {dossier.sections.length} sections
-                            </span>
-                            {formatYearRange(dossier.years) && (
-                              <span className="year-range">
-                                {formatYearRange(dossier.years)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="card-tags">
-                          {dossier.topics.slice(0, 3).map((topic) => (
-                            <span key={topic} className="tag topic">
-                              {topic}
-                            </span>
-                          ))}
-                          {dossier.platforms.slice(0, 2).map((platform) => (
-                            <span key={platform} className="tag platform">
-                              {platform}
-                            </span>
-                          ))}
-                        </div>
-
-                        <div className="card-actions">
-                          <button
-                            className={`btn ${isLocked ? 'btn-secondary' : 'btn-primary'}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (isLocked) {
-                                setShowUpgradeModal(true);
-                              } else {
-                                openDossier(dossier);
-                              }
-                            }}
-                          >
-                            {isLocked ? '🔒 Unlock' : 'Open'}
-                          </button>
-                          <button
-                            className="btn btn-secondary"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedDossier(
-                                expandedDossier === dossier.id ? null : dossier.id
-                              );
-                            }}
-                          >
-                            {expandedDossier === dossier.id ? 'Hide' : 'Sections'}
-                          </button>
-                        </div>
-
-                        {expandedDossier === dossier.id && (
-                          <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#888' }}>
-                            {dossier.sections.slice(0, 5).map((section, i) => (
-                              <div key={i} style={{ marginBottom: '0.5rem' }}>
-                                <strong style={{ color: '#aaa' }}>{section.heading}</strong>
-                                <p style={{ margin: '0.25rem 0', opacity: 0.7 }}>
-                                  {section.preview.slice(0, 100)}...
-                                </p>
-                              </div>
-                            ))}
-                            {dossier.sections.length > 5 && (
-                              <p style={{ fontStyle: 'italic' }}>
-                                +{dossier.sections.length - 5} more sections...
-                              </p>
-                            )}
-                          </div>
+              <div className="dossier-grid">
+                {makeDossiers.map((dossier) => (
+                  <div
+                    key={dossier.id}
+                    className="dossier-card"
+                  >
+                    <div className="card-header">
+                      <h3 className="card-title">
+                        {dossier.title}
+                      </h3>
+                      <div className="card-meta">
+                        <span className="section-count">
+                          {dossier.sections.length} sections
+                        </span>
+                        {formatYearRange(dossier.years) && (
+                          <span className="year-range">
+                            {formatYearRange(dossier.years)}
+                          </span>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ));
-          })()}
+                    </div>
 
-          {/* Show upgrade prompt if there are more dossiers than free limit */}
-          {!hasDossiers && filteredDossiers.length > FREE_DOSSIER_LIMIT && (
-            <div style={{ marginTop: '2rem' }}>
-              <UpgradePrompt
-                itemType="dossiers"
-                remainingCount={filteredDossiers.length - FREE_DOSSIER_LIMIT}
-              />
+                    <div className="card-tags">
+                      {dossier.topics.slice(0, 3).map((topic) => (
+                        <span key={topic} className="tag topic">
+                          {topic}
+                        </span>
+                      ))}
+                      {dossier.platforms.slice(0, 2).map((platform) => (
+                        <span key={platform} className="tag platform">
+                          {platform}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="card-actions">
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => openDossier(dossier)}
+                      >
+                        Open
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedDossier(
+                            expandedDossier === dossier.id ? null : dossier.id
+                          );
+                        }}
+                      >
+                        {expandedDossier === dossier.id ? 'Hide' : 'Sections'}
+                      </button>
+                    </div>
+
+                    {expandedDossier === dossier.id && (
+                      <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#888' }}>
+                        {dossier.sections.slice(0, 5).map((section, i) => (
+                          <div key={i} style={{ marginBottom: '0.5rem' }}>
+                            <strong style={{ color: '#aaa' }}>{section.heading}</strong>
+                            <p style={{ margin: '0.25rem 0', opacity: 0.7 }}>
+                              {section.preview.slice(0, 100)}...
+                            </p>
+                          </div>
+                        ))}
+                        {dossier.sections.length > 5 && (
+                          <p style={{ fontStyle: 'italic' }}>
+                            +{dossier.sections.length - 5} more sections...
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
+          ))}
+
         </>
       )}
 
-      {/* Upgrade Modal */}
+      {/* Upgrade Modal — shown when non-Pro user hits the open limit */}
       {showUpgradeModal && (
         <div
           style={{
@@ -667,8 +676,8 @@ export default function DossierLibraryClient() {
           <div style={{ maxWidth: '420px', width: '100%' }} onClick={e => e.stopPropagation()}>
             <UpgradePrompt
               itemType="dossiers"
-              message="Unlock All Technical Dossiers"
-              remainingCount={filteredDossiers.length - FREE_DOSSIER_LIMIT}
+              message="You've previewed 3 free dossiers"
+              remainingCount={filteredDossiers.length - FREE_OPEN_LIMIT}
             />
             <button
               onClick={() => setShowUpgradeModal(false)}

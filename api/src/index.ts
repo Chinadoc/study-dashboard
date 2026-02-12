@@ -7400,6 +7400,42 @@ Guidelines:
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
       }
+      // GET /api/verification/image/* - Proxy R2 verification images (dev/reviewer only)
+      if (path.startsWith("/api/verification/image/") && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          const roleCaps = await getReviewerCapabilities(env, payload.sub as string);
+          if (!userIsDev && !roleCaps.verification && !roleCaps.nastf) {
+            return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+          }
+
+          // Extract the R2 key from the path: /api/verification/image/verification/userId/filename.png
+          const r2Key = path.replace("/api/verification/image/", "");
+          if (!r2Key || !r2Key.startsWith("verification/")) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid image path" }), 400);
+          }
+
+          const object = await env.ASSETS_BUCKET.get(r2Key);
+          if (!object) {
+            return corsResponse(request, JSON.stringify({ error: "Image not found" }), 404);
+          }
+
+          const headers = new Headers();
+          headers.set("Content-Type", object.httpMetadata?.contentType || "image/png");
+          headers.set("Cache-Control", "private, max-age=3600");
+          headers.set("Access-Control-Allow-Origin", "*");
+
+          return new Response(object.body, { headers });
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
 
       // GET /api/verification/pending - Admin gets all pending verifications
       if (path === "/api/verification/pending" && request.method === "GET") {
@@ -8417,25 +8453,47 @@ Guidelines:
           if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
           // Get all users with activity count, last activity, and subscription fields
-          const users = await env.LOCKSMITH_DB.prepare(`
-          SELECT 
-            u.id,
-            u.email,
-            u.name,
-            u.picture,
-            u.is_pro,
-            u.is_developer,
-            u.created_at,
-            u.subscription_status,
-            u.stripe_customer_id,
-            u.trial_until,
-            COUNT(a.id) as activity_count,
-            MAX(a.created_at) as last_activity
-          FROM users u
-          LEFT JOIN user_activity a ON u.id = a.user_id
-          GROUP BY u.id
-          ORDER BY u.created_at DESC
-        `).all();
+          // Use try/fallback in case subscription columns haven't been added yet
+          let users;
+          try {
+            users = await env.LOCKSMITH_DB.prepare(`
+              SELECT 
+                u.id,
+                u.email,
+                u.name,
+                u.picture,
+                u.is_pro,
+                u.is_developer,
+                u.created_at,
+                u.subscription_status,
+                u.stripe_customer_id,
+                u.trial_until,
+                COUNT(a.id) as activity_count,
+                MAX(a.created_at) as last_activity
+              FROM users u
+              LEFT JOIN user_activity a ON u.id = a.user_id
+              GROUP BY u.id
+              ORDER BY u.created_at DESC
+            `).all();
+          } catch (e) {
+            // Fallback: columns may not exist yet
+            users = await env.LOCKSMITH_DB.prepare(`
+              SELECT 
+                u.id,
+                u.email,
+                u.name,
+                u.picture,
+                u.is_pro,
+                u.is_developer,
+                u.created_at,
+                COUNT(a.id) as activity_count,
+                MAX(a.created_at) as last_activity
+              FROM users u
+              LEFT JOIN user_activity a ON u.id = a.user_id
+              GROUP BY u.id
+              ORDER BY u.created_at DESC
+            `).all();
+          }
 
           return corsResponse(request, JSON.stringify({ users: users.results || [] }));
         } catch (err: any) {
@@ -14052,10 +14110,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let vpmData: any = null;
           try {
             const yearInt = year ? parseInt(String(year), 10) : 0;
+            // Normalize model: replace hyphens/spaces so "3 Series" matches "3-series"
+            const vpmModelNorm = model.toLowerCase().replace(/[-\s]+/g, ' ');
             const vpmQuery = yearInt
-              ? `SELECT platform_code, chassis_code, transition_note, hardware_note FROM vehicle_platform_map WHERE LOWER(make) = ? AND LOWER(model) = ? AND year_start <= ? AND year_end >= ? LIMIT 1`
-              : `SELECT platform_code, chassis_code, transition_note, hardware_note FROM vehicle_platform_map WHERE LOWER(make) = ? AND LOWER(model) = ? LIMIT 1`;
-            const vpmParams = yearInt ? [make, model, yearInt, yearInt] : [make, model];
+              ? `SELECT platform_code, chassis_code, transition_note, hardware_note FROM vehicle_platform_map WHERE LOWER(make) = ? AND LOWER(REPLACE(REPLACE(model, '-', ' '), '  ', ' ')) = ? AND year_start <= ? AND year_end >= ? LIMIT 1`
+              : `SELECT platform_code, chassis_code, transition_note, hardware_note FROM vehicle_platform_map WHERE LOWER(make) = ? AND LOWER(REPLACE(REPLACE(model, '-', ' '), '  ', ' ')) = ? LIMIT 1`;
+            const vpmParams = yearInt ? [make, vpmModelNorm, yearInt, yearInt] : [make, vpmModelNorm];
             const vpmResult = await env.LOCKSMITH_DB.prepare(vpmQuery).bind(...vpmParams).first<any>();
             if (vpmResult) {
               const WORKER_BASE = url.origin;
@@ -15041,7 +15101,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       if (path === "/api/fcc") {
         try {
           const q = url.searchParams.get("q")?.toLowerCase() || "";
-          const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "1000", 10) || 1000, 1000);
           const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
           // Build where clause for fcc_complete (pre-computed table)
@@ -15056,21 +15116,31 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           // Simple query from pre-computed fcc_complete table
           // Includes fallback to aks_products.image_url when R2 image is missing
           const sql = `
-          SELECT 
-            fc.fcc_id,
-            fc.frequency,
-            fc.chip,
-            fc.key_type,
-            fc.vehicles,
-            fc.vehicle_count,
-            fc.image_r2_key,
-            (SELECT p.image_url FROM aks_products p 
-             WHERE p.fcc_id LIKE '%' || fc.fcc_id || '%' 
-             AND p.image_url IS NOT NULL AND p.image_url != '' 
-             LIMIT 1) as fallback_image
-          FROM fcc_complete fc
-          ${whereClause}
-          ORDER BY fc.fcc_id
+          WITH ranked AS (
+            SELECT 
+              fc.fcc_id,
+              fc.frequency,
+              fc.chip,
+              fc.key_type,
+              fc.vehicles,
+              fc.vehicle_count,
+              fc.image_r2_key,
+              (SELECT p.image_url FROM aks_products p 
+               WHERE p.fcc_id LIKE '%' || fc.fcc_id || '%' 
+               AND p.image_url IS NOT NULL AND p.image_url != '' 
+               LIMIT 1) as fallback_image,
+              ROW_NUMBER() OVER (
+                PARTITION BY fc.key_type 
+                ORDER BY CASE WHEN fc.image_r2_key IS NOT NULL AND fc.image_r2_key != '' THEN 0 ELSE 1 END,
+                  fc.vehicle_count DESC, fc.fcc_id
+              ) as type_rank
+            FROM fcc_complete fc
+            ${whereClause}
+          )
+          SELECT fcc_id, frequency, chip, key_type, vehicles, vehicle_count, image_r2_key, fallback_image
+          FROM ranked
+          ORDER BY type_rank,
+            CASE key_type WHEN 'smart' THEN 1 WHEN 'remote-head' THEN 2 WHEN 'transponder' THEN 3 ELSE 4 END
           LIMIT ? OFFSET ?
         `;
 

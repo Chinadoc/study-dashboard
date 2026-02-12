@@ -6,6 +6,8 @@ import { WizardStep, WizardStepOption } from '@/components/WizardStep';
 import { MakeGrid } from '@/components/browse/MakeGrid';
 import { SearchBar } from '@/components/browse/SearchBar';
 import { MobileBrowse } from '@/components/browse/MobileBrowse';
+import { NavigationCards } from '@/components/browse/NavigationCards';
+import { PurchaseGate } from '@/components/PurchaseGate';
 import { POPULAR_MAKES } from '@/lib/make-data';
 import { parseVehicleQuery } from '@/lib/vehicle-search';
 
@@ -396,275 +398,280 @@ function BrowsePageContent() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* Header - hidden on mobile for compact layout */}
-            <header className="text-center mb-8 hidden md:block">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent mb-2">
-                    Browse Database
-                </h1>
-                <p className="text-gray-400">Access professional locksmith data, programming guides, and part numbers.</p>
-            </header>
+        <PurchaseGate>
+            <div className="container mx-auto px-4 py-8">
+                {/* Header - hidden on mobile for compact layout */}
+                <header className="text-center mb-8 hidden md:block">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent mb-2">
+                        Browse Database
+                    </h1>
+                    <p className="text-gray-400">Access professional locksmith data, programming guides, and part numbers.</p>
+                </header>
 
-            {/* Mobile: Use horizontal scroll layout */}
-            {isMobile ? (
-                <MobileBrowse onSearch={handleSearch} />
-            ) : (
-                <>
-                    <SearchBar onSearch={handleSearch} />
+                {/* Mobile: Use horizontal scroll layout */}
+                {isMobile ? (
+                    <MobileBrowse onSearch={handleSearch} />
+                ) : (
+                    <>
+                        <SearchBar onSearch={handleSearch} />
 
-                    {/* Cascading Columns Layout (Finder-style) */}
-                    <div className="grid grid-cols-4 gap-1 bg-gray-900/50 rounded-2xl border border-gray-700/50 h-[500px] overflow-hidden">
-                        {/* Column 1: Makes */}
-                        <div className="flex flex-col h-full border-r border-gray-700/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
-                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Make</span>
-                                <span className="text-[10px] text-gray-500">{makes.length}</span>
-                            </div>
-                            <div className="overflow-y-auto" style={{ maxHeight: 'calc(500px - 40px)' }}>
-                                {/* Popular Makes */}
-                                {makes.filter(m => (POPULAR_MAKES as readonly string[]).includes(m)).map(make => (
-                                    <button
-                                        key={make}
-                                        onClick={() => handleMakeSelect(make)}
-                                        className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedMake === make
-                                            ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
-                                            : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
-                                            }`}
-                                    >
-                                        <img
-                                            src={`https://www.carlogos.org/car-logos/${make.toLowerCase().replace(/\s+/g, '-')}-logo.png`}
-                                            alt=""
-                                            className="w-5 h-5 object-contain"
-                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                        />
-                                        <span className="truncate">{make}</span>
-                                        {selectedMake === make && <span className="ml-auto text-purple-400">›</span>}
-                                    </button>
-                                ))}
-                                {/* Lesser-Used Makes Divider */}
-                                {makes.filter(m => !(POPULAR_MAKES as readonly string[]).includes(m)).length > 0 && (
-                                    <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-gray-500 border-t border-gray-700/50 mt-1 bg-gray-800/30">
-                                        Lesser Used
-                                    </div>
-                                )}
-                                {/* Lesser-Used Makes */}
-                                {makes.filter(m => !(POPULAR_MAKES as readonly string[]).includes(m)).map(make => (
-                                    <button
-                                        key={make}
-                                        onClick={() => handleMakeSelect(make)}
-                                        className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedMake === make
-                                            ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
-                                            : 'text-gray-400 hover:bg-gray-800/50 border-l-2 border-transparent'
-                                            }`}
-                                    >
-                                        <img
-                                            src={`https://www.carlogos.org/car-logos/${make.toLowerCase().replace(/\s+/g, '-')}-logo.png`}
-                                            alt=""
-                                            className="w-5 h-5 object-contain opacity-60"
-                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                        />
-                                        <span className="truncate">{make}</span>
-                                        {selectedMake === make && <span className="ml-auto text-purple-400">›</span>}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                        {/* Navigation Cards - Home Page Feel */}
+                        <NavigationCards />
 
-                        {/* Column 2: Models */}
-                        <div className="flex flex-col h-full border-r border-gray-700/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
-                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Model</span>
-                                {selectedMake && <span className="text-[10px] text-gray-500">{models.length}</span>}
-                            </div>
-                            <div className="overflow-y-auto" style={{ maxHeight: 'calc(500px - 40px)' }}>
-                                {!selectedMake ? (
-                                    <div className="flex items-center justify-center h-full text-gray-600 text-sm">
-                                        ← Select a make
-                                    </div>
-                                ) : loadingModels ? (
-                                    <div className="flex items-center justify-center h-full text-purple-400 animate-pulse text-sm">
-                                        Loading...
-                                    </div>
-                                ) : (
-                                    <>
-                                        {/* Era/EV Toggle */}
-                                        {(hasClassicOnly || hasEV) && (
-                                            <div className="flex gap-0.5 p-1.5 border-b border-gray-700/50 bg-gray-800/30">
-                                                {hasClassicOnly && (
-                                                    <button
-                                                        onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
-                                                        className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-500'}`}
-                                                    >
-                                                        2000+
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
-                                                    className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-500'}`}
-                                                >
-                                                    All
-                                                </button>
-                                                {hasEV && (
-                                                    <button
-                                                        onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
-                                                        className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-500'}`}
-                                                    >
-                                                        ⚡ EV
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
-                                        {mergedModels
-                                            .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m.name))
-                                            .filter(m => !showEVOnly || evModels.includes(m.name))
-                                            .map(model => (
-                                                <button
-                                                    key={model.name}
-                                                    onClick={() => handleModelSelect(model.name)}
-                                                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedModel === model.name
-                                                        ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
-                                                        : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
-                                                        }`}
-                                                >
-                                                    <img
-                                                        src={getModelThumbnailUrl(selectedMake, model.name)}
-                                                        alt=""
-                                                        className="w-8 h-6 object-contain rounded"
-                                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                                    />
-                                                    <span className="truncate">{model.display}</span>
-                                                    {selectedModel === model.name && <span className="ml-auto text-purple-400">›</span>}
-                                                </button>
-                                            ))}
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Column 3: Years */}
-                        <div className="flex flex-col h-full border-r border-gray-700/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
-                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Year</span>
-                                {selectedModel && <span className="text-[10px] text-gray-500">{years.length}</span>}
-                            </div>
-                            <div className="overflow-y-auto" style={{ maxHeight: 'calc(500px - 40px)' }}>
-                                {!selectedModel ? (
-                                    <div className="flex items-center justify-center h-full text-gray-600 text-sm">
-                                        ← Select a model
-                                    </div>
-                                ) : loadingYears ? (
-                                    <div className="flex items-center justify-center h-full text-purple-400 animate-pulse text-sm">
-                                        Loading...
-                                    </div>
-                                ) : (
-                                    years.map(year => (
+                        {/* Cascading Columns Layout (Finder-style) */}
+                        <div id="finder" className="grid grid-cols-4 gap-1 bg-gray-900/50 rounded-2xl border border-gray-700/50 h-[500px] overflow-hidden">
+                            {/* Column 1: Makes */}
+                            <div className="flex flex-col h-full border-r border-gray-700/50">
+                                <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Make</span>
+                                    <span className="text-[10px] text-gray-500">{makes.length}</span>
+                                </div>
+                                <div className="overflow-y-auto" style={{ maxHeight: 'calc(500px - 40px)' }}>
+                                    {/* Popular Makes */}
+                                    {makes.filter(m => (POPULAR_MAKES as readonly string[]).includes(m)).map(make => (
                                         <button
-                                            key={year}
-                                            onClick={() => setSelectedYear(year)}
-                                            className={`w-full px-3 py-2 text-left text-sm transition-colors ${selectedYear === year
-                                                ? 'bg-emerald-500/20 text-emerald-300 border-l-2 border-emerald-500'
+                                            key={make}
+                                            onClick={() => handleMakeSelect(make)}
+                                            className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedMake === make
+                                                ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
                                                 : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
                                                 }`}
                                         >
-                                            {year}
+                                            <img
+                                                src={`https://www.carlogos.org/car-logos/${make.toLowerCase().replace(/\s+/g, '-')}-logo.png`}
+                                                alt=""
+                                                className="w-5 h-5 object-contain"
+                                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                            />
+                                            <span className="truncate">{make}</span>
+                                            {selectedMake === make && <span className="ml-auto text-purple-400">›</span>}
                                         </button>
-                                    ))
-                                )}
+                                    ))}
+                                    {/* Lesser-Used Makes Divider */}
+                                    {makes.filter(m => !(POPULAR_MAKES as readonly string[]).includes(m)).length > 0 && (
+                                        <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-gray-500 border-t border-gray-700/50 mt-1 bg-gray-800/30">
+                                            Lesser Used
+                                        </div>
+                                    )}
+                                    {/* Lesser-Used Makes */}
+                                    {makes.filter(m => !(POPULAR_MAKES as readonly string[]).includes(m)).map(make => (
+                                        <button
+                                            key={make}
+                                            onClick={() => handleMakeSelect(make)}
+                                            className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedMake === make
+                                                ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
+                                                : 'text-gray-400 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                                }`}
+                                        >
+                                            <img
+                                                src={`https://www.carlogos.org/car-logos/${make.toLowerCase().replace(/\s+/g, '-')}-logo.png`}
+                                                alt=""
+                                                className="w-5 h-5 object-contain opacity-60"
+                                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                            />
+                                            <span className="truncate">{make}</span>
+                                            {selectedMake === make && <span className="ml-auto text-purple-400">›</span>}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Column 4: Preview */}
-                        <div className="flex flex-col h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50">
-                            <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50">
-                                <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Preview</span>
+                            {/* Column 2: Models */}
+                            <div className="flex flex-col h-full border-r border-gray-700/50">
+                                <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Model</span>
+                                    {selectedMake && <span className="text-[10px] text-gray-500">{models.length}</span>}
+                                </div>
+                                <div className="overflow-y-auto" style={{ maxHeight: 'calc(500px - 40px)' }}>
+                                    {!selectedMake ? (
+                                        <div className="flex items-center justify-center h-full text-gray-600 text-sm">
+                                            ← Select a make
+                                        </div>
+                                    ) : loadingModels ? (
+                                        <div className="flex items-center justify-center h-full text-purple-400 animate-pulse text-sm">
+                                            Loading...
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {/* Era/EV Toggle */}
+                                            {(hasClassicOnly || hasEV) && (
+                                                <div className="flex gap-0.5 p-1.5 border-b border-gray-700/50 bg-gray-800/30">
+                                                    {hasClassicOnly && (
+                                                        <button
+                                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
+                                                            className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-500'}`}
+                                                        >
+                                                            2000+
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
+                                                        className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-500'}`}
+                                                    >
+                                                        All
+                                                    </button>
+                                                    {hasEV && (
+                                                        <button
+                                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
+                                                            className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-500'}`}
+                                                        >
+                                                            ⚡ EV
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {mergedModels
+                                                .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m.name))
+                                                .filter(m => !showEVOnly || evModels.includes(m.name))
+                                                .map(model => (
+                                                    <button
+                                                        key={model.name}
+                                                        onClick={() => handleModelSelect(model.name)}
+                                                        className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${selectedModel === model.name
+                                                            ? 'bg-purple-500/20 text-purple-300 border-l-2 border-purple-500'
+                                                            : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                                            }`}
+                                                    >
+                                                        <img
+                                                            src={getModelThumbnailUrl(selectedMake, model.name)}
+                                                            alt=""
+                                                            className="w-8 h-6 object-contain rounded"
+                                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                        />
+                                                        <span className="truncate">{model.display}</span>
+                                                        {selectedModel === model.name && <span className="ml-auto text-purple-400">›</span>}
+                                                    </button>
+                                                ))}
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            <div className="overflow-y-auto flex flex-col p-4" style={{ maxHeight: 'calc(500px - 40px)' }}>
-                                {selectedMake && selectedModel ? (
-                                    <div className="flex flex-col gap-4 h-full">
-                                        {/* Vehicle Info */}
-                                        <div className="text-center">
-                                            {selectedYear ? (
+
+                            {/* Column 3: Years */}
+                            <div className="flex flex-col h-full border-r border-gray-700/50">
+                                <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50 flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Year</span>
+                                    {selectedModel && <span className="text-[10px] text-gray-500">{years.length}</span>}
+                                </div>
+                                <div className="overflow-y-auto" style={{ maxHeight: 'calc(500px - 40px)' }}>
+                                    {!selectedModel ? (
+                                        <div className="flex items-center justify-center h-full text-gray-600 text-sm">
+                                            ← Select a model
+                                        </div>
+                                    ) : loadingYears ? (
+                                        <div className="flex items-center justify-center h-full text-purple-400 animate-pulse text-sm">
+                                            Loading...
+                                        </div>
+                                    ) : (
+                                        years.map(year => (
+                                            <button
+                                                key={year}
+                                                onClick={() => setSelectedYear(year)}
+                                                className={`w-full px-3 py-2 text-left text-sm transition-colors ${selectedYear === year
+                                                    ? 'bg-emerald-500/20 text-emerald-300 border-l-2 border-emerald-500'
+                                                    : 'text-gray-300 hover:bg-gray-800/50 border-l-2 border-transparent'
+                                                    }`}
+                                            >
+                                                {year}
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Column 4: Preview */}
+                            <div className="flex flex-col h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+                                <div className="px-3 py-2 bg-gray-800/80 border-b border-gray-700/50">
+                                    <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Preview</span>
+                                </div>
+                                <div className="overflow-y-auto flex flex-col p-4" style={{ maxHeight: 'calc(500px - 40px)' }}>
+                                    {selectedMake && selectedModel ? (
+                                        <div className="flex flex-col gap-4 h-full">
+                                            {/* Vehicle Info */}
+                                            <div className="text-center">
+                                                {selectedYear ? (
+                                                    <>
+                                                        <div className="text-xl font-bold text-white">{selectedYear}</div>
+                                                        <div className="text-sm text-purple-300">{selectedMake} {selectedModel}</div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="text-lg font-bold text-white">{selectedMake}</div>
+                                                        <div className="text-sm text-purple-300">{selectedModel}</div>
+                                                        <div className="text-xs text-gray-500 mt-2">← Select a year</div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            {/* Quick Stats from API - only when year is selected */}
+                                            {selectedYear && (
                                                 <>
-                                                    <div className="text-xl font-bold text-white">{selectedYear}</div>
-                                                    <div className="text-sm text-purple-300">{selectedMake} {selectedModel}</div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="text-lg font-bold text-white">{selectedMake}</div>
-                                                    <div className="text-sm text-purple-300">{selectedModel}</div>
-                                                    <div className="text-xs text-gray-500 mt-2">← Select a year</div>
+                                                    {loadingPreview ? (
+                                                        <div className="text-center text-purple-400 animate-pulse text-xs py-2">Loading info...</div>
+                                                    ) : previewSummary ? (
+                                                        <div className="space-y-1.5 text-xs">
+                                                            {previewSummary.keyTypes && previewSummary.keyTypes.length > 0 && (
+                                                                <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                                    <span className="text-gray-500">🔑</span>
+                                                                    <span className="text-gray-300 truncate">{[...new Set(previewSummary.keyTypes)].join(', ')}</span>
+                                                                </div>
+                                                            )}
+                                                            {previewSummary.immoSystem && (
+                                                                <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                                    <span className="text-gray-500">🛡️</span>
+                                                                    <span className="text-gray-300 truncate">{previewSummary.immoSystem}</span>
+                                                                </div>
+                                                            )}
+                                                            {previewSummary.fccIds && previewSummary.fccIds.length > 0 && (
+                                                                <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
+                                                                    <span className="text-gray-500">📡</span>
+                                                                    <span className="text-gray-300 truncate">{[...new Set(previewSummary.fccIds)].slice(0, 2).join(', ')}</span>
+                                                                </div>
+                                                            )}
+                                                            {/* AI-Generated Vehicle Description */}
+                                                            {vehicleDescription && (
+                                                                <div className="mt-3 p-3 rounded-lg bg-gradient-to-br from-purple-900/20 to-indigo-900/20 border border-purple-500/20">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <span className="text-purple-400">✨</span>
+                                                                        <span className="text-purple-300 text-xs font-medium">AI Insight</span>
+                                                                    </div>
+                                                                    <p className="text-gray-300 text-xs leading-relaxed">{vehicleDescription}</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : null}
                                                 </>
                                             )}
+                                            {/* Go Button - only show when year is selected */}
+                                            {selectedYear && (
+                                                <button
+                                                    onClick={handleNavigate}
+                                                    className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5 text-center"
+                                                >
+                                                    View Details →
+                                                </button>
+                                            )}
                                         </div>
-                                        {/* Quick Stats from API - only when year is selected */}
-                                        {selectedYear && (
-                                            <>
-                                                {loadingPreview ? (
-                                                    <div className="text-center text-purple-400 animate-pulse text-xs py-2">Loading info...</div>
-                                                ) : previewSummary ? (
-                                                    <div className="space-y-1.5 text-xs">
-                                                        {previewSummary.keyTypes && previewSummary.keyTypes.length > 0 && (
-                                                            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                                <span className="text-gray-500">🔑</span>
-                                                                <span className="text-gray-300 truncate">{[...new Set(previewSummary.keyTypes)].join(', ')}</span>
-                                                            </div>
-                                                        )}
-                                                        {previewSummary.immoSystem && (
-                                                            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                                <span className="text-gray-500">🛡️</span>
-                                                                <span className="text-gray-300 truncate">{previewSummary.immoSystem}</span>
-                                                            </div>
-                                                        )}
-                                                        {previewSummary.fccIds && previewSummary.fccIds.length > 0 && (
-                                                            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5">
-                                                                <span className="text-gray-500">📡</span>
-                                                                <span className="text-gray-300 truncate">{[...new Set(previewSummary.fccIds)].slice(0, 2).join(', ')}</span>
-                                                            </div>
-                                                        )}
-                                                        {/* AI-Generated Vehicle Description */}
-                                                        {vehicleDescription && (
-                                                            <div className="mt-3 p-3 rounded-lg bg-gradient-to-br from-purple-900/20 to-indigo-900/20 border border-purple-500/20">
-                                                                <div className="flex items-center gap-2 mb-2">
-                                                                    <span className="text-purple-400">✨</span>
-                                                                    <span className="text-purple-300 text-xs font-medium">AI Insight</span>
-                                                                </div>
-                                                                <p className="text-gray-300 text-xs leading-relaxed">{vehicleDescription}</p>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : null}
-                                            </>
-                                        )}
-                                        {/* Go Button - only show when year is selected */}
-                                        {selectedYear && (
-                                            <button
-                                                onClick={handleNavigate}
-                                                className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5 text-center"
-                                            >
-                                                View Details →
-                                            </button>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
-                                        <div className="text-4xl mb-3 opacity-30">🚗</div>
-                                        <div className="text-sm">
-                                            {!selectedMake ? 'Select a make to begin' : 'Select a model'}
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
+                                            <div className="text-4xl mb-3 opacity-30">🚗</div>
+                                            <div className="text-sm">
+                                                {!selectedMake ? 'Select a make to begin' : 'Select a model'}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="mt-12 text-center">
-                        <a href="/" className="text-gray-500 hover:text-purple-400 transition-colors text-sm">
-                            ← Back to Dashboard
-                        </a>
-                    </div>
-                </>
-            )}
-        </div>
+                        <div className="mt-12 text-center">
+                            <a href="/" className="text-gray-500 hover:text-purple-400 transition-colors text-sm">
+                                ← Back to Dashboard
+                            </a>
+                        </div>
+                    </>
+                )}
+            </div>
+        </PurchaseGate>
     );
 }
 
