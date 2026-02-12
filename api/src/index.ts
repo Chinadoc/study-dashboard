@@ -12843,13 +12843,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "make and model required" }), 400);
           }
 
+          // Fuzzy model matching: replace hyphens/spaces with % wildcards
+          // so "4-Series" matches "4 Series", "4-Series", etc.
+          const modelFuzzy = model.replace(/[-\s]+/g, '%');
+
           // 0. Get enrichments (Priority 0 - LLM-parsed research docs, HIGHEST priority)
           let enrichmentData: any = null;
           const enrichmentQuery = year
             ? `SELECT * FROM vehicle_enrichments WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND (year_start IS NULL OR year_start <= ?) AND (year_end IS NULL OR year_end >= ?) ORDER BY confidence_score DESC LIMIT 1`
             : `SELECT * FROM vehicle_enrichments WHERE LOWER(make) = ? AND LOWER(model) LIKE ? ORDER BY confidence_score DESC LIMIT 1`;
 
-          const enrichmentParams = year ? [make, `%${model}%`, year, year] : [make, `%${model}%`];
+          const enrichmentParams = year ? [make, `%${modelFuzzy}%`, year, year] : [make, `%${modelFuzzy}%`];
           enrichmentData = await env.LOCKSMITH_DB.prepare(enrichmentQuery).bind(...enrichmentParams).first<any>();
 
           // 0.5. Get vehicle_intelligence (materialized single-table view)
@@ -12875,7 +12879,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND year_start <= ? AND year_end >= ?
               LIMIT 1
-            `).bind(make, `%${model}%`, year, year).first<any>();
+            `).bind(make, `%${modelFuzzy}%`, year, year).first<any>();
           }
 
           // 0.6. Get push_start_variants (curated push-start/non-push-start FCC info)
@@ -12898,7 +12902,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               FROM tool_coverage
               WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND year_start <= ? AND year_end >= ?
-            `).bind(make, `%${model}%`, year, year).all();
+            `).bind(make, `%${modelFuzzy}%`, year, year).all();
             toolCoverageRows = tcResult?.results || [];
           }
 
@@ -12910,7 +12914,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             const vypResult = await env.LOCKSMITH_DB.prepare(`
               SELECT * FROM vehicle_year_products 
               WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND year = ?
-            `).bind(make, `%${model}%`, year).first<any>();
+            `).bind(make, `%${modelFuzzy}%`, year).first<any>();
 
             if (vypResult) {
               vypData = vypResult;
@@ -12932,7 +12936,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               FROM aks_vehicles_by_year
               WHERE LOWER(make) = ? AND LOWER(model) LIKE LOWER(?) AND year = ?
               LIMIT 1
-            `).bind(make, `%${model}%`, year).first<any>();
+            `).bind(make, `%${modelFuzzy}%`, year).first<any>();
           }
 
           // 1.6. Get ALL FCCs from aks_product_vehicle_years → aks_products_complete (for FCC breakdown popup)
@@ -13062,9 +13066,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               WHERE LOWER(apvy.make) = ? AND LOWER(apvy.model) LIKE LOWER(?) AND apvy.year = ?
                 AND c.fcc_id IS NOT NULL AND c.fcc_id != ''
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
-            `).bind(make, `%${model}%`, year).all<any>();
+              UNION ALL
+              SELECT DISTINCT apvy.fcc_id, apvy.product_type, apvy.buttons, apvy.title
+              FROM aks_product_vehicle_years apvy
+              LEFT JOIN aks_products_complete c ON apvy.item_id = c.item_id
+              WHERE c.item_id IS NULL
+                AND LOWER(apvy.make) = ? AND LOWER(apvy.model) LIKE LOWER(?) AND apvy.year = ?
+                AND apvy.fcc_id IS NOT NULL AND apvy.fcc_id != ''
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%shell%'
+            `).bind(make, `%${modelFuzzy}%`, year, make, `%${modelFuzzy}%`, year).all<any>();
 
-            // Normalize FCC IDs: replace common O/0 typos (letter O → number 0)
+            // Normalize FCC IDs: replace common O/0 typos (letter O vs zero)
             const normalizeFcc = (fcc: string): string => {
               // Common pattern: N5F-AO8TAA should be N5F-A08TAA (letter O vs zero)
               // Replace letter O that's followed by a digit with 0
@@ -13181,8 +13193,45 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%-pack%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%flip blade%'
-              ORDER BY c.product_type, c.buttons DESC
-            `).bind(make, `%${model}%`, year).all<any>();
+              UNION ALL
+              SELECT 
+                NULL as page_id,
+                apvy.item_id,
+                apvy.title,
+                apvy.product_type,
+                apvy.buttons,
+                NULL as button_count,
+                apvy.fcc_id,
+                apvy.oem_part_numbers,
+                apvy.battery,
+                apvy.frequency,
+                apvy.chip,
+                apvy.keyway,
+                NULL as model_name,
+                apvy.image_url as cdn_image,
+                NULL as reusable,
+                NULL as cloneable,
+                NULL as image_r2_key
+              FROM aks_product_vehicle_years apvy
+              LEFT JOIN aks_products_complete c ON apvy.item_id = c.item_id
+              WHERE c.item_id IS NULL
+                AND LOWER(apvy.make) = ? 
+                AND LOWER(apvy.model) LIKE LOWER(?) 
+                AND apvy.year = ?
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%shell%'
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%flip%'
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%tool%'
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%lishi%'
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%ignition%'
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%lock%'
+                AND COALESCE(apvy.product_type, '') != 'Key'
+                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%other%'
+                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%shell only%'
+                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%case only%'
+                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%-pack%'
+                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%flip blade%'
+              ORDER BY 4, 5 DESC
+            `).bind(make, `%${modelFuzzy}%`, year, make, `%${modelFuzzy}%`, year).all<any>();
 
             // Group by key type → FCC ID (consolidates different button counts for the same FCC)
             const keyTypeGroups: Record<string, Record<string, {
@@ -13599,7 +13648,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             ? `SELECT * FROM vehicles WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND year_start <= ? AND (year_end IS NULL OR year_end >= ?) LIMIT 1`
             : `SELECT * FROM vehicles WHERE LOWER(make) = ? AND LOWER(model) LIKE ? LIMIT 1`;
 
-          const vehicleParams = year ? [make, `%${model}%`, year, year] : [make, `%${model}%`];
+          const vehicleParams = year ? [make, `%${modelFuzzy}%`, year, year] : [make, `%${modelFuzzy}%`];
           vehicleData = await env.LOCKSMITH_DB.prepare(vehicleQuery).bind(...vehicleParams).first<any>();
 
           // 3. Get AKS products aggregated by product_type (Priority 1 for OEM/FCC/chip/keyway/prices)

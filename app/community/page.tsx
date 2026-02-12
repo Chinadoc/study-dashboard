@@ -296,7 +296,15 @@ export default function CommunityPage() {
             const trendingRes = await fetch(`${API_URL}/api/community/trending?limit=${PAGE_SIZE}&offset=0`, authHeaders ? { headers: authHeaders } : undefined);
             if (trendingRes.ok) {
                 const data = await trendingRes.json();
-                setTrendingComments(rankTrendingComments(data.trending || []));
+                if (silent) {
+                    // On silent re-fetches, merge new items but don't re-sort to avoid scroll jumps
+                    setTrendingComments(prev => {
+                        const merged = mergeById(prev, data.trending || []);
+                        return merged.length !== prev.length ? rankTrendingComments(merged) : prev;
+                    });
+                } else {
+                    setTrendingComments(rankTrendingComments(data.trending || []));
+                }
                 setHasMoreTrending(Boolean(data?.pagination?.has_more));
             }
 
@@ -450,10 +458,11 @@ export default function CommunityPage() {
         const displayName = [make, model, year ? String(year) : ''].filter(Boolean).join(' ');
 
         if (!makeRaw || !modelRaw) {
+            const fallbackHref = rawKey ? `/browse?q=${encodeURIComponent(rawKey)}` : '/browse';
             return {
                 displayName: rawKey || 'Vehicle',
-                detailHref: '/browse',
-                discussionHref: '/browse'
+                detailHref: fallbackHref,
+                discussionHref: fallbackHref
             };
         }
 
@@ -466,7 +475,7 @@ export default function CommunityPage() {
         return {
             displayName,
             detailHref,
-            discussionHref: year ? `${detailHref}#comments` : detailHref
+            discussionHref: year ? `${detailHref}#comments` : `${detailHref}#comments`
         };
     };
 
@@ -601,7 +610,8 @@ export default function CommunityPage() {
 
     const updateCommentEverywhere = (commentId: string, updater: (comment: RecentComment) => RecentComment) => {
         const apply = (comments: RecentComment[]) => comments.map(c => (c.id === commentId ? updater(c) : c));
-        setTrendingComments(prev => rankTrendingComments(apply(prev)));
+        // Don't re-rank trending on vote updates to prevent scroll jumps
+        setTrendingComments(prev => apply(prev));
         setRecentComments(prev => apply(prev));
         setVerifiedPearls(prev => apply(prev));
     };
