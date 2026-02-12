@@ -2,13 +2,21 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import {
+    Search,
+    Radio,
+    BookOpen,
+    Image as ImageIcon,
+    Briefcase,
+    MessageSquare,
+    LucideIcon
+} from 'lucide-react';
 
 interface NavCard {
     id: string;
     title: string;
     items: string[];
-    image: string;
+    icon: LucideIcon;
     href: string;
     accentColor: string;
     linkLabel: string;
@@ -20,7 +28,7 @@ const NAV_CARDS: NavCard[] = [
         id: 'browse',
         title: 'Vehicle Database',
         items: ['Search 800+ vehicles', 'Key programming data', 'Part numbers & pricing'],
-        image: '/images/cards/browse.png',
+        icon: Search,
         href: '/browse',
         accentColor: '#a855f7',
         linkLabel: 'Browse by Make',
@@ -29,7 +37,7 @@ const NAV_CARDS: NavCard[] = [
         id: 'fcc',
         title: 'FCC Intelligence',
         items: ['FCC ID lookup', 'Frequency & chip data', 'Vehicle compatibility'],
-        image: '/images/cards/fcc.png',
+        icon: Radio,
         href: '/fcc',
         accentColor: '#06b6d4',
         linkLabel: 'Look up FCC data',
@@ -38,7 +46,7 @@ const NAV_CARDS: NavCard[] = [
         id: 'dossiers',
         title: 'Technical Dossiers',
         items: ['230+ expert guides', 'Wiring & procedures', 'Platform intelligence'],
-        image: '/images/cards/dossiers.png',
+        icon: BookOpen,
         href: '/dossiers',
         accentColor: '#f59e0b',
         linkLabel: 'Read dossiers',
@@ -47,7 +55,7 @@ const NAV_CARDS: NavCard[] = [
         id: 'gallery',
         title: 'Photo Gallery',
         items: ['Key reference photos', 'Tool & board images', 'Tagged & searchable'],
-        image: '/images/cards/gallery.png',
+        icon: ImageIcon,
         href: '/gallery',
         accentColor: '#10b981',
         linkLabel: 'View gallery',
@@ -56,7 +64,7 @@ const NAV_CARDS: NavCard[] = [
         id: 'business',
         title: 'Business Suite',
         items: ['Job logging & tracking', 'Inventory management', 'Revenue analytics'],
-        image: '/images/cards/business.png',
+        icon: Briefcase,
         href: '/business',
         accentColor: '#eab308',
         linkLabel: 'Open dashboard',
@@ -65,7 +73,7 @@ const NAV_CARDS: NavCard[] = [
         id: 'community',
         title: 'Community Hub',
         items: ['Expert discussions', 'Tech tips & tricks', 'Vote on solutions'],
-        image: '/images/cards/community.png',
+        icon: MessageSquare,
         href: '/community',
         accentColor: '#f43f5e',
         linkLabel: 'Join the conversation',
@@ -92,73 +100,60 @@ export function NavigationCards() {
                         ? { href: card.href, onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleCardClick(card, e) }
                         : { href: card.href };
 
+                    const Icon = card.icon;
+
                     return (
                         <Wrapper
                             key={card.id}
                             {...(wrapperProps as any)}
-                            className="group block rounded-xl overflow-hidden transition-all duration-250 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 no-underline"
+                            className="group relative block rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 no-underline h-full"
                             style={{
-                                background: 'linear-gradient(135deg, rgba(30,30,40,0.95) 0%, rgba(20,20,30,0.98) 100%)',
-                                border: `1px solid rgba(255,255,255,0.08)`,
+                                background: 'linear-gradient(145deg, rgba(20,20,25,0.95) 0%, rgba(10,10,15,0.98) 100%)',
+                                border: `1px solid rgba(255,255,255,0.06)`,
                             }}
                         >
-                            {/* Card Title - Amazon style: bold colored header */}
-                            <div className="px-4 pt-3.5 pb-1.5">
-                                <h3
-                                    className="text-sm md:text-[15px] font-bold leading-tight tracking-tight"
-                                    style={{ color: card.accentColor }}
-                                >
-                                    {card.title}
-                                </h3>
+                            {/* Faded Background Logo */}
+                            <div className="absolute -right-6 -bottom-6 opacity-[0.07] transition-all duration-500 group-hover:opacity-[0.12] group-hover:scale-110 rotate-[-15deg]">
+                                <Icon size={140} color={card.accentColor} />
                             </div>
 
-                            {/* Card Image with gradient overlay */}
-                            <div
-                                className="relative w-full h-24 md:h-28 flex items-center justify-center overflow-hidden"
-                                style={{
-                                    background: `radial-gradient(ellipse at center, ${card.accentColor}12 0%, transparent 75%)`,
-                                }}
-                            >
-                                <Image
-                                    src={card.image}
-                                    alt={card.title}
-                                    width={110}
-                                    height={110}
-                                    className="object-contain max-h-[88px] md:max-h-[100px] transition-transform duration-300 group-hover:scale-110 drop-shadow-lg"
-                                    style={{
-                                        filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
-                                    }}
-                                    unoptimized
-                                />
-                                {/* Subtle gradient fade at bottom */}
-                                <div
-                                    className="absolute bottom-0 left-0 right-0 h-6"
-                                    style={{
-                                        background: 'linear-gradient(to top, rgba(20,20,30,1) 0%, transparent 100%)',
-                                    }}
-                                />
-                            </div>
+                            {/* Card Content Container */}
+                            <div className="relative z-10 flex flex-col h-full p-4">
+                                {/* Header */}
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div
+                                        className="p-2 rounded-lg bg-white/5 border border-white/5 group-hover:border-white/10 transition-colors"
+                                        style={{ color: card.accentColor }}
+                                    >
+                                        <Icon size={20} />
+                                    </div>
+                                    <h3 className="text-[15px] font-bold text-white tracking-tight">
+                                        {card.title}
+                                    </h3>
+                                </div>
 
-                            {/* Card Items - Amazon style: small bullet list */}
-                            <div className="px-4 pb-1.5">
-                                <ul className="space-y-0.5">
+                                {/* Items List */}
+                                <ul className="space-y-1.5 mb-4 flex-grow">
                                     {card.items.map((item, i) => (
-                                        <li key={i} className="text-[11px] md:text-xs text-zinc-400 leading-tight truncate">
-                                            <span className="text-zinc-600 mr-1">•</span>
+                                        <li key={i} className="text-xs text-zinc-400 flex items-start gap-1.5 leading-relaxed">
+                                            <span
+                                                className="mt-1 w-1 h-1 rounded-full flex-shrink-0"
+                                                style={{ backgroundColor: card.accentColor, opacity: 0.6 }}
+                                            />
                                             {item}
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
 
-                            {/* Card Link - Amazon style: colored "See more" link */}
-                            <div className="px-4 pb-3 pt-1">
-                                <span
-                                    className="text-[11px] md:text-xs font-medium group-hover:underline transition-colors"
-                                    style={{ color: card.accentColor }}
-                                >
-                                    {card.linkLabel} →
-                                </span>
+                                {/* Link Label */}
+                                <div className="mt-auto pt-2 border-t border-white/5">
+                                    <span
+                                        className="text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all"
+                                        style={{ color: card.accentColor }}
+                                    >
+                                        {card.linkLabel} <span className="text-[10px]">→</span>
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Hover glow border effect */}

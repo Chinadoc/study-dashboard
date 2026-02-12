@@ -19,6 +19,7 @@ import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
 import FloatingCommentTab from '@/components/FloatingCommentTab';
 import CommunityHighlight from '@/components/CommunityHighlight';
 import VehicleSidebar from '@/components/layout/VehicleSidebar';
+import VehicleYearSelector from '@/components/vehicle/VehicleYearSelector';
 import { API_BASE } from '@/lib/config';
 import { trackVehicleView } from '@/lib/analytics';
 import { filterRelevantImages } from '@/lib/imageRelevanceScorer';
@@ -531,11 +532,6 @@ export default function VehicleDetailClient() {
     const unresolvedRouteParams = !make || !model || !year;
 
     useEffect(() => {
-        if (!missingYear) return;
-        router.replace(`/browse?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
-    }, [missingYear, make, model, router]);
-
-    useEffect(() => {
         if (typeof window === 'undefined') return;
         if (!unresolvedRouteParams || missingYear) return;
 
@@ -631,7 +627,7 @@ export default function VehicleDetailClient() {
     }, [make, model, year]);
 
     if (missingYear) {
-        return <div className="container mx-auto p-12 text-center text-zinc-400">Redirecting to year selection...</div>;
+        return <VehicleYearSelector make={make} model={model} />;
     }
 
     if (!make || !model || !year) {

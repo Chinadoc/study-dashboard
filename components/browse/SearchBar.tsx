@@ -348,8 +348,8 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
             // Navigate to glossary page for this term
             window.location.href = `/glossary?term=${encodeURIComponent(result.glossaryTerm)}`;
         } else if (result.type === 'model' && result.model) {
-            // Navigate to browse with make and model
-            window.location.href = `/browse?make=${encodeURIComponent(result.make)}&model=${encodeURIComponent(result.model)}`;
+            // Navigate to dedicated model overview (year picker + highlights)
+            router.push(`/vehicle/${encodeURIComponent(result.make)}/${encodeURIComponent(result.model)}`);
         } else if (result.type === 'vehicle' && result.make && result.model && result.year) {
             router.push(`/vehicle/${encodeURIComponent(result.make)}/${encodeURIComponent(result.model)}/${result.year}`);
         }
