@@ -17,6 +17,7 @@ interface TransitionGuideProps {
 
 export default function TransitionGuide({ vpm, make }: TransitionGuideProps) {
     const [imageExpanded, setImageExpanded] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     if (!vpm) return null;
 
@@ -90,8 +91,8 @@ export default function TransitionGuide({ vpm, make }: TransitionGuideProps) {
                 )}
             </div>
 
-            {/* Guide Image */}
-            {guide_image && (
+            {/* Guide Image — hidden if load fails (e.g. not in R2) */}
+            {guide_image && !imageError && (
                 <div className="mt-4">
                     <button
                         onClick={() => setImageExpanded(!imageExpanded)}
@@ -108,6 +109,7 @@ export default function TransitionGuide({ vpm, make }: TransitionGuideProps) {
                                 alt="System Identification Guide"
                                 className="w-full h-auto"
                                 loading="lazy"
+                                onError={() => setImageError(true)}
                             />
                         </div>
                     )}
@@ -116,3 +118,4 @@ export default function TransitionGuide({ vpm, make }: TransitionGuideProps) {
         </section>
     );
 }
+
