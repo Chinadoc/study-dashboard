@@ -41,6 +41,11 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const [hasEV, setHasEV] = useState(false);
     const [showEVOnly, setShowEVOnly] = useState(false);
 
+    // Int'l filter
+    const [intlModels, setIntlModels] = useState<string[]>([]);
+    const [hasIntl, setHasIntl] = useState(false);
+    const [showIntlOnly, setShowIntlOnly] = useState(false);
+
     // Image error tracking
     const [makeImageErrors, setMakeImageErrors] = useState<Set<string>>(new Set());
     const [modelImageErrors, setModelImageErrors] = useState<Set<string>>(new Set());
@@ -72,6 +77,7 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
             setLoadingModels(true);
             setModelEra('modern'); // Default to modern
             setShowEVOnly(false); // Reset EV filter
+            setShowIntlOnly(false); // Reset Int'l filter
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(selectedMake!)}`);
                 const data = await res.json();
@@ -85,6 +91,8 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 setHasClassicOnly(data.hasClassicOnly || false);
                 setEvModels((data.evModels || []) as string[]);
                 setHasEV(data.hasEV || false);
+                setIntlModels((data.intlModels || []) as string[]);
+                setHasIntl(data.hasIntl || false);
             } catch (error) {
                 console.error('Failed to fetch models:', error);
             } finally {
@@ -327,28 +335,36 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                     ) : (
                         <>
                             {/* Combined Model Filter Toggle: 2000+ | All | EV */}
-                            {(hasClassicOnly || hasEV) && (
+                            {(hasClassicOnly || hasEV || hasIntl) && (
                                 <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
                                     {hasClassicOnly && (
                                         <button
-                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
+                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); setShowIntlOnly(false); }}
                                             className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-400'}`}
                                         >
                                             2000+ ({models.length - classicOnlyModels.length})
                                         </button>
                                     )}
                                     <button
-                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
+                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); setShowIntlOnly(false); }}
                                         className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-400'}`}
                                     >
                                         All ({models.length})
                                     </button>
                                     {hasEV && (
                                         <button
-                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
+                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); setShowIntlOnly(false); }}
                                             className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-400'}`}
                                         >
                                             ⚡ EV ({evModels.length})
+                                        </button>
+                                    )}
+                                    {hasIntl && (
+                                        <button
+                                            onClick={() => { setModelEra('all'); setShowIntlOnly(!showIntlOnly); setShowEVOnly(false); }}
+                                            className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${showIntlOnly ? 'bg-sky-500 text-white' : 'text-gray-400'}`}
+                                        >
+                                            🌍 Int&apos;l ({intlModels.length})
                                         </button>
                                     )}
                                 </div>
@@ -358,6 +374,7 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                                 {models
                                     .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m))
                                     .filter(m => !showEVOnly || evModels.includes(m))
+                                    .filter(m => !showIntlOnly || intlModels.includes(m))
                                     .map(model => {
                                         const imageSrc = getModelImage(selectedMake, model);
                                         const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
