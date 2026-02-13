@@ -20,6 +20,7 @@ export interface User {
     picture?: string;
     is_developer?: boolean;
     is_pro?: boolean;
+    tier?: number;  // 0=free, 1=starter, 2=professional, 3=business, 4=fleet
     trial_until?: number;
     created_at?: number;
     subscriptions?: Subscriptions;
@@ -33,7 +34,9 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isDeveloper: boolean;
     isPro: boolean;
-    // Modular subscription flags
+    tier: number;  // 0=free, 1=starter, 2=professional, 3=business, 4=fleet
+    hasAccess: (requiredTier: number) => boolean;
+    // Modular subscription flags (backward compat)
     hasImages: boolean;
     hasDossiers: boolean;
     hasBusinessTools: boolean;
@@ -115,6 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     picture: data.user.picture,
                     is_developer: data.user.is_developer,
                     is_pro: data.user.is_pro,
+                    tier: data.user.tier || 0,
                     trial_until: data.user.trial_until,
                     created_at: data.user.created_at,
                     subscriptions: data.user.subscriptions || {},
@@ -207,18 +211,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Compute isPro only after mount to avoid hydration mismatch from Date.now()
     const isPro = useMemo(() => {
         if (!hasMounted || !user) return false;
-        return !!(user.is_pro || (user.trial_until && user.trial_until > Date.now()));
+        return !!(user.is_pro || (user.tier && user.tier >= 1) || (user.trial_until && user.trial_until > Date.now()));
     }, [hasMounted, user]);
     const isDeveloper = !!(user && user.is_developer);
 
-    // Modular subscription flags - Add-ons are SEPARATE from Pro
-    // Developers get full access to all features without payment
-    const subs = user?.subscriptions || {};
-    const hasImages = isDeveloper || !!subs.images;  // Full image access requires add-on (or dev)
-    const hasDossiers = isDeveloper || !!subs.dossiers;  // Dossiers require add-on (or dev)
-    const hasBusinessTools = isDeveloper || !!subs.business_tools;  // Business tools require add-on (or dev)
-    const hasDispatcher = isDeveloper || !!subs.dispatcher;  // Dispatcher requires subscription (or dev)
-    const hasFleet = isDeveloper || !!subs.fleet;  // Fleet requires subscription (or dev)
+    // Tier-based access: 0=free, 1=starter, 2=professional, 3=business, 4=fleet
+    // During trial, grant tier 3 (Business) access
+    const tier = useMemo(() => {
+        if (!hasMounted || !user) return 0;
+        if (isDeveloper) return 4; // Devs get full access
+        if (user.trial_until && user.trial_until > Date.now()) return 3; // Trial = Business access
+        return user.tier || 0;
+    }, [hasMounted, user, isDeveloper]);
+
+    const hasAccess = useCallback((requiredTier: number) => tier >= requiredTier, [tier]);
+
+    // Backward compat subscription flags — derived from tier
+    const hasImages = tier >= 2;
+    const hasDossiers = tier >= 2;
+    const hasBusinessTools = tier >= 3;
+    const hasDispatcher = tier >= 3;
+    const hasFleet = tier >= 4;
 
     return (
         <AuthContext.Provider
@@ -230,6 +243,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 isAuthenticated: !!user,
                 isDeveloper,
                 isPro,
+                tier,
+                hasAccess,
                 hasImages,
                 hasDossiers,
                 hasBusinessTools,

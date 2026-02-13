@@ -13,11 +13,15 @@ export interface Env {
   ASSETS_BUCKET: R2Bucket;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
-  STRIPE_PRICE_ID: string;  // Pro tier ($25/mo)
-  STRIPE_PRICE_DOSSIERS?: string;  // $5/mo
-  STRIPE_PRICE_IMAGES?: string;  // $5/mo
-  STRIPE_PRICE_CALCULATOR?: string;  // $5/mo
-  STRIPE_PRICE_BUSINESS_TOOLS?: string;  // $20/mo (includes dispatcher)
+  STRIPE_PRICE_ID: string;  // Legacy Pro tier ($25/mo)
+  STRIPE_PRICE_DOSSIERS?: string;  // Legacy $5/mo
+  STRIPE_PRICE_IMAGES?: string;  // Legacy $5/mo
+  STRIPE_PRICE_CALCULATOR?: string;  // Legacy $5/mo
+  STRIPE_PRICE_BUSINESS_TOOLS?: string;  // Legacy $25/mo
+  // New tier pricing
+  STRIPE_PRICE_STARTER?: string;  // Tier 1: $10/mo
+  STRIPE_PRICE_PROFESSIONAL?: string;  // Tier 2: $30/mo
+  STRIPE_PRICE_BUSINESS?: string;  // Tier 3: $50/mo
   // Square API
   SQUARE_ACCESS_TOKEN?: string;
   SQUARE_LOCATION_ID?: string;
@@ -858,7 +862,8 @@ export default {
           // Still set cookie for Workers domain (for API calls that go directly to Workers)
           headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=2592000`);
           // Redirect with token in hash (hash fragment is not sent to server, so it's secure)
-          headers.set("Location", `${redirectTarget}/#auth_token=${sessionToken}`);
+          const cleanTarget = redirectTarget.endsWith('/') ? redirectTarget.slice(0, -1) : redirectTarget;
+          headers.set("Location", `${cleanTarget}/#auth_token=${sessionToken}`);
 
           return new Response(null, { status: 302, headers });
 
@@ -951,7 +956,7 @@ export default {
           }
 
           // Refresh data from DB to get latest status and also check developer email
-          const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro, is_developer, trial_until, created_at FROM users WHERE id = ?").bind(payload.sub).first<any>();
+          const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro, is_developer, trial_until, created_at, tier FROM users WHERE id = ?").bind(payload.sub).first<any>();
 
           // Also check email allow-list for developer access
           if (user && !user.is_developer && isDeveloper(user.email, env.DEV_EMAILS)) {
@@ -1436,38 +1441,35 @@ export default {
           const userId = payload.sub as string;
           const userEmail = payload.email as string;
 
-          // Parse request body for add-on selection
-          const body = await request.json().catch(() => ({})) as { addOnId?: string };
-          const addOnId = body.addOnId || 'pro';
+          // Parse request body — accepts { tier: 'starter'|'professional'|'business' } or legacy { addOnId: ... }
+          const body = await request.json().catch(() => ({})) as { tier?: string; addOnId?: string };
+          const tier = body.tier || body.addOnId || 'starter';
 
-          // Map add-on IDs to price IDs
-          const priceMap: Record<string, string | undefined> = {
-            'pro': env.STRIPE_PRICE_ID,
-            'dossiers': env.STRIPE_PRICE_DOSSIERS,
-            'images': env.STRIPE_PRICE_IMAGES,
-            'calculator': env.STRIPE_PRICE_CALCULATOR,
-            'business_tools': env.STRIPE_PRICE_BUSINESS_TOOLS,
+          // Map tier names to price IDs and tier numbers
+          const tierMap: Record<string, { priceId: string | undefined; tierNum: number }> = {
+            'starter': { priceId: env.STRIPE_PRICE_STARTER, tierNum: 1 },
+            'professional': { priceId: env.STRIPE_PRICE_PROFESSIONAL, tierNum: 2 },
+            'business': { priceId: env.STRIPE_PRICE_BUSINESS, tierNum: 3 },
+            // Legacy compatibility
+            'pro': { priceId: env.STRIPE_PRICE_ID, tierNum: 2 },
+            'dossiers': { priceId: env.STRIPE_PRICE_DOSSIERS, tierNum: 2 },
+            'images': { priceId: env.STRIPE_PRICE_IMAGES, tierNum: 2 },
+            'calculator': { priceId: env.STRIPE_PRICE_CALCULATOR, tierNum: 2 },
+            'business_tools': { priceId: env.STRIPE_PRICE_BUSINESS_TOOLS, tierNum: 3 },
           };
 
-          const selectedPriceId = priceMap[addOnId];
-          if (!selectedPriceId) {
-            return corsResponse(request, JSON.stringify({ error: `Unknown add-on: ${addOnId}` }), 400);
+          const selectedTier = tierMap[tier];
+          if (!selectedTier || !selectedTier.priceId) {
+            return corsResponse(request, JSON.stringify({ error: `Unknown tier: ${tier}` }), 400);
           }
 
-          // Check if user has already used a trial for this add-on
-          const existingTrial = await env.LOCKSMITH_DB.prepare(
-            "SELECT id FROM addon_trials WHERE user_id = ? AND addon_id = ?"
-          ).bind(userId, addOnId).first();
-
-          const eligibleForTrial = !existingTrial;
+          // Get user data
+          const user = await env.LOCKSMITH_DB.prepare("SELECT stripe_customer_id, tier, is_pro FROM users WHERE id = ?").bind(userId).first<any>();
 
           // Get or create Stripe customer
-          const user = await env.LOCKSMITH_DB.prepare("SELECT stripe_customer_id FROM users WHERE id = ?").bind(userId).first<any>();
-
           let customerId = user?.stripe_customer_id;
 
           if (!customerId) {
-            // Create Stripe customer
             const customerRes = await fetch("https://api.stripe.com/v1/customers", {
               method: "POST",
               headers: {
@@ -1484,33 +1486,25 @@ export default {
               return corsResponse(request, JSON.stringify({ error: customer.error.message }), 400);
             }
             customerId = customer.id;
-
-            // Save customer ID to DB
             await env.LOCKSMITH_DB.prepare("UPDATE users SET stripe_customer_id = ? WHERE id = ?").bind(customerId, userId).run();
           }
 
-          // Create checkout session
+          // Create checkout session — 2-day trial is built into the Stripe price
           const origin = request.headers.get("Origin") || "https://eurokeys.app";
           const checkoutParams = new URLSearchParams({
             "customer": customerId,
             "mode": "subscription",
-            "line_items[0][price]": selectedPriceId,
+            "line_items[0][price]": selectedTier.priceId,
             "line_items[0][quantity]": "1",
             "success_url": `${origin}/pricing?success=true`,
             "cancel_url": `${origin}/pricing?canceled=true`,
             "metadata[user_id]": userId,
-            "metadata[add_on_id]": addOnId,
-            "metadata[is_trial]": eligibleForTrial ? "true" : "false",
-            // CRITICAL: Pass add_on_id to subscription metadata so it persists
-            // across subscription lifecycle events (updated, deleted)
-            "subscription_data[metadata][add_on_id]": addOnId,
+            "metadata[tier]": tier,
+            "metadata[tier_num]": String(selectedTier.tierNum),
+            "subscription_data[metadata][tier]": tier,
+            "subscription_data[metadata][tier_num]": String(selectedTier.tierNum),
             "subscription_data[metadata][user_id]": userId,
           });
-
-          // Add 7-day trial ONLY if user hasn't used a trial for this add-on before
-          if (eligibleForTrial) {
-            checkoutParams.append("subscription_data[trial_period_days]", "7");
-          }
 
           const checkoutRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
             method: "POST",
@@ -1526,7 +1520,7 @@ export default {
             return corsResponse(request, JSON.stringify({ error: session.error.message }), 400);
           }
 
-          return corsResponse(request, JSON.stringify({ url: session.url, eligibleForTrial }));
+          return corsResponse(request, JSON.stringify({ url: session.url }));
         } catch (err: any) {
           console.error("/api/stripe/checkout error:", err);
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -1746,107 +1740,61 @@ export default {
             return row?.id || null;
           };
 
+          // Helper: extract tier number from subscription metadata
+          const getTierNum = (metadata: any): number => {
+            if (metadata?.tier_num) return parseInt(metadata.tier_num, 10);
+            // Legacy fallback: if add_on_id is present, map to tier
+            const addOn = metadata?.add_on_id || metadata?.tier;
+            if (addOn === 'business' || addOn === 'business_tools') return 3;
+            if (addOn === 'professional' || addOn === 'pro' || addOn === 'dossiers' || addOn === 'images' || addOn === 'calculator') return 2;
+            if (addOn === 'starter') return 1;
+            return 2; // default to Professional for legacy Pro subs
+          };
+
           // Handle subscription events
           if (event.type === "checkout.session.completed") {
             const session = event.data.object;
             const customerId = session.customer;
-            const addOnId = session.metadata?.add_on_id || "pro";
-            const subscriptionId = session.subscription;
+            const tierNum = getTierNum(session.metadata);
             const userId = await findUserByCustomer(customerId);
 
             if (userId) {
-              const now = Date.now();
-
-              if (addOnId === "pro") {
-                // Pro subscription — set is_pro flag
-                await env.LOCKSMITH_DB.prepare(`
-                  UPDATE users SET is_pro = 1, subscription_status = 'active' 
-                  WHERE id = ?
-                `).bind(userId).run();
-                console.log("User upgraded to Pro:", userId);
-              } else {
-                // Add-on subscription — update addon_trials with conversion data
-                await env.LOCKSMITH_DB.prepare(`
-                  UPDATE addon_trials 
-                  SET converted_at = ?, stripe_subscription_id = ?
-                  WHERE user_id = ? AND addon_id = ?
-                `).bind(now, subscriptionId, userId, addOnId).run();
-
-                // If no existing trial row, create one (this is the primary path now)
-                const existing = await env.LOCKSMITH_DB.prepare(
-                  "SELECT id FROM addon_trials WHERE user_id = ? AND addon_id = ?"
-                ).bind(userId, addOnId).first();
-                if (!existing) {
-                  const isTrial = session.metadata?.is_trial === 'true';
-                  const trialExpires = isTrial ? now + (7 * 24 * 60 * 60 * 1000) : now;
-                  await env.LOCKSMITH_DB.prepare(`
-                    INSERT INTO addon_trials (user_id, addon_id, trial_started_at, trial_expires_at, converted_at, stripe_subscription_id)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                  `).bind(userId, addOnId, now, trialExpires, now, subscriptionId).run();
-                }
-
-                console.log("Add-on activated:", userId, addOnId);
-              }
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE users SET tier = ?, is_pro = 1, subscription_status = 'active' 
+                WHERE id = ?
+              `).bind(tierNum, userId).run();
+              console.log("User subscribed to tier", tierNum, ":", userId);
             }
           }
 
           if (event.type === "customer.subscription.updated") {
             const subscription = event.data.object;
             const customerId = subscription.customer;
-            const status = subscription.status; // active, trialing, past_due, canceled
-            const subscriptionId = subscription.id;
-            const addOnId = subscription.metadata?.add_on_id || "pro";
+            const status = subscription.status;
+            const tierNum = getTierNum(subscription.metadata);
             const userId = await findUserByCustomer(customerId);
 
             if (userId) {
               const isActive = status === "active" || status === "trialing";
-
-              if (addOnId === "pro") {
-                await env.LOCKSMITH_DB.prepare(`
-                  UPDATE users SET is_pro = ?, subscription_status = ? 
-                  WHERE id = ?
-                `).bind(isActive ? 1 : 0, status, userId).run();
-              } else {
-                // For add-ons: if going active, clear canceled_at; if going inactive, set it
-                if (isActive) {
-                  const now = Date.now();
-                  await env.LOCKSMITH_DB.prepare(`
-                    UPDATE addon_trials 
-                    SET canceled_at = NULL, converted_at = COALESCE(converted_at, ?), stripe_subscription_id = ?
-                    WHERE user_id = ? AND addon_id = ?
-                  `).bind(now, subscriptionId, userId, addOnId).run();
-                } else {
-                  await env.LOCKSMITH_DB.prepare(`
-                    UPDATE addon_trials SET canceled_at = ?
-                    WHERE user_id = ? AND addon_id = ?
-                  `).bind(Date.now(), userId, addOnId).run();
-                }
-              }
-
-              console.log("Subscription updated:", userId, addOnId, status);
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE users SET tier = ?, is_pro = ?, subscription_status = ? 
+                WHERE id = ?
+              `).bind(isActive ? tierNum : 0, isActive ? 1 : 0, status, userId).run();
+              console.log("Subscription updated:", userId, "tier", tierNum, status);
             }
           }
 
           if (event.type === "customer.subscription.deleted") {
             const subscription = event.data.object;
             const customerId = subscription.customer;
-            const addOnId = subscription.metadata?.add_on_id || "pro";
             const userId = await findUserByCustomer(customerId);
 
             if (userId) {
-              if (addOnId === "pro") {
-                await env.LOCKSMITH_DB.prepare(`
-                  UPDATE users SET is_pro = 0, subscription_status = 'canceled' 
-                  WHERE id = ?
-                `).bind(userId).run();
-              } else {
-                await env.LOCKSMITH_DB.prepare(`
-                  UPDATE addon_trials SET canceled_at = ?
-                  WHERE user_id = ? AND addon_id = ?
-                `).bind(Date.now(), userId, addOnId).run();
-              }
-
-              console.log("Subscription deleted:", userId, addOnId);
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE users SET tier = 0, is_pro = 0, subscription_status = 'canceled' 
+                WHERE id = ?
+              `).bind(userId).run();
+              console.log("Subscription deleted:", userId);
             }
           }
 
@@ -10572,6 +10520,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
+      // Helper: normalize model name for grouping formatting variants
+      // "1 - SERIES" / "1-Series" / "1 Series" all → "1"
+      // "X5 - Series" / "X5" → "x5"
+      function normalizeModelKey(model: string): string {
+        return model
+          .toLowerCase()
+          .replace(/series/gi, '')      // strip "series" anywhere
+          .replace(/[^a-z0-9]/g, '')    // strip ALL non-alphanumeric
+          .trim();
+      }
+
       // GET /api/vyp/models?make=X - Returns models for a make from aks_vehicles_by_year (cleaner data)
       if (path === "/api/vyp/models") {
         try {
@@ -10580,192 +10539,227 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "make parameter required" }), 400);
           }
 
-          // Get all models for this make from AKS data (already clean)
-          const sql = `
-            SELECT DISTINCT model, COUNT(DISTINCT year) as year_count
-            FROM aks_vehicles_by_year
+          // ============================================================
+          // MODEL LIST: Driven by model_family from aks_product_vehicle_years
+          // This gives clean, pre-grouped model names (e.g. one "Accord"
+          // instead of 21 raw variants like "Accord 2.0EX-L")
+          // ============================================================
+
+          const familySql = `
+            SELECT 
+              model_family,
+              COUNT(DISTINCT model) as variant_count,
+              COUNT(DISTINCT year) as year_count,
+              MIN(year) as min_year,
+              MAX(year) as max_year,
+              GROUP_CONCAT(DISTINCT model) as raw_variants
+            FROM aks_product_vehicle_years
             WHERE LOWER(make) = LOWER(?)
-            GROUP BY model
-            ORDER BY model
+            GROUP BY model_family
+            ORDER BY model_family
           `;
-          const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
-          let models = (result.results || []).map((r: any) => r.model);
+          const familyResult = await env.LOCKSMITH_DB.prepare(familySql).bind(make).all();
+          const familyRows = (familyResult.results || []) as any[];
 
-          // Query to get models with at least one year >= 2000 (modern models)
-          const modernSql = `
-            SELECT DISTINCT model
-            FROM aks_vehicles_by_year
-            WHERE LOWER(make) = LOWER(?)
-            AND year >= 2000
-          `;
-          const modernResult = await env.LOCKSMITH_DB.prepare(modernSql).bind(make).all();
-          const modernModelSet = new Set((modernResult.results || []).map((r: any) => r.model));
-
-          // Universal filter: Remove motorcycle/watercraft models for all makes
-          models = models.filter((model: string) =>
-            !model.startsWith('(Motorcycle/Watercraft)')
-          );
-
-          // Filter out motorcycle models for BMW (clutters automotive locksmith browse)
-          if (make.toLowerCase() === 'bmw') {
-            const motorcyclePatterns = [
-              /^F\d{3}/i,     // F650, F900, etc.
-              /^G\d{3}/i,     // G650, etc.
-              /^K\d{2,4}/i,   // K75, K100, K1100, K1200, etc.
-              /^R\d{2,4}/i,   // R45, R65, R80, R90, R100, R1100, R1200, etc.
-              /^S\d{4}/i,     // S1000RR, etc.
-              /^C\d{3}/i,     // C650, etc.
-            ];
-            models = models.filter((model: string) =>
-              !motorcyclePatterns.some(pattern => pattern.test(model))
-            );
-          }
-
-          // EV model detection patterns
-          const isEVModel = (make: string, model: string): boolean => {
-            const makeLower = make.toLowerCase();
-            const modelLower = model.toLowerCase();
-
-            // Tesla is all EV
-            if (makeLower === 'tesla') return true;
-
-            // Polestar is all EV
-            if (makeLower === 'polestar') return true;
-
-            // Known EV model patterns
-            const evPatterns = [
-              /\bev\b/i,           // Contains "EV" as word (Bolt EV, Blazer EV)
-              /\beuv\b/i,          // EUV (Bolt EUV)
-              /\belectric/i,       // Contains "Electric"
-              /\blightning\b/i,    // F-150 Lightning
-              /\bmach-e\b/i,       // Mustang Mach-E
-              /^i\d$/i,            // BMW i3, i4, i7, i8
-              /^ix/i,              // BMW iX
-              /\bvolt\b/i,         // Chevy Volt (PHEV but EV-ish)
-              /\bioniq/i,          // Hyundai Ioniq
-              /\bkona ev/i,        // Hyundai Kona EV
-              /\bniro ev/i,        // Kia Niro EV
-              /\bev6\b/i,          // Kia EV6
-              /\be-tron/i,         // Audi e-tron
-              /\bq4 e-tron/i,      // Audi Q4 e-tron
-              /\bid\./i,           // VW ID.4, ID.Buzz
-              /\bleaf\b/i,         // Nissan Leaf
-              /\bariya\b/i,        // Nissan Ariya
-              /\btaycan\b/i,       // Porsche Taycan
-              /\beqs\b/i,          // Mercedes EQS
-              /\beqe\b/i,          // Mercedes EQE
-              /\beqb\b/i,          // Mercedes EQB
-              /\blyriq\b/i,        // Cadillac Lyriq
-              /\bhummer ev/i,      // GMC Hummer EV
-              /\bsolterra\b/i,     // Subaru Solterra
-              /\bbz4x\b/i,         // Toyota bZ4X
-            ];
-
-            return evPatterns.some(pattern => pattern.test(model));
-          };
-
-          // Use model_family from junction table for variant grouping
-          // This replaces the old 90-line suffix-stripping algorithm with pre-computed families
-          // Wrapped in try-catch because model_family column may not exist in all environments
-          const familyMap = new Map<string, string[]>();
-          try {
-            const familySql = `
-              SELECT model_family, GROUP_CONCAT(DISTINCT model) as variants
-              FROM aks_product_vehicle_years
-              WHERE LOWER(make) = LOWER(?)
-              GROUP BY model_family
-              HAVING COUNT(DISTINCT model) > 1
-            `;
-            const familyResult = await env.LOCKSMITH_DB.prepare(familySql).bind(make).all();
-            for (const row of (familyResult.results || []) as any[]) {
-              const variants = (row.variants || '').split(',').filter((v: string) => v !== row.model_family).sort();
-              if (variants.length > 0) {
-                familyMap.set(row.model_family, variants);
-              }
-            }
-          } catch (e) {
-            // model_family column may not exist - skip family grouping gracefully
-            console.log('model_family query skipped:', (e as any)?.message);
-          }
-
-          // Build merged models list using model_family groupings
-          interface MergedModel {
+          // Build model list from model_family
+          let models: string[] = [];
+          const mergedModels: {
             name: string;
             display: string;
             baseModel: string;
             variants: string[];
+            formatVariants: string[];
+          }[] = [];
+
+          // First pass: collect all families with their data, apply junk filter
+          interface FamilyEntry {
+            name: string;
+            yearCount: number;
+            rawVariants: string[];
           }
+          const allFamilies: FamilyEntry[] = [];
 
-          const mergedModels: MergedModel[] = [];
-          const consumedByFamily = new Set<string>();
+          for (const row of familyRows) {
+            const family = row.model_family as string;
+            if (!family) continue;
 
-          // First pass: identify models that are variants of a family
-          for (const [family, variants] of familyMap) {
-            for (const v of variants) {
-              consumedByFamily.add(v);
-            }
-          }
+            // Junk filter
+            if (family.startsWith('(Motorcycle/Watercraft)')) continue;
+            if (family.startsWith('CAS ')) continue;
+            if (family === 'Misc Models' || family === 'All Models') continue;
+            if (/,.*,/.test(family)) continue;
 
-          for (const model of models) {
-            // Skip models that are consumed as variants of another family
-            if (consumedByFamily.has(model)) continue;
-
-            const variants = familyMap.get(model) || [];
-            // Only show variants that actually exist in the browse models list
-            const visibleVariants = variants.filter(v => models.includes(v));
-
-            let display = model;
-            if (visibleVariants.length > 0) {
-              // Strip base model prefix from variant names for compact display
-              // "200 Convertible" → "Convertible", "300C" → "C", "300 C" → "C"
-              const shortVariants = visibleVariants.map(v => {
-                let short = v;
-                // Strip base model prefix (with or without space)
-                if (short.startsWith(model + ' ')) {
-                  short = short.substring(model.length + 1).trim();
-                } else if (short.startsWith(model)) {
-                  short = short.substring(model.length).trim();
-                }
-                return short || v; // fallback to full name if nothing left
-              });
-
-              if (shortVariants.length <= 4) {
-                display = `${model} (+${shortVariants.join('/')})`;
-              } else {
-                display = `${model} (+${shortVariants.length})`;
-              }
+            // Motorcycle filters
+            if (/^CB[RF]?\s?\d/i.test(family)) continue;
+            if (/^NTV?\s?\d/i.test(family)) continue;
+            if (/^SH\s?\d/i.test(family)) continue;
+            if (/^SJ\s?\d/i.test(family)) continue;
+            if (/^PS\d/i.test(family)) continue;
+            if (/^DN-/i.test(family)) continue;
+            if (/^Dylan/i.test(family)) continue;
+            if (/^Forza/i.test(family)) continue;
+            if (/^Phanteon/i.test(family)) continue;
+            if (make.toLowerCase() === 'bmw') {
+              if (/^F\d{3}/i.test(family) || /^G\d{3}/i.test(family) ||
+                /^K\d{2,4}/i.test(family) || /^R\d{2,4}/i.test(family) ||
+                /^S\d{4}/i.test(family) || /^C\d{3}/i.test(family)) continue;
             }
 
-            mergedModels.push({
-              name: model,
-              display,
-              baseModel: model,
-              variants: visibleVariants
+            const rawVariants = (row.raw_variants || family).split(',');
+            allFamilies.push({
+              name: family,
+              yearCount: row.year_count as number,
+              rawVariants
             });
           }
 
-          // Sort merged models alphabetically
-          mergedModels.sort((a, b) => a.name.localeCompare(b.name));
+          // Second pass: normalize format variants (CR-V / CRV / CR V -> keep best)
+          const normGroups = new Map<string, { bestName: string; bestYears: number; allRawVariants: string[]; families: string[] }>();
+          for (const fam of allFamilies) {
+            const normKey = normalizeModelKey(fam.name);
+            const existing = normGroups.get(normKey);
+            if (!existing) {
+              normGroups.set(normKey, {
+                bestName: fam.name,
+                bestYears: fam.yearCount,
+                allRawVariants: [...fam.rawVariants],
+                families: [fam.name]
+              });
+            } else {
+              existing.families.push(fam.name);
+              existing.allRawVariants.push(...fam.rawVariants);
+              // Prefer name with more years, but also prefer descriptive names
+              // (e.g., "3-Series" over "3") when year counts are close
+              const currentIsDescriptive = existing.bestName.includes('-') || existing.bestName.includes(' ');
+              const newIsDescriptive = fam.name.includes('-') || fam.name.includes(' ');
+              if (fam.yearCount > existing.bestYears ||
+                (fam.yearCount >= existing.bestYears && newIsDescriptive && !currentIsDescriptive) ||
+                (!currentIsDescriptive && newIsDescriptive && fam.name.length > existing.bestName.length)) {
+                existing.bestName = fam.name;
+                existing.bestYears = fam.yearCount;
+              }
+            }
+          }
+          // Build collapsed list from normalized groups
+          // Fix bestName: prefer most descriptive name (longest with hyphens/spaces)
+          for (const group of normGroups.values()) {
+            if (group.families.length > 1) {
+              const best = group.families.reduce((a, b) => {
+                // Prefer names with hyphen or space (descriptive) over bare names
+                const aDesc = a.includes('-') || a.includes(' ');
+                const bDesc = b.includes('-') || b.includes(' ');
+                if (aDesc && !bDesc) return a;
+                if (bDesc && !aDesc) return b;
+                return a.length >= b.length ? a : b;
+              });
+              group.bestName = best;
+            }
+          }
+          let collapsedFamilies = [...normGroups.values()];
 
-          // Categorize models (using original list for EV detection)
-          const evModels = models.filter((m: string) => isEVModel(make, m));
-          const mainModels = models.filter((m: string) => !isEVModel(make, m));
+          // Third pass: prefix-based trim collapse
+          // "Accord 20EX-L" collapses into "Accord" if "Accord" exists
+          const familyNameSet = new Set(collapsedFamilies.map(f => f.bestName));
+          const absorbed = new Set<string>();
+          for (const fam of collapsedFamilies) {
+            if (absorbed.has(fam.bestName)) continue;
+            const prefix = fam.bestName + ' ';
+            for (const other of collapsedFamilies) {
+              if (other.bestName === fam.bestName || absorbed.has(other.bestName)) continue;
+              if (other.bestName.startsWith(prefix)) {
+                absorbed.add(other.bestName);
+                fam.allRawVariants.push(...other.allRawVariants);
+                fam.families.push(...other.families);
+              }
+            }
+          }
 
-          // Categorize by era (models that have at least one year >= 2000)
-          const modernModels = models.filter((m: string) => modernModelSet.has(m));
-          const classicOnlyModels = models.filter((m: string) => !modernModelSet.has(m));
+          // BMW-specific: absorb bare numeric models (328, 528, etc.) into their Series family
+          if (make.toLowerCase() === 'bmw') {
+            const familyByNormKey = new Map<string, typeof collapsedFamilies[0]>();
+            for (const fam of collapsedFamilies) {
+              if (absorbed.has(fam.bestName)) continue;
+              familyByNormKey.set(normalizeModelKey(fam.bestName), fam);
+            }
+            for (const fam of collapsedFamilies) {
+              if (absorbed.has(fam.bestName)) continue;
+              // If model is a bare number (e.g., "328"), find a series family starting with same digit
+              const match = fam.bestName.match(/^(\d)\d{2}$/);
+              if (match) {
+                const seriesKey = match[1]; // "3" from "328"
+                const seriesFamily = familyByNormKey.get(seriesKey);
+                if (seriesFamily && seriesFamily !== fam) {
+                  absorbed.add(fam.bestName);
+                  seriesFamily.allRawVariants.push(...fam.allRawVariants);
+                  seriesFamily.families.push(...fam.families);
+                }
+              }
+              // Absorb "I-Series" into the standalone i-models (it's the same family)  
+              if (fam.bestName === 'I-Series') {
+                absorbed.add(fam.bestName);
+                // Merge into i3 or first i-model found
+                const iModel = collapsedFamilies.find(f => /^I\d$/i.test(f.bestName) && !absorbed.has(f.bestName));
+                if (iModel) {
+                  iModel.allRawVariants.push(...fam.allRawVariants);
+                  iModel.families.push(...fam.families);
+                }
+              }
+            }
+          }
+
+          if (absorbed.size > 0) {
+            collapsedFamilies = collapsedFamilies.filter(f => !absorbed.has(f.bestName));
+          }
+
+          // Build final models list and mergedModels
+          for (const fam of collapsedFamilies) {
+            const deduped = [...new Set(fam.allRawVariants)];
+            models.push(fam.bestName);
+            mergedModels.push({
+              name: fam.bestName,
+              display: fam.bestName,
+              baseModel: fam.bestName,
+              variants: deduped.filter(v => v !== fam.bestName),
+              formatVariants: deduped
+            });
+          }
+
+          // EV model detection
+          const isEVModel = (make: string, model: string): boolean => {
+            const makeLower = make.toLowerCase();
+            if (makeLower === 'tesla' || makeLower === 'polestar') return true;
+            const evPatterns = [
+              /\bev\b/i, /\beuv\b/i, /\belectric/i, /\blightning\b/i,
+              /\bmach-e\b/i, /^i\d$/i, /^ix/i, /\bvolt\b/i, /\bioniq/i,
+              /\bkona ev/i, /\bniro ev/i, /\bev6\b/i, /\be-tron/i,
+              /\bid\./i, /\bleaf\b/i, /\bariya\b/i, /\btaycan\b/i,
+              /\beqs\b/i, /\beqe\b/i, /\beqb\b/i, /\blyriq\b/i,
+              /\bhummer ev/i, /\bsolterra\b/i, /\bbz4x\b/i,
+            ];
+            return evPatterns.some(p => p.test(model));
+          };
+
+          const evModels = models.filter(m => isEVModel(make, m));
+          const mainModels = models.filter(m => !isEVModel(make, m));
+
+          // Modern vs classic: check if family has years >= 2000
+          const modernFamilies = new Set(familyRows
+            .filter((r: any) => r.max_year >= 2000)
+            .map((r: any) => r.model_family));
+          const modernModels = models.filter(m => modernFamilies.has(m));
+          const classicOnlyModels = models.filter(m => !modernFamilies.has(m));
 
           return corsResponse(request, JSON.stringify({
-            source: "aks_vehicles_by_year",
+            source: "aks_product_vehicle_years",
             make,
             count: models.length,
-            models,              // Original full list (for search/validation)
-            mergedModels,        // Consolidated list with variant indicators (for browse display)
+            models,
+            mergedModels,
             evModels,
             mainModels,
             hasEV: evModels.length > 0,
-            modernModels,        // Models with at least one year >= 2000
-            classicOnlyModels,   // Models with only pre-2000 years
+            modernModels,
+            classicOnlyModels,
             hasClassicOnly: classicOnlyModels.length > 0
           }));
         } catch (err: any) {
@@ -10773,31 +10767,79 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
-      // GET /api/vyp/years?make=X&model=Y - Returns years for a make/model from aks_vehicles_by_year
+      // GET /api/vyp/years?make=X&model=Y - Returns years for a make/model
+      // Now merges BOTH junction table (product-backed) and aks_vehicles_by_year (all known vehicles)
+      // Returns years with hasProducts flag to identify data gaps
       if (path === "/api/vyp/years") {
         try {
           const make = url.searchParams.get("make") || "";
           const model = url.searchParams.get("model") || "";
+          const variantsParam = url.searchParams.get("variants") || "";
           if (!make || !model) {
             return corsResponse(request, JSON.stringify({ error: "make and model parameters required" }), 400);
           }
 
-          const sql = `
+          // Source 1: Junction table (product-backed years) by model_family
+          const junctionSql = `
             SELECT DISTINCT year
-            FROM aks_vehicles_by_year
+            FROM aks_product_vehicle_years
             WHERE LOWER(make) = LOWER(?)
-            AND LOWER(model) = LOWER(?)
+            AND (
+              LOWER(model_family) = LOWER(?)
+              OR LOWER(model) = LOWER(?)
+            )
             ORDER BY year DESC
           `;
-          const result = await env.LOCKSMITH_DB.prepare(sql).bind(make, model).all();
-          const years = (result.results || []).map((r: any) => r.year);
+          const junctionResult = await env.LOCKSMITH_DB.prepare(junctionSql).bind(make, model, model).all();
+          const productYears = new Set((junctionResult.results || []).map((r: any) => r.year as number));
+
+          // Source 2: aks_vehicles_by_year (broader vehicle coverage, may include years without products)
+          // Use variants if provided, otherwise use model name with fuzzy matching
+          const modelNames = [model];
+          if (variantsParam) {
+            for (const v of variantsParam.split(',')) {
+              const trimmed = v.trim();
+              if (trimmed && !modelNames.includes(trimmed)) modelNames.push(trimmed);
+            }
+          }
+
+          let vehicleYearsResult;
+          if (modelNames.length === 1) {
+            const modelFuzzy = model.replace(/[-\s]+/g, '%');
+            vehicleYearsResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT DISTINCT year FROM aks_vehicles_by_year
+              WHERE LOWER(make) = LOWER(?) AND LOWER(model) LIKE LOWER(?)
+              ORDER BY year DESC
+            `).bind(make, `%${modelFuzzy}%`).all();
+          } else {
+            const placeholders = modelNames.map(() => '?').join(',');
+            vehicleYearsResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT DISTINCT year FROM aks_vehicles_by_year
+              WHERE LOWER(make) = LOWER(?) AND model IN (${placeholders})
+              ORDER BY year DESC
+            `).bind(make, ...modelNames).all();
+          }
+          const vehicleYears = new Set((vehicleYearsResult.results || []).map((r: any) => r.year as number));
+
+          // Merge: union of both sources, with hasProducts flag
+          const allYears = new Set([...productYears, ...vehicleYears]);
+          const yearDetails = [...allYears].sort((a, b) => b - a).map(y => ({
+            year: y,
+            hasProducts: productYears.has(y)
+          }));
+
+          // For backward compat: also return flat years array
+          const years = yearDetails.map(y => y.year);
 
           return corsResponse(request, JSON.stringify({
-            source: "aks_vehicles_by_year",
+            source: "merged",
             make,
             model,
             count: years.length,
-            years
+            years,
+            yearDetails,
+            productYearCount: productYears.size,
+            dataGapYears: yearDetails.filter(y => !y.hasProducts).map(y => y.year)
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
@@ -13309,18 +13351,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               SELECT DISTINCT c.fcc_id, c.product_type, c.buttons, c.title
               FROM aks_product_vehicle_years apvy
               JOIN aks_products_complete c ON apvy.item_id = c.item_id
-              WHERE LOWER(apvy.make) = ? AND LOWER(apvy.model) LIKE LOWER(?) AND apvy.year = ?
+              WHERE LOWER(apvy.make) = ? AND (LOWER(apvy.model_family) = LOWER(?) OR LOWER(apvy.model) LIKE LOWER(?)) AND apvy.year = ?
                 AND c.fcc_id IS NOT NULL AND c.fcc_id != ''
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
-              UNION ALL
-              SELECT DISTINCT apvy.fcc_id, apvy.product_type, apvy.buttons, apvy.title
-              FROM aks_product_vehicle_years apvy
-              LEFT JOIN aks_products_complete c ON apvy.item_id = c.item_id
-              WHERE c.item_id IS NULL
-                AND LOWER(apvy.make) = ? AND LOWER(apvy.model) LIKE LOWER(?) AND apvy.year = ?
-                AND apvy.fcc_id IS NOT NULL AND apvy.fcc_id != ''
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%shell%'
-            `).bind(make, `%${modelFuzzy}%`, year, make, `%${modelFuzzy}%`, year).all<any>();
+            `).bind(make, model, `%${modelFuzzy}%`, year).all<any>();
 
             // Normalize FCC IDs: replace common O/0 typos (letter O vs zero)
             const normalizeFcc = (fcc: string): string => {
@@ -13369,8 +13403,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }));
           }
 
-          // 1.7. Get AKS key configurations grouped by key type → button count
+          // 1.7. Get AKS key configurations grouped by key type → OEM part number
           // Uses: aks_product_vehicle_years → aks_products_complete (comprehensive product data)
+          // Each distinct OEM part = one card = one physical key
           interface FccDetail {
             fcc: string;
             oem: string[];
@@ -13379,6 +13414,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
           interface AksKeyConfig {
             keyType: string;
+            primaryOem: string | null;
             buttonCount: string | null;
             buttonCounts: string[];
             fccIds: string[];
@@ -13425,7 +13461,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               FROM aks_product_vehicle_years apvy
               JOIN aks_products_complete c ON apvy.item_id = c.item_id
               WHERE LOWER(apvy.make) = ? 
-                AND LOWER(apvy.model) LIKE LOWER(?) 
+                AND (LOWER(apvy.model_family) = LOWER(?) OR LOWER(apvy.model) LIKE LOWER(?)) 
                 AND apvy.year = ?
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
                 AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%flip%'
@@ -13439,45 +13475,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%-pack%'
                 AND LOWER(COALESCE(c.title, '')) NOT LIKE '%flip blade%'
-              UNION ALL
-              SELECT 
-                NULL as page_id,
-                apvy.item_id,
-                apvy.title,
-                apvy.product_type,
-                apvy.buttons,
-                NULL as button_count,
-                apvy.fcc_id,
-                apvy.oem_part_numbers,
-                apvy.battery,
-                apvy.frequency,
-                apvy.chip,
-                apvy.keyway,
-                NULL as model_name,
-                apvy.image_url as cdn_image,
-                NULL as reusable,
-                NULL as cloneable,
-                NULL as image_r2_key
-              FROM aks_product_vehicle_years apvy
-              LEFT JOIN aks_products_complete c ON apvy.item_id = c.item_id
-              WHERE c.item_id IS NULL
-                AND LOWER(apvy.make) = ? 
-                AND LOWER(apvy.model) LIKE LOWER(?) 
-                AND apvy.year = ?
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%shell%'
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%flip%'
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%tool%'
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%lishi%'
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%ignition%'
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%lock%'
-                AND COALESCE(apvy.product_type, '') != 'Key'
-                AND LOWER(COALESCE(apvy.product_type, '')) NOT LIKE '%other%'
-                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%shell only%'
-                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%case only%'
-                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%-pack%'
-                AND LOWER(COALESCE(apvy.title, '')) NOT LIKE '%flip blade%'
-              ORDER BY 4, 5 DESC
-            `).bind(make, `%${modelFuzzy}%`, year, make, `%${modelFuzzy}%`, year).all<any>();
+              ORDER BY c.product_type, c.buttons DESC
+            `).bind(make, model, `%${modelFuzzy}%`, year).all<any>();
 
             // Group by key type → FCC ID (consolidates different button counts for the same FCC)
             const keyTypeGroups: Record<string, Record<string, {
@@ -13523,6 +13522,65 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 }
               }
               return fccs.map(f => f.replace(/O(\d)/g, '0$1').trim()).filter(f => f && f.length >= 5);
+            };
+
+            // Helper: extract OEM part numbers from raw oem_part_numbers string
+            // OEM fields use SPACES as separators with patterns like:
+            //   "68051387 AA-AH 68060750 AA-AH"  → two parts with revision ranges
+            //   "68394198AA AES"                  → one part + junk annotation
+            //   "68051387AH 68051387AA-AG"        → two distinct parts
+            //   "68051387AA-AH"                   → one part with attached revision range
+            // Returns array of cleaned base OEM numbers, primary first
+            const parseOemParts = (oemRaw: string | null): string[] => {
+              if (!oemRaw) return [];
+              // Junk words that are NOT OEM part numbers
+              const JUNK_WORDS = new Set(['AES', 'MULTIPLE', 'OEM', 'NEW', 'REFURB', 'AFTERMARKET', 'NONE', 'N/A', 'INCLUDED', 'PROX', 'KEYLESS', 'GO']);
+              // First split by comma/semicolon, then process each segment
+              const segments = oemRaw.split(/[,;]+/).map(s => s.trim()).filter(s => s);
+              const results: string[] = [];
+              const seen = new Set<string>();
+
+              for (const segment of segments) {
+                // Tokenize by spaces
+                const tokens = segment.split(/\s+/).filter(t => t);
+                let i = 0;
+                while (i < tokens.length) {
+                  const token = tokens[i];
+
+                  // Skip junk words
+                  if (JUNK_WORDS.has(token.toUpperCase())) { i++; continue; }
+
+                  // Check if this is a base number followed by a revision range token
+                  // Pattern: "68051387" + "AA-AH" or "AB-AC"
+                  if (/^\d{5,}$/.test(token) && i + 1 < tokens.length && /^[A-Z]{2}-[A-Z]{2}$/i.test(tokens[i + 1])) {
+                    // e.g., "68051387" + "AA-AH" → base "68051387"
+                    if (!seen.has(token)) { seen.add(token); results.push(token); }
+                    i += 2; // skip both tokens
+                    continue;
+                  }
+
+                  // Check if token itself has an attached revision range: "68051387AA-AH" or "68394196AA-AG"
+                  const attachedRange = token.match(/^(\d{5,}[A-Z]{0,2})-[A-Z]{2}$/i);
+                  if (attachedRange) {
+                    // Strip the revision range, keep base: "68051387AA-AG" → "68051387"
+                    const base = attachedRange[1].replace(/[A-Z]+$/i, '');
+                    if (base.length >= 5 && !seen.has(base)) { seen.add(base); results.push(base); }
+                    i++;
+                    continue;
+                  }
+
+                  // Check if this is a standalone revision range token (e.g., "AA-AH") — skip it
+                  if (/^[A-Z]{2}-[A-Z]{2}$/i.test(token)) { i++; continue; }
+
+                  // Check if this looks like an OEM part number (has digits, at least 5 chars)
+                  if (token.length >= 5 && /\d/.test(token) && token.length <= 25) {
+                    if (!seen.has(token)) { seen.add(token); results.push(token); }
+                  }
+
+                  i++;
+                }
+              }
+              return results;
             };
 
             // Cross-vehicle title filter: exclude products whose title clearly names a different vehicle
@@ -13597,21 +13655,29 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 }
               }
 
-              // Determine FCC-based grouping key
-              // Products with the same FCC but different button counts merge into one card
+              // Determine OEM-based grouping key
+              // Products with the same OEM base number merge into one card (= one physical key)
               const isBladeType = ['Emergency Key', 'Mechanical Key', 'Blade'].includes(baseType);
               const productFccs = parseFccIds(row.fcc_id);
-              const fccGroupKey = isBladeType || productFccs.length === 0
-                ? 'no-fcc'
-                : productFccs[0]; // Group by primary (first) FCC ID
+              const productOems = parseOemParts(row.oem_part_numbers);
+              // Normalize OEM to numeric base: "68051387AH" → "68051387"
+              const normalizeOemBase = (oem: string): string => oem.replace(/[A-Z]+$/i, '').trim();
+              // Group by normalized primary OEM base, fallback to FCC if no OEM, then 'no-group'
+              const oemGroupKey = isBladeType
+                ? 'blade'
+                : productOems.length > 0
+                  ? normalizeOemBase(productOems[0])
+                  : productFccs.length > 0
+                    ? `fcc:${productFccs[0]}`
+                    : 'no-group';
 
               // Initialize key type group
               if (!keyTypeGroups[baseType]) {
                 keyTypeGroups[baseType] = {};
               }
 
-              if (!keyTypeGroups[baseType][fccGroupKey]) {
-                keyTypeGroups[baseType][fccGroupKey] = {
+              if (!keyTypeGroups[baseType][oemGroupKey]) {
+                keyTypeGroups[baseType][oemGroupKey] = {
                   fccIds: new Set(),
                   buttonCounts: new Set(),
                   fccDetailMap: new Map(),
@@ -13628,7 +13694,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 };
               }
 
-              const group = keyTypeGroups[baseType][fccGroupKey];
+              const group = keyTypeGroups[baseType][oemGroupKey];
 
               // Collect button count into the group (instead of using it as grouping key)
               if (buttonCount) {
@@ -13705,8 +13771,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
 
             // Flatten to array format
-            for (const [keyType, fccGroups] of Object.entries(keyTypeGroups)) {
-              for (const [fccKey, group] of Object.entries(fccGroups)) {
+            for (const [keyType, oemGroups] of Object.entries(keyTypeGroups)) {
+              for (const [oemKey, group] of Object.entries(oemGroups)) {
                 // Pick best image: prefer R2 (any), then CDN (any)
                 const r2Image = group.images.find(img => img.startsWith('r2:'));
                 const cdnImage = group.images.find(img => img.startsWith('cdn:'));
@@ -13736,6 +13802,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
                 aksKeyConfigs.push({
                   keyType,
+                  primaryOem: oemKey.startsWith('fcc:') || oemKey === 'blade' || oemKey === 'no-group' ? null : oemKey,
                   buttonCount: primaryButtonCount,
                   buttonCounts: sortedButtonCounts,
                   fccIds: Array.from(group.fccIds).slice(0, 8),

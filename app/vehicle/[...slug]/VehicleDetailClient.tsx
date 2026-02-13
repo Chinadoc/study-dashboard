@@ -121,6 +121,7 @@ function transformAksKeyConfigs(configs: any[]): any[] {
 
             return {
                 name,
+                primaryOem: c.primaryOem || undefined,
                 fcc: (c.fccIds || []).join(', ') || undefined,
                 fccDetails: fccDetails.length > 0 ? fccDetails : undefined,
                 chip: c.chip || undefined,
@@ -786,16 +787,16 @@ export default function VehicleDetailClient() {
     const keysFromPBT = transformProductsByType(productsByType);
     const keysFromVYP = classifyVypProducts(vyp, specs);
 
-    // aks_key_configs is already grouped by key type → button count, so use directly if available
-    // Otherwise fallback to legacy sources with consolidation
-    const rawKeys = keysFromAks.length > 0 ? keysFromAks
+    // aks_key_configs is already grouped by OEM part number by the API, so use directly
+    // Only apply consolidateKeysByButtonCount for legacy sources (VYP/products) which aren't OEM-grouped
+    const isOemGrouped = keysFromAks.length > 0;
+    const rawKeys = isOemGrouped ? keysFromAks
         : keysFromProducts.length > 0 ? keysFromProducts
             : keysFromPBT.length > 0 ? keysFromPBT
                 : keysFromVYP;
 
-    // Deduplicate keys by type (3-btn, 4-btn, blade) - consolidate ALL sources including AKS
-    // This merges cards with same family + button count, aggregating FCC IDs
-    let mergedKeys = consolidateKeysByButtonCount(rawKeys, specs);
+    // Deduplicate keys — skip consolidation for OEM-grouped data (would collapse distinct OEMs)
+    let mergedKeys = isOemGrouped ? rawKeys : consolidateKeysByButtonCount(rawKeys, specs);
 
     // If aksBladeKeys is available, the dedicated BladeKeysCard renders detailed blade info
     // (transponder, emergency, Lishi). Remove the simpler blade card from mergedKeys to avoid duplication.

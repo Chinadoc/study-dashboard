@@ -27,6 +27,7 @@ interface MergedModel {
     display: string;
     baseModel: string;
     variants: string[];
+    formatVariants: string[];
 }
 
 function BrowsePageContent() {
@@ -72,6 +73,9 @@ function BrowsePageContent() {
 
     // Merged models for display (with variant indicators)
     const [mergedModels, setMergedModels] = useState<MergedModel[]>([]);
+
+    // Format variants for the currently selected model (for querying years across all names)
+    const [selectedFormatVariants, setSelectedFormatVariants] = useState<string[]>([]);
 
     // Preview summary for instant card
     const [previewSummary, setPreviewSummary] = useState<{
@@ -157,7 +161,7 @@ function BrowsePageContent() {
         async function fetchYears() {
             setLoadingYears(true);
             try {
-                const res = await fetch(`${API_BASE}/api/vyp/years?make=${encodeURIComponent(selectedMake!)}&model=${encodeURIComponent(selectedModel!)}`);
+                const res = await fetch(`${API_BASE}/api/vyp/years?make=${encodeURIComponent(selectedMake!)}&model=${encodeURIComponent(selectedModel!)}${selectedFormatVariants.length > 1 ? '&variants=' + encodeURIComponent(selectedFormatVariants.join(',')) : ''}`);
                 const data = await res.json();
                 const sortedYears = (data.years || []).map((y: any) => typeof y === 'number' ? y : y.year).filter(Boolean) as number[];
                 setYears(sortedYears);
@@ -168,7 +172,7 @@ function BrowsePageContent() {
             }
         }
         fetchYears();
-    }, [selectedModel, selectedMake]);
+    }, [selectedModel, selectedMake, selectedFormatVariants]);
 
     // Fetch AI-generated description when make/model is selected
     useEffect(() => {
@@ -378,6 +382,10 @@ function BrowsePageContent() {
     const handleModelSelect = async (model: string) => {
         setSelectedModel(model);
         setSelectedYear(null);
+
+        // Find this model's formatVariants from the merged models list
+        const merged = mergedModels.find(m => m.name === model);
+        setSelectedFormatVariants(merged?.formatVariants || [model]);
 
         // If we have a pending year from search, check if it's valid and auto-select
         if (pendingYear && selectedMake) {
