@@ -10479,10 +10479,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             'Victory', 'Yamaha', 'Atala', 'Evinrude', 'Sea', 'Arctic Cat', 'Bombardier'
           ]);
 
-          // Also filter obscure/non-consumer makes
+          // Also filter obscure/non-consumer makes and motorcycle model names showing as makes
           const obscureMakes = new Set([
             'American', 'Brockway', 'Golf', 'Vehicle', 'Misc Models',
-            'Hino', 'IVECO', 'Navistar', 'Sterling', 'Studebaker'
+            'Hino', 'IVECO', 'Navistar', 'Sterling', 'Studebaker',
+            // Motorcycle model names that leaked in as makes
+            'F650', 'G650', 'GPZ', 'GSX-R750', 'Intruder', 'Marauder',
+            'Ninja', 'SJ', 'V-Strom', 'Vulcan',
+            // Junk/duplicates
+            'Model', 'Olds'
           ]);
 
           let filteredResults = (result.results || []).filter((r: any) =>
@@ -10523,12 +10528,117 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       // Helper: normalize model name for grouping formatting variants
       // "1 - SERIES" / "1-Series" / "1 Series" all → "1"
       // "X5 - Series" / "X5" → "x5"
+      // Clean model_family values BEFORE normalization grouping
+      function cleanModelFamily(name: string): string {
+        let cleaned = name.trim();
+        // Strip everything after : or ; (year/spec suffixes like "ES300h: 06/2018-09/")
+        cleaned = cleaned.replace(/[:;].*$/, '').trim();
+        // Strip trailing year ranges ("2005-2007", "2016*-", "202-", etc.)
+        cleaned = cleaned.replace(/\s+\d{3,4}\s*[-–]\s*\d{0,4}\s*$/, '').trim();
+        cleaned = cleaned.replace(/\s+\d{3,4}\*?\s*-?\s*$/, '').trim();
+        // Strip "Year-" and "Years" suffixes
+        cleaned = cleaned.replace(/\s+Years?-?\s*$/i, '').trim();
+        // Strip "w/o Prox", "w/ Prox", "w/o ..." patterns
+        cleaned = cleaned.replace(/\s+w\/o?\s+\w+.*$/i, '').trim();
+        // Strip content in parentheses at end like "(840Ci)"
+        cleaned = cleaned.replace(/\s*\([^)]*\)\s*$/, '').trim();
+        // Strip trailing asterisks and dots
+        cleaned = cleaned.replace(/[*. ]+$/, '').trim();
+        // Strip "Sedan Only", "Coupe Only", etc.
+        cleaned = cleaned.replace(/\s+(Sedan|Coupe|Hatchback|Wagon)\s+Only.*$/i, '').trim();
+        // Strip "with dealer/port installed system" etc.
+        cleaned = cleaned.replace(/\s+with\s+dealer.*$/i, '').trim();
+        // Strip trim spec suffixes like "2 0S/FE+20S/SE-R" (Nissan Sentra junk)
+        cleaned = cleaned.replace(/\s+\d+\s*\d*\w*\/\w+.*$/i, '').trim();
+        // Strip "2&4 Door" variants
+        cleaned = cleaned.replace(/\s+\d+&\d+\s*Door.*$/i, '').trim();
+        // Strip "Ultra Luxury", "Luxury" etc. trim names at end
+        cleaned = cleaned.replace(/\s+(Ultra\s+)?Luxury\s*$/i, '').trim();
+
+        // Ford F-truck normalization: "F150 Pickup Truck" → "F-150"
+        // "F150 Super Duty Truck" → "F-150", "F250 Series Light Duty" → "F-250" etc.
+        const fTruckMatch = cleaned.match(/^F-?(\d{3})\b/i);
+        if (fTruckMatch) {
+          // Normalize to F-{number} and strip everything after
+          cleaned = 'F-' + fTruckMatch[1];
+        }
+
+        // Common misspellings and variant consolidation
+        const misspellings: Record<string, string> = {
+          'Sivlerado': 'Silverado', 'Tralblazer': 'Trailblazer', 'Taurua LS': 'Taurus',
+          'Armanda': 'Armada', 'Rouge': 'Rogue', 'Mailbu': 'Malibu',
+          'Eleantra': 'Elantra', 'Imprezia': 'Impreza', 'Crow': 'Crown',
+          'Cruz': 'Cruze', 'PIlot': 'Pilot',
+          'MVP': 'MPV', 'RIo': 'Rio', 'Renza': 'Venza',
+          'XV Crosstek': 'XV Crosstrek', 'CrossTrek': 'Crosstrek',
+          '350Z Roadster': '350Z', 'MICRA w/Prox': 'Micra',
+          'Contour 2.51 V6': 'Contour', 'Contour V6 LX3': 'Contour',
+          '4Runner': '4-Runner', 'Outback 2.5 XT': 'Outback', 'Outback 3.0 R': 'Outback',
+          'GR86 2022-\u200B': 'GR86',
+          // Lincoln variants
+          'LS6': 'LS', 'LS8': 'LS',
+          // Subaru junk
+          'Justy 1991-1994 Legacy': 'Justy',
+          // Ford commercial
+          'E-350 Super Duty': 'E-Series',
+        };
+        if (misspellings[cleaned]) cleaned = misspellings[cleaned];
+
+        return cleaned;
+      }
+
       function normalizeModelKey(model: string): string {
         return model
           .toLowerCase()
           .replace(/series/gi, '')      // strip "series" anywhere
           .replace(/[^a-z0-9]/g, '')    // strip ALL non-alphanumeric
           .trim();
+      }
+
+      // For luxury makes (Lexus, Infiniti, Mercedes), group by letter prefix
+      // ES300, ES350, ES300H, ES 250 F, ES all → "ES"
+      function luxuryModelKey(make: string, model: string): string | null {
+        const makeLower = make.toLowerCase();
+        if (makeLower === 'lexus') {
+          // Known Lexus model prefixes - group everything starting with these
+          const lexusPrefixes = ['CT', 'ES', 'GS', 'GX', 'HS', 'IS', 'LC', 'LS', 'LX', 'NX', 'RC', 'RX', 'RZ', 'SC', 'TX', 'UX'];
+          const cleaned = model.replace(/[-\s]/g, '').toUpperCase();
+          for (const prefix of lexusPrefixes) {
+            if (cleaned.startsWith(prefix) && cleaned.length > prefix.length) {
+              return prefix;
+            }
+            // Exact match (just "RZ" or "NX") 
+            if (cleaned === prefix) return prefix;
+          }
+        }
+        if (makeLower === 'infiniti') {
+          // Infiniti: group by letter prefix
+          // EX35/EX37→EX, FX35/FX45/FX50→FX, G25/G35/G37→G, I30/I35→I, 
+          // JX/JX35→JX, M35/M45/M56→M, Q40/Q45→Q-old, Q50/Q60/Q70→keep separate
+          // QX4/QX30/QX50/QX55/QX56/QX60/QX70/QX80→keep separate
+          const prefixMatch = model.match(/^([A-Za-z]{1,2})\d/);
+          if (prefixMatch) {
+            const prefix = prefixMatch[1].toUpperCase();
+            if (['EX', 'FX', 'G', 'I', 'JX', 'M'].includes(prefix)) return prefix;
+          }
+          // JX without number
+          if (model === 'JX') return 'JX';
+          // I30/I35 format
+          if (model.startsWith('I3')) return 'I';
+        }
+        if (makeLower === 'mercedes-benz') {
+          // C220, C230, C280, C43 → C-Class; E300D, E320 → E-Class; etc.
+          const m = model.match(/^([A-Za-z]{1,3})\d/);
+          if (m && !model.includes('-Class')) {
+            const prefix = m[1].toUpperCase();
+            if (['C', 'E', 'G', 'R', 'S'].includes(prefix)) return prefix + '-CLASS';
+          }
+          // "M Class", "S Class" → normalized class
+          const classMatch = model.match(/^([A-Z]{1,3})\s+Class/i);
+          if (classMatch) return classMatch[1].toUpperCase() + '-CLASS';
+          if (model === 'ML') return 'M-CLASS';
+        }
+        return null;
       }
 
       // GET /api/vyp/models?make=X - Returns models for a make from aks_vehicles_by_year (cleaner data)
@@ -10547,16 +10657,27 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           const familySql = `
             SELECT 
-              model_family,
-              COUNT(DISTINCT model) as variant_count,
-              COUNT(DISTINCT year) as year_count,
-              MIN(year) as min_year,
-              MAX(year) as max_year,
-              GROUP_CONCAT(DISTINCT model) as raw_variants
-            FROM aks_product_vehicle_years
-            WHERE LOWER(make) = LOWER(?)
-            GROUP BY model_family
-            ORDER BY model_family
+              apvy.model_family,
+              COUNT(DISTINCT apvy.model) as variant_count,
+              COUNT(DISTINCT apvy.year) as year_count,
+              MIN(apvy.year) as min_year,
+              MAX(apvy.year) as max_year,
+              GROUP_CONCAT(DISTINCT apvy.model) as raw_variants
+            FROM aks_product_vehicle_years apvy
+            JOIN aks_products_complete c ON apvy.item_id = c.item_id
+            WHERE LOWER(apvy.make) = LOWER(?)
+              AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%shell%'
+              AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%tool%'
+              AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%lishi%'
+              AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%blade%'
+              AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%lock%'
+              AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%ignition%'
+              AND COALESCE(c.product_type, '') != 'Key'
+              AND LOWER(COALESCE(c.product_type, '')) NOT LIKE '%other%'
+              AND LOWER(COALESCE(c.title, '')) NOT LIKE '%shell only%'
+              AND LOWER(COALESCE(c.title, '')) NOT LIKE '%case only%'
+            GROUP BY apvy.model_family
+            ORDER BY apvy.model_family
           `;
           const familyResult = await env.LOCKSMITH_DB.prepare(familySql).bind(make).all();
           const familyRows = (familyResult.results || []) as any[];
@@ -10606,43 +10727,77 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
 
             const rawVariants = (row.raw_variants || family).split(',');
+            // Clean the family name (strip year suffixes, fix misspellings)
+            const cleanedName = cleanModelFamily(family);
+            if (!cleanedName) continue;
+
+            // Additional junk filter on cleaned names
+            if (/^Trucks? All/i.test(cleanedName)) continue;
+            if (/^Van Full/i.test(cleanedName)) continue;
+            if (/^Transfer (Heavy|Series)/i.test(cleanedName)) continue;
+            if (/^\/ /i.test(cleanedName)) continue;  // "/ Datsun Altima"
+            if (/^Edita /i.test(cleanedName)) continue;  // "Edita 2005-2007 Pontiac G3"
+            if (/^UD Diesel/i.test(cleanedName)) continue;  // Commercial trucks
+            if (/^NV\s/i.test(cleanedName) && make.toLowerCase() === 'nissan') continue;  // NV cargo vans
+            if (/Pontiac|Pontaic/i.test(cleanedName) && make.toLowerCase() !== 'pontiac') continue;  // Cross-make
+
             allFamilies.push({
-              name: family,
+              name: cleanedName,
               yearCount: row.year_count as number,
               rawVariants
             });
           }
 
           // Second pass: normalize format variants (CR-V / CRV / CR V -> keep best)
-          const normGroups = new Map<string, { bestName: string; bestYears: number; allRawVariants: string[]; families: string[] }>();
+          // For Lexus/Infiniti/Mercedes, group by letter prefix
+          const normGroups = new Map<string, { bestName: string; bestYears: number; allRawVariants: string[]; families: string[]; isLuxuryGroup: boolean }>();
           for (const fam of allFamilies) {
-            const normKey = normalizeModelKey(fam.name);
+            // Use luxury prefix grouping if applicable, else standard normalization
+            const luxKey = luxuryModelKey(make, fam.name);
+            const normKey = luxKey ? normalizeModelKey(luxKey) : normalizeModelKey(fam.name);
             const existing = normGroups.get(normKey);
             if (!existing) {
+              // For luxury groups, use the clean prefix as display name
+              let displayName = fam.name;
+              if (luxKey) {
+                // Use the luxury key directly as the display name
+                // Mercedes: "C-CLASS" → "C-Class", Lexus: "ES" → "ES", Infiniti: "G" → "G"
+                if (luxKey.includes('-CLASS')) {
+                  displayName = luxKey.charAt(0).toUpperCase() + luxKey.slice(1).toLowerCase().replace('class', 'Class');
+                } else {
+                  displayName = luxKey;
+                }
+              }
               normGroups.set(normKey, {
-                bestName: fam.name,
+                bestName: displayName,
                 bestYears: fam.yearCount,
                 allRawVariants: [...fam.rawVariants],
-                families: [fam.name]
+                families: [fam.name],
+                isLuxuryGroup: !!luxKey
               });
             } else {
               existing.families.push(fam.name);
               existing.allRawVariants.push(...fam.rawVariants);
-              // Prefer name with more years, but also prefer descriptive names
-              // (e.g., "3-Series" over "3") when year counts are close
-              const currentIsDescriptive = existing.bestName.includes('-') || existing.bestName.includes(' ');
-              const newIsDescriptive = fam.name.includes('-') || fam.name.includes(' ');
-              if (fam.yearCount > existing.bestYears ||
-                (fam.yearCount >= existing.bestYears && newIsDescriptive && !currentIsDescriptive) ||
-                (!currentIsDescriptive && newIsDescriptive && fam.name.length > existing.bestName.length)) {
-                existing.bestName = fam.name;
-                existing.bestYears = fam.yearCount;
+              // For luxury groups, keep the clean prefix name; don't override with variant names
+              if (!existing.isLuxuryGroup) {
+                // Prefer name with more years, but also prefer descriptive names
+                // (e.g., "3-Series" over "3") when year counts are close
+                const currentIsDescriptive = existing.bestName.includes('-') || existing.bestName.includes(' ');
+                const newIsDescriptive = fam.name.includes('-') || fam.name.includes(' ');
+                if (fam.yearCount > existing.bestYears ||
+                  (fam.yearCount >= existing.bestYears && newIsDescriptive && !currentIsDescriptive) ||
+                  (!currentIsDescriptive && newIsDescriptive && fam.name.length > existing.bestName.length)) {
+                  existing.bestName = fam.name;
+                  existing.bestYears = fam.yearCount;
+                }
               }
             }
           }
           // Build collapsed list from normalized groups
           // Fix bestName: prefer most descriptive name (longest with hyphens/spaces)
+          // But skip luxury groups — they already have clean prefix names
           for (const group of normGroups.values()) {
+            if (group.isLuxuryGroup) continue;  // Keep luxury prefix names as-is
             if (group.families.length > 1) {
               const best = group.families.reduce((a, b) => {
                 // Prefer names with hyphen or space (descriptive) over bare names
@@ -10658,15 +10813,37 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let collapsedFamilies = [...normGroups.values()];
 
           // Third pass: prefix-based trim collapse
-          // "Accord 20EX-L" collapses into "Accord" if "Accord" exists
-          const familyNameSet = new Set(collapsedFamilies.map(f => f.bestName));
+          // "RAV4 2WD SE" collapses into "RAV4" (or "RAV-4") if base model exists
+          // We normalize names for comparison so "RAV-4" matches "RAV4 ..."
           const absorbed = new Set<string>();
+
+          // Build a map of normalized base name → family for prefix matching
+          const normBase = (n: string) => n.toLowerCase().replace(/[-\s]/g, '');
+
           for (const fam of collapsedFamilies) {
             if (absorbed.has(fam.bestName)) continue;
-            const prefix = fam.bestName + ' ';
+            const famNorm = normBase(fam.bestName);
+
             for (const other of collapsedFamilies) {
               if (other.bestName === fam.bestName || absorbed.has(other.bestName)) continue;
-              if (other.bestName.startsWith(prefix)) {
+
+              // Normalize the other name and check if it starts with this family's base
+              const otherNorm = normBase(other.bestName);
+
+              // Check if other is a sub-variant of this family
+              // e.g., "rav42wdse" starts with "rav4" 
+              // But also check the original name starts with base + space (to avoid false positives like "RAV" matching "RAV4")
+              if (otherNorm.startsWith(famNorm) && otherNorm.length > famNorm.length) {
+                // Make sure short base names don't create false matches
+                // (e.g., prevent "SS" from absorbing "SSR", or "F" absorbing "F150")
+                // But allow long bases like "Accord" to absorb "Accord 20EX-L"
+                const remainder = otherNorm.slice(famNorm.length);
+                if (famNorm.length <= 3) {
+                  const remStartsDigit = /^\d/.test(remainder);
+                  const famEndsDigit = /\d$/.test(famNorm);
+                  if (!famEndsDigit && remStartsDigit) continue;
+                }
+
                 absorbed.add(other.bestName);
                 fam.allRawVariants.push(...other.allRawVariants);
                 fam.families.push(...other.families);
@@ -10742,6 +10919,34 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const evModels = models.filter(m => isEVModel(make, m));
           const mainModels = models.filter(m => !isEVModel(make, m));
 
+          // International model detection: models not sold in the US market
+          const isIntlModel = (make: string, model: string): boolean => {
+            const modelLower = model.toLowerCase().replace(/[-\s]/g, '');
+            // Known international-only models by make
+            const intlModels: Record<string, string[]> = {
+              'ford': ['bmax', 'cmax', 'grandcmax', 'galaxy', 'kuga', 'mondeo', 'smax', 'puma'],
+              'audi': ['q2l', 'q2'],
+              'volkswagen': ['polo', 'up', 'amarok', 'taigun', 'transporter', 'caddy', 'arteon'],
+              'nissan': ['micra', 'qashqai', 'xtrail', 'ttrail', 'note', 'navara', 'pulsar', 'dayz'],
+              'toyota': ['hilux', 'aygo', 'verso', 'auris', 'yarisgr', 'ch'],
+              'honda': ['jazz', 'stream', 'city', 'wr-v'],
+              'hyundai': ['i10', 'i20', 'i30', 'i40', 'grand', 'tucsonix'],
+              'kia': ['k3', 'k5', 'k7', 'k9', 'ceed', 'stonic', 'picanto', 'magentis'],
+              'mazda': ['b2500', 'demio'],
+              'mercedes-benz': ['aclass', 'bclass', 'vclass'],
+              'bmw': [],  // Most BMW models sell in US
+              'subaru': [],
+            };
+            // Entirely non-US makes
+            const intlOnlyMakes = ['peugeot', 'renault', 'daihatsu', 'daewoo', 'alfa romeo', 'datsun', 'lada'];
+            if (intlOnlyMakes.includes(make.toLowerCase())) return true;
+            const makeModels = intlModels[make.toLowerCase()];
+            if (!makeModels) return false;
+            return makeModels.some(im => modelLower === im || modelLower.startsWith(im));
+          };
+
+          const intlModels = models.filter(m => isIntlModel(make, m));
+
           // Modern vs classic: check if family has years >= 2000
           const modernFamilies = new Set(familyRows
             .filter((r: any) => r.max_year >= 2000)
@@ -10758,6 +10963,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             evModels,
             mainModels,
             hasEV: evModels.length > 0,
+            intlModels,
+            hasIntl: intlModels.length > 0,
             modernModels,
             classicOnlyModels,
             hasClassicOnly: classicOnlyModels.length > 0

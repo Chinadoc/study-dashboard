@@ -66,6 +66,11 @@ function BrowsePageContent() {
     const [hasEV, setHasEV] = useState(false);
     const [showEVOnly, setShowEVOnly] = useState(false);
 
+    // Int'l filter toggle
+    const [intlModels, setIntlModels] = useState<string[]>([]);
+    const [hasIntl, setHasIntl] = useState(false);
+    const [showIntlOnly, setShowIntlOnly] = useState(false);
+
     // Model era filter (modern = has years >= 2000, classic = pre-2000 only)
     const [classicOnlyModels, setClassicOnlyModels] = useState<string[]>([]);
     const [hasClassicOnly, setHasClassicOnly] = useState(false);
@@ -131,6 +136,7 @@ function BrowsePageContent() {
         async function fetchModels() {
             setLoadingModels(true);
             setShowEVOnly(false);  // Reset filter when changing make
+            setShowIntlOnly(false);
             setModelEra('modern'); // Default to modern vehicles
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(selectedMake!)}`);
@@ -140,6 +146,8 @@ function BrowsePageContent() {
                 setEvModels((data.evModels || []) as string[]);
                 setMainModels((data.mainModels || []) as string[]);
                 setHasEV(data.hasEV || false);
+                setIntlModels((data.intlModels || []) as string[]);
+                setHasIntl(data.hasIntl || false);
                 setClassicOnlyModels((data.classicOnlyModels || []) as string[]);
                 setHasClassicOnly(data.hasClassicOnly || false);
             } catch (error) {
@@ -504,24 +512,32 @@ function BrowsePageContent() {
                                                 <div className="flex gap-0.5 p-1.5 border-b border-gray-700/50 bg-gray-800/30">
                                                     {hasClassicOnly && (
                                                         <button
-                                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); }}
+                                                            onClick={() => { setModelEra('modern'); setShowEVOnly(false); setShowIntlOnly(false); }}
                                                             className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'modern' && !showEVOnly ? 'bg-emerald-500 text-white' : 'text-gray-500'}`}
                                                         >
                                                             2000+
                                                         </button>
                                                     )}
                                                     <button
-                                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); }}
+                                                        onClick={() => { setModelEra('all'); setShowEVOnly(false); setShowIntlOnly(false); }}
                                                         className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${modelEra === 'all' && !showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-500'}`}
                                                     >
                                                         All
                                                     </button>
                                                     {hasEV && (
                                                         <button
-                                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); }}
+                                                            onClick={() => { setModelEra('all'); setShowEVOnly(true); setShowIntlOnly(false); }}
                                                             className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-500'}`}
                                                         >
                                                             ⚡ EV
+                                                        </button>
+                                                    )}
+                                                    {hasIntl && (
+                                                        <button
+                                                            onClick={() => { setModelEra('all'); setShowIntlOnly(!showIntlOnly); setShowEVOnly(false); }}
+                                                            className={`flex-1 px-1.5 py-1 text-[10px] rounded transition-colors ${showIntlOnly ? 'bg-sky-500 text-white' : 'text-gray-500'}`}
+                                                        >
+                                                            🌍 Int&apos;l
                                                         </button>
                                                     )}
                                                 </div>
@@ -529,6 +545,7 @@ function BrowsePageContent() {
                                             {mergedModels
                                                 .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m.name))
                                                 .filter(m => !showEVOnly || evModels.includes(m.name))
+                                                .filter(m => !showIntlOnly || intlModels.includes(m.name))
                                                 .map(model => (
                                                     <button
                                                         key={model.name}
