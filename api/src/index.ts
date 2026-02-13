@@ -13452,6 +13452,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 c.chip,
                 c.keyway,
                 c.model_name,
+                c.cross_references,
                 c.image_url as cdn_image,
                 c.reusable,
                 c.cloneable,
@@ -13613,6 +13614,32 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               return year >= yStart && year <= yEnd;
             }) : filteredResults;
 
+            // Helper: extract MWK cross-reference code from cross_references field
+            // Pattern: "CHRY-1601 (MWK)" or "OEM-CHRY-1658 (MWK)" or "CHRY-1656 (KeyI)"
+            const parseMwkCode = (xref: string | null): string | null => {
+              if (!xref) return null;
+              const match = xref.match(/(?:OEM-)?([A-Z]{3,6}-\d{3,5})\s*\((?:MWK|KeyI|Key-I)\)/i);
+              return match ? match[1].toUpperCase() : null;
+            };
+
+            // Pre-scan: build OEM-base → MWK lookup so products without MWK codes
+            // can be matched to existing MWK groups via their OEM numbers.
+            // e.g., product 16413 has OEM "68394198AA AES" (no MWK), but other products
+            // with OEM 68394198AA have MWK "CHRY-1656" — so 16413 joins that group.
+            const oemBaseToMwk = new Map<string, string>();
+            const normalizeOemBasePreScan = (oem: string): string => oem.replace(/[A-Z]+$/i, '').trim();
+            for (const row of yearFilteredResults) {
+              const mwk = parseMwkCode(row.cross_references);
+              if (!mwk) continue;
+              const oems = parseOemParts(row.oem_part_numbers);
+              for (const oem of oems) {
+                const base = normalizeOemBasePreScan(oem);
+                if (base.length >= 5 && !oemBaseToMwk.has(base)) {
+                  oemBaseToMwk.set(base, mwk);
+                }
+              }
+            }
+
             for (const row of yearFilteredResults) {
               // Skip products with no product_type (usually accessories like batteries)
               if (!row.product_type) continue;
@@ -13655,21 +13682,32 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 }
               }
 
-              // Determine OEM-based grouping key
-              // Products with the same OEM base number merge into one card (= one physical key)
+              // Determine grouping key for this product
+              // Priority: MWK cross-reference code → OEM base → FCC → fallback
+              // MWK codes (e.g., "CHRY-1601") uniquely identify one physical key
+              // across all OEM variants, conditions, and manufacturers (incl. Strattec)
               const isBladeType = ['Emergency Key', 'Mechanical Key', 'Blade'].includes(baseType);
               const productFccs = parseFccIds(row.fcc_id);
               const productOems = parseOemParts(row.oem_part_numbers);
+              const mwkCode = parseMwkCode(row.cross_references);
               // Normalize OEM to numeric base: "68051387AH" → "68051387"
               const normalizeOemBase = (oem: string): string => oem.replace(/[A-Z]+$/i, '').trim();
-              // Group by normalized primary OEM base, fallback to FCC if no OEM, then 'no-group'
+              // Try to find MWK group: direct MWK code, or OEM-base lookup from pre-scan
+              let resolvedMwk = mwkCode;
+              if (!resolvedMwk && productOems.length > 0) {
+                const primaryBase = normalizeOemBase(productOems[0]);
+                resolvedMwk = oemBaseToMwk.get(primaryBase) || null;
+              }
+              // Group key hierarchy: MWK → OEM base → FCC → fallback
               const oemGroupKey = isBladeType
                 ? 'blade'
-                : productOems.length > 0
-                  ? normalizeOemBase(productOems[0])
-                  : productFccs.length > 0
-                    ? `fcc:${productFccs[0]}`
-                    : 'no-group';
+                : resolvedMwk
+                  ? `mwk:${resolvedMwk}`
+                  : productOems.length > 0
+                    ? normalizeOemBase(productOems[0])
+                    : productFccs.length > 0
+                      ? `fcc:${productFccs[0]}`
+                      : 'no-group';
 
               // Initialize key type group
               if (!keyTypeGroups[baseType]) {
@@ -13802,7 +13840,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
                 aksKeyConfigs.push({
                   keyType,
-                  primaryOem: oemKey.startsWith('fcc:') || oemKey === 'blade' || oemKey === 'no-group' ? null : oemKey,
+                  primaryOem: oemKey.startsWith('mwk:')
+                    ? (Array.from(group.oemParts.keys())[0] || null)
+                    : oemKey.startsWith('fcc:') || oemKey === 'blade' || oemKey === 'no-group'
+                      ? null
+                      : oemKey,
                   buttonCount: primaryButtonCount,
                   buttonCounts: sortedButtonCounts,
                   fccIds: Array.from(group.fccIds).slice(0, 8),
