@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { EditModeToggle } from '@/components/admin';
 
@@ -32,6 +33,14 @@ export default function VehicleHeader({
     canFd,
     specs = {},
 }: VehicleHeaderProps) {
+    const [imageError, setImageError] = useState(false);
+
+    // Build path to vehicle image: /assets/vehicles/{make}/{make}_{model}.png
+    // Normalize: lowercase, replace spaces/hyphens with underscores
+    const normalizedMake = make.toLowerCase().replace(/[\s-]+/g, '_');
+    const normalizedModel = model.toLowerCase().replace(/[\s-]+/g, '_');
+    const vehicleImagePath = `/assets/vehicles/${normalizedMake}/${normalizedMake}_${normalizedModel}.png`;
+
     return (
         <div className="mb-8">
             {/* Back Button & Edit Mode Toggle */}
@@ -46,8 +55,29 @@ export default function VehicleHeader({
             </div>
 
             {/* Main Header */}
-            <div className="glass p-6 mb-4">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="glass p-6 mb-4 relative overflow-hidden">
+                {/* Faded vehicle silhouette background */}
+                {!imageError && (
+                    <div
+                        className="absolute right-0 top-1/2 -translate-y-1/2 h-[160%] w-[45%] pointer-events-none select-none"
+                        style={{
+                            maskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
+                            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
+                        }}
+                    >
+                        <Image
+                            src={vehicleImagePath}
+                            alt=""
+                            fill
+                            className="object-contain object-right opacity-[0.18]"
+                            sizes="(max-width: 768px) 40vw, 30vw"
+                            onError={() => setImageError(true)}
+                            priority={false}
+                        />
+                    </div>
+                )}
+
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
                     <div className="flex items-center gap-4">
                         {/* Previous Year Arrow */}
                         {prevYear ? (
