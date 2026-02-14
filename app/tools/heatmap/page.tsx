@@ -177,6 +177,38 @@ export default function ToolCoverageHeatmap() {
             if (!yearMap[make]) yearMap[make] = {};
             for (const [, yearData] of Object.entries(models)) {
                 for (const [yearStr, data] of Object.entries(yearData)) {
+                    // Helper to merge data into a cell
+                    const mergeIntoCell = (cell: CellData) => {
+                        if (data.functions) {
+                            for (const f of data.functions) {
+                                if (!cell.functions.includes(f)) cell.functions.push(f);
+                            }
+                        }
+                        if (data.ecu) {
+                            for (const e of data.ecu) {
+                                if (!cell.ecu.includes(e)) cell.ecu.push(e);
+                            }
+                        }
+                    };
+
+                    // _all = all years supported → fill every bucket & individual year
+                    if (yearStr === '_all') {
+                        for (const bucket of YEAR_BUCKETS) {
+                            if (!map[make][bucket.label]) {
+                                map[make][bucket.label] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
+                            }
+                            mergeIntoCell(map[make][bucket.label]);
+                            for (let y = bucket.start; y <= bucket.end; y++) {
+                                const ys = String(y);
+                                if (!yearMap[make][ys]) {
+                                    yearMap[make][ys] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
+                                }
+                                mergeIntoCell(yearMap[make][ys]);
+                            }
+                        }
+                        continue;
+                    }
+
                     const year = parseInt(yearStr);
                     if (isNaN(year)) continue;
                     const bucket = YEAR_BUCKETS.find(b => year >= b.start && year <= b.end);
@@ -185,36 +217,15 @@ export default function ToolCoverageHeatmap() {
                     if (!map[make][bucket.label]) {
                         map[make][bucket.label] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
                     }
-                    const cell = map[make][bucket.label];
-                    if (data.functions) {
-                        for (const f of data.functions) {
-                            if (!cell.functions.includes(f)) cell.functions.push(f);
-                        }
-                    }
-                    if (data.ecu) {
-                        for (const e of data.ecu) {
-                            if (!cell.ecu.includes(e)) cell.ecu.push(e);
-                        }
-                    }
+                    mergeIntoCell(map[make][bucket.label]);
                     // Year level
                     if (!yearMap[make][yearStr]) {
                         yearMap[make][yearStr] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
                     }
-                    const yCell = yearMap[make][yearStr];
-                    if (data.functions) {
-                        for (const f of data.functions) {
-                            if (!yCell.functions.includes(f)) yCell.functions.push(f);
-                        }
-                    }
-                    if (data.ecu) {
-                        for (const e of data.ecu) {
-                            if (!yCell.ecu.includes(e)) yCell.ecu.push(e);
-                        }
-                    }
+                    mergeIntoCell(yearMap[make][yearStr]);
                 }
             }
         }
-
         // 3) Expansion coverage (make-level only for now)
         const baseMakeSet = new Set(Object.keys(map));
         let expandedMakeCount = 0;
