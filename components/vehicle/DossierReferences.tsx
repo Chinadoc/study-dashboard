@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import dossierManifest from '@/public/data/dossier_manifest.json';
+import React, { useState, useMemo, useEffect } from 'react';
 
 interface DossierSection {
     heading: string;
@@ -42,6 +41,15 @@ interface DossierReferencesProps {
 export default function DossierReferences({ make, year, sourceDocs = [] }: DossierReferencesProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [selectedDossier, setSelectedDossier] = useState<Dossier | null>(null);
+    const [rawDossiers, setRawDossiers] = useState<Dossier[]>([]);
+
+    // Fetch manifest at runtime from public dir
+    useEffect(() => {
+        fetch('/data/dossier_manifest.json')
+            .then(r => r.json())
+            .then((data: Dossier[]) => setRawDossiers(data))
+            .catch(() => { /* ignore */ });
+    }, []);
 
     // Helper to extract year-specific excerpts from dossier sections
     // Also matches sections by platform terms (e.g., "BDC3" for 2019+ BMW)
@@ -194,7 +202,7 @@ export default function DossierReferences({ make, year, sourceDocs = [] }: Dossi
 
     // Filter dossiers relevant to this vehicle
     const relevantDossiers = useMemo(() => {
-        const dossiers = dossierManifest as Dossier[];
+        const dossiers = rawDossiers;
         const makeFamily = getMakeFamily(make);
         const applicablePlatforms = getApplicablePlatforms(make, year);
 
@@ -259,7 +267,7 @@ export default function DossierReferences({ make, year, sourceDocs = [] }: Dossi
 
             return sourceDocMatch;
         });
-    }, [make, year, sourceDocs]);
+    }, [make, year, sourceDocs, rawDossiers]);
 
     // Don't render if no relevant dossiers
     if (relevantDossiers.length === 0) {

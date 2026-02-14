@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import dossierManifest from '@/public/data/dossier_manifest.json';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import TourBanner from '@/components/onboarding/TourBanner';
@@ -99,9 +98,14 @@ export default function DossierLibraryClient() {
   const [expandedDossier, setExpandedDossier] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [openedIds, setOpenedIds] = useState<string[]>([]);
+  const [rawDossiers, setRawDossiers] = useState<Dossier[]>([]);
 
-  // Load opened dossier IDs from localStorage on mount
+  // Fetch manifest + load opened IDs from localStorage on mount
   useEffect(() => {
+    fetch('/data/dossier_manifest.json')
+      .then(r => r.json())
+      .then((data: Dossier[]) => setRawDossiers(data))
+      .catch(() => { /* ignore – manifest unavailable */ });
     try {
       const stored = localStorage.getItem(OPENED_STORAGE_KEY);
       if (stored) setOpenedIds(JSON.parse(stored));
@@ -135,7 +139,7 @@ export default function DossierLibraryClient() {
   }, [hasDossiers, openedIds]);
 
   // Normalise manifest entries – some may have null/missing fields
-  const dossiers = (dossierManifest as Dossier[]).map((d) => ({
+  const dossiers = useMemo(() => rawDossiers.map((d) => ({
     ...d,
     title: d.title ?? '',
     makes: d.makes ?? [],
@@ -151,7 +155,7 @@ export default function DossierLibraryClient() {
       platforms: s.platforms ?? [],
       years: s.years ?? [],
     })),
-  }));
+  })), [rawDossiers]);
 
   // Filter dossiers based on search, topics, and make
   const filteredDossiers = useMemo(() => {
