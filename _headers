@@ -30,9 +30,9 @@
 /public/js/*
   Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=300
 
-# Data files - Edge cached, but shorter stale window
+# Data files - Always revalidate (manifests change with deploys)
 /data/*
-  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=3600
+  Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=60
 
 # Static assets - Long cache, immutable (icons, images - rarely change)
 /assets/*

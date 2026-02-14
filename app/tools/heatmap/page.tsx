@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
 
 /* ───────── types ───────── */
@@ -50,8 +50,11 @@ const EXP_TYPE_COLORS: Record<string, string> = {
 const CELL_COLORS = {
     none: 'bg-zinc-800/40 border border-zinc-800/60',
     base: 'bg-purple-500 hover:bg-purple-400 shadow-sm shadow-purple-500/30',
-    expansion: 'bg-blue-500 hover:bg-blue-400 shadow-sm shadow-blue-500/30',
+    expansion: 'bg-amber-500 hover:bg-amber-400 shadow-sm shadow-amber-500/30',
     dimmed: 'bg-zinc-700/30',  // covered but toggle off
+    // Confidence tiers
+    inferred: '',  // handled via inline style for diagonal stripes
+    claimed: '',   // hollow: border only
 };
 
 // Data cleanup: blacklist non-make entries & normalize duplicates
@@ -92,19 +95,27 @@ export default function ToolCoverageHeatmap() {
     const [showMobilePanel, setShowMobilePanel] = useState(false);
     const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
     const [expandedMake, setExpandedMake] = useState<string | null>(null);
+    // Feature: Function Lens
+    const [activeLens, setActiveLens] = useState<string | null>(null);
+    // Feature: Bidirectional cross-filtering
+    const [focusedMake, setFocusedMake] = useState<string | null>(null);
+    const [spotlightedGroup, setSpotlightedGroup] = useState<string | null>(null);
+    // Feature: Reality Mask (vehicle year ranges)
+    const [yearRanges, setYearRanges] = useState<Record<string, Record<string, [number, number]>>>({});
 
     useEffect(() => {
-        fetch('/data/tool_families.json')
-            .then(r => r.json())
-            .then(data => {
-                setFamilies(data);
-                // Auto-select the first family with the most expansions
-                const sorted = Object.entries(data as Record<string, ToolFamily>)
-                    .sort((a, b) => b[1].expansions.length - a[1].expansions.length);
-                if (sorted.length > 0) setSelectedFamily(sorted[0][0]);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
+        Promise.all([
+            fetch('/data/tool_families.json').then(r => r.json()),
+            fetch('/data/vehicle_year_ranges.json').then(r => r.json()).catch(() => ({})),
+        ]).then(([familyData, rangeData]) => {
+            setFamilies(familyData);
+            setYearRanges(rangeData);
+            // Auto-select the first family with the most expansions
+            const sorted = Object.entries(familyData as Record<string, ToolFamily>)
+                .sort((a, b) => b[1].expansions.length - a[1].expansions.length);
+            if (sorted.length > 0) setSelectedFamily(sorted[0][0]);
+            setLoading(false);
+        }).catch(() => setLoading(false));
     }, []);
 
     const family = families[selectedFamily];
@@ -136,35 +147,65 @@ export default function ToolCoverageHeatmap() {
 
     type CellData = {
         source: 'base' | 'expansion' | 'both';
+        confidence: 'explicit' | 'inferred' | 'claimed';
         functions: string[];
         ecu: string[];
         expansionNames: string[];
     };
 
-    // ── Build coverage map: make → bucket/year → { source, functions, ecu } ──
+    // ── Build coverage map: make → bucket/year → { source, functions, ecu, confidence } ──
     const { coverageMap, yearCoverageMap, allMakes, stats } = useMemo(() => {
-        if (!family) return { coverageMap: {} as Record<string, Record<string, CellData>>, yearCoverageMap: {} as Record<string, Record<string, CellData>>, allMakes: [] as string[], stats: { baseMakes: 0, expandedMakes: 0, totalCells: 0, litCells: 0 } };
+        if (!family) return { coverageMap: {} as Record<string, Record<string, CellData>>, yearCoverageMap: {} as Record<string, Record<string, CellData>>, allMakes: [] as string[], stats: { baseMakes: 0, expandedMakes: 0, totalCells: 0, litCells: 0, explicitCells: 0, inferredCells: 0, claimedCells: 0 } };
 
         const map: Record<string, Record<string, CellData>> = {};
-        // Per-year map for drill-down: make → "2021" → data
         const yearMap: Record<string, Record<string, CellData>> = {};
 
-        // 1) Base coverage from product descriptions (make-level)
+        // Helper: create a blank cell
+        const mkCell = (source: CellData['source'], confidence: CellData['confidence']): CellData => ({
+            source, confidence, functions: [], ecu: [], expansionNames: [],
+        });
+
+        // Helper: get year range for a make/model from reality mask
+        const getYearRange = (make: string, model?: string): [number, number] | null => {
+            // Try exact make match first, then case-insensitive
+            const makeData = yearRanges[make]
+                || yearRanges[make.toLowerCase()]
+                || Object.entries(yearRanges).find(([k]) => k.toLowerCase() === make.toLowerCase())?.[1];
+            if (!makeData) return null;
+            if (model) {
+                const range = makeData[model]
+                    || makeData[model.toLowerCase()]
+                    || Object.entries(makeData).find(([k]) => k.toLowerCase() === model.toLowerCase())?.[1];
+                if (range) return range as [number, number];
+            }
+            // Fall back to make-level range
+            return (makeData['_make'] as [number, number]) || null;
+        };
+
+        // Helper: check if a year is valid for a make/model
+        const isYearValid = (make: string, year: number, model?: string): boolean => {
+            const range = getYearRange(make, model);
+            if (!range) return true; // No data = allow (fail open)
+            return year >= range[0] && year <= range[1];
+        };
+
+        // 1) Base coverage from product descriptions (make-level → confidence: 'claimed')
         for (const rawMake of family.base_makes) {
             const make = normalizeMake(rawMake);
             if (!make) continue;
             if (!map[make]) map[make] = {};
             if (!yearMap[make]) yearMap[make] = {};
             for (const bucket of YEAR_BUCKETS) {
-                map[make][bucket.label] = {
-                    source: 'base',
-                    functions: [],
-                    ecu: [],
-                    expansionNames: [],
-                };
-                // Also fill individual years
+                // For claimed coverage, clip to make's known year range
+                let bucketHasValidYear = false;
                 for (let y = bucket.start; y <= bucket.end; y++) {
-                    yearMap[make][String(y)] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
+                    if (isYearValid(make, y)) {
+                        bucketHasValidYear = true;
+                        yearMap[make][String(y)] = mkCell('base', 'claimed');
+                    }
+                }
+                if (bucketHasValidYear) {
+                    map[make][bucket.label] = mkCell('base', 'claimed');
                 }
             }
         }
@@ -175,9 +216,8 @@ export default function ToolCoverageHeatmap() {
             if (!make) continue;
             if (!map[make]) map[make] = {};
             if (!yearMap[make]) yearMap[make] = {};
-            for (const [, yearData] of Object.entries(models)) {
+            for (const [modelName, yearData] of Object.entries(models)) {
                 for (const [yearStr, data] of Object.entries(yearData)) {
-                    // Helper to merge data into a cell
                     const mergeIntoCell = (cell: CellData) => {
                         if (data.functions) {
                             for (const f of data.functions) {
@@ -191,42 +231,56 @@ export default function ToolCoverageHeatmap() {
                         }
                     };
 
-                    // _all = all years supported → fill every bucket & individual year
+                    // _all = all years supported → confidence: 'inferred', clipped by reality mask
                     if (yearStr === '_all') {
                         for (const bucket of YEAR_BUCKETS) {
-                            if (!map[make][bucket.label]) {
-                                map[make][bucket.label] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
-                            }
-                            mergeIntoCell(map[make][bucket.label]);
+                            let bucketTouched = false;
                             for (let y = bucket.start; y <= bucket.end; y++) {
+                                // Reality Mask: skip years outside production range
+                                if (!isYearValid(make, y, modelName)) continue;
                                 const ys = String(y);
                                 if (!yearMap[make][ys]) {
-                                    yearMap[make][ys] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
+                                    yearMap[make][ys] = mkCell('base', 'inferred');
+                                } else if (yearMap[make][ys].confidence === 'claimed') {
+                                    yearMap[make][ys].confidence = 'inferred';
                                 }
                                 mergeIntoCell(yearMap[make][ys]);
+                                bucketTouched = true;
+                            }
+                            if (bucketTouched) {
+                                if (!map[make][bucket.label]) {
+                                    map[make][bucket.label] = mkCell('base', 'inferred');
+                                } else if (map[make][bucket.label].confidence === 'claimed') {
+                                    map[make][bucket.label].confidence = 'inferred';
+                                }
+                                mergeIntoCell(map[make][bucket.label]);
                             }
                         }
                         continue;
                     }
 
+                    // Specific year → confidence: 'explicit'
                     const year = parseInt(yearStr);
                     if (isNaN(year)) continue;
                     const bucket = YEAR_BUCKETS.find(b => year >= b.start && year <= b.end);
                     if (!bucket) continue;
-                    // Bucket level
                     if (!map[make][bucket.label]) {
-                        map[make][bucket.label] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
+                        map[make][bucket.label] = mkCell('base', 'explicit');
+                    } else {
+                        map[make][bucket.label].confidence = 'explicit'; // Upgrade to explicit
                     }
                     mergeIntoCell(map[make][bucket.label]);
-                    // Year level
                     if (!yearMap[make][yearStr]) {
-                        yearMap[make][yearStr] = { source: 'base', functions: [], ecu: [], expansionNames: [] };
+                        yearMap[make][yearStr] = mkCell('base', 'explicit');
+                    } else {
+                        yearMap[make][yearStr].confidence = 'explicit';
                     }
                     mergeIntoCell(yearMap[make][yearStr]);
                 }
             }
         }
-        // 3) Expansion coverage (make-level only for now)
+
+        // 3) Expansion coverage
         const baseMakeSet = new Set(Object.keys(map));
         let expandedMakeCount = 0;
 
@@ -242,7 +296,7 @@ export default function ToolCoverageHeatmap() {
                 if (!yearMap[make]) yearMap[make] = {};
                 for (const bucket of YEAR_BUCKETS) {
                     if (!map[make][bucket.label]) {
-                        map[make][bucket.label] = { source: 'expansion', functions: [], ecu: [], expansionNames: [] };
+                        map[make][bucket.label] = mkCell('expansion', 'claimed');
                     } else if (map[make][bucket.label].source === 'base') {
                         map[make][bucket.label].source = 'both';
                     }
@@ -252,11 +306,10 @@ export default function ToolCoverageHeatmap() {
                             map[make][bucket.label].functions.push(f);
                         }
                     }
-                    // Also fill individual years for expansion
                     for (let y = bucket.start; y <= bucket.end; y++) {
                         const ys = String(y);
                         if (!yearMap[make][ys]) {
-                            yearMap[make][ys] = { source: 'expansion', functions: [], ecu: [], expansionNames: [] };
+                            yearMap[make][ys] = mkCell('expansion', 'claimed');
                         } else if (yearMap[make][ys].source === 'base') {
                             yearMap[make][ys].source = 'both';
                         }
@@ -266,15 +319,20 @@ export default function ToolCoverageHeatmap() {
             }
         });
 
-        // Sort makes alphabetically
         const allMakes = Object.keys(map).sort();
 
-        // Stats
-        let litCells = 0;
+        // Stats (include confidence breakdown)
+        let litCells = 0; let explicitCells = 0; let inferredCells = 0; let claimedCells = 0;
         const totalCells = allMakes.length * YEAR_BUCKETS.length;
         for (const make of allMakes) {
             for (const bucket of YEAR_BUCKETS) {
-                if (map[make]?.[bucket.label]) litCells++;
+                const c = map[make]?.[bucket.label];
+                if (c) {
+                    litCells++;
+                    if (c.confidence === 'explicit') explicitCells++;
+                    else if (c.confidence === 'inferred') inferredCells++;
+                    else claimedCells++;
+                }
             }
         }
 
@@ -287,9 +345,12 @@ export default function ToolCoverageHeatmap() {
                 expandedMakes: expandedMakeCount,
                 totalCells,
                 litCells,
+                explicitCells,
+                inferredCells,
+                claimedCells,
             },
         };
-    }, [family, enabledExpansions]);
+    }, [family, enabledExpansions, yearRanges]);
 
     // Build make hierarchy: group model-level entries under parent makes
     type MakeRow = { key: string; label: string; isParent: boolean; children: string[]; indent: boolean };
@@ -597,6 +658,15 @@ export default function ToolCoverageHeatmap() {
                                 </button>
                             )}
 
+                            {/* Focused make filter pill */}
+                            {focusedMake && (
+                                <div className="flex items-center gap-1 mb-2 bg-purple-500/10 border border-purple-500/30 rounded-lg px-2 py-1">
+                                    <span className="text-[10px] text-purple-300">Filtering by:</span>
+                                    <span className="text-[10px] font-bold text-white">{focusedMake}</span>
+                                    <button onClick={() => setFocusedMake(null)} className="text-purple-400 hover:text-white ml-auto text-xs">✕</button>
+                                </div>
+                            )}
+
                             {/* Grouped expansion toggles */}
                             <div className="space-y-1 max-h-[calc(100vh-520px)] overflow-y-auto pr-1">
                                 {expansionGroups.map(group => {
@@ -605,15 +675,22 @@ export default function ToolCoverageHeatmap() {
                                     const isPartial = count > 0 && !isAll;
                                     const isNone = count === 0;
                                     const isExpanded = expandedGroup === group.key;
+                                    // Cross-filtering: hide groups that don't match focused make
+                                    if (focusedMake && !group.makes.some(m => m.toLowerCase() === focusedMake.toLowerCase())) return null;
+                                    const isSpotlighted = spotlightedGroup === group.key;
                                     const primaryType = [...group.types][0] || 'addon';
 
                                     return (
-                                        <div key={group.key}>
+                                        <div
+                                            key={group.key}
+                                            onMouseEnter={() => setSpotlightedGroup(group.key)}
+                                            onMouseLeave={() => setSpotlightedGroup(null)}
+                                        >
                                             <div className="flex items-stretch gap-0.5">
                                                 {/* Toggle button */}
                                                 <button
                                                     onClick={() => toggleGroup(group)}
-                                                    className={`flex-1 text-left rounded-lg border p-2 transition-all ${isAll
+                                                    className={`flex-1 text-left rounded-lg border p-2 transition-all ${isSpotlighted ? 'ring-1 ring-purple-400/50' : ''} ${isAll
                                                         ? EXP_TYPE_COLORS[primaryType] + ' border-opacity-100'
                                                         : isPartial
                                                             ? 'border-purple-500/30 bg-purple-500/5 text-zinc-300'
@@ -717,16 +794,28 @@ export default function ToolCoverageHeatmap() {
 
                             {/* Legend */}
                             <div className="mt-3 bg-zinc-900/50 border border-zinc-800 rounded-lg p-2">
-                                <div className="text-[10px] text-zinc-500 font-medium mb-1">Legend</div>
-                                <div className="flex flex-wrap gap-2 text-[9px]">
+                                <div className="text-[10px] text-zinc-500 font-medium mb-1">Coverage Source</div>
+                                <div className="flex flex-wrap gap-2 text-[9px] mb-2">
                                     <span className="flex items-center gap-1">
                                         <span className="w-3 h-3 rounded bg-purple-500" /> Base
                                     </span>
                                     <span className="flex items-center gap-1">
-                                        <span className="w-3 h-3 rounded bg-blue-500" /> Add-on
+                                        <span className="w-3 h-3 rounded bg-amber-500" /> Add-on
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <span className="w-3 h-3 rounded bg-zinc-800/40 border border-zinc-700" /> None
+                                    </span>
+                                </div>
+                                <div className="text-[10px] text-zinc-500 font-medium mb-1">Confidence</div>
+                                <div className="flex flex-wrap gap-2 text-[9px]">
+                                    <span className="flex items-center gap-1">
+                                        <span className="w-3 h-3 rounded bg-purple-500" /> Verified
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <span className="w-3 h-3 rounded" style={{ background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(168,85,247,0.3) 2px, rgba(168,85,247,0.3) 4px)', border: '1px solid rgba(168,85,247,0.4)' }} /> Inferred
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <span className="w-3 h-3 rounded border-2 border-purple-500/40 bg-transparent" /> Claimed
                                     </span>
                                 </div>
                             </div>
@@ -741,7 +830,32 @@ export default function ToolCoverageHeatmap() {
 
                         {/* ── Right: Heatmap Grid ── */}
                         <div className="w-full min-w-0" style={{ overflow: 'auto' }}>
-                            {/* Filter */}
+                            {/* Function Lens filter */}
+                            <div className="flex flex-wrap gap-1 mb-3 sticky top-0 z-20 bg-zinc-950/90 backdrop-blur-sm py-2 -mx-1 px-1">
+                                <button
+                                    onClick={() => setActiveLens(null)}
+                                    className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all ${!activeLens
+                                        ? 'bg-purple-600/30 border-purple-500 text-purple-200 shadow-sm shadow-purple-500/20'
+                                        : 'border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                                        }`}
+                                >
+                                    👁️ All
+                                </button>
+                                {Object.entries(FUNC_DISPLAY).map(([key, fd]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setActiveLens(activeLens === key ? null : key)}
+                                        className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all ${activeLens === key
+                                            ? `bg-zinc-800 border-current ${fd.color} shadow-sm`
+                                            : 'border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                                            }`}
+                                    >
+                                        {fd.icon} {fd.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Filter + stats */}
                             <div className="flex items-center gap-3 mb-3">
                                 <input
                                     type="text"
@@ -751,6 +865,11 @@ export default function ToolCoverageHeatmap() {
                                     className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500 outline-none"
                                 />
                                 <span className="text-xs text-zinc-500">{filteredRows.length} makes</span>
+                                {stats.explicitCells > 0 && (
+                                    <span className="text-[9px] text-purple-400/60 hidden lg:inline" title={`${stats.explicitCells} verified, ${stats.inferredCells} inferred, ${stats.claimedCells} claimed`}>
+                                        ✓{stats.explicitCells} ◐{stats.inferredCells} ○{stats.claimedCells}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Heatmap */}
@@ -797,53 +916,132 @@ export default function ToolCoverageHeatmap() {
                                             const rows: React.ReactNode[] = [];
 
                                             // Helper to render a single make/model row
-                                            const renderRow = (make: string, label: string, indent: boolean, isParentRow: boolean, hasChildren: boolean) => (
-                                                <tr key={make} className="group">
-                                                    <td
-                                                        className={`text-xs font-medium py-0.5 pr-2 sticky left-0 bg-zinc-950 z-10 group-hover:text-white transition-colors ${indent ? 'text-zinc-500 pl-4' : 'text-zinc-300'} ${hasChildren ? 'cursor-pointer hover:text-purple-300' : ''}`}
-                                                        onClick={hasChildren ? () => setExpandedMake(isExpanded ? null : make) : undefined}
-                                                    >
-                                                        {hasChildren && <span className="opacity-40 mr-0.5 text-[10px]">{isExpanded ? '▾' : '▸'}</span>}
-                                                        {indent && <span className="opacity-30 mr-1">└</span>}
-                                                        {label}
-                                                        {hasChildren && !isExpanded && <span className="text-[9px] text-zinc-600 ml-1">({row.children.length})</span>}
-                                                    </td>
-                                                    {columns.map(col => {
-                                                        const cell = col.isYear
-                                                            ? yearCoverageMap[make]?.[col.key]
-                                                            : coverageMap[make]?.[col.key];
-                                                        const cellColor = cell
-                                                            ? cell.source === 'expansion'
-                                                                ? CELL_COLORS.expansion
-                                                                : CELL_COLORS.base
-                                                            : CELL_COLORS.none;
+                                            // Spotlight dimming: dim rows not in the spotlighted group
+                                            const spotlightedMakes = spotlightedGroup
+                                                ? expansionGroups.find(g => g.key === spotlightedGroup)?.makes.map(m => m.toLowerCase()) || []
+                                                : [];
+                                            const isRowDimmed = spotlightedGroup
+                                                ? !spotlightedMakes.includes(row.key.toLowerCase()) && !row.children.some(c => spotlightedMakes.includes(c.toLowerCase()))
+                                                : false;
 
-                                                        return (
-                                                            <td key={col.key} className={`py-0.5 px-0.5 ${col.isYear ? 'bg-amber-950/5' : ''}`}>
-                                                                <div
-                                                                    className={`${indent ? 'h-5' : 'h-6'} rounded-sm cursor-pointer transition-all duration-300 ${cellColor} relative`}
-                                                                    onMouseEnter={(e) => {
-                                                                        setHoveredCell({ make, bucket: col.key });
-                                                                        const rect = e.currentTarget.getBoundingClientRect();
-                                                                        setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 8 });
-                                                                    }}
-                                                                    onMouseLeave={() => {
-                                                                        setHoveredCell(null);
-                                                                        setTooltipPos(null);
-                                                                    }}
-                                                                >
-                                                                    {cell && cell.source === 'both' && (
-                                                                        <div className="absolute inset-0 rounded-sm overflow-hidden">
-                                                                            <div className="absolute inset-0 bg-purple-500" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
-                                                                            <div className="absolute inset-0 bg-blue-500" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                        );
-                                                    })}
-                                                </tr>
-                                            );
+                                            const renderRow = (make: string, label: string, indent: boolean, isParentRow: boolean, hasChildren: boolean) => {
+                                                // Get active lens function display info
+                                                const lensInfo = activeLens ? FUNC_DISPLAY[activeLens] : null;
+                                                const lensColor = lensInfo?.color?.replace('text-', '') || 'purple-400';
+                                                // Map text color class to bg/border colors
+                                                const lensColorMap: Record<string, { bg: string; border: string; shadow: string }> = {
+                                                    'green-400': { bg: 'bg-green-500', border: 'border-green-500', shadow: 'shadow-green-500/30' },
+                                                    'red-400': { bg: 'bg-red-500', border: 'border-red-500', shadow: 'shadow-red-500/30' },
+                                                    'cyan-400': { bg: 'bg-cyan-500', border: 'border-cyan-500', shadow: 'shadow-cyan-500/30' },
+                                                    'yellow-400': { bg: 'bg-yellow-500', border: 'border-yellow-500', shadow: 'shadow-yellow-500/30' },
+                                                    'orange-400': { bg: 'bg-orange-500', border: 'border-orange-500', shadow: 'shadow-orange-500/30' },
+                                                    'purple-400': { bg: 'bg-purple-500', border: 'border-purple-500', shadow: 'shadow-purple-500/30' },
+                                                    'blue-400': { bg: 'bg-blue-500', border: 'border-blue-500', shadow: 'shadow-blue-500/30' },
+                                                    'pink-400': { bg: 'bg-pink-500', border: 'border-pink-500', shadow: 'shadow-pink-500/30' },
+                                                    'amber-400': { bg: 'bg-amber-500', border: 'border-amber-500', shadow: 'shadow-amber-500/30' },
+                                                };
+                                                const lc = lensColorMap[lensColor] || lensColorMap['purple-400'];
+
+                                                return (
+                                                    <tr key={make} className={`group transition-opacity duration-200 ${isRowDimmed ? 'opacity-20' : ''}`}>
+                                                        <td
+                                                            className={`text-xs font-medium py-0.5 pr-2 sticky left-0 bg-zinc-950 z-10 group-hover:text-white transition-colors ${indent ? 'text-zinc-500 pl-4' : 'text-zinc-300'} ${hasChildren || !indent ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                                            onClick={() => {
+                                                                if (hasChildren) setExpandedMake(isExpanded ? null : make);
+                                                                else if (!indent) setFocusedMake(focusedMake === make ? null : make);
+                                                            }}
+                                                        >
+                                                            {hasChildren && <span className="opacity-40 mr-0.5 text-[10px]">{isExpanded ? '▾' : '▸'}</span>}
+                                                            {indent && <span className="opacity-30 mr-1">└</span>}
+                                                            {label}
+                                                            {hasChildren && !isExpanded && <span className="text-[9px] text-zinc-600 ml-1">({row.children.length})</span>}
+                                                            {focusedMake === make && <span className="text-[8px] text-purple-400 ml-1">🔍</span>}
+                                                        </td>
+                                                        {columns.map(col => {
+                                                            const cell = col.isYear
+                                                                ? yearCoverageMap[make]?.[col.key]
+                                                                : coverageMap[make]?.[col.key];
+
+                                                            // ── Determine cell visual state ──
+                                                            let cellClass = '';
+                                                            let cellStyle: React.CSSProperties = {};
+                                                            let cellIcon = '';
+                                                            let isNewExpansion = false;
+
+                                                            if (activeLens) {
+                                                                // 4-State Lens Mode
+                                                                const hasLensFunc = cell?.functions.includes(activeLens);
+                                                                if (!cell) {
+                                                                    // State 4: Total miss
+                                                                    cellClass = CELL_COLORS.none;
+                                                                } else if (!hasLensFunc) {
+                                                                    // State 3: Partial miss (has coverage but not this function)
+                                                                    cellClass = 'bg-zinc-800/30';
+                                                                } else if (cell.source === 'expansion') {
+                                                                    // State 2: Available via expansion (dashed border)
+                                                                    cellClass = `bg-transparent border-2 border-dashed ${lc.border}`;
+                                                                    cellIcon = lensInfo?.icon || '';
+                                                                } else {
+                                                                    // State 1: Covered & owned (solid fill)
+                                                                    cellClass = `${lc.bg} hover:brightness-110 shadow-sm ${lc.shadow}`;
+                                                                    cellIcon = lensInfo?.icon || '';
+                                                                }
+                                                            } else {
+                                                                // Default mode with confidence tiers + gold expansion
+                                                                if (!cell) {
+                                                                    cellClass = CELL_COLORS.none;
+                                                                } else if (cell.source === 'expansion') {
+                                                                    cellClass = CELL_COLORS.expansion;
+                                                                    isNewExpansion = true;
+                                                                } else if (cell.source === 'both') {
+                                                                    cellClass = 'relative overflow-hidden rounded-sm'; // handled below with clip-paths
+                                                                } else {
+                                                                    // Base coverage — apply confidence visual
+                                                                    if (cell.confidence === 'explicit') {
+                                                                        cellClass = CELL_COLORS.base;
+                                                                    } else if (cell.confidence === 'inferred') {
+                                                                        cellClass = 'border border-purple-500/40';
+                                                                        cellStyle = {
+                                                                            background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(168,85,247,0.25) 2px, rgba(168,85,247,0.25) 4px)',
+                                                                        };
+                                                                    } else {
+                                                                        // claimed: hollow
+                                                                        cellClass = 'border-2 border-purple-500/40 bg-transparent';
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            return (
+                                                                <td key={col.key} className={`py-0.5 px-0.5 ${col.isYear ? 'bg-amber-950/5' : ''}`}>
+                                                                    <div
+                                                                        className={`${indent ? 'h-5' : 'h-6'} rounded-sm cursor-pointer transition-all duration-300 ${cellClass} relative flex items-center justify-center ${isNewExpansion ? 'animate-[pulse_0.6s_ease-out]' : ''}`}
+                                                                        style={cellStyle}
+                                                                        onMouseEnter={(e) => {
+                                                                            setHoveredCell({ make, bucket: col.key });
+                                                                            const rect = e.currentTarget.getBoundingClientRect();
+                                                                            setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 8 });
+                                                                        }}
+                                                                        onMouseLeave={() => {
+                                                                            setHoveredCell(null);
+                                                                            setTooltipPos(null);
+                                                                        }}
+                                                                    >
+                                                                        {/* Lens mode icon */}
+                                                                        {cellIcon && <span className="text-[8px] leading-none">{cellIcon}</span>}
+                                                                        {/* Split diagonal for 'both' in default mode */}
+                                                                        {!activeLens && cell && cell.source === 'both' && (
+                                                                            <>
+                                                                                <div className="absolute inset-0 bg-purple-500" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
+                                                                                <div className="absolute inset-0 bg-amber-500" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                );
+                                            };
 
                                             // Parent row
                                             rows.push(renderRow(row.key, row.label, false, true, row.isParent));
@@ -888,14 +1086,16 @@ export default function ToolCoverageHeatmap() {
                         <div className="font-bold text-white mb-1">
                             {hoveredCell.make} · {isYear ? hoveredCell.bucket : hoveredCell.bucket}
                         </div>
-                        <div className="text-amber-400/70 text-[9px] mb-1 italic">Manufacturer-claimed</div>
-                        <div className="flex items-center gap-1 mb-1">
-                            <span className={`text-[9px] px-1.5 py-0.5 rounded ${cellData.source === 'base' ? 'bg-purple-500/20 text-purple-300' : cellData.source === 'expansion' ? 'bg-blue-500/20 text-blue-300' : 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-zinc-200'}`}>
+                        <div className="flex items-center gap-1.5 mb-1">
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded ${cellData.source === 'base' ? 'bg-purple-500/20 text-purple-300' : cellData.source === 'expansion' ? 'bg-amber-500/20 text-amber-300' : 'bg-gradient-to-r from-purple-500/20 to-amber-500/20 text-zinc-200'}`}>
                                 {cellData.source === 'base' ? '⬣ Base' : cellData.source === 'expansion' ? '🔌 Add-on' : '⬣ Base + 🔌 Add-on'}
+                            </span>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded ${cellData.confidence === 'explicit' ? 'bg-green-500/20 text-green-300' : cellData.confidence === 'inferred' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-zinc-700/50 text-zinc-400'}`}>
+                                {cellData.confidence === 'explicit' ? '✓ Verified' : cellData.confidence === 'inferred' ? '◐ Inferred' : '○ Claimed'}
                             </span>
                         </div>
                         {cellData.source !== 'base' && cellData.expansionNames.length > 0 && (
-                            <div className="text-blue-300/70 text-[9px] mb-1 truncate max-w-[250px]">
+                            <div className="text-amber-300/70 text-[9px] mb-1 truncate max-w-[250px]">
                                 Via: {cellData.expansionNames.slice(0, 2).join(', ')}
                             </div>
                         )}

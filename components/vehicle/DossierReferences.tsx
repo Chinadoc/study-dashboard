@@ -199,6 +199,7 @@ export default function DossierReferences({ make, year, sourceDocs = [] }: Dossi
         const applicablePlatforms = getApplicablePlatforms(make, year);
 
         return dossiers.filter(dossier => {
+            if (!dossier.title) return false;
             const titleLower = dossier.title.toLowerCase();
 
             // 1. TITLE-BASED MATCH: Dossier title contains make or make family

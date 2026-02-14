@@ -22,7 +22,7 @@ export interface Tool {
     description: string;
 
     // Coverage mapping - which tool keys in coverage heatmap this maps to
-    coverageKey?: 'autel' | 'smartPro' | 'lonsdor' | 'vvdi';
+    coverageKey?: 'autel' | 'smartPro' | 'lonsdor' | 'vvdi' | 'obdstar' | 'lock50' | 'kr55' | 'yanhua' | 'keydiy' | 'cgdi';
 
     // Vehicle compatibility (for Lishi/decoders)
     vehicleMakes?: string[];
@@ -84,6 +84,7 @@ export const PROGRAMMING_TOOLS: Tool[] = [
         icon: '🟢',
         color: '#22c55e',
         description: 'Nissan blacklist detection. Gateway bypasses. Marine/motorcycle.',
+        coverageKey: 'obdstar',
         msrp: 3299,
         subscriptionRequired: true,
         subscriptionCost: 799,
@@ -112,6 +113,85 @@ export const PROGRAMMING_TOOLS: Tool[] = [
         msrp: 4499,
         subscriptionRequired: true,
         subscriptionCost: 1200,
+    },
+    {
+        id: 'lock50_hw04c',
+        name: 'Lock50 HW04-C',
+        shortName: 'Lock50',
+        category: 'programmer',
+        icon: '🟤',
+        color: '#92400e',
+        description: 'Jaguar/Land Rover specialist. OBD key programming, RFA/BCM module handling.',
+        coverageKey: 'lock50',
+        msrp: 1999,
+        subscriptionRequired: true,
+        subscriptionCost: 200,
+    },
+    {
+        id: 'kr55',
+        name: 'KR55 Key Programmer',
+        shortName: 'KR55',
+        category: 'programmer',
+        icon: '🟡',
+        color: '#ca8a04',
+        description: 'Mercedes/Chrysler/Dodge specialist. EZS programming, radio channel, Sprinter.',
+        coverageKey: 'kr55',
+        msrp: 1499,
+        subscriptionRequired: true,
+        subscriptionCost: 150,
+    },
+    // === YANHUA ACDP (BMW/Benz bench specialist) ===
+    {
+        id: 'yanhua_acdp2',
+        name: 'Yanhua ACDP 2',
+        shortName: 'ACDP',
+        category: 'programmer',
+        icon: '🔶',
+        color: '#d97706',
+        description: 'BMW/Mercedes bench specialist. CAS1-CAS4+, FEM/BDC, EIS/ELV. Module-based licensing.',
+        coverageKey: 'yanhua',
+        msrp: 1199,
+        subscriptionRequired: false,
+    },
+    // === KEYDIY (entry-level transponder) ===
+    {
+        id: 'keydiy_kdx2',
+        name: 'KEYDIY KD-X2',
+        shortName: 'KD-X2',
+        category: 'programmer',
+        icon: '🟦',
+        color: '#2563eb',
+        description: 'Budget transponder programmer. Chip cloning, remote generation. Toyota 8A/4D support.',
+        coverageKey: 'keydiy',
+        msrp: 329,
+        subscriptionRequired: false,
+    },
+    // === CGDI (Mercedes/BMW specialist) ===
+    {
+        id: 'cgdi_mb',
+        name: 'CGDI MB',
+        shortName: 'CGDI MB',
+        category: 'programmer',
+        icon: '🟪',
+        color: '#7c3aed',
+        description: 'Mercedes specialist. FBS3 AKL, EIS/ELV repair, online key calculation.',
+        coverageKey: 'cgdi',
+        msrp: 699,
+        subscriptionRequired: true,
+        subscriptionCost: 299,
+    },
+    {
+        id: 'cgdi_prog_bmw',
+        name: 'CGDI Prog BMW',
+        shortName: 'CGDI BMW',
+        category: 'programmer',
+        icon: '🟪',
+        color: '#6d28d9',
+        description: 'BMW specialist. CAS/FEM/BDC key programming. MSV80 ISN read. F-series AKL.',
+        coverageKey: 'cgdi',
+        msrp: 599,
+        subscriptionRequired: true,
+        subscriptionCost: 199,
     },
 ];
 

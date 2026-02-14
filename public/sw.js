@@ -1,5 +1,5 @@
-// v24 - Added background sync for offline job operations
-const CACHE_NAME = 'euro-keys-v24';
+// v25 - Fix: /data/ paths now network-first to prevent stale gallery manifest
+const CACHE_NAME = 'euro-keys-v25';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -250,17 +250,18 @@ self.addEventListener('fetch', (event) => {
         url.pathname.includes('/api/auth/') ||
         url.pathname.includes('/api/admin/');
 
-    // Main Page, Browse, Vehicle & API: Network-first (always get fresh content)
+    // Main Page, Browse, Vehicle, API & Data files: Network-first (always get fresh content)
     const isMainPage = url.pathname === '/' || url.pathname === '/index.html';
     const isBrowseOrVehicle = url.pathname.startsWith('/browse') || url.pathname.startsWith('/vehicle');
     const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
+    const isDataFile = url.pathname.startsWith('/data/');
 
     if (isSensitiveApi) {
         event.respondWith(fetch(request)); // Pure network, no cache
         return;
     }
 
-    if (isMainPage || isBrowseOrVehicle || isApi) {
+    if (isMainPage || isBrowseOrVehicle || isApi || isDataFile) {
         event.respondWith(
             fetch(request)
                 .then((response) => {

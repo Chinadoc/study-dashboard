@@ -14,6 +14,12 @@ interface ToolCoverageProps {
         smartpro: string | null;
         lonsdor: string | null;
         vvdi: string | null;
+        obdstar?: string | null;
+        lock50?: string | null;
+        kr55?: string | null;
+        yanhua?: string | null;
+        keydiy?: string | null;
+        cgdi?: string | null;
         details: Record<string, ToolDetail> | null;
     };
     security?: {
@@ -61,6 +67,12 @@ export default function ToolCoverageBadges({ coverage, security, programming, ee
         { name: 'SmartPro', status: coverage.smartpro },
         { name: 'Lonsdor', status: coverage.lonsdor },
         { name: 'VVDI', status: coverage.vvdi },
+        { name: 'OBDStar', status: coverage.obdstar || null },
+        { name: 'Lock50', status: coverage.lock50 || null },
+        { name: 'KR55', status: coverage.kr55 || null },
+        { name: 'ACDP', status: coverage.yanhua || null },
+        { name: 'KEYDIY', status: coverage.keydiy || null },
+        { name: 'CGDI', status: coverage.cgdi || null },
     ];
 
     const hasAnyTool = primaryTools.some(t => t.status);

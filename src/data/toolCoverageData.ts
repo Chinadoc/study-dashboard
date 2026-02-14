@@ -111,6 +111,11 @@ export const TOOL_NAMES = {
     lonsdor: 'Lonsdor K518',
     vvdi: 'VVDI Key Tool',
     obdstar: 'OBDSTAR',
+    lock50: 'Lock50',
+    kr55: 'KR55',
+    yanhua: 'Yanhua ACDP',
+    keydiy: 'KEYDIY',
+    cgdi: 'CGDI',
 } as const;
 
 export type ToolKey = keyof typeof TOOL_NAMES;
@@ -123,5 +128,10 @@ export function getToolStatuses(record: ToolCoverageRecord): Record<ToolKey, Cov
         lonsdor: getCoverageStatus(record.lonsdorStatus),
         vvdi: getCoverageStatus(record.vvdiStatus),
         obdstar: getCoverageStatus(record.obdstarStatus),
+        lock50: getCoverageStatus((record as any).lock50Status),
+        kr55: getCoverageStatus((record as any).kr55Status),
+        yanhua: getCoverageStatus((record as any).yanhuaStatus),
+        keydiy: getCoverageStatus((record as any).keydiyStatus),
+        cgdi: getCoverageStatus((record as any).cgdiStatus),
     };
 }

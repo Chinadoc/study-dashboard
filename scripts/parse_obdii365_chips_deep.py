@@ -196,21 +196,30 @@ def parse_html_file(filepath: Path) -> dict:
     h1 = soup.find('h1')
     product_name = h1.get_text().strip() if h1 else title
     
-    # Get full page text for chip extraction
-    body_text = soup.get_text(separator=" ", strip=True)
+    # Get product description div for more targeted extraction
+    desc_div = soup.find('div', {'id': 'xri_ProDt_Description'})
+    if not desc_div:
+        # Try alternative description selectors
+        desc_div = soup.find('div', {'class': 'product-description'}) or \
+                   soup.find('div', {'class': 'tab-content'}) or \
+                   soup.find('div', {'id': 'description'})
+    description_text = desc_div.get_text(separator=" ", strip=True) if desc_div else ""
     
-    # Extract chips from general text
-    chips_found = extract_chips_from_text(body_text)
+    # Use description + title for chip extraction (NOT full body text, which contains
+    # site-wide tag clouds like "BMW BDC3" that cause false positives on every page)
+    chip_search_text = product_name + " " + title + " " + description_text
+    
+    # Extract chips from description text only
+    chips_found = extract_chips_from_text(chip_search_text)
     
     # Extract chips from structured tables
     table_chips = extract_table_chip_data(soup)
     
-    # Extract feature keywords
-    features = extract_feature_keywords(body_text)
+    # Full body text for broader feature keywords only
+    body_text = soup.get_text(separator=" ", strip=True)
     
-    # Get product description div for more targeted extraction
-    desc_div = soup.find('div', {'id': 'xri_ProDt_Description'})
-    description_text = desc_div.get_text(separator=" ", strip=True) if desc_div else ""
+    # Extract feature keywords (these are less sensitive to false positives)
+    features = extract_feature_keywords(chip_search_text)
     
     # Extract price if available
     price = None

@@ -69,6 +69,7 @@ export interface JobLog {
     acceptedAt?: number;     // When auto-transitioned from appointment
     startedAt?: number;      // When work began (in_progress)
     completedAt?: number;    // When job finished
+    paidAt?: number;         // When payment was received
 
     // Audit trail
     createdBy?: string;      // Name of user who created the job
@@ -97,6 +98,9 @@ export interface JobLog {
     toolId?: string;               // Owned tool ID used on this job
     toolUsed?: string;             // Human-readable tool name
     toolCapabilityNote?: string;   // Field note attached when verifying capability
+
+    // Tax tracking
+    taxArea?: string;              // Service area name for sales tax lookup
 
     // Sync metadata
     updatedAt?: number;       // Timestamp of last modification
@@ -128,6 +132,7 @@ export interface JobStats {
 
     // Job status counts
     pendingJobs: number;
+    pendingRevenue: number;
     completedJobs: number;
 
     // Labor metrics
@@ -1081,16 +1086,23 @@ export function useJobLogs() {
             }
         });
 
-        // Calculate totals
-        const totalRevenue = jobLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const totalPartsCost = jobLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
+        // Helper: check if a job is considered "earned" (completed/closed)
+        const isEarned = (log: JobLog) => log.status === 'completed' || log.status === 'closed';
+
+        // Calculate totals — only count completed/closed jobs in revenue
+        const earnedJobs = jobLogs.filter(isEarned);
+        const totalRevenue = earnedJobs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const totalPartsCost = earnedJobs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
         const totalProfit = totalRevenue - totalPartsCost;
 
-        const thisWeekRevenue = thisWeekLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const thisMonthRevenue = thisMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const thisMonthPartsCost = thisMonthLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
+        // Pending revenue (tracked separately for visibility)
+        const pendingRevenue = jobLogs.filter(log => !isEarned(log) && log.status !== 'cancelled').reduce((sum, log) => sum + (log.price || 0), 0);
+
+        const thisWeekRevenue = thisWeekLogs.filter(isEarned).reduce((sum, log) => sum + (log.price || 0), 0);
+        const thisMonthRevenue = thisMonthLogs.filter(isEarned).reduce((sum, log) => sum + (log.price || 0), 0);
+        const thisMonthPartsCost = thisMonthLogs.filter(isEarned).reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
         const thisMonthProfit = thisMonthRevenue - thisMonthPartsCost;
-        const lastMonthRevenue = lastMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const lastMonthRevenue = lastMonthLogs.filter(isEarned).reduce((sum, log) => sum + (log.price || 0), 0);
 
         // Top vehicles and keys
         const topVehicles = Object.entries(vehicleCounts)
@@ -1112,7 +1124,7 @@ export function useJobLogs() {
         return {
             totalJobs: jobLogs.length,
             totalRevenue,
-            avgJobValue: jobLogs.length > 0 ? totalRevenue / jobLogs.length : 0,
+            avgJobValue: earnedJobs.length > 0 ? totalRevenue / earnedJobs.length : 0,
             thisWeekJobs: thisWeekLogs.length,
             thisWeekRevenue,
             thisMonthJobs: thisMonthLogs.length,
@@ -1125,10 +1137,11 @@ export function useJobLogs() {
 
             totalPartsCost,
             totalProfit,
-            avgProfit: jobLogs.length > 0 ? totalProfit / jobLogs.length : 0,
+            avgProfit: earnedJobs.length > 0 ? totalProfit / earnedJobs.length : 0,
             thisMonthProfit,
 
             pendingJobs,
+            pendingRevenue,
             completedJobs,
             avgLaborMinutes: laborJobCount > 0 ? totalLaborMinutes / laborJobCount : 0,
             referralSources,

@@ -35,6 +35,10 @@
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
 
+# Data files - Always revalidate (manifests change with deploys)
+/data/*
+  Cache-Control: public, max-age=0, must-revalidate
+
 # FCC, Guides, Inventory pages - Moderate cache
 /fcc/*
   Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=60

@@ -140,8 +140,8 @@ const KEYWAY_RULES: Record<string, {
         hint: '🚪 Nissan NSN14: 10-pos, 4 depths, MACS=2. Door P3-10. P1=3 fixed (dummy cut — Lishi/forensic confirmed). Progress P2 only.'
     },
     'DA34': {
-        macsFallback: 3,
-        hint: '💡 Nissan/Infiniti DA34: 10-cut edge, 4 depths, MACS=3. Older single-sided key (pre-NSN14). Altima/Sentra ~2002–2012. No door/ign split. Lishi DA34 available.'
+        macsOverride: 2,
+        hint: '💡 Nissan/Infiniti DA34: 10-cut edge, 4 depths, MACS=2 (Brandt 2025 verified). Older single-sided key (pre-NSN14). Altima/Sentra ~2002–2012. No door/ign split. Lishi DA34 available.'
     },
     // === MERCEDES ===
     'HU64': {
@@ -157,11 +157,11 @@ const KEYWAY_RULES: Record<string, {
     },
     // === HONDA ===
     'HON66': {
-        macsFallback: 3,
+        macsOverride: 2,
         fixedPositions: { 6: 1 },
         doorOnly: [1, 2, 3, 4, 5, 6],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7, 8],
-        hint: '💡 Honda HON66: MACS=3. P6 always depth 1 (Brandt). Door 6-cut (6 split wafers), Ign 8-cut (+2 whole plates).'
+        hint: '⚠️ Honda HON66: MACS=2 (Brandt 2025 — auto only; MACS=3 is motorcycle spec). P6 always depth 1. Door 6-cut (6 split wafers), Ign 8-cut (+2 whole plates). 1→4 adjacent FORBIDDEN — web fracture risk.'
     },
     // === TOYOTA / LEXUS ===
     'TOY43': {
@@ -178,11 +178,11 @@ const KEYWAY_RULES: Record<string, {
     },
     // === FIAT / PSA ===
     'SIP22': {
-        macsFallback: 2,
+        macsOverride: 999,
         doorOnly: [1, 2, 3, 4, 5, 6, 7, 8],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         codeSeries: 'DE0001–DE11210',
-        hint: '🚪 Fiat SIP22: MACS=2, 4 depths (A-D). Door P1-8, Ign P1-10. ⚠️ Early Punto: P1 empty (7-wafer).'
+        hint: '🚪 Fiat SIP22: MACS=None (Brandt 2025 verified), 4 depths (A-D). Door P1-8, Ign P1-10. ⚠️ Early Punto: P1 empty (7-wafer).'
     },
     'VA2T': {
         macsFallback: 2,
@@ -218,10 +218,10 @@ const KEYWAY_RULES: Record<string, {
     },
     // === MAZDA ===
     'MAZ24': {
-        macsFallback: 3,
+        macsOverride: 2,
         doorOnly: [3, 4, 5, 6, 7, 8, 9, 10],
         ignitionOnly: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        hint: '🚪 Mazda MAZ24: 10-cut, 5 depths, MACS=3. Door P3-10 (P1-P2 blind). Ign P1-10. Progress missing P1-P2 from door decode.'
+        hint: '🚪 Mazda MAZ24: 10-cut, 5 depths, MACS=2 (Brandt 2025 verified). Door P3-10 (P1-P2 blind). Ign P1-10. Progress missing P1-P2 from door decode.'
     },
     'MAZ24R': {
         hint: '⚠️ Mazda MAZ24R: REVERSED mirror of MAZ24. Wrong blank = destroyed key!'
@@ -444,6 +444,7 @@ export default function BittingCalculator({
     const [matchingCodes, setMatchingCodes] = useState<string[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+    const [infoExpanded, setInfoExpanded] = useState(false);
 
     // Refs for auto-advance
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -496,6 +497,32 @@ export default function BittingCalculator({
         positions.map((v, i) => v > 0 ? i : -1).filter(i => i >= 0),
         [positions]
     );
+
+    // Smart workflow: detect when all door positions are filled and blind cuts remain
+    const blindPositionInfo = useMemo(() => {
+        if (!rules?.doorOnly || !rules?.ignitionOnly) return null;
+        const doorSet = new Set(rules.doorOnly);
+        const ignSet = new Set(rules.ignitionOnly);
+        // Blind positions = in ignition but NOT in door
+        const blindPositions = rules.ignitionOnly.filter(p => !doorSet.has(p));
+        if (blindPositions.length === 0) return null;
+        // Check if all door positions are filled (known depth > 0)
+        const doorAllFilled = rules.doorOnly.every(p => {
+            const idx = p - 1;
+            return idx >= 0 && idx < positions.length && positions[idx] > 0;
+        });
+        // Check how many blind positions are still unknown
+        const blindUnknown = blindPositions.filter(p => {
+            const idx = p - 1;
+            return idx >= 0 && idx < positions.length && positions[idx] <= 0;
+        });
+        return {
+            blindPositions,
+            doorAllFilled,
+            blindUnknownCount: blindUnknown.length,
+            blindUnknown,
+        };
+    }, [rules, positions]);
 
     // Calculate total combinations and blanks needed
     const combinationStats = useMemo(() => {
@@ -944,12 +971,12 @@ export default function BittingCalculator({
             {/* Modal - also highest z-index, full screen on mobile */}
             <div className="fixed inset-0 sm:inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl bg-zinc-900 border-0 sm:border sm:border-zinc-700 sm:rounded-2xl shadow-2xl z-[9999] overflow-hidden flex flex-col md:max-h-[90vh]">
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 bg-gradient-to-r from-purple-900/30 to-zinc-900">
+                <div className="flex items-center justify-between px-3 py-2 sm:px-5 sm:py-4 border-b border-zinc-800 bg-gradient-to-r from-purple-900/30 to-zinc-900">
                     <div className="flex items-center gap-3">
-                        <span className="text-2xl">🧮</span>
+                        <span className="text-lg sm:text-2xl">🧮</span>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h2 className="font-bold text-white text-lg">Bitting Calculator</h2>
+                                <h2 className="font-bold text-white text-base sm:text-lg">Bitting Calculator</h2>
                                 {isFullySpecified && (
                                     <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-900/50 border border-green-600/50 text-green-400 font-semibold">
                                         ✅ Fully Specified
@@ -975,22 +1002,22 @@ export default function BittingCalculator({
                 </div>
 
                 {/* Specs Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 px-5 py-3 bg-zinc-800/50 border-b border-zinc-800">
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-1 sm:gap-3 px-3 py-2 sm:px-5 sm:py-3 bg-zinc-800/50 border-b border-zinc-800">
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">Spaces</div>
-                        <div className="font-mono font-bold text-white">{spaces}</div>
+                        <div className="font-mono font-bold text-white text-sm sm:text-base">{spaces}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">Depths</div>
-                        <div className="font-mono font-bold text-white">{depths}</div>
+                        <div className="font-mono font-bold text-white text-sm sm:text-base">{depths}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">MACS</div>
-                        <div className="font-mono font-bold text-amber-400">{macsIsNone ? 'None' : effectiveMacs}</div>
+                        <div className="font-mono font-bold text-amber-400 text-sm sm:text-base">{macsIsNone ? 'None' : effectiveMacs}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">Combos</div>
-                        <div className="font-mono font-bold text-cyan-400">
+                        <div className="font-mono font-bold text-cyan-400 text-sm sm:text-base">
                             {combinationStats.totalCombinations > 9999
                                 ? `${(combinationStats.totalCombinations / 1000).toFixed(1)}k`
                                 : combinationStats.totalCombinations}
@@ -1001,7 +1028,7 @@ export default function BittingCalculator({
                             </div>
                         )}
                     </div>
-                    {keyway && (
+                    {keyway && (<div className="col-span-4 sm:col-span-1">
                         <div className="text-center">
                             <div className="text-[10px] text-zinc-500 uppercase">Keyway</div>
                             {keywaySegments.length > 1 ? (
@@ -1019,15 +1046,15 @@ export default function BittingCalculator({
                                 <div className="font-mono font-bold text-green-400 text-sm">{keyway}</div>
                             )}
                         </div>
-                    )}
+                    </div>)}
                 </div>
 
                 {/* Active Rules & Lock Context */}
                 {rules && (
-                    <div className="mx-5 mt-3 space-y-2">
-                        {/* Lock Context Toggle */}
+                    <div className="mx-3 mt-2 sm:mx-5 sm:mt-3 space-y-1.5 sm:space-y-2">
+                        {/* Lock Context Toggle — always visible */}
                         {hasDoorIgnitionSplit && (
-                            <div className="flex items-center gap-2 p-2.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
+                            <div className="flex items-center gap-2 p-1.5 sm:p-2.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
                                 <span className="text-[10px] text-zinc-500 uppercase tracking-wider mr-1">Lock:</span>
                                 {['full', 'door', 'ignition'].map((ctx) => (
                                     <button
@@ -1048,104 +1075,116 @@ export default function BittingCalculator({
                             </div>
                         )}
 
-                        {/* Enforced Rules Summary */}
-                        <div className="flex flex-wrap gap-1.5">
-                            {rules.fixedPositions && Object.entries(rules.fixedPositions).map(([pos, depth]) => (
-                                <span key={`fixed-${pos}`} className="text-[10px] px-2 py-0.5 bg-purple-900/40 border border-purple-700/50 text-purple-300 rounded-full">
-                                    🔒 P{pos}={depth}
-                                </span>
-                            ))}
-                            {lockContext === 'door' && rules.doorOnly && (
-                                <span className="text-[10px] px-2 py-0.5 bg-amber-900/40 border border-amber-700/50 text-amber-300 rounded-full">
-                                    🚪 Door: P{rules.doorOnly[0]}-{rules.doorOnly[rules.doorOnly.length - 1]}
-                                </span>
-                            )}
-                            {lockContext === 'ignition' && rules.ignitionOnly && (
-                                <span className="text-[10px] px-2 py-0.5 bg-blue-900/40 border border-blue-700/50 text-blue-300 rounded-full">
-                                    🔧 Ign: P{rules.ignitionOnly[0]}-{rules.ignitionOnly[rules.ignitionOnly.length - 1]}
-                                </span>
-                            )}
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${macsIsNone
-                                ? 'bg-zinc-800/40 border border-zinc-600/50 text-zinc-400'
-                                : 'bg-amber-900/40 border border-amber-700/50 text-amber-300'
-                                }`}>
-                                📏 MACS {macsIsNone ? '= None' : `≤ ${effectiveMacs}`}
-                                {rules?.macsOverride !== undefined && rules.macsOverride !== macs && (
-                                    <span className="ml-1 text-yellow-400" title={`Vehicle data says MACS=${macs}, overridden by confirmed correction`}>⚠️</span>
-                                )}
-                                {!rules?.macsOverride && !macs && rules?.macsFallback !== undefined && (
-                                    <span className="ml-1 text-zinc-500 text-[8px]" title="AKS vehicle data missing MACS — using keyway rule fallback">(rule)</span>
-                                )}
-                            </span>
-                            {rules.maxConsecutiveSame && (
-                                <span className="text-[10px] px-2 py-0.5 bg-orange-900/40 border border-orange-700/50 text-orange-300 rounded-full">
-                                    🔁 Max {rules.maxConsecutiveSame} consec.
-                                </span>
-                            )}
-                            {rules.minDepthOccurrences && Object.entries(rules.minDepthOccurrences).map(([depth, min]) => (
-                                <span key={`min-${depth}`} className="text-[10px] px-2 py-0.5 bg-teal-900/40 border border-teal-700/50 text-teal-300 rounded-full">
-                                    🎯 ≥{min}× depth {depth}
-                                </span>
-                            ))}
-                            {rules.codeSeries && (
-                                <span className="text-[10px] px-2 py-0.5 bg-indigo-900/40 border border-indigo-700/50 text-indigo-300 rounded-full" title="Known code series range (informational)">
-                                    📋 Series: {rules.codeSeries}
-                                </span>
-                            )}
-                        </div>
+                        {/* Collapsible info section: collapsed on mobile, always visible on desktop */}
+                        <button
+                            onClick={() => setInfoExpanded(!infoExpanded)}
+                            className="sm:hidden flex items-center justify-between w-full px-2 py-1.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50 text-xs text-zinc-400"
+                        >
+                            <span>ℹ️ Rules & Strategy</span>
+                            <span className={`transition-transform ${infoExpanded ? 'rotate-180' : ''}`}>▼</span>
+                        </button>
+                        <div className={`${infoExpanded ? '' : 'hidden'} sm:block space-y-1.5 sm:space-y-2`}>
 
-                        {/* Hint text */}
-                        <p className="text-[11px] text-zinc-500 leading-relaxed">
-                            {rules.hint}
-                        </p>
-
-                        {/* Decode Workflow Guide */}
-                        {rules.decodeWorkflow && (
-                            <div className="p-2.5 bg-indigo-900/20 rounded-lg border border-indigo-700/40">
-                                <div className="flex items-start gap-2">
-                                    <span className="text-xs">🔓</span>
-                                    <p className="text-[11px] text-indigo-300 leading-relaxed">
-                                        <span className="font-semibold text-indigo-200">Decode Strategy: </span>
-                                        {rules.decodeWorkflow.replace(/^🔓\s*/, '')}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Linked Position Suggestions */}
-                        {Object.keys(linkedPositionSuggestions).length > 0 && (
+                            {/* Enforced Rules Summary */}
                             <div className="flex flex-wrap gap-1.5">
-                                {Object.entries(linkedPositionSuggestions).map(([pos, { suggestedDepth, sourcePos }]) => (
-                                    <button
-                                        key={`linked-${pos}`}
-                                        onClick={() => handlePositionChange(Number(pos) - 1, suggestedDepth)}
-                                        className="text-[10px] px-2 py-0.5 bg-cyan-900/40 border border-cyan-600/50 text-cyan-300 rounded-full hover:bg-cyan-800/60 transition-all cursor-pointer"
-                                        title={`Golden Rule: P${pos} should match P${sourcePos}. Click to apply.`}
-                                    >
-                                        🔗 P{pos}→{suggestedDepth} (≈P{sourcePos})
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Avoid-Depth Warnings */}
-                        {avoidDepthWarnings.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5">
-                                {avoidDepthWarnings.map(({ pos, depth, avoided }) => (
-                                    <span key={`avoid-${pos}`} className="text-[10px] px-2 py-0.5 bg-yellow-900/40 border border-yellow-600/50 text-yellow-300 rounded-full">
-                                        ⚠️ P{pos}={depth} (depth {avoided.join(',')} rare here)
+                                {rules.fixedPositions && Object.entries(rules.fixedPositions).map(([pos, depth]) => (
+                                    <span key={`fixed-${pos}`} className="text-[10px] px-2 py-0.5 bg-purple-900/40 border border-purple-700/50 text-purple-300 rounded-full">
+                                        🔒 P{pos}={depth}
                                     </span>
                                 ))}
+                                {lockContext === 'door' && rules.doorOnly && (
+                                    <span className="text-[10px] px-2 py-0.5 bg-amber-900/40 border border-amber-700/50 text-amber-300 rounded-full">
+                                        🚪 Door: P{rules.doorOnly[0]}-{rules.doorOnly[rules.doorOnly.length - 1]}
+                                    </span>
+                                )}
+                                {lockContext === 'ignition' && rules.ignitionOnly && (
+                                    <span className="text-[10px] px-2 py-0.5 bg-blue-900/40 border border-blue-700/50 text-blue-300 rounded-full">
+                                        🔧 Ign: P{rules.ignitionOnly[0]}-{rules.ignitionOnly[rules.ignitionOnly.length - 1]}
+                                    </span>
+                                )}
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${macsIsNone
+                                    ? 'bg-zinc-800/40 border border-zinc-600/50 text-zinc-400'
+                                    : 'bg-amber-900/40 border border-amber-700/50 text-amber-300'
+                                    }`}>
+                                    📏 MACS {macsIsNone ? '= None' : `≤ ${effectiveMacs}`}
+                                    {rules?.macsOverride !== undefined && rules.macsOverride !== macs && (
+                                        <span className="ml-1 text-yellow-400" title={`Vehicle data says MACS=${macs}, overridden by confirmed correction`}>⚠️</span>
+                                    )}
+                                    {!rules?.macsOverride && !macs && rules?.macsFallback !== undefined && (
+                                        <span className="ml-1 text-zinc-500 text-[8px]" title="AKS vehicle data missing MACS — using keyway rule fallback">(rule)</span>
+                                    )}
+                                </span>
+                                {rules.maxConsecutiveSame && (
+                                    <span className="text-[10px] px-2 py-0.5 bg-orange-900/40 border border-orange-700/50 text-orange-300 rounded-full">
+                                        🔁 Max {rules.maxConsecutiveSame} consec.
+                                    </span>
+                                )}
+                                {rules.minDepthOccurrences && Object.entries(rules.minDepthOccurrences).map(([depth, min]) => (
+                                    <span key={`min-${depth}`} className="text-[10px] px-2 py-0.5 bg-teal-900/40 border border-teal-700/50 text-teal-300 rounded-full">
+                                        🎯 ≥{min}× depth {depth}
+                                    </span>
+                                ))}
+                                {rules.codeSeries && (
+                                    <span className="text-[10px] px-2 py-0.5 bg-indigo-900/40 border border-indigo-700/50 text-indigo-300 rounded-full" title="Known code series range (informational)">
+                                        📋 Series: {rules.codeSeries}
+                                    </span>
+                                )}
                             </div>
-                        )}
+
+                            {/* Hint text */}
+                            <p className="text-[11px] text-zinc-500 leading-relaxed line-clamp-2 sm:line-clamp-none">
+                                {rules.hint}
+                            </p>
+
+                            {/* Decode Workflow Guide */}
+                            {rules.decodeWorkflow && (
+                                <div className="p-2 sm:p-2.5 bg-indigo-900/20 rounded-lg border border-indigo-700/40">
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-xs">🔓</span>
+                                        <p className="text-[11px] text-indigo-300 leading-relaxed">
+                                            <span className="font-semibold text-indigo-200">Decode Strategy: </span>
+                                            {rules.decodeWorkflow.replace(/^🔓\s*/, '')}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Linked Position Suggestions */}
+                            {Object.keys(linkedPositionSuggestions).length > 0 && (
+                                <div className="flex flex-wrap gap-1.5">
+                                    {Object.entries(linkedPositionSuggestions).map(([pos, { suggestedDepth, sourcePos }]) => (
+                                        <button
+                                            key={`linked-${pos}`}
+                                            onClick={() => handlePositionChange(Number(pos) - 1, suggestedDepth)}
+                                            className="text-[10px] px-2 py-0.5 bg-cyan-900/40 border border-cyan-600/50 text-cyan-300 rounded-full hover:bg-cyan-800/60 transition-all cursor-pointer"
+                                            title={`Golden Rule: P${pos} should match P${sourcePos}. Click to apply.`}
+                                        >
+                                            🔗 P{pos}→{suggestedDepth} (≈P{sourcePos})
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Avoid-Depth Warnings */}
+                            {avoidDepthWarnings.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5">
+                                    {avoidDepthWarnings.map(({ pos, depth, avoided }) => (
+                                        <span key={`avoid-${pos}`} className="text-[10px] px-2 py-0.5 bg-yellow-900/40 border border-yellow-600/50 text-yellow-300 rounded-full">
+                                            ⚠️ P{pos}={depth} (depth {avoided.join(',')} rare here)
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                        </div>{/* end collapsible info */}
                     </div>
                 )}
 
                 {/* Main Content */}
-                <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                <div className="flex-1 overflow-y-auto p-3 space-y-3 sm:p-5 sm:space-y-5">
                     {/* Code Input */}
-                    <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
-                        <label className="text-xs text-zinc-400 uppercase tracking-wider mb-2 block">
+                    <div className="bg-zinc-800/60 p-3 sm:p-4 rounded-xl border border-zinc-700/50">
+                        <label className="text-xs text-zinc-400 uppercase tracking-wider mb-1 sm:mb-2 block">
                             Enter Full Key Code (or enter partial depths below)
                         </label>
                         <div className="flex flex-wrap gap-2">
@@ -1155,17 +1194,17 @@ export default function BittingCalculator({
                                 onChange={(e) => setKeyCode(e.target.value.toUpperCase())}
                                 onKeyDown={(e) => e.key === 'Enter' && handleCodeInput()}
                                 placeholder={`e.g., ${codeSeries.split('-')[0]}1234`}
-                                className="flex-1 min-w-[150px] bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2 font-mono text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                                className="flex-1 min-w-[120px] bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 font-mono text-white text-sm sm:text-base placeholder-zinc-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             />
                             <button
                                 onClick={handleCodeInput}
-                                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg transition-all"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg transition-all text-sm sm:text-base"
                             >
                                 Parse
                             </button>
                             <button
                                 onClick={handleReset}
-                                className="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg transition-all"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg transition-all text-sm sm:text-base"
                             >
                                 Reset
                             </button>
@@ -1173,7 +1212,7 @@ export default function BittingCalculator({
                     </div>
 
                     {/* Position Grid */}
-                    <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+                    <div className="bg-zinc-800/60 p-3 sm:p-4 rounded-xl border border-zinc-700/50">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                             <div>
                                 <label className="text-xs text-zinc-400 uppercase tracking-wider">
@@ -1191,7 +1230,7 @@ export default function BittingCalculator({
                         </div>
 
                         {/* Grid of positions */}
-                        <div className="flex flex-wrap justify-center gap-2">
+                        <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
                             {positions.map((depth, index) => {
                                 const displayVal = getDisplayValue(depth);
                                 const isHalf = isHalfDepth(depth);
@@ -1236,7 +1275,7 @@ export default function BittingCalculator({
                                                                         : 'bg-zinc-900/80 border-zinc-600 border-dashed text-zinc-500 focus:ring-amber-500 placeholder-zinc-600'
                                                 }`}
                                         />
-                                        {/* Position label */}
+                                        {/* Position label + blind position indicator */}
                                         <span className={`text-[10px] mt-1 ${isFixed
                                             ? 'text-green-400'
                                             : hasMacsViolation
@@ -1253,6 +1292,13 @@ export default function BittingCalculator({
                                             }`}>
                                             {isFixed ? '🔒' : linkedPositionSuggestions[posNum] ? '🔗' : posNum}
                                         </span>
+                                        {/* Blind position badge: IGN-only or DOOR-only */}
+                                        {blindPositionInfo?.blindPositions.includes(posNum) && (
+                                            <span className="text-[7px] font-semibold text-amber-400 bg-amber-900/40 px-1 rounded mt-0.5">IGN</span>
+                                        )}
+                                        {rules?.ignitionOnly && rules?.doorOnly && !rules.ignitionOnly.includes(posNum) && rules.doorOnly.includes(posNum) && (
+                                            <span className="text-[7px] font-semibold text-blue-400 bg-blue-900/40 px-1 rounded mt-0.5">DOOR</span>
+                                        )}
                                         {/* Position hint for unknown positions */}
                                         {isUnknown && !isInactive && rules?.positionHints?.[posNum] && (
                                             <span className="text-[8px] text-indigo-400/70 mt-0.5" title={rules.positionHints[posNum].reason}>
@@ -1265,53 +1311,59 @@ export default function BittingCalculator({
                         </div>
 
 
-                        {/* Visual depth representation */}
-                        <div className="mt-4 flex justify-center gap-1 h-12 sm:h-16">
-                            {positions.map((depth, index) => {
-                                const isHalf = isHalfDepth(depth);
-                                const isWildcard = depth === -2;
-                                const isUnknown = depth <= 0 && !isHalf && !isWildcard;
-                                const displayDepth = depth > 0 ? depth : (isHalf ? 2.5 : 0);
-                                const posNum = index + 1;
-                                const isFixed = fixedPositionMap[posNum] !== undefined;
-                                const isInactive = activePositions !== null && !activePositions.has(posNum);
+                        {/* Key Blade Silhouette — inverted: depth 1 = tallest (most metal), depth 4 = shortest (deepest cut) */}
+                        <div className="mt-4 hidden sm:flex flex-col items-center">
+                            <div className="flex justify-center gap-0 h-16">
+                                {positions.map((depth, index) => {
+                                    const isHalf = isHalfDepth(depth);
+                                    const isWildcard = depth === -2;
+                                    const isUnknown = depth <= 0 && !isHalf && !isWildcard;
+                                    // Inverted: depth 1 → tallest bar (most metal remaining), depth max → shortest bar (deepest cut)
+                                    const metalRemaining = depth > 0
+                                        ? ((maxDepth + 1 - depth) / maxDepth) * 100
+                                        : (isHalf ? 65 : (isWildcard ? 50 : 100)); // Unknown = full height (uncut blank)
+                                    const posNum = index + 1;
+                                    const isFixed = fixedPositionMap[posNum] !== undefined;
+                                    const isInactive = activePositions !== null && !activePositions.has(posNum);
 
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`relative w-4 sm:w-6 flex flex-col justify-end ${isInactive ? 'opacity-25' : ''}`}
-                                    >
+                                    return (
                                         <div
-                                            className={`rounded-t transition-all duration-200 ${isFixed
-                                                ? 'bg-gradient-to-t from-green-600 to-green-400'
-                                                : macsViolations.includes(index)
-                                                    ? 'bg-red-500'
-                                                    : consecutiveViolations.includes(index)
-                                                        ? 'bg-orange-500'
-                                                        : depth > 0
-                                                            ? 'bg-gradient-to-t from-purple-600 to-purple-400'
-                                                            : isHalf
-                                                                ? 'bg-gradient-to-t from-cyan-600 to-cyan-400'
-                                                                : isWildcard
-                                                                    ? 'bg-gradient-to-t from-pink-600 to-pink-400'
-                                                                    : 'bg-zinc-700 border border-dashed border-amber-500/50'
-                                                }`}
-                                            style={{
-                                                height: depth > 0 ? `${(displayDepth / maxDepth) * 100}%` : (isHalf || isWildcard ? '60%' : '100%'),
-                                                minHeight: '4px'
-                                            }}
+                                            key={index}
+                                            className={`relative w-6 flex flex-col justify-end ${isInactive ? 'opacity-25' : ''}`}
                                         >
-                                            {(isUnknown || isHalf || isWildcard) && (
-                                                <span className="absolute inset-0 flex items-center justify-center text-[8px] sm:text-[10px] font-bold ${
-                                                    isHalf ? 'text-cyan-200' : isWildcard ? 'text-pink-200' : 'text-amber-500'
-                                                }">
-                                                    {getDisplayValue(depth) || '?'}
-                                                </span>
-                                            )}
+                                            <div
+                                                className={`transition-all duration-200 ${isFixed
+                                                    ? 'bg-gradient-to-b from-green-400 to-green-600'
+                                                    : macsViolations.includes(index)
+                                                        ? 'bg-red-500'
+                                                        : consecutiveViolations.includes(index)
+                                                            ? 'bg-orange-500'
+                                                            : depth > 0
+                                                                ? 'bg-gradient-to-b from-purple-400 to-purple-600'
+                                                                : isHalf
+                                                                    ? 'bg-gradient-to-b from-cyan-400 to-cyan-600'
+                                                                    : isWildcard
+                                                                        ? 'bg-gradient-to-b from-pink-400 to-pink-600'
+                                                                        : 'bg-zinc-700/60 border border-dashed border-amber-500/30'
+                                                    }`}
+                                                style={{
+                                                    height: `${metalRemaining}%`,
+                                                    minHeight: '4px'
+                                                }}
+                                            >
+                                                {(isUnknown || isHalf || isWildcard) && (
+                                                    <span className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold ${isHalf ? 'text-cyan-200' : isWildcard ? 'text-pink-200' : 'text-amber-500'
+                                                        }`}>
+                                                        {getDisplayValue(depth) || '?'}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
+                            {/* Key blade spine / baseline */}
+                            <div className="h-1.5 rounded-b-sm bg-zinc-500/60" style={{ width: `${spaces * 24}px` }} />
                         </div>
 
                         {/* Status bar with Find button */}
@@ -1319,8 +1371,22 @@ export default function BittingCalculator({
                             <span className="text-xs text-zinc-400">
                                 <span className="text-purple-400 font-bold">{knownPositions.length}</span> known,
                                 <span className="text-amber-400 font-bold ml-1">{unknownPositions.length}</span> unknown
+                                {blindPositionInfo && blindPositionInfo.blindUnknownCount > 0 && (
+                                    <span className="text-amber-500 ml-1">
+                                        ({blindPositionInfo.blindUnknownCount} blind)
+                                    </span>
+                                )}
                             </span>
-                            {unknownPositions.length > 0 && unknownPositions.length <= 4 && (
+                            {/* Auto-CTA: door decode complete → progression button */}
+                            {blindPositionInfo?.doorAllFilled && blindPositionInfo.blindUnknownCount > 0 ? (
+                                <button
+                                    onClick={findMatchingCodes}
+                                    disabled={isSearching}
+                                    className="px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 disabled:from-amber-800 disabled:to-orange-800 text-white font-semibold rounded-lg transition-all flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-amber-900/30 animate-pulse hover:animate-none"
+                                >
+                                    {isSearching ? '⏳ Calculating...' : `🔑 Generate Progression for ${blindPositionInfo.blindUnknownCount} Blind Cut${blindPositionInfo.blindUnknownCount > 1 ? 's' : ''}`}
+                                </button>
+                            ) : unknownPositions.length > 0 && unknownPositions.length <= 4 ? (
                                 <button
                                     onClick={findMatchingCodes}
                                     disabled={isSearching}
@@ -1328,25 +1394,93 @@ export default function BittingCalculator({
                                 >
                                     {isSearching ? '⏳ Searching...' : unknownPositions.length <= 2 ? '🔍 Progress Missing Cuts' : '🔍 Find Matching Codes'}
                                 </button>
-                            )}
+                            ) : null}
                         </div>
                     </div>
 
-                    {/* Matching Codes Results */}
+                    {/* Progression Cut Sheet / Matching Codes Results */}
                     {matchingCodes.length > 0 && (
                         <div className="bg-amber-900/20 p-4 rounded-xl border border-amber-700/50">
                             <div className="flex items-center gap-2 mb-3">
-                                <span className="text-xl">🎯</span>
+                                <span className="text-xl">{blindPositionInfo?.doorAllFilled ? '🔑' : '🎯'}</span>
                                 <span className="font-bold text-amber-300">
                                     {matchingCodes.length === 1 && !matchingCodes[0].includes('Too many')
-                                        ? 'Matching Code'
-                                        : `Progression: ${matchingCodes.length} Codes to Try`}
+                                        ? 'Exact Match'
+                                        : blindPositionInfo?.doorAllFilled
+                                            ? `Progression Cut Sheet — ${matchingCodes.length} Trial${matchingCodes.length > 1 ? 's' : ''}`
+                                            : `Progression: ${matchingCodes.length} Codes to Try`}
                                 </span>
+                                {blindPositionInfo?.doorAllFilled && matchingCodes.length > 1 && !matchingCodes[0].includes('Too many') && (
+                                    <span className="text-[10px] text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded ml-auto">
+                                        {matchingCodes.length <= 6 ? '1 blank needed' : `~${Math.ceil(matchingCodes.length / 6)} blanks`}
+                                    </span>
+                                )}
                             </div>
 
                             {matchingCodes[0].includes('Too many') ? (
                                 <p className="text-amber-400 text-sm">{matchingCodes[0]}</p>
+                            ) : blindPositionInfo?.doorAllFilled && matchingCodes.length <= 10 ? (
+                                /* Progression Cut Sheet: step-by-step trial checklist */
+                                <div className="space-y-2">
+                                    {matchingCodes.map((code, idx) => {
+                                        const codeDigits = code.split('');
+                                        // Describe what changed from previous trial
+                                        const prevCode = idx > 0 ? matchingCodes[idx - 1].split('') : null;
+                                        const changes: string[] = [];
+                                        if (prevCode) {
+                                            codeDigits.forEach((d, i) => {
+                                                if (d !== prevCode[i]) {
+                                                    changes.push(`P${i + 1}: ${prevCode[i]}→${d}`);
+                                                }
+                                            });
+                                        }
+
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className={`flex items-start gap-3 p-2 rounded-lg border transition-all cursor-pointer hover:bg-purple-900/20 ${idx === 0 ? 'border-green-700/50 bg-green-900/10' : 'border-zinc-700/50 bg-zinc-800/30'
+                                                    }`}
+                                                onClick={() => {
+                                                    const newPositions = codeDigits.map(d => parseInt(d));
+                                                    setPositions(newPositions);
+                                                    setMatchingCodes([]);
+                                                }}
+                                            >
+                                                {/* Checkbox */}
+                                                <span className="text-lg mt-0.5 select-none">{idx === 0 ? '▶️' : '🔲'}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="text-xs font-semibold text-zinc-300">Trial {idx + 1}:</span>
+                                                        <span className="font-mono text-sm text-white tracking-wider">
+                                                            {codeDigits.map((d, i) => {
+                                                                const isBlind = blindPositionInfo?.blindPositions.includes(i + 1);
+                                                                const changed = prevCode && d !== prevCode[i];
+                                                                return (
+                                                                    <span key={i} className={`${isBlind ? 'text-amber-400 font-bold' : ''} ${changed ? 'text-green-400 underline' : ''}`}>
+                                                                        {d}{i < codeDigits.length - 1 ? ' ' : ''}
+                                                                    </span>
+                                                                );
+                                                            })}
+                                                        </span>
+                                                        {idx === 0 && (
+                                                            <span className="text-[9px] text-green-400 bg-green-900/30 px-1.5 py-0.5 rounded">CUT THIS FIRST</span>
+                                                        )}
+                                                    </div>
+                                                    {/* Action description */}
+                                                    <p className="text-[11px] text-zinc-400 mt-0.5">
+                                                        {idx === 0
+                                                            ? `Cut root key with shallowest blind depths. Test in ignition.`
+                                                            : changes.length > 0
+                                                                ? `Deepen ${changes.join(', ')}. Test again.`
+                                                                : 'Test in ignition.'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             ) : (
+                                /* Standard results list for non-door-decode or many results */
                                 <div className="space-y-1 max-h-48 overflow-y-auto">
                                     {matchingCodes.map((code, idx) => (
                                         <div
@@ -1517,8 +1651,8 @@ export default function BittingCalculator({
                         );
                     })()}
 
-                    {/* Reference Info */}
-                    <div className="text-xs text-zinc-500 bg-zinc-800/40 p-3 rounded-lg">
+                    {/* Reference Info — hidden on mobile to save space */}
+                    <div className="hidden sm:block text-xs text-zinc-500 bg-zinc-800/40 p-3 rounded-lg">
                         <p className="font-semibold text-zinc-400 mb-1">💡 FILL-Style Codes</p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                             <span><strong className="text-white">1-{maxDepth}</strong> = exact depth</span>
@@ -1532,13 +1666,13 @@ export default function BittingCalculator({
                 </div>
 
                 {/* Footer */}
-                <div className="px-5 py-3 border-t border-zinc-800 bg-zinc-900 flex items-center justify-between">
+                <div className="px-3 py-2 sm:px-5 sm:py-3 border-t border-zinc-800 bg-zinc-900 flex items-center justify-between">
                     <span className="text-xs text-zinc-500 hidden sm:inline">
                         Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">Esc</kbd> to close
                     </span>
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-all w-full sm:w-auto"
+                        className="px-3 py-1.5 sm:px-4 sm:py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-all w-full sm:w-auto text-sm sm:text-base"
                     >
                         Close
                     </button>

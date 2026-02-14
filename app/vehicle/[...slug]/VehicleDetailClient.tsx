@@ -68,8 +68,9 @@ function transformAksKeyConfigs(configs: any[]): any[] {
                 && !keyType.includes('set') && !name.includes('set') && !partNumber.includes('set');
         })
         .map(c => {
-            // Build display name: "3-Button Smart Key" or "Smart Key" or "Emergency Key"
-            const buttonPart = c.buttonCount ? `${c.buttonCount}-Button ` : '';
+            // Build display name: "Smart Key" (when variants exist) or "3-Button Smart Key"
+            const hasVariants = c.variants && c.variants.length > 1;
+            const buttonPart = !hasVariants && c.buttonCount ? `${c.buttonCount}-Button ` : '';
             const name = `${buttonPart}${c.keyType}`;
 
             // Determine type for styling
@@ -119,12 +120,27 @@ function transformAksKeyConfigs(configs: any[]): any[] {
                 frequency = c.frequency.toLowerCase().includes('mhz') ? c.frequency : `${c.frequency} MHz`;
             }
 
+            // Map API variants to frontend KeyVariant interface
+            const variants = hasVariants ? c.variants.map((v: any) => {
+                const vFccIds = v.fccIds || [];
+                const vFreq = v.frequency ? (v.frequency.toLowerCase().includes('mhz') ? v.frequency : `${v.frequency} MHz`) : undefined;
+                return {
+                    label: v.label,
+                    buttons: v.buttons,
+                    fcc: vFccIds.join(', ') || undefined,
+                    fccDetails: v.fccDetails || [],
+                    frequency: vFreq,
+                    image: v.image || c.imageUrl || undefined,
+                };
+            }) : undefined;
+
             return {
                 name,
                 primaryOem: c.primaryOem || undefined,
                 fcc: (c.fccIds || []).join(', ') || undefined,
                 fccDetails: fccDetails.length > 0 ? fccDetails : undefined,
                 chip: c.chip || undefined,
+                chipArchitecture: c.chipArchitecture || undefined,
                 keyway: c.keyway || undefined,
                 partNumber: c.partNumber || undefined,
                 battery: c.battery || undefined,
@@ -133,6 +149,7 @@ function transformAksKeyConfigs(configs: any[]): any[] {
                 image: c.imageUrl || undefined,
                 oem: oemParts.length > 0 ? oemParts : undefined,
                 type,
+                variants,
                 reusable: c.reusable || undefined,
                 cloneable: c.cloneable || undefined,
             };

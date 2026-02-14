@@ -4,8 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { useJobLogs } from '@/lib/useJobLogs';
 import { useSubscriptions } from '@/contexts/SubscriptionContext';
 import AIInsightsPanel from '@/components/business/AIInsightsPanel';
+import TaxConfigPanel, { getTaxAreasFromStorage, getDefaultTaxRate } from '@/components/business/TaxConfigPanel';
 
-type AccountingSubTab = 'overview' | 'expenses' | 'invoices' | 'reports' | 'ai-insights';
+type AccountingSubTab = 'overview' | 'expenses' | 'taxes' | 'invoices' | 'reports' | 'ai-insights';
 
 export default function AccountingPage() {
     const [activeSubTab, setActiveSubTab] = useState<AccountingSubTab>('overview');
@@ -65,6 +66,7 @@ export default function AccountingPage() {
     const subtabs = [
         { id: 'overview', label: 'Overview', icon: '📊' },
         { id: 'expenses', label: 'Expenses', icon: '💸' },
+        { id: 'taxes', label: 'Taxes', icon: '🏛️' },
         { id: 'invoices', label: 'Invoices', icon: '📄' },
         { id: 'reports', label: 'Reports', icon: '📈' },
         { id: 'ai-insights', label: 'AI Insights', icon: '🧠' },
@@ -171,6 +173,48 @@ export default function AccountingPage() {
                         </div>
                     </div>
 
+                    {/* Estimated Tax Card */}
+                    {(() => {
+                        const taxAreas = getTaxAreasFromStorage();
+                        const defaultRate = getDefaultTaxRate();
+                        const effectiveRate = taxAreas.length > 0
+                            ? taxAreas.reduce((sum: number, a: { rate: number }) => sum + a.rate, 0) / taxAreas.length
+                            : defaultRate;
+                        const estimatedTax = periodStats.revenue * (effectiveRate / 100);
+
+                        return effectiveRate > 0 ? (
+                            <div className="bg-gradient-to-br from-indigo-900/20 to-purple-800/10 rounded-xl border border-indigo-700/20 p-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-xs text-indigo-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                            🏛️ Est. Sales Tax
+                                        </div>
+                                        <div className="text-xl font-black text-red-400">${estimatedTax.toFixed(2)}</div>
+                                        <div className="text-xs text-zinc-500">{effectiveRate.toFixed(2)}% effective rate</div>
+                                    </div>
+                                    <button
+                                        onClick={() => setActiveSubTab('taxes')}
+                                        className="text-xs text-indigo-400 hover:text-indigo-300 underline"
+                                    >
+                                        Configure →
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-zinc-900/30 rounded-xl border border-zinc-800/50 p-4 flex items-center justify-between">
+                                <div className="text-sm text-zinc-500">
+                                    🏛️ No sales tax rate configured
+                                </div>
+                                <button
+                                    onClick={() => setActiveSubTab('taxes')}
+                                    className="text-xs text-yellow-500 hover:text-yellow-400 font-bold"
+                                >
+                                    Set up →
+                                </button>
+                            </div>
+                        );
+                    })()}
+
                     {/* Monthly Trend */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
@@ -260,6 +304,14 @@ export default function AccountingPage() {
                     <p className="mb-4">Generated invoices will appear here</p>
                     <p className="text-sm">Go to Jobs → Click a job → Generate Invoice</p>
                 </div>
+            )}
+
+            {/* Taxes Tab */}
+            {activeSubTab === 'taxes' && (
+                <TaxConfigPanel
+                    revenue={periodStats.revenue}
+                    timeRangeLabel={timeRange === 'month' ? 'This Month' : timeRange === 'quarter' ? 'This Quarter' : 'This Year'}
+                />
             )}
 
             {/* Reports Tab */}

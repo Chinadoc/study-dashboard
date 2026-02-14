@@ -372,7 +372,7 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             {/* Vertical 4-column grid for models */}
                             <div className="grid grid-cols-4 gap-1.5">
                                 {models
-                                    .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m))
+                                    .filter(m => modelEra === 'all' || (!classicOnlyModels.includes(m) && !intlModels.includes(m)))
                                     .filter(m => !showEVOnly || evModels.includes(m))
                                     .filter(m => !showIntlOnly || intlModels.includes(m))
                                     .map(model => {

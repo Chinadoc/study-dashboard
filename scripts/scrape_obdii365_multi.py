@@ -22,6 +22,7 @@ OUTPUT_DIR = Path("/Users/jeremysamuels/Documents/study-dashboard/data/obdii365_
 
 # Categories to scrape
 CATEGORIES = [
+    # === Original categories ===
     {"name": "xhorse", "url": "https://www.obdii365.com/wholesale/brand-xhorse/"},
     {"name": "autel", "url": "https://www.obdii365.com/wholesale/original-autel-tools/"},
     {"name": "launch", "url": "https://www.obdii365.com/wholesale/original-launch-x431-tools/"},
@@ -33,6 +34,40 @@ CATEGORIES = [
     {"name": "lockpicking", "url": "https://www.obdii365.com/wholesale/lock-picking-locksmith-tools/"},
     {"name": "obd_cables", "url": "https://www.obdii365.com/wholesale/obd-cables-connectors/"},
     {"name": "key_blanks", "url": "https://www.obdii365.com/wholesale/auto-key-blanks/"},
+    # === Missing high-relevance categories ===
+    {"name": "ecu_chip_tuning", "url": "https://www.obdii365.com/wholesale/ecu-chip-tuning-tools/"},
+    {"name": "car_diagnostic", "url": "https://www.obdii365.com/wholesale/car-diagnostic-tools/"},
+    {"name": "odometer_tools", "url": "https://www.obdii365.com/wholesale/odometer-correction-tools/"},
+    {"name": "other_obd_tools", "url": "https://www.obdii365.com/wholesale/other-obdii-vehicle-tools/"},
+    # === Missing brand pages (high priority for new tool families) ===
+    {"name": "brand_yanhua", "url": "https://www.obdii365.com/wholesale/brand-yanhua/"},
+    {"name": "brand_keydiy", "url": "https://www.obdii365.com/wholesale/brand-keydiy/"},
+    {"name": "brand_cgdi", "url": "https://www.obdii365.com/wholesale/brand-cgdi/"},
+    {"name": "brand_lonsdor", "url": "https://www.obdii365.com/wholesale/brand-lonsdor/"},
+    {"name": "brand_otofix", "url": "https://www.obdii365.com/wholesale/brand-otofix/"},
+    {"name": "brand_topdon", "url": "https://www.obdii365.com/wholesale/brand-topdon/"},
+    {"name": "brand_tango", "url": "https://www.obdii365.com/wholesale/brand-tango/"},
+    {"name": "brand_godiag", "url": "https://www.obdii365.com/wholesale/brand-godiag/"},
+    {"name": "brand_carlabimmo", "url": "https://www.obdii365.com/wholesale/brand-carlabimmo/"},
+    # === Remaining brand pages from site footer ===
+    {"name": "brand_alientech", "url": "https://www.obdii365.com/wholesale/brand-alientech/"},
+    {"name": "brand_magicmotorsport", "url": "https://www.obdii365.com/wholesale/brand-magicmotorsport/"},
+    {"name": "brand_autotuner", "url": "https://www.obdii365.com/wholesale/brand-autotuner/"},
+    {"name": "brand_vxdiag", "url": "https://www.obdii365.com/wholesale/brand-vxdiag/"},
+    {"name": "brand_lishi", "url": "https://www.obdii365.com/wholesale/brand-lishi/"},
+    {"name": "brand_abudu", "url": "https://www.obdii365.com/wholesale/brand-abudu/"},
+    {"name": "brand_thinkcar", "url": "https://www.obdii365.com/wholesale/brand-thinkcar/"},
+    {"name": "brand_2m2", "url": "https://www.obdii365.com/wholesale/brand-2m2/"},
+    {"name": "brand_autovei", "url": "https://www.obdii365.com/wholesale/brand-autovei-truck-explorer/"},
+    {"name": "brand_eoneboss", "url": "https://www.obdii365.com/wholesale/brand-eoneboss/"},
+    {"name": "brand_enginedance", "url": "https://www.obdii365.com/wholesale/brand-enginedance/"},
+    {"name": "brand_vident", "url": "https://www.obdii365.com/wholesale/brand-vident/"},
+    # === Remaining categories ===
+    {"name": "obd_scanners", "url": "https://www.obdii365.com/wholesale/obdii-fault-code-scanners/"},
+    {"name": "trucks_heavy_duty", "url": "https://www.obdii365.com/wholesale/trucks-heavy-duty-scanners/"},
+    {"name": "motorcycle_scanners", "url": "https://www.obdii365.com/wholesale/motorcycle-scanners/"},
+    {"name": "electrical_testers", "url": "https://www.obdii365.com/wholesale/automotive-electrical-testers/"},
+    {"name": "secondhand_tools", "url": "https://www.obdii365.com/wholesale/secondhand-tools/"},
 ]
 
 MAX_PAGES_PER_CATEGORY = 50  # Safety limit

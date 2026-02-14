@@ -228,10 +228,51 @@ export const LOCKSMITH_REQUIREMENTS: LicenseItem[] = [
         id: 'yanhua_acdp',
         name: 'Yanhua ACDP Subscription',
         type: 'tool_subscription',
-        icon: '🟡',
+        icon: '🔶',
         description: 'Mini ACDP module authorizations and updates',
         typicalDuration: 365,
-        typicalPrice: 0  // Pay per module
+        typicalPrice: 0,  // Pay per module
+        linkedToolId: 'yanhua_acdp2'
+    },
+    {
+        id: 'keydiy_subscription',
+        name: 'KEYDIY KD-X2 Update',
+        type: 'tool_subscription',
+        icon: '🟦',
+        description: 'KD-X2 firmware updates for new transponder support',
+        typicalDuration: 365,
+        typicalPrice: 0,  // Free updates
+        linkedToolId: 'keydiy_kdx2'
+    },
+    {
+        id: 'cgdi_subscription',
+        name: 'CGDI Annual Update',
+        type: 'tool_subscription',
+        icon: '🟪',
+        description: 'CGDI MB/BMW annual token pack and software updates',
+        typicalDuration: 365,
+        typicalPrice: 299,
+        linkedToolId: 'cgdi_mb'
+    },
+    {
+        id: 'lock50_subscription',
+        name: 'Lock50 Software Update',
+        type: 'tool_subscription',
+        icon: '🟤',
+        description: 'Lock50 software updates for new JLR model support',
+        typicalDuration: 365,
+        typicalPrice: 200,
+        linkedToolId: 'lock50_hw04c'
+    },
+    {
+        id: 'kr55_subscription',
+        name: 'KR55 Software Update',
+        type: 'tool_subscription',
+        icon: '🟡',
+        description: 'KR55 software updates for Mercedes/Chrysler support',
+        typicalDuration: 365,
+        typicalPrice: 150,
+        linkedToolId: 'kr55'
     },
 
     // --- OEM ACCESS (Per-VIN, Tokens, Short-Term Subscriptions) ---
@@ -655,6 +696,84 @@ export const AVAILABLE_TOOLS: ToolInfo[] = [
         hasSubscription: true,
         subscriptionNote: 'Token-based pay-per-use model',
     },
+    // === LOCK50 (JLR Specialist) ===
+    {
+        id: 'lock50_hw04c',
+        name: 'Lock50 HW04-C',
+        shortName: 'Lock50',
+        icon: '🟤',
+        badge: 'JLR Specialist',
+        badgeColor: '#92400e',
+        description: 'Jaguar/Land Rover specialist. OBD key programming, RFA/BCM module handling, alarm deactivation.',
+        subscriptionId: 'lock50_subscription',
+        hasSubscription: true,
+        subscriptionNote: 'Annual software update ~$200',
+    },
+    // === KR55 (Mercedes/Chrysler Specialist) ===
+    {
+        id: 'kr55',
+        name: 'KR55 Key Programmer',
+        shortName: 'KR55',
+        icon: '🟡',
+        badge: 'Mercedes Specialist',
+        badgeColor: '#ca8a04',
+        description: 'Mercedes/Chrysler/Dodge specialist. EZS key programming, radio channel programming, Sprinter support.',
+        subscriptionId: 'kr55_subscription',
+        hasSubscription: true,
+        subscriptionNote: 'Annual software update ~$150',
+    },
+    // === YANHUA ACDP (BMW/Benz Bench Specialist) ===
+    {
+        id: 'yanhua_acdp2',
+        name: 'Yanhua ACDP 2',
+        shortName: 'ACDP',
+        icon: '🔶',
+        badge: 'BMW/Benz Bench',
+        badgeColor: '#d97706',
+        description: 'BMW/Mercedes bench specialist. CAS1-CAS4+, FEM/BDC, EIS/ELV. Module-based licensing.',
+        subscriptionId: 'yanhua_acdp',
+        hasSubscription: false,
+        subscriptionNote: 'Pay-per-module licensing (no annual fee)',
+    },
+    // === KEYDIY KD-X2 (Budget Transponder) ===
+    {
+        id: 'keydiy_kdx2',
+        name: 'KEYDIY KD-X2',
+        shortName: 'KD-X2',
+        icon: '🟦',
+        badge: 'Budget Transponder',
+        badgeColor: '#2563eb',
+        description: 'Budget transponder programmer. Chip cloning, remote generation, Toyota 8A/4D support.',
+        subscriptionId: 'keydiy_subscription',
+        hasSubscription: false,
+        subscriptionNote: 'Free firmware updates',
+    },
+    // === CGDI MB (Mercedes Specialist) ===
+    {
+        id: 'cgdi_mb',
+        name: 'CGDI MB',
+        shortName: 'CGDI MB',
+        icon: '🟪',
+        badge: 'Mercedes Specialist',
+        badgeColor: '#7c3aed',
+        description: 'Mercedes specialist. FBS3 AKL, EIS/ELV repair, online key calculation.',
+        subscriptionId: 'cgdi_subscription',
+        hasSubscription: true,
+        subscriptionNote: 'Annual token pack ~$299',
+    },
+    // === CGDI Prog BMW ===
+    {
+        id: 'cgdi_prog_bmw',
+        name: 'CGDI Prog BMW',
+        shortName: 'CGDI BMW',
+        icon: '🟪',
+        badge: 'BMW Specialist',
+        badgeColor: '#6d28d9',
+        description: 'BMW specialist. CAS/FEM/BDC key programming. MSV80 ISN read. F-series AKL.',
+        subscriptionId: 'cgdi_subscription',
+        hasSubscription: true,
+        subscriptionNote: 'Annual update ~$199',
+    },
 ];
 
 // Mapping of tools to recommended OEM portal access subscriptions
@@ -686,6 +805,17 @@ export const TOOL_OEM_RECOMMENDATIONS: Record<string, string[]> = {
     // Smart Pro
     'smart_pro_tcode': ['smartpro_tokens', 'gm_techline_connect'],
     'smart_pro': ['smartpro_tokens', 'gm_techline_connect', 'ford_fdrs'],
+    // Lock50
+    'lock50_hw04c': ['autoauth_subscription'],
+    // KR55
+    'kr55': ['autoauth_subscription'],
+    // Yanhua ACDP
+    'yanhua_acdp2': [],
+    // KEYDIY
+    'keydiy_kdx2': [],
+    // CGDI
+    'cgdi_mb': [],
+    'cgdi_prog_bmw': [],
 };
 
 // Helper to get OEM recommendations for a tool

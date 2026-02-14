@@ -11779,7 +11779,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           // 4. Merge explicit and inferred
           const mergedCoverage: Record<string, any> = {};
-          const toolFamilies = ['autel', 'smartPro', 'lonsdor', 'vvdi'];
+          const toolFamilies = ['autel', 'smartPro', 'lonsdor', 'vvdi', 'obdstar', 'lock50', 'kr55', 'yanhua', 'keydiy', 'cgdi'];
 
           for (const tool of toolFamilies) {
             const explicit = explicitCoverage.find((c: any) => c.tool_family === tool);
@@ -13450,6 +13450,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             let cleaned = raw.trim()
               .replace(/&quot;/g, '"').replace(/&amp;/g, '&')
               .replace(/;\s*["\u201c].*$/, '').replace(/;\s*$/, '').trim();
+            // Early detection: match chip labels containing (AES) or (PCF...) BEFORE parenthetical removal
+            if (/hitag.*\(aes\)/i.test(cleaned) || /hitag.*aes.*4a/i.test(cleaned)) return '4A';
+            if (/philips?\s*nxp\s*\(aes\)/i.test(cleaned)) return '4A';
+            if (/id\s*4a\s*\(.*aes/i.test(cleaned)) return '4A';
+            // Now remove parenthesized annotations for general matching
+            cleaned = cleaned.replace(/\s*\([^)]*\)/g, '').trim();
             const patterns: [RegExp, string][] = [
               // --- Junk / non-chip values ---
               [/non[-\s]?transponder/i, 'NONE'], [/^none$/i, 'NONE'], [/^--$/, 'NONE'],
@@ -13491,6 +13497,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               [/4d[\s-]*63.*40/i, '4D63-40'], [/4d[\s-]*63/i, '4D63-80'],
               // --- 4D60/61/62/64/67/68 ---
               [/4d[\s-]*60.*80.*subaru|subaru.*4d[\s-]*60.*80/i, '4D60-G'],
+              [/4d[\s-]*60[\s-]*g/i, '4D60-G'],
               [/4d[\s-]*60/i, '4D60'], [/4d[\s-]*61/i, '4D61'],
               [/4d[\s-]*62/i, '4D62'], [/4d[\s-]*64/i, '4D64'],
               [/4d[\s-]*67/i, '4D67'], [/4d[\s-]*68/i, '4D68'],
@@ -13545,12 +13552,57 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               [/pcf7936/i, 'ID46'], [/pcf7937/i, 'ID46E'], [/pcf7938/i, 'ID47'],
               [/pcf7961/i, 'ID46'], [/nxp7938/i, 'ID47'],
               [/pcf7941\s*e/i, 'ID46E'], [/pcf7941\b/i, 'ID46'],
-              [/pcf7945/i, 'ID46'], [/pcf7952/i, 'ID46'], [/pcf7946/i, 'ID46'],
+              [/pcf7941\b/i, 'ID46'], [/pcf7945/i, 'ID46'], [/pcf7952/i, 'ID46'], [/pcf7946/i, 'ID46'],
+              // --- New patterns from 286-vehicle survey ---
+              [/super\s*chip/i, '8A'],
+              [/hitag\s*128.*aes/i, '4A'], [/hitag\s+4a/i, '4A'],
+              [/\b4a\s*chip/i, '4A'], [/\bid\s*4a\b/i, '4A'],
+              [/pcf7953(?!p)/i, '4A'], [/philips?\s*nxp/i, '4A'],
+              [/philips?\s*49/i, 'ID49'], [/49\s*128/i, 'ID49'],
+              [/mqb\s*49/i, 'MQB49'], [/mqb\s*chip/i, 'ID48-MQB'],
+              [/\btr\s*8a\b/i, '8A'], [/\btr\s*4d\b/i, '4D72G'],
+              [/\bid\s+4d\s*h\b/i, '4D74H'],
+              [/^dst$/i, '4D67'], [/^hitag$/i, 'ID46'],
+              [/4d[\s-]*83.*80/i, '4D63-80'], [/4d\s*id\s*63/i, '4D63-80'],
             ];
             for (const [re, canonical] of patterns) {
               if (re.test(cleaned)) return canonical === 'NONE' ? null : canonical;
             }
             return cleaned; // Return original if no match
+          };
+
+          // Chip architecture family grouping (second-level normalization)
+          const normalizeChipArchitecture = (chipLabel: string | null): string => {
+            if (!chipLabel) return 'NONE';
+            const c = chipLabel.toUpperCase();
+            if (c === '4A' || c === 'AES') return 'AES';
+            if (c === 'ID49') return 'HITAG-PRO';
+            if (c === '8A' || c === '4D74H') return 'H-CHIP';
+            if (['4D72G', '4D60', '4D60-G', '4D61', '4D62', '4D64', '4D67', '4D68'].includes(c)) return 'TEXAS-4D';
+            if (c === '4D63-80') return '4D63-80';
+            if (c === '4D63-40') return '4D63-40';
+            if (c === '4D63-128') return '4D63-128';
+            if (['ID46', 'ID46E', 'ID46-CHR', 'ID46-MITS', 'ID46-CIRCLE+'].includes(c)) return 'HITAG2';
+            if (c === 'ID47') return 'HITAG3';
+            if (c === 'ID48' || c === 'ID48-CAN' || c === 'ID48-PK3+') return 'ID48';
+            if (c === 'ID48-MQB') return 'ID48-MQB';
+            if (c === 'MQB49') return 'MQB49';
+            if (['ID13', 'ID44', 'ID40', 'T5', '8C', 'ID8E', '4C', 'VATS'].includes(c)) return c;
+            return c;
+          };
+
+          // FCC normalization for grouping
+          const normalizeFccForGrouping = (fcc: string): string => {
+            let f = fcc.trim().toUpperCase();
+            f = f.replace(/O(\d)/g, '0$1').replace(/(\d)O/g, '$10');
+            f = f.replace(/0{2,3}$/, '');
+            f = f.replace(/-/g, '');
+            return f;
+          };
+
+          // Known FCC aliases
+          const FCC_ALIASES: Record<string, string> = {
+            'M3M40821302': 'M3N40821302',
           };
 
           if (year) {
@@ -13624,10 +13676,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             primaryOem: string | null;
             buttonCount: string | null;
             buttonCounts: string[];
+            variants: { label: string; buttons: string; fccIds: string[]; fccDetails: FccDetail[]; frequency: string | null; image: string | null }[] | null;
             fccIds: string[];
             fccDetails: FccDetail[];
             oemParts: { number: string; label: string | null }[];
             chip: string | null;
+            chipArchitecture: string | null;
             battery: string | null;
             frequency: string | null;
             keyway: string | null;
@@ -13690,6 +13744,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             const keyTypeGroups: Record<string, Record<string, {
               fccIds: Set<string>;
               buttonCounts: Set<string>;
+              buttonVariants: Map<string, { fccIds: Set<string>; frequencies: Set<string>; images: string[]; oemParts: Map<string, any> }>;
               fccDetailMap: Map<string, { oem: Set<string>; titles: string[]; frequency: string | null }>;
               oemParts: Map<string, { title: string; reusable: string | null; cloneable: string | null; fcc: string | null }>;
               chips: Set<string>;
@@ -13729,7 +13784,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   fccs.push(part);
                 }
               }
-              return fccs.map(f => f.replace(/O(\d)/g, '0$1').trim()).filter(f => f && f.length >= 5);
+              return fccs.map(f => f.replace(/O(\d)/g, '0$1').trim()).filter(f => f && f.length >= 5 && !/X{3,}/i.test(f));
             };
 
             // Helper: extract OEM part numbers from raw oem_part_numbers string
@@ -13829,21 +13884,27 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               return match ? match[1].toUpperCase() : null;
             };
 
-            // Pre-scan: build OEM-base → MWK lookup so products without MWK codes
-            // can be matched to existing MWK groups via their OEM numbers.
-            // e.g., product 16413 has OEM "68394198AA AES" (no MWK), but other products
-            // with OEM 68394198AA have MWK "CHRY-1656" — so 16413 joins that group.
-            const oemBaseToMwk = new Map<string, string>();
-            const normalizeOemBasePreScan = (oem: string): string => oem.replace(/[A-Z]+$/i, '').trim();
+            // Pre-scan: build FCC union-find groups
+            // If product A lists [FCC1, FCC2] and product B lists [FCC2, FCC3],
+            // then FCC1, FCC2, FCC3 are all the same physical key → same group
+            const fccParent = new Map<string, string>();
+            const fccFind = (x: string): string => {
+              if (!fccParent.has(x)) fccParent.set(x, x);
+              if (fccParent.get(x) !== x) fccParent.set(x, fccFind(fccParent.get(x)!));
+              return fccParent.get(x)!;
+            };
+            const fccUnion = (a: string, b: string): void => {
+              const ra = fccFind(a), rb = fccFind(b);
+              if (ra !== rb) fccParent.set(ra, rb);
+            };
+
             for (const row of yearFilteredResults) {
-              const mwk = parseMwkCode(row.cross_references);
-              if (!mwk) continue;
-              const oems = parseOemParts(row.oem_part_numbers);
-              for (const oem of oems) {
-                const base = normalizeOemBasePreScan(oem);
-                if (base.length >= 5 && !oemBaseToMwk.has(base)) {
-                  oemBaseToMwk.set(base, mwk);
-                }
+              if (!row.product_type || !row.fcc_id) continue;
+              const fccs = parseFccIds(row.fcc_id)
+                .map((f: string) => normalizeFccForGrouping(f))
+                .map((f: string) => FCC_ALIASES[f] || f);
+              for (let i = 1; i < fccs.length; i++) {
+                fccUnion(fccs[0], fccs[i]);
               }
             }
 
@@ -13857,6 +13918,14 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               // Normalize malformed key type names
               if (baseType === 'Emergency Key_Blade') {
                 baseType = 'Emergency Key';
+              }
+
+              // Ford/Lincoln: 315 MHz "Smart Keys" are actually one-way Remote Head Keys
+              // Ford uses 902 MHz for true PEPS (Passive Entry Passive Start) smart keys
+              const freqVal = (row.frequency || '').toLowerCase();
+              const isFordLincoln = normalizedMake === 'ford' || normalizedMake === 'lincoln';
+              if (isFordLincoln && baseType === 'Smart Key' && freqVal.includes('315') && !freqVal.includes('902')) {
+                baseType = 'Remote Head Key';
               }
 
               // Skip chip products from generating their own cards —
@@ -13889,42 +13958,35 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 }
               }
 
-              // Determine grouping key for this product
-              // Priority: MWK cross-reference code → OEM base → FCC → fallback
-              // MWK codes (e.g., "CHRY-1601") uniquely identify one physical key
-              // across all OEM variants, conditions, and manufacturers (incl. Strattec)
+              // Determine grouping key: {keyType} × {chipArchitecture} × {normalizedFCC}
               const isBladeType = ['Emergency Key', 'Mechanical Key', 'Blade'].includes(baseType);
               const productFccs = parseFccIds(row.fcc_id);
               const productOems = parseOemParts(row.oem_part_numbers);
-              const mwkCode = parseMwkCode(row.cross_references);
-              // Normalize OEM to numeric base: "68051387AH" → "68051387"
-              const normalizeOemBase = (oem: string): string => oem.replace(/[A-Z]+$/i, '').trim();
-              // Try to find MWK group: direct MWK code, or OEM-base lookup from pre-scan
-              let resolvedMwk = mwkCode;
-              if (!resolvedMwk && productOems.length > 0) {
-                const primaryBase = normalizeOemBase(productOems[0]);
-                resolvedMwk = oemBaseToMwk.get(primaryBase) || null;
-              }
-              // Group key hierarchy: MWK → OEM base → FCC → fallback
-              const oemGroupKey = isBladeType
+
+              // Compute chip architecture for grouping
+              const chipArch = normalizeChipArchitecture(normalizeChipLabel(row.chip));
+
+              // Compute FCC group key via union-find
+              const normalizedFccs = productFccs
+                .map((f: string) => normalizeFccForGrouping(f))
+                .map((f: string) => FCC_ALIASES[f] || f);
+              const fccRoot = normalizedFccs.length > 0 ? fccFind(normalizedFccs[0]) : 'no-fcc';
+
+              // Group key: chipArch::fccRoot (keyType is the outer map key)
+              const groupKey = isBladeType
                 ? 'blade'
-                : resolvedMwk
-                  ? `mwk:${resolvedMwk}`
-                  : productOems.length > 0
-                    ? normalizeOemBase(productOems[0])
-                    : productFccs.length > 0
-                      ? `fcc:${productFccs[0]}`
-                      : 'no-group';
+                : `${chipArch}::${fccRoot}`;
 
               // Initialize key type group
               if (!keyTypeGroups[baseType]) {
                 keyTypeGroups[baseType] = {};
               }
 
-              if (!keyTypeGroups[baseType][oemGroupKey]) {
-                keyTypeGroups[baseType][oemGroupKey] = {
+              if (!keyTypeGroups[baseType][groupKey]) {
+                keyTypeGroups[baseType][groupKey] = {
                   fccIds: new Set(),
                   buttonCounts: new Set(),
+                  buttonVariants: new Map<string, { fccIds: Set<string>; frequencies: Set<string>; images: string[]; oemParts: Map<string, any> }>(),
                   fccDetailMap: new Map(),
                   oemParts: new Map(),
                   chips: new Set(),
@@ -13939,11 +14001,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 };
               }
 
-              const group = keyTypeGroups[baseType][oemGroupKey];
+              const group = keyTypeGroups[baseType][groupKey];
 
               // Collect button count into the group (instead of using it as grouping key)
               if (buttonCount) {
                 group.buttonCounts.add(buttonCount);
+                // Track per-button-count variant data for tabs
+                if (!group.buttonVariants.has(buttonCount)) {
+                  group.buttonVariants.set(buttonCount, { fccIds: new Set(), frequencies: new Set(), images: [], oemParts: new Map() });
+                }
               }
 
               // Aggregate data
@@ -13972,17 +14038,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               }
               // Always split and clean OEM parts (blade/mechanical may not have FCC, but still have OEM)
               if (oemRaw) {
+                // Strip parenthesized annotations (e.g., "(Mustang Logo)", "(Shorter)", "(GM Logo)")
+                const cleanedOemRaw = oemRaw.replace(/\s*\([^)]*\)/g, '').replace(/[)]/g, '');
                 // For blade/mechanical types, the oem field often contains cross-reference key blank data
-                // (e.g. "Axxess 17 Bianchi BY159 Cole Y159 Curtis Y-159") — filter aggressively
-                const CROSS_REF_BRANDS = ['axxess', 'bianchi', 'cole', 'curtis', 'esp', 'hata', 'ilco', 'jet', 'jma', 'lotus', 'orion', 'silca', 'strattec', 'keyline', 'kaba'];
-                const splitOem = oemRaw.split(/[,;]+/).map((o: string) => o.trim()).filter((o: string) => {
+                const CROSS_REF_BRANDS = ['axxess', 'bianchi', 'cole', 'curtis', 'esp', 'hata', 'ilco', 'jet', 'jma', 'lotus', 'orion', 'silca', 'strattec', 'keyline', 'kaba', 'lockcraft'];
+                const OEM_JUNK = ['logo', 'shorter', 'longer', 'small', 'hole', 'blue', 'multiple'];
+                const splitOem = cleanedOemRaw.split(/[,;]+/).map((o: string) => o.trim()).filter((o: string) => {
                   if (!o || o === 'Multiple' || o.length < 4 || o.startsWith('(')) return false;
-                  // Real OEM parts have digits in them (e.g. 68092989AA, Y159, CR2032)
+                  // Real OEM parts have digits in them
                   if (!/\d/.test(o)) return false;
-                  // Filter out cross-reference brand names embedded in the string
                   const oLow = o.toLowerCase();
                   if (CROSS_REF_BRANDS.some(brand => oLow.includes(brand))) return false;
-                  // Filter out entries that are too long (likely concatenated text, not part numbers)
+                  if (OEM_JUNK.some(junk => oLow.includes(junk))) return false;
                   if (o.length > 30) return false;
                   return true;
                 });
@@ -14012,7 +14079,59 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 group.images.push(`cdn:${row.cdn_image}`);
               }
 
+              // Populate per-button variant data for tab switching
+              if (buttonCount && group.buttonVariants.has(buttonCount)) {
+                const bv = group.buttonVariants.get(buttonCount)!;
+                for (const fcc of productFccs) bv.fccIds.add(fcc);
+                if (freqRaw) bv.frequencies.add(freqRaw);
+                if (row.image_r2_key) bv.images.push(`r2:${row.image_r2_key}`);
+                else if (row.cdn_image) bv.images.push(`cdn:${row.cdn_image}`);
+              }
+
               group.productCount++;
+            }
+
+            // Post-process: merge NONE-chip groups into chipped sibling groups
+            // Products without chip data share the same FCC as chipped products —
+            // the seller just didn't specify the chip. Merge them to avoid duplicate cards.
+            for (const [keyType, groups] of Object.entries(keyTypeGroups)) {
+              const groupKeys = Object.keys(groups);
+              const noneGroups = groupKeys.filter(k => k.startsWith('NONE::'));
+              for (const noneKey of noneGroups) {
+                const fccPart = noneKey.substring(6); // after 'NONE::'
+                // Find a chipped sibling with the same FCC root
+                const chippedSibling = groupKeys.find(k =>
+                  k !== noneKey && k.endsWith('::' + fccPart) && !k.startsWith('NONE::')
+                );
+                if (chippedSibling) {
+                  // Merge NONE group into the chipped sibling
+                  const src = groups[noneKey];
+                  const dst = groups[chippedSibling];
+                  src.fccIds.forEach((f: string) => dst.fccIds.add(f));
+                  src.buttonCounts.forEach((b: string) => dst.buttonCounts.add(b));
+                  for (const [fcc, detail] of src.fccDetailMap) {
+                    if (!dst.fccDetailMap.has(fcc)) {
+                      dst.fccDetailMap.set(fcc, detail);
+                    } else {
+                      const d = dst.fccDetailMap.get(fcc)!;
+                      detail.oem.forEach((o: string) => d.oem.add(o));
+                      d.titles.push(...detail.titles);
+                    }
+                  }
+                  for (const [oem, meta] of src.oemParts) {
+                    if (!dst.oemParts.has(oem)) dst.oemParts.set(oem, meta);
+                  }
+                  src.batteries.forEach((b: string) => dst.batteries.add(b));
+                  src.frequencies.forEach((f: string) => dst.frequencies.add(f));
+                  src.keyways.forEach((k: string) => dst.keyways.add(k));
+                  src.modelNums.forEach((m: string) => dst.modelNums.add(m));
+                  src.reusables.forEach((r: string) => dst.reusables.add(r));
+                  src.cloneables.forEach((c: string) => dst.cloneables.add(c));
+                  dst.images.push(...src.images);
+                  dst.productCount += src.productCount;
+                  delete groups[noneKey];
+                }
+              }
             }
 
             // Flatten to array format
@@ -14045,18 +14164,46 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 // Primary button count = highest, for backward compatibility
                 const primaryButtonCount = sortedButtonCounts[0] || null;
 
+                // Extract chip architecture from the grouping key
+                const groupChipArch = oemKey.includes('::') ? oemKey.split('::')[0] : null;
+
+                // Build per-button-count variants for tab switching
+                const variants = sortedButtonCounts.length > 1 ? sortedButtonCounts.map(btn => {
+                  const bv = group.buttonVariants.get(btn);
+                  const variantFccs = bv ? Array.from(bv.fccIds) : [];
+                  const variantFreqs = bv ? Array.from(bv.frequencies) : [];
+                  // Pick best variant image
+                  let variantImage: string | null = null;
+                  if (bv) {
+                    const r2Img = bv.images.find(img => img.startsWith('r2:'));
+                    const cdnImg = bv.images.find(img => img.startsWith('cdn:'));
+                    if (r2Img) variantImage = `${WORKER_BASE}/api/r2/${encodeURIComponent(r2Img.substring(3))}`;
+                    else if (cdnImg) variantImage = cdnImg.substring(4);
+                  }
+                  // Build variant FCC details from the main fccDetailMap
+                  const variantFccDetails = variantFccs.map(fcc => {
+                    const d = group.fccDetailMap.get(fcc);
+                    return d ? { fcc, oem: Array.from(d.oem).slice(0, 6), title: d.titles[0] || '', frequency: d.frequency } : { fcc, oem: [], title: '', frequency: null };
+                  });
+                  return {
+                    label: `${btn}-Btn`,
+                    buttons: btn,
+                    fccIds: variantFccs.slice(0, 5),
+                    fccDetails: variantFccDetails.slice(0, 5),
+                    frequency: variantFreqs[0] || null,
+                    image: variantImage,
+                  };
+                }) : null;
+
                 aksKeyConfigs.push({
                   keyType,
-                  primaryOem: oemKey.startsWith('mwk:')
-                    ? (Array.from(group.oemParts.keys())[0] || null)
-                    : oemKey.startsWith('fcc:') || oemKey === 'blade' || oemKey === 'no-group'
-                      ? null
-                      : oemKey,
+                  primaryOem: Array.from(group.oemParts.keys())[0] || null,
                   buttonCount: primaryButtonCount,
                   buttonCounts: sortedButtonCounts,
+                  variants,
                   fccIds: Array.from(group.fccIds).slice(0, 8),
                   fccDetails: fccDetails.slice(0, 8),
-                  oemParts: Array.from(group.oemParts.entries()).slice(0, 10).map(([num, meta]) => {
+                  oemParts: Array.from(group.oemParts.entries()).slice(0, 6).map(([num, meta]) => {
                     // Compute short differentiator label for tooltip
                     const labels: string[] = [];
                     if (meta.reusable?.toLowerCase().startsWith('yes')) labels.push('♻️ Reusable');
@@ -14070,6 +14217,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                     return { number: num, label: labels.join(' · ') || null };
                   }),
                   chip: Array.from(group.chips)[0] || null,
+                  chipArchitecture: groupChipArch !== 'NONE' ? groupChipArch : null,
                   battery: Array.from(group.batteries)[0] || null,
                   frequency: Array.from(group.frequencies)[0] || null,
                   keyway: Array.from(group.keyways)[0] || null,
@@ -14094,6 +14242,19 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (orderA !== orderB) return orderA - orderB;
               return (parseInt(b.buttonCount || '0') || 0) - (parseInt(a.buttonCount || '0') || 0);
             });
+
+            // Filter out European-only cards (434/433 MHz) on domestic-market vehicles
+            // NOTE: CDJR / Stellantis makes use 433 MHz natively in North America, so they are exempt
+            const CDJR_433_MAKES = new Set(['chrysler', 'dodge', 'jeep', 'ram', 'fiat', 'alfa romeo']);
+            const DOMESTIC_MAKES = new Set(['ford', 'lincoln', 'chevrolet', 'gmc', 'buick', 'cadillac', 'chrysler', 'dodge', 'jeep', 'ram', 'toyota', 'honda', 'nissan', 'hyundai', 'kia', 'subaru', 'mazda', 'mitsubishi', 'acura', 'infiniti', 'lexus', 'scion', 'saturn', 'mercury', 'pontiac', 'oldsmobile', 'plymouth']);
+            if (DOMESTIC_MAKES.has(normalizedMake) && !CDJR_433_MAKES.has(normalizedMake)) {
+              aksKeyConfigs = aksKeyConfigs.filter(c => {
+                const freq = (c.frequency || '').toLowerCase();
+                // Drop cards where the ONLY frequency is 433/434 MHz (European)
+                if ((freq.includes('433') || freq.includes('434')) && !freq.includes('315') && !freq.includes('902')) return false;
+                return true;
+              });
+            }
 
             // Consolidate blade-type keys into a single bladeKeys object
             const BLADE_TYPES = ['Transponder Key', 'Mechanical Key', 'Emergency Key'];

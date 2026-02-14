@@ -29,12 +29,13 @@ export const TOOL_ID_TO_COVERAGE: Record<string, string> = {
     'autel_im608': 'autel',
     'autel_im608_pro': 'autel',
     'autel_im608_pro2': 'autel',
+    'autel_km100': 'autel',
     'autel_km100_not_updated': 'autel',
     // OBDStar
-    'obdstar_x300_mini': 'autel',
-    'obdstar_x300_pro4': 'autel',
-    'obdstar_x300_dp_plus': 'autel',
-    'obdstar_g3': 'autel',
+    'obdstar_x300_mini': 'obdstar',
+    'obdstar_x300_pro4': 'obdstar',
+    'obdstar_x300_dp_plus': 'obdstar',
+    'obdstar_g3': 'obdstar',
     // AutoProPAD / Smart Pro
     'autopropad_basic': 'smartPro',
     'autopropad': 'smartPro',
@@ -49,11 +50,22 @@ export const TOOL_ID_TO_COVERAGE: Record<string, string> = {
     'xhorse_keytool_max': 'vvdi',
     'xhorse_vvdi2': 'vvdi',
     'xhorse_keytool_plus': 'vvdi',
+    // Lock50
+    'lock50_hw04c': 'lock50',
+    // KR55
+    'kr55': 'kr55',
+    // Yanhua ACDP
+    'yanhua_acdp2': 'yanhua',
+    // KEYDIY
+    'keydiy_kdx2': 'keydiy',
+    // CGDI
+    'cgdi_mb': 'cgdi',
+    'cgdi_prog_bmw': 'cgdi',
 };
 
 export function getCoverageFamilyForToolId(toolId: string): VehicleToolCoverage['key'] | undefined {
     const family = TOOL_ID_TO_COVERAGE[toolId];
-    if (family === 'autel' || family === 'smartPro' || family === 'lonsdor' || family === 'vvdi') {
+    if (family === 'autel' || family === 'smartPro' || family === 'lonsdor' || family === 'vvdi' || family === 'obdstar' || family === 'lock50' || family === 'kr55' || family === 'yanhua' || family === 'keydiy' || family === 'cgdi') {
         return family;
     }
     return undefined;
@@ -65,10 +77,16 @@ const COVERAGE_TOOLS = [
     { key: 'smartPro' as const, name: 'Smart Pro', icon: '⚪', color: 'gray' },
     { key: 'lonsdor' as const, name: 'Lonsdor K518', icon: '🟣', color: 'purple' },
     { key: 'vvdi' as const, name: 'VVDI/Xhorse', icon: '🟠', color: 'orange' },
+    { key: 'obdstar' as const, name: 'OBDStar', icon: '🟢', color: 'green' },
+    { key: 'lock50' as const, name: 'Lock50', icon: '🟤', color: 'amber' },
+    { key: 'kr55' as const, name: 'KR55', icon: '🟡', color: 'yellow' },
+    { key: 'yanhua' as const, name: 'Yanhua ACDP', icon: '🔶', color: 'amber' },
+    { key: 'keydiy' as const, name: 'KEYDIY', icon: '🟦', color: 'blue' },
+    { key: 'cgdi' as const, name: 'CGDI', icon: '🟪', color: 'violet' },
 ];
 
 export interface VehicleToolCoverage {
-    key: 'autel' | 'smartPro' | 'lonsdor' | 'vvdi';
+    key: 'autel' | 'smartPro' | 'lonsdor' | 'vvdi' | 'obdstar' | 'lock50' | 'kr55' | 'yanhua' | 'keydiy' | 'cgdi';
     name: string;
     icon: string;
     color: string;

@@ -543,7 +543,7 @@ function BrowsePageContent() {
                                                 </div>
                                             )}
                                             {mergedModels
-                                                .filter(m => modelEra === 'all' || !classicOnlyModels.includes(m.name))
+                                                .filter(m => modelEra === 'all' || (!classicOnlyModels.includes(m.name) && !intlModels.includes(m.name)))
                                                 .filter(m => !showEVOnly || evModels.includes(m.name))
                                                 .filter(m => !showIntlOnly || intlModels.includes(m.name))
                                                 .map(model => (

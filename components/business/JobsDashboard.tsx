@@ -103,7 +103,8 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
 
             // Status filter
             const jobStatus = job.status || 'completed';
-            const matchesStatus = filterStatus === 'all' || jobStatus === filterStatus;
+            const matchesStatus = filterStatus === 'all'
+                || (filterStatus === 'unpaid' ? !job.paidAt : jobStatus === filterStatus);
 
             return matchesSearch && matchesType && matchesStatus;
         });
@@ -116,6 +117,12 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
     const markComplete = (job: JobLog) => {
         if (onUpdateJob) {
             onUpdateJob(job.id, { status: 'completed' });
+        }
+    };
+
+    const markPaid = (job: JobLog) => {
+        if (onUpdateJob) {
+            onUpdateJob(job.id, { paidAt: job.paidAt ? undefined : Date.now() });
         }
     };
 
@@ -290,6 +297,7 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
                     <option value="in_progress">🔄 In Progress</option>
                     <option value="completed">✅ Completed</option>
                     <option value="cancelled">❌ Cancelled</option>
+                    <option value="unpaid">💲 Unpaid</option>
                 </select>
             </div>
 
@@ -465,6 +473,7 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
                                             onToggle={() => !bulkMode && toggleJobExpand(job.id)}
                                             onDelete={() => onDeleteJob(job.id)}
                                             onMarkComplete={() => markComplete(job)}
+                                            onMarkPaid={() => markPaid(job)}
                                             onEdit={onEditJob ? () => onEditJob(job) : undefined}
                                             onGenerateInvoice={onGenerateInvoice ? () => onGenerateInvoice(job) : undefined}
                                         />
@@ -497,6 +506,7 @@ function JobCard({
     onToggle,
     onDelete,
     onMarkComplete,
+    onMarkPaid,
     onEdit,
     onGenerateInvoice
 }: {
@@ -507,6 +517,7 @@ function JobCard({
     onToggle: () => void;
     onDelete: () => void;
     onMarkComplete: () => void;
+    onMarkPaid: () => void;
     onEdit?: () => void;
     onGenerateInvoice?: () => void;
 }) {
@@ -540,6 +551,15 @@ function JobCard({
                                 {status.replace('_', ' ')}
                             </span>
                         )}
+                        {job.paidAt ? (
+                            <span className="text-xs px-2 py-0.5 rounded-full border bg-green-500/20 text-green-400 border-green-500/30">
+                                💲 paid
+                            </span>
+                        ) : status === 'completed' ? (
+                            <span className="text-xs px-2 py-0.5 rounded-full border bg-orange-500/15 text-orange-400 border-orange-500/25">
+                                unpaid
+                            </span>
+                        ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-sm">
                         {fleetName && (
@@ -676,6 +696,15 @@ function JobCard({
                                 📄 Invoice
                             </button>
                         )}
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onMarkPaid(); }}
+                            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-colors ${job.paidAt
+                                    ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                                    : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20'
+                                }`}
+                        >
+                            {job.paidAt ? '✓ Paid' : '💲 Paid'}
+                        </button>
                         <button
                             onClick={(e) => { e.stopPropagation(); onDelete(); }}
                             className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm font-bold hover:bg-red-500/30 transition-colors"

@@ -7,12 +7,20 @@ import { useUnifiedData } from '@/lib/useUnifiedData';
 import OwnedBadge from '@/components/shared/OwnedBadge';
 import BladeKeysCard, { BladeKeysData } from '@/components/vehicle/BladeKeysCard';
 
-/** Map frequency string to regional market label */
-function getFreqRegion(freq: string | null | undefined): string {
+/** Makes that use 433 MHz natively in North America (CDJR / Stellantis) */
+const CDJR_433_MAKES = new Set(['chrysler', 'dodge', 'jeep', 'ram', 'fiat', 'alfa romeo']);
+
+/** Map frequency string to regional market label.
+ *  Pass `make` so CDJR 433 MHz is correctly labeled as N. America. */
+function getFreqRegion(freq: string | null | undefined, make?: string): string {
     if (!freq) return '';
     const f = freq.toLowerCase();
     if (f.includes('315')) return '🇺🇸 N. America';
-    if (f.includes('433') || f.includes('434')) return '🇪🇺 Europe';
+    if (f.includes('433') || f.includes('434')) {
+        // CDJR / Stellantis vehicles use 433 MHz in North America
+        if (make && CDJR_433_MAKES.has(make.toLowerCase())) return '🇺🇸 N. America';
+        return '🇪🇺 Europe';
+    }
     if (f.includes('868')) return '🇪🇺 Europe';
     if (f.includes('902')) return '🇺🇸 N. America';
     if (f.includes('314.3') || f.includes('314')) return '🇯🇵 Japan';
@@ -60,6 +68,7 @@ interface KeyConfig {
     buttons?: string;
     battery?: string;
     chip?: string;
+    chipArchitecture?: string;
     frequency?: string;
     keyway?: string;
     partNumber?: string;
@@ -265,6 +274,64 @@ export default function KeyCards({ keys, vehicleInfo, pearls, bladeKeys, bitting
                 )}
             </h2>
 
+            {/* Quick Summary Bar — chips & FCCs at a glance */}
+            {keys.length > 0 && (() => {
+                // Collect unique chip architectures with their key types for context
+                const chipArchMap = new Map<string, Set<string>>();
+                const allFccs = new Set<string>();
+                for (const k of enrichedKeys) {
+                    if (k.chipArchitecture) {
+                        if (!chipArchMap.has(k.chipArchitecture)) chipArchMap.set(k.chipArchitecture, new Set());
+                        chipArchMap.get(k.chipArchitecture)!.add(k.name || k.type || '');
+                    }
+                    if (k.fcc) {
+                        for (const f of k.fcc.split(',')) {
+                            const trimmed = f.trim();
+                            if (trimmed) allFccs.add(trimmed);
+                        }
+                    }
+                }
+                if (chipArchMap.size === 0 && allFccs.size === 0) return null;
+                return (
+                    <div className="flex flex-wrap items-center gap-2 mb-3 pb-3 border-b border-zinc-800/60">
+                        {chipArchMap.size > 0 && (
+                            <>
+                                <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Chips</span>
+                                {Array.from(chipArchMap.entries()).map(([arch, keyNames]) => (
+                                    <span
+                                        key={arch}
+                                        title={`Used by: ${Array.from(keyNames).join(', ')}`}
+                                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${arch === 'AES' ? 'bg-green-900/30 text-green-400 border-green-700/30'
+                                            : arch.includes('HITAG') ? 'bg-teal-900/30 text-teal-400 border-teal-700/30'
+                                                : 'bg-amber-900/30 text-amber-400 border-amber-700/30'
+                                            }`}
+                                    >
+                                        {arch}
+                                    </span>
+                                ))}
+                            </>
+                        )}
+                        {allFccs.size > 0 && (
+                            <>
+                                <span className="text-zinc-700 mx-1">|</span>
+                                <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">FCCs</span>
+                                {Array.from(allFccs).slice(0, 5).map(fcc => (
+                                    <span
+                                        key={fcc}
+                                        className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-zinc-800/50 text-zinc-400 border border-zinc-700/30"
+                                    >
+                                        {fcc}
+                                    </span>
+                                ))}
+                                {allFccs.size > 5 && (
+                                    <span className="text-[10px] text-zinc-500">+{allFccs.size - 5}</span>
+                                )}
+                            </>
+                        )}
+                    </div>
+                );
+            })()}
+
             {/* Contextual Insight Tags - Compact and collapsible */}
             {(pearls?.keyConfig?.length ?? 0) > 0 || (pearls?.frequency?.length ?? 0) > 0 || (pearls?.access?.length ?? 0) > 0 ? (
                 <KeyConfigPearlTags pearls={pearls} />
@@ -419,6 +486,18 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     <h3 className="font-bold text-xl text-white group-hover:text-purple-300 transition-colors">
                         {config.name || 'Key'}
                     </h3>
+                    {/* Chip differentiator subtitle — shows why multiple cards of same type exist */}
+                    {config.chipArchitecture && (
+                        <p className="text-[11px] text-zinc-400 mt-0.5">
+                            <span className={`font-bold ${config.chipArchitecture === 'AES' ? 'text-green-400'
+                                : config.chipArchitecture.includes('HITAG') ? 'text-teal-400'
+                                    : 'text-amber-400'
+                                }`}>{config.chipArchitecture}</span>
+                            {config.chip && !config.chip.toLowerCase().includes(config.chipArchitecture.toLowerCase()) && (
+                                <span className="text-zinc-500 ml-1">· {config.chip}</span>
+                            )}
+                        </p>
+                    )}
                 </div>
                 {/* Badges container */}
                 <div className="flex flex-col items-end gap-1">
@@ -538,8 +617,8 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                                                 {detail.frequency && (
                                                     <span className="text-emerald-400 font-medium">
                                                         {detail.frequency}
-                                                        {getFreqRegion(detail.frequency) && (
-                                                            <span className="text-zinc-500 ml-1 font-normal">({getFreqRegion(detail.frequency)})</span>
+                                                        {getFreqRegion(detail.frequency, vehicleInfo?.make) && (
+                                                            <span className="text-zinc-500 ml-1 font-normal">({getFreqRegion(detail.frequency, vehicleInfo?.make)})</span>
                                                         )}
                                                     </span>
                                                 )}
@@ -577,8 +656,8 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     <div className="text-xs">
                         <span className="text-zinc-500">Freq: </span>
                         <span className="text-emerald-400 font-medium">{effective.frequency}</span>
-                        {getFreqRegion(effective.frequency) && (
-                            <span className="text-zinc-500 ml-1">({getFreqRegion(effective.frequency)})</span>
+                        {getFreqRegion(effective.frequency, vehicleInfo?.make) && (
+                            <span className="text-zinc-500 ml-1">({getFreqRegion(effective.frequency, vehicleInfo?.make)})</span>
                         )}
                     </div>
                 )}
@@ -623,6 +702,16 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                                 </span>
                             ) : (
                                 <span className="text-white">{effective.chip}</span>
+                            )}
+                            {/* Chip Architecture Badge */}
+                            {(config as any).chipArchitecture && (
+                                <span className={`ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${(config as any).chipArchitecture === 'AES' ? 'bg-green-900/40 text-green-400 border border-green-700/30'
+                                    : (config as any).chipArchitecture === 'HITAG 128-BIT' ? 'bg-emerald-900/40 text-emerald-400 border border-emerald-700/30'
+                                        : (config as any).chipArchitecture === 'HITAG-PRO' ? 'bg-teal-900/40 text-teal-400 border border-teal-700/30'
+                                            : 'bg-amber-900/40 text-amber-400 border border-amber-700/30'
+                                    }`}>
+                                    {(config as any).chipArchitecture}
+                                </span>
                             )}
                         </div>
                     );

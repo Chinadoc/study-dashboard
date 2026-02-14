@@ -65,6 +65,12 @@ const ToolsIcon = () => (
     </svg>
 );
 
+const HeatmapIcon = () => (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+    </svg>
+);
+
 const ICONS: Record<string, React.FC> = {
     search: SearchIcon,
     fcc: FccIcon,
@@ -76,6 +82,7 @@ const ICONS: Record<string, React.FC> = {
     jobs: JobsIcon,
     inventory: InventoryIcon,
     tools: ToolsIcon,
+    heatmap: HeatmapIcon,
 };
 
 const DATABASE_TABS = [
@@ -83,6 +90,8 @@ const DATABASE_TABS = [
     { id: 'fcc', label: 'FCC', href: '/fcc' },
     { id: 'dossiers', label: 'Dossiers', href: '/dossiers' },
     { id: 'gallery', label: 'Gallery', href: '/gallery' },
+    { id: 'tools', label: 'Tools', href: '/tools' },
+    { id: 'heatmap', label: 'Heatmap', href: '/tools/heatmap' },
     { id: 'business', label: 'Business', href: '/business', isToggle: true, tourId: 'nav-business' },
 ];
 
@@ -92,6 +101,7 @@ const BUSINESS_TABS = [
     { id: 'jobs', label: 'Jobs', href: '/business/jobs' },
     { id: 'inventory', label: 'Inventory', href: '/business/inventory' },
     { id: 'tools', label: 'Tools', href: '/business/tools' },
+    { id: 'heatmap', label: 'Heatmap', href: '/tools/heatmap' },
 ];
 
 interface BottomNavProps {

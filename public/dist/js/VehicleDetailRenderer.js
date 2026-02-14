@@ -14,12 +14,18 @@ class VehicleDetailRenderer {
         this.carouselStates = {};
     }
 
+    /** Makes that use 433 MHz natively in North America (CDJR / Stellantis) */
+    static _CDJR_433_MAKES = new Set(['chrysler', 'dodge', 'jeep', 'ram', 'fiat', 'alfa romeo']);
+
     /** Map frequency to regional market label */
-    static _freqRegion(freq) {
+    static _freqRegion(freq, make) {
         if (!freq) return '';
         const f = freq.toLowerCase();
         if (f.includes('315')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
-        if (f.includes('433') || f.includes('434')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+        if (f.includes('433') || f.includes('434')) {
+            if (make && VehicleDetailRenderer._CDJR_433_MAKES.has(make.toLowerCase())) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
+            return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
+        }
         if (f.includes('868')) return ' <span style="color:#9ca3af;font-weight:400">(🇪🇺 Europe)</span>';
         if (f.includes('902')) return ' <span style="color:#9ca3af;font-weight:400">(🇺🇸 N. America)</span>';
         if (f.includes('314')) return ' <span style="color:#9ca3af;font-weight:400">(🇯🇵 Japan)</span>';
@@ -243,7 +249,7 @@ class VehicleDetailRenderer {
             <div class="vd-key-panel-specs">
                 ${group.chip ? `<span>Chip: <strong>${group.chip}</strong></span>` : ''}
                 ${group.battery ? `<span>Battery: <strong>${group.battery}</strong></span>` : ''}
-                ${group.frequency ? `<span>Freq: <strong>${group.frequency}</strong>${VehicleDetailRenderer._freqRegion(group.frequency)}</span>` : ''}
+                ${group.frequency ? `<span>Freq: <strong>${group.frequency}</strong>${VehicleDetailRenderer._freqRegion(group.frequency, (this.data.vehicle || this.data).make)}</span>` : ''}
                 ${group.blade ? `<span>Blade: <strong>${group.blade}</strong></span>` : ''}
             </div>` : '';
 
