@@ -91,6 +91,7 @@ export default function ToolCoverageHeatmap() {
     const [expandedBucket, setExpandedBucket] = useState<string | null>(null);
     const [showMobilePanel, setShowMobilePanel] = useState(false);
     const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+    const [expandedMake, setExpandedMake] = useState<string | null>(null);
 
     useEffect(() => {
         fetch('/data/tool_families.json')
@@ -279,12 +280,57 @@ export default function ToolCoverageHeatmap() {
         };
     }, [family, enabledExpansions]);
 
-    // Filter makes
-    const filteredMakes = useMemo(() => {
-        if (!makeFilter) return allMakes;
+    // Build make hierarchy: group model-level entries under parent makes
+    type MakeRow = { key: string; label: string; isParent: boolean; children: string[]; indent: boolean };
+    const makeHierarchy = useMemo(() => {
+        // Detect parent-child relationships: if "Bmw 1 Series" exists and "BMW" exists,
+        // then "Bmw 1 Series" is a child of "BMW"
+        const parentMap = new Map<string, string[]>(); // parent -> children
+        const childSet = new Set<string>();
+        const normalizedParents = new Map<string, string>(); // lowercase parent -> actual parent key
+
+        for (const m of allMakes) {
+            normalizedParents.set(m.toLowerCase(), m);
+        }
+
+        for (const m of allMakes) {
+            // Check if this make looks like "Parent Model" pattern
+            const spaceIdx = m.indexOf(' ');
+            if (spaceIdx === -1) continue;
+            const prefix = m.slice(0, spaceIdx).toLowerCase();
+            const parentKey = normalizedParents.get(prefix);
+            if (parentKey && parentKey !== m) {
+                if (!parentMap.has(parentKey)) parentMap.set(parentKey, []);
+                parentMap.get(parentKey)!.push(m);
+                childSet.add(m);
+            }
+        }
+
+        // Build the flat list of rows with hierarchy info
+        const rows: MakeRow[] = [];
+        for (const m of allMakes) {
+            if (childSet.has(m)) continue; // Skip children at top level
+            const children = parentMap.get(m) || [];
+            rows.push({
+                key: m,
+                label: m,
+                isParent: children.length > 0,
+                children: children.sort(),
+                indent: false,
+            });
+        }
+        return rows;
+    }, [allMakes]);
+
+    // Filter makes (search applies to both parents and children)
+    const filteredRows = useMemo(() => {
+        if (!makeFilter) return makeHierarchy;
         const q = makeFilter.toLowerCase();
-        return allMakes.filter(m => m.toLowerCase().includes(q));
-    }, [allMakes, makeFilter]);
+        return makeHierarchy.filter(row =>
+            row.label.toLowerCase().includes(q) ||
+            row.children.some(c => c.toLowerCase().includes(q))
+        );
+    }, [makeHierarchy, makeFilter]);
 
     // Total cost
     const totalCost = useMemo(() => {
@@ -355,13 +401,35 @@ export default function ToolCoverageHeatmap() {
         });
     }, [family]);
 
+    // Derived group stats: count & cost per group (single-pass, avoids O(n) scans in each child)
+    const groupStats = useMemo(() => {
+        const stats: Record<string, { count: number; cost: number }> = {};
+        let totalGroupCost = 0;
+        for (const group of expansionGroups) {
+            let count = 0;
+            let cost = 0;
+            for (const idx of group.indices) {
+                if (enabledExpansions.has(idx)) {
+                    count++;
+                    cost += family.expansions[idx]?.price || 0;
+                }
+            }
+            stats[group.key] = { count, cost };
+            totalGroupCost += cost;
+        }
+        return { stats, totalGroupCost };
+    }, [enabledExpansions, expansionGroups, family]);
+
     const toggleGroup = useCallback((group: ExpGroup) => {
         setEnabledExpansions(prev => {
             const next = new Set(prev);
             const allEnabled = group.indices.every(i => next.has(i));
+            // UX standard: Partial → All → None
             if (allEnabled) {
+                // All checked → uncheck all
                 group.indices.forEach(i => next.delete(i));
             } else {
+                // None or partial → check all (fill the gaps)
                 group.indices.forEach(i => next.add(i));
             }
             return next;
@@ -443,14 +511,11 @@ export default function ToolCoverageHeatmap() {
                         <span className="text-lg">{showMobilePanel ? '✕' : '⚙️'}</span>
                     </button>
 
-                    <style>{`
-                        .heatmap-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-                        @media (min-width: 1024px) { .heatmap-grid { grid-template-columns: 320px 1fr; } }
-                    `}</style>
-                    <div className="heatmap-grid">
+                    {/* ── Layout: flex-col-reverse on mobile, grid on desktop ── */}
+                    <div className="flex flex-col-reverse lg:grid lg:grid-cols-[320px_1fr] gap-4 items-start">
 
                         {/* ── Left: Expansion Toggles Panel ── */}
-                        <div className={`${showMobilePanel ? 'block' : 'hidden'} lg:block overflow-hidden`} style={{ minWidth: 0, maxWidth: 320 }}>
+                        <div className={`${showMobilePanel ? 'block' : 'hidden'} lg:block w-full overflow-hidden`} style={{ minWidth: 0, maxWidth: 320 }}>
                             {/* Tool summary card */}
                             <div className="bg-zinc-900/80 border border-zinc-700/50 rounded-xl p-4 mb-3">
                                 <div className="flex items-center gap-2 mb-2">
@@ -524,8 +589,10 @@ export default function ToolCoverageHeatmap() {
                             {/* Grouped expansion toggles */}
                             <div className="space-y-1 max-h-[calc(100vh-520px)] overflow-y-auto pr-1">
                                 {expansionGroups.map(group => {
-                                    const allEnabled = group.indices.every(i => enabledExpansions.has(i));
-                                    const someEnabled = group.indices.some(i => enabledExpansions.has(i));
+                                    const { count = 0, cost = 0 } = groupStats.stats[group.key] || {};
+                                    const isAll = count === group.indices.length;
+                                    const isPartial = count > 0 && !isAll;
+                                    const isNone = count === 0;
                                     const isExpanded = expandedGroup === group.key;
                                     const primaryType = [...group.types][0] || 'addon';
 
@@ -535,9 +602,9 @@ export default function ToolCoverageHeatmap() {
                                                 {/* Toggle button */}
                                                 <button
                                                     onClick={() => toggleGroup(group)}
-                                                    className={`flex-1 text-left rounded-lg border p-2 transition-all ${allEnabled
+                                                    className={`flex-1 text-left rounded-lg border p-2 transition-all ${isAll
                                                         ? EXP_TYPE_COLORS[primaryType] + ' border-opacity-100'
-                                                        : someEnabled
+                                                        : isPartial
                                                             ? 'border-purple-500/30 bg-purple-500/5 text-zinc-300'
                                                             : 'border-zinc-800 bg-zinc-900/30 text-zinc-500 hover:border-zinc-600'
                                                         }`}
@@ -545,8 +612,8 @@ export default function ToolCoverageHeatmap() {
                                                     <div className="flex items-center justify-between gap-2">
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-1.5">
-                                                                <span className={`w-3 h-3 rounded border-2 flex-shrink-0 flex items-center justify-center text-[7px] transition-colors ${allEnabled ? 'border-current bg-current/20' : someEnabled ? 'border-purple-400 bg-purple-400/20' : 'border-zinc-600'}`}>
-                                                                    {allEnabled ? '✓' : someEnabled ? '–' : ''}
+                                                                <span className={`w-3 h-3 rounded border-2 flex-shrink-0 flex items-center justify-center text-[7px] transition-colors ${isAll ? 'border-current bg-current/20' : isPartial ? 'border-purple-400 bg-purple-400/20' : 'border-zinc-600'}`}>
+                                                                    {isAll ? '✓' : isPartial ? '–' : ''}
                                                                 </span>
                                                                 <span className="text-xs font-medium truncate block">
                                                                     {group.makes.length <= 3
@@ -578,9 +645,21 @@ export default function ToolCoverageHeatmap() {
                                                             )}
                                                         </div>
                                                         <div className="flex-shrink-0 text-right">
-                                                            {group.minPrice != null && (
-                                                                <div className="text-[10px] font-bold">
+                                                            {isNone && group.minPrice != null && (
+                                                                <div className="text-[10px] text-zinc-500">
                                                                     from ${group.minPrice}
+                                                                </div>
+                                                            )}
+                                                            {isPartial && (
+                                                                <div className="text-[10px] font-bold text-purple-300">
+                                                                    ${cost.toFixed(0)}
+                                                                    <span className="text-[8px] font-normal text-zinc-500 block">{count}/{group.indices.length} selected</span>
+                                                                </div>
+                                                            )}
+                                                            {isAll && (
+                                                                <div className="text-[10px] font-bold text-green-400">
+                                                                    ${cost.toFixed(0)}
+                                                                    <span className="text-[8px] font-normal text-zinc-500 block">all {count}</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -650,8 +729,7 @@ export default function ToolCoverageHeatmap() {
                         </div>
 
                         {/* ── Right: Heatmap Grid ── */}
-                        {/* ── Right: Heatmap Grid (shown first on mobile via order) ── */}
-                        <div className="order-first lg:order-none" style={{ minWidth: 0, overflow: 'auto' }}>
+                        <div className="w-full min-w-0" style={{ overflow: 'auto' }}>
                             {/* Filter */}
                             <div className="flex items-center gap-3 mb-3">
                                 <input
@@ -661,7 +739,7 @@ export default function ToolCoverageHeatmap() {
                                     placeholder="Filter makes..."
                                     className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500 outline-none"
                                 />
-                                <span className="text-xs text-zinc-500">{filteredMakes.length} makes</span>
+                                <span className="text-xs text-zinc-500">{filteredRows.length} makes</span>
                             </div>
 
                             {/* Heatmap */}
@@ -703,53 +781,78 @@ export default function ToolCoverageHeatmap() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredMakes.map(make => (
-                                            <tr key={make} className="group">
-                                                <td className="text-xs text-zinc-300 font-medium py-0.5 pr-2 sticky left-0 bg-zinc-950 z-10 group-hover:text-white transition-colors">
-                                                    {make}
-                                                </td>
-                                                {columns.map(col => {
-                                                    // For individual years, look up yearCoverageMap
-                                                    const cell = col.isYear
-                                                        ? yearCoverageMap[make]?.[col.key]
-                                                        : coverageMap[make]?.[col.key];
-                                                    const cellColor = cell
-                                                        ? cell.source === 'expansion'
-                                                            ? CELL_COLORS.expansion
-                                                            : CELL_COLORS.base
-                                                        : CELL_COLORS.none;
+                                        {filteredRows.flatMap(row => {
+                                            const isExpanded = expandedMake === row.key;
+                                            const rows: React.ReactNode[] = [];
 
-                                                    return (
-                                                        <td key={col.key} className={`py-0.5 px-0.5 ${col.isYear ? 'bg-amber-950/5' : ''}`}>
-                                                            <div
-                                                                className={`h-6 rounded-sm cursor-pointer transition-all duration-300 ${cellColor} relative`}
-                                                                onMouseEnter={(e) => {
-                                                                    setHoveredCell({ make, bucket: col.key });
-                                                                    const rect = e.currentTarget.getBoundingClientRect();
-                                                                    setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 8 });
-                                                                }}
-                                                                onMouseLeave={() => {
-                                                                    setHoveredCell(null);
-                                                                    setTooltipPos(null);
-                                                                }}
-                                                            >
-                                                                {cell && cell.source === 'both' && (
-                                                                    <div className="absolute inset-0 rounded-sm overflow-hidden">
-                                                                        <div className="absolute inset-0 bg-purple-500" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
-                                                                        <div className="absolute inset-0 bg-blue-500" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                    );
-                                                })}
-                                            </tr>
-                                        ))}
+                                            // Helper to render a single make/model row
+                                            const renderRow = (make: string, label: string, indent: boolean, isParentRow: boolean, hasChildren: boolean) => (
+                                                <tr key={make} className="group">
+                                                    <td
+                                                        className={`text-xs font-medium py-0.5 pr-2 sticky left-0 bg-zinc-950 z-10 group-hover:text-white transition-colors ${indent ? 'text-zinc-500 pl-4' : 'text-zinc-300'} ${hasChildren ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                                        onClick={hasChildren ? () => setExpandedMake(isExpanded ? null : make) : undefined}
+                                                    >
+                                                        {hasChildren && <span className="opacity-40 mr-0.5 text-[10px]">{isExpanded ? '▾' : '▸'}</span>}
+                                                        {indent && <span className="opacity-30 mr-1">└</span>}
+                                                        {label}
+                                                        {hasChildren && !isExpanded && <span className="text-[9px] text-zinc-600 ml-1">({row.children.length})</span>}
+                                                    </td>
+                                                    {columns.map(col => {
+                                                        const cell = col.isYear
+                                                            ? yearCoverageMap[make]?.[col.key]
+                                                            : coverageMap[make]?.[col.key];
+                                                        const cellColor = cell
+                                                            ? cell.source === 'expansion'
+                                                                ? CELL_COLORS.expansion
+                                                                : CELL_COLORS.base
+                                                            : CELL_COLORS.none;
+
+                                                        return (
+                                                            <td key={col.key} className={`py-0.5 px-0.5 ${col.isYear ? 'bg-amber-950/5' : ''}`}>
+                                                                <div
+                                                                    className={`${indent ? 'h-5' : 'h-6'} rounded-sm cursor-pointer transition-all duration-300 ${cellColor} relative`}
+                                                                    onMouseEnter={(e) => {
+                                                                        setHoveredCell({ make, bucket: col.key });
+                                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                                        setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 8 });
+                                                                    }}
+                                                                    onMouseLeave={() => {
+                                                                        setHoveredCell(null);
+                                                                        setTooltipPos(null);
+                                                                    }}
+                                                                >
+                                                                    {cell && cell.source === 'both' && (
+                                                                        <div className="absolute inset-0 rounded-sm overflow-hidden">
+                                                                            <div className="absolute inset-0 bg-purple-500" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
+                                                                            <div className="absolute inset-0 bg-blue-500" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            );
+
+                                            // Parent row
+                                            rows.push(renderRow(row.key, row.label, false, true, row.isParent));
+
+                                            // Expanded children
+                                            if (isExpanded && row.children.length > 0) {
+                                                for (const child of row.children) {
+                                                    // Extract model name from "Bmw 1 Series" → "1 Series"
+                                                    const modelName = child.slice(row.key.length).trim() || child;
+                                                    rows.push(renderRow(child, modelName, true, false, false));
+                                                }
+                                            }
+
+                                            return rows;
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
 
-                            {filteredMakes.length === 0 && (
+                            {filteredRows.length === 0 && (
                                 <div className="text-center py-12 text-zinc-500">
                                     No makes match your filter.
                                 </div>
