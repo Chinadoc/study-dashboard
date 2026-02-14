@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import dossierManifest from '@/data/dossier_manifest.json';
+import dossierManifest from '@/public/data/dossier_manifest.json';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import TourBanner from '@/components/onboarding/TourBanner';
@@ -134,7 +134,24 @@ export default function DossierLibraryClient() {
     window.open(dossier.embed_url, '_blank');
   }, [hasDossiers, openedIds]);
 
-  const dossiers = dossierManifest as Dossier[];
+  // Normalise manifest entries – some may have null/missing fields
+  const dossiers = (dossierManifest as Dossier[]).map((d) => ({
+    ...d,
+    title: d.title ?? '',
+    makes: d.makes ?? [],
+    topics: d.topics ?? [],
+    platforms: d.platforms ?? [],
+    years: d.years ?? [],
+    sections: (d.sections ?? []).map((s) => ({
+      ...s,
+      heading: s.heading ?? '',
+      preview: s.preview ?? '',
+      makes: s.makes ?? [],
+      topics: s.topics ?? [],
+      platforms: s.platforms ?? [],
+      years: s.years ?? [],
+    })),
+  }));
 
   // Filter dossiers based on search, topics, and make
   const filteredDossiers = useMemo(() => {

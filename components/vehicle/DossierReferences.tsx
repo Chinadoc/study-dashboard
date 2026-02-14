@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import dossierManifest from '@/data/dossier_manifest.json';
+import dossierManifest from '@/public/data/dossier_manifest.json';
 
 interface DossierSection {
     heading: string;
