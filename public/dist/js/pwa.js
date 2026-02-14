@@ -57,7 +57,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
             // Force fresh SW by using query param
-            const registration = await navigator.serviceWorker.register('/sw.js?v=39');
+            const registration = await navigator.serviceWorker.register('/sw.js?v=40');
             console.log('Service Worker registered:', registration.scope);
 
             // Check for updates immediately and every 5 minutes
@@ -77,10 +77,19 @@ if ('serviceWorker' in navigator) {
 
                 newWorker.addEventListener('statechange', () => {
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // New version available, show update prompt
-                        showUpdateBanner();
+                        // Auto-activate the new service worker immediately
+                        newWorker.postMessage({ type: 'SKIP_WAITING' });
                     }
                 });
+            });
+
+            // When new SW takes over, reload for fresh content
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
             });
         } catch (err) {
             console.log('Service Worker registration failed:', err);
@@ -114,10 +123,10 @@ function showUpdateBanner() {
 
     const banner = document.createElement('div');
     banner.id = 'updateBanner';
-    
+
     // Auto-dismiss countdown
     let countdown = 8;
-    
+
     banner.innerHTML = `
         <div id="updateToast" style="
             position: fixed; 
@@ -175,7 +184,7 @@ function showUpdateBanner() {
         </style>
     `;
     document.body.appendChild(banner);
-    
+
     // Countdown timer
     const timerEl = document.getElementById('countdownTimer');
     const countdownInterval = setInterval(() => {
@@ -186,7 +195,7 @@ function showUpdateBanner() {
             dismissUpdateBanner();
         }
     }, 1000);
-    
+
     // Store interval ID for cleanup
     banner.dataset.intervalId = countdownInterval;
 }
@@ -194,12 +203,12 @@ function showUpdateBanner() {
 function dismissUpdateBanner() {
     const banner = document.getElementById('updateBanner');
     if (!banner) return;
-    
+
     // Clear countdown interval
     if (banner.dataset.intervalId) {
         clearInterval(parseInt(banner.dataset.intervalId));
     }
-    
+
     // Animate out
     const toast = document.getElementById('updateToast');
     if (toast) {

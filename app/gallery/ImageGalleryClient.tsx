@@ -63,7 +63,9 @@ export default function ImageGalleryClient() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/data/image_gallery_manifest.json', { cache: 'no-store' })
+    // Cache-bust to bypass service worker cache-first and CDN edge cache
+    const bustParam = `_t=${Date.now()}`;
+    fetch(`/data/image_gallery_manifest.json?${bustParam}`, { cache: 'no-store' })
       .then(res => res.json())
       .then((data: { images: GalleryImage[] }) => {
         setImages(data.images);
