@@ -1,0 +1,171 @@
+{
+ "display_name": "AutoTuner",
+ "icon": "\u26a1",
+ "product_count": 2,
+ "vehicle_makes_count": 25,
+ "vehicle_makes": [
+  "Alfa Romeo",
+  "Audi",
+  "BMW",
+  "Chrysler",
+  "Citroen",
+  "Dacia",
+  "Fiat",
+  "Ford",
+  "Hyundai",
+  "Jeep",
+  "KTM",
+  "Kia",
+  "Lexus",
+  "Mercedes-Benz",
+  "Mini",
+  "Nissan",
+  "Peugeot",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Seat",
+  "Skoda",
+  "Suzuki",
+  "Toyota",
+  "Volkswagen"
+ ],
+ "functions": [
+  "bench_mode",
+  "boot_mode",
+  "checksum",
+  "obd_mode"
+ ],
+ "function_labels": {
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "checksum": "Checksum Correction",
+  "obd_mode": "OBD Mode"
+ },
+ "chip_types_count": 0,
+ "ecu_types_count": 13,
+ "product_types": {
+  "diagnostic_tool": 1,
+  "software_license": 1
+ },
+ "price_range": [
+  3389.0,
+  5836.0
+ ],
+ "top_products": [
+  {
+   "name": "EU SHIP NO TAX Original AutoTuner ECU TCU Programming Tool Master Version Supports OBD Bench Boot No Subscription Lifeti",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 5836.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 13,
+   "functions": [
+    "checksum",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Citro\u00ebn",
+    "Dacia",
+    "Fiat",
+    "Ford",
+    "Hyundai",
+    "Jeep",
+    "KTM",
+    "Kia",
+    "Lexus",
+    "Mercedes-Benz",
+    "Mini",
+    "Nissan",
+    "Peugeot",
+    "Porsche",
+    "RAM",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX Autotuner Flasher Tool Slave Version Starter Kit No Subscription, Free Updates 5 Years Warranty",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 3389.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "RAM"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "EU SHIP NO TAX Original AutoTuner ECU TCU Programming Tool Master Version Supports OBD Bench Boot No Subscription Lifeti",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 5836.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 13,
+   "functions": [
+    "checksum",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Citro\u00ebn",
+    "Dacia",
+    "Fiat",
+    "Ford",
+    "Hyundai",
+    "Jeep",
+    "KTM",
+    "Kia",
+    "Lexus",
+    "Mercedes-Benz",
+    "Mini",
+    "Nissan",
+    "Peugeot",
+    "Porsche",
+    "RAM",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX Autotuner Flasher Tool Slave Version Starter Kit No Subscription, Free Updates 5 Years Warranty",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 3389.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "RAM"
+   ],
+   "chip_types": []
+  }
+ ]
+}

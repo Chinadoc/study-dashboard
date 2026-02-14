@@ -1,0 +1,1058 @@
+{
+ "display_name": "Tango",
+ "icon": "\ud83d\udc83",
+ "product_count": 18,
+ "vehicle_makes_count": 48,
+ "vehicle_makes": [
+  "Alfa Romeo",
+  "Audi",
+  "BMW",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "Dacia",
+  "Dodge",
+  "Dongfeng",
+  "Ducati",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Gmc",
+  "Honda",
+  "Hyundai",
+  "Isuzu",
+  "Jaguar",
+  "Jeep",
+  "KTM",
+  "Kia",
+  "Lada",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "MAN",
+  "Maserati",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Porsche",
+  "Renault",
+  "SAIC",
+  "Saab",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "eeprom_read",
+  "key_programming",
+  "obd_mode"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "eeprom_read": "Eeprom Read",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode"
+ },
+ "chip_types_count": 21,
+ "ecu_types_count": 5,
+ "product_types": {
+  "key_programmer": 14,
+  "remote_shell": 2,
+  "other": 1,
+  "software_license": 1
+ },
+ "price_range": [
+  20.99,
+  2349.0
+ ],
+ "top_products": [
+  {
+   "name": "[FREE EXPRESS SHIPPING] Original Scorpio-LK Tango Key Programmer with Basic Software V1.127 Supports Daihatsu G Chip /To",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1159.0,
+   "url": "",
+   "vehicle_makes_count": 31,
+   "function_count": 4,
+   "chip_count": 12,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "BMW",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "Dacia",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Isuzu",
+    "Jeep",
+    "Lancia",
+    "Lexus",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935",
+    "PCF7936",
+    "PCF7941",
+    "PCF7945",
+    "PCF7952"
+   ]
+  },
+  {
+   "name": "Original Scorpio Barracuda Programmer and Remote Renew Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 1349.0,
+   "url": "",
+   "vehicle_makes_count": 26,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lada",
+    "Land Rover",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault"
+   ],
+   "chip_types": [
+    "PCF7953"
+   ]
+  },
+  {
+   "name": "Original Scorpio-LK Tango SLK-06 Emulator LKP-04 Toyota H 128 Bit Immobilizer All Keys Lost Solution Package",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1269.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 3,
+   "chip_count": 15,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Buick",
+    "Citro\u00ebn",
+    "Fiat",
+    "Ford",
+    "Lexus",
+    "MAN",
+    "Nissan",
+    "Peugeot",
+    "SAIC",
+    "Saab",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935",
+    "PCF7936",
+    "PCF7941",
+    "PCF7945",
+    "PCF7952",
+    "93C56"
+   ]
+  },
+  {
+   "name": "Original Tango Annual Unified Full 1 Year Subscription Activation No Real Shipping",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "KTM",
+    "Kia",
+    "Lada",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": [
+    "93C46",
+    "24C04",
+    "24C16"
+   ]
+  },
+  {
+   "name": "Scorpio Tango Key Programmer With Full Toyota Software, 6 Emulators and OBDII Cable",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2349.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 2,
+   "chip_count": 11,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chevrolet",
+    "Ducati",
+    "Lexus",
+    "Maserati",
+    "Mitsubishi",
+    "Nissan",
+    "Saab",
+    "Skoda",
+    "Smart",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935",
+    "PCF7936",
+    "PCF7941",
+    "PCF7945",
+    "PCF7952",
+    "MQB",
+    "93C66"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-05 for Tango Transponder Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "PCF7945",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-07E SLK-07 With Authorization for Toyota & Lexus 128bit smart keys",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Original TANGO SLK-08 - Texas DST & HITAG Emulator",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulator SLK-06 with License for Tango Key Programmer supports Toyota H Immobilizer All Keys Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Tango Reset of Toyota/Lexus/Subaru Smart Keys 40,80,128 bit Toyota Smart Key Reset Authorization for Tango",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 220.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Tango Key Programmer Toyota Key Maker Authorization Service",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 200.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C02",
+    "24C04"
+   ]
+  },
+  {
+   "name": "LKP-02 Chip Blank for Original Tango Key Programmer 10pcs/lot Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 20.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-01 for Tango Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-02 for Tango Key Programmer With Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-03 for Tango Key Programmer with Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-04 for Tango Key Programmer with Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Toyota Image Generator H-Keys: Page1 39,59,5A,99 for Tango Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 90.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Tango SLK-01 + SLK-02 + SLK-03 + SLK-04 + SLK-05 + SLK-06 Toyota 6 PCs Emulators with Software License",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 955.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  }
+ ],
+ "all_products": [
+  {
+   "name": "[FREE EXPRESS SHIPPING] Original Scorpio-LK Tango Key Programmer with Basic Software V1.127 Supports Daihatsu G Chip /To",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1159.0,
+   "url": "",
+   "vehicle_makes_count": 31,
+   "function_count": 4,
+   "chip_count": 12,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "BMW",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "Dacia",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Isuzu",
+    "Jeep",
+    "Lancia",
+    "Lexus",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935",
+    "PCF7936",
+    "PCF7941",
+    "PCF7945",
+    "PCF7952"
+   ]
+  },
+  {
+   "name": "Original Scorpio Barracuda Programmer and Remote Renew Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 1349.0,
+   "url": "",
+   "vehicle_makes_count": 26,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lada",
+    "Land Rover",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault"
+   ],
+   "chip_types": [
+    "PCF7953"
+   ]
+  },
+  {
+   "name": "Original Scorpio-LK Tango SLK-06 Emulator LKP-04 Toyota H 128 Bit Immobilizer All Keys Lost Solution Package",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1269.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 3,
+   "chip_count": 15,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Buick",
+    "Citro\u00ebn",
+    "Fiat",
+    "Ford",
+    "Lexus",
+    "MAN",
+    "Nissan",
+    "Peugeot",
+    "SAIC",
+    "Saab",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935",
+    "PCF7936",
+    "PCF7941",
+    "PCF7945",
+    "PCF7952",
+    "93C56"
+   ]
+  },
+  {
+   "name": "Original Tango Annual Unified Full 1 Year Subscription Activation No Real Shipping",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "KTM",
+    "Kia",
+    "Lada",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": [
+    "93C46",
+    "24C04",
+    "24C16"
+   ]
+  },
+  {
+   "name": "Scorpio Tango Key Programmer With Full Toyota Software, 6 Emulators and OBDII Cable",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2349.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 2,
+   "chip_count": 11,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chevrolet",
+    "Ducati",
+    "Lexus",
+    "Maserati",
+    "Mitsubishi",
+    "Nissan",
+    "Saab",
+    "Skoda",
+    "Smart",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935",
+    "PCF7936",
+    "PCF7941",
+    "PCF7945",
+    "PCF7952",
+    "MQB",
+    "93C66"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-05 for Tango Transponder Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "PCF7945",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-07E SLK-07 With Authorization for Toyota & Lexus 128bit smart keys",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Original TANGO SLK-08 - Texas DST & HITAG Emulator",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulator SLK-06 with License for Tango Key Programmer supports Toyota H Immobilizer All Keys Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Tango Reset of Toyota/Lexus/Subaru Smart Keys 40,80,128 bit Toyota Smart Key Reset Authorization for Tango",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 220.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Tango Key Programmer Toyota Key Maker Authorization Service",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 200.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C02",
+    "24C04"
+   ]
+  },
+  {
+   "name": "LKP-02 Chip Blank for Original Tango Key Programmer 10pcs/lot Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 20.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-01 for Tango Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-02 for Tango Key Programmer With Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-03 for Tango Key Programmer with Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Scorpio-LK Emulators SLK-04 for Tango Key Programmer with Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Toyota Image Generator H-Keys: Page1 39,59,5A,99 for Tango Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 90.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Tango SLK-01 + SLK-02 + SLK-03 + SLK-04 + SLK-05 + SLK-06 Toyota 6 PCs Emulators with Software License",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 955.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  }
+ ]
+}

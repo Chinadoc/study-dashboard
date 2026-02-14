@@ -91,7 +91,6 @@ const DATABASE_TABS = [
     { id: 'dossiers', label: 'Dossiers', href: '/dossiers' },
     { id: 'gallery', label: 'Gallery', href: '/gallery' },
     { id: 'tools', label: 'Tools', href: '/tools' },
-    { id: 'heatmap', label: 'Heatmap', href: '/tools/heatmap' },
     { id: 'business', label: 'Business', href: '/business', isToggle: true, tourId: 'nav-business' },
 ];
 
@@ -101,7 +100,6 @@ const BUSINESS_TABS = [
     { id: 'jobs', label: 'Jobs', href: '/business/jobs' },
     { id: 'inventory', label: 'Inventory', href: '/business/inventory' },
     { id: 'tools', label: 'Tools', href: '/business/tools' },
-    { id: 'heatmap', label: 'Heatmap', href: '/tools/heatmap' },
 ];
 
 interface BottomNavProps {

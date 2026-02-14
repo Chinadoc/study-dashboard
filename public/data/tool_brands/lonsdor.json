@@ -1,0 +1,4132 @@
+{
+ "display_name": "Lonsdor",
+ "icon": "\ud83d\udd10",
+ "product_count": 130,
+ "vehicle_makes_count": 74,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Audi",
+  "BAIC",
+  "BMW",
+  "BYD",
+  "Bentley",
+  "Buick",
+  "Cadillac",
+  "Changan",
+  "Chery",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "DS",
+  "Dacia",
+  "Daewoo",
+  "Dodge",
+  "Dongfeng",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Foton",
+  "GAC",
+  "Geely",
+  "Genesis",
+  "Gmc",
+  "Great Wall",
+  "Hafei",
+  "Haima",
+  "Honda",
+  "Hyundai",
+  "Indian",
+  "Infiniti",
+  "Isuzu",
+  "JAC",
+  "Jaguar",
+  "Jeep",
+  "Jinbei",
+  "Kia",
+  "Lada",
+  "Lamborghini",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Lifan",
+  "Lincoln",
+  "MAN",
+  "MG",
+  "Mahindra",
+  "Maserati",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Roewe",
+  "Rolls-Royce",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Tata",
+  "Toyota",
+  "Volkswagen",
+  "Volvo",
+  "Wuling"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "can_fd",
+  "chip_generation",
+  "doip",
+  "eeprom_read",
+  "isn_read",
+  "key_programming",
+  "obd_mode",
+  "odometer",
+  "remote_generation",
+  "transponder_copy"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "can_fd": "Can Fd",
+  "chip_generation": "Chip Generation",
+  "doip": "Doip",
+  "eeprom_read": "Eeprom Read",
+  "isn_read": "ISN Read/Write",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction",
+  "remote_generation": "Remote Generation",
+  "transponder_copy": "Transponder Copy"
+ },
+ "chip_types_count": 33,
+ "ecu_types_count": 1,
+ "product_types": {
+  "key_programmer": 58,
+  "remote_shell": 44,
+  "software_license": 12,
+  "key_blank": 11,
+  "accessory": 5
+ },
+ "price_range": [
+  7.99,
+  2250.0
+ ],
+ "top_products": [
+  {
+   "name": "Global Version 2 Years Update EU UK US SHIP Lonsdor K518 Pro Full Key Programmer Built-in GM CAN FD and Toyota Emulator ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 995.0,
+   "url": "",
+   "vehicle_makes_count": 67,
+   "function_count": 10,
+   "chip_count": 21,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "remote_generation",
+    "chip_generation",
+    "eeprom_read",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Dongfeng",
+    "Ferrari",
+    "Fiat"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID48",
+    "PCF7935",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4"
+   ]
+  },
+  {
+   "name": "Lonsdor K518 PRO FCV Full Version Key Programmer with ADP15 Adapter + FP30 Pin Cable + LT20 / FT02 PH0440B Smart Key PCB",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 67,
+   "function_count": 6,
+   "chip_count": 11,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "chip_generation",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Ferrari"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "KVM"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update Lonsdor K518 Pro (FCV) Key Programmer 5+5 Car Series Multi-language Lifetime Free Update",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 799.0,
+   "url": "",
+   "vehicle_makes_count": 68,
+   "function_count": 4,
+   "chip_count": 9,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "chip_generation",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Ferrari"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "2024 Lonsdor K518 PRO All-in-One Key Programmer Basic Version Full Functions IMMO Matching Support Multi-language",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 8,
+   "chip_count": 11,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "chip_generation",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Lonsdor K518S Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in 1 Supports VW 4th&5th IMMO and BMW FEM/BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 559.0,
+   "url": "",
+   "vehicle_makes_count": 49,
+   "function_count": 6,
+   "chip_count": 14,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Lonsdor K518ISE Key Programmer Plus ADP 8A/4A Adapter and LKE Emulator for Toyota Proximity without PIN",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1129.0,
+   "url": "",
+   "vehicle_makes_count": 48,
+   "function_count": 6,
+   "chip_count": 13,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "LONSDOR K518ISE Key Programmer Supports VW 4th & 5th IMMO, BMW FEM/BDC, Odometer Correction [Buy K518 Pro Instead]",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 779.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 4,
+   "chip_count": 22,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Buy Lonsdor K518ISE Key Programmer and SKE-LT Smart Key Emulator 5 in 1",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1449.0,
+   "url": "",
+   "vehicle_makes_count": 49,
+   "function_count": 4,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "[US SHIP] LONSDOR K518S Auto Key Programmer Basic Version No Tokens Limitation Supports All Makes, Odometer Adjustment [",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 629.0,
+   "url": "",
+   "vehicle_makes_count": 49,
+   "function_count": 4,
+   "chip_count": 9,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "93C86"
+   ]
+  },
+  {
+   "name": "Lonsdor K518ISE Key Programmer Plus SKE-LT Smart Key Emulator (UK Ship No Tax)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1299.0,
+   "url": "",
+   "vehicle_makes_count": 48,
+   "function_count": 4,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "LONSDOR K518S Auto Key Programmer Basic Version plus 18 Months Update Subscription with Odometer Adjustment  Function",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 4,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "LONSDOR K518ISE Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in1 Supports Toyota Lexus Smart Key All keys Lost b",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 888.0,
+   "url": "",
+   "vehicle_makes_count": 30,
+   "function_count": 6,
+   "chip_count": 8,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Citroen",
+    "DS",
+    "Ferrari",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "Peugeot"
+   ],
+   "chip_types": [
+    "4A",
+    "4D",
+    "CAS3",
+    "FEM",
+    "BDC",
+    "MQB",
+    "FBS4",
+    "KVM"
+   ]
+  },
+  {
+   "name": "[Full Set] Lonsdor K518ISE Key Programmer KH100+ LKE Emulator and Supprt ADP Adapter Bundle Kit Supports All Keys Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1319.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 7,
+   "chip_count": 13,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Citroen",
+    "DS",
+    "Ferrari",
+    "GMC",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Maserati",
+    "Mazda",
+    "Mitsubishi",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Rolls-Royce"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Lonsdor K518ISE/K518 Pro First Year Software Update Subscription After 6-Month Free Use",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 21,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Buick",
+    "Cadillac",
+    "Dacia",
+    "Fiat",
+    "Isuzu",
+    "Jaguar",
+    "Lancia",
+    "Land Rover",
+    "MG",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Opel",
+    "Renault",
+    "Roewe",
+    "Rolls-Royce",
+    "Skoda",
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": [
+    "4A",
+    "4D",
+    "MQB",
+    "ELV",
+    "24C64"
+   ]
+  },
+  {
+   "name": "24 Hours Activation Lonsdor K518S First Year Software Update Subscription After 6-Month Free Trail",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 600.0,
+   "url": "",
+   "vehicle_makes_count": 21,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Buick",
+    "Cadillac",
+    "Dacia",
+    "Fiat",
+    "Isuzu",
+    "Jaguar",
+    "Lancia",
+    "Land Rover",
+    "MG",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Opel",
+    "Renault",
+    "Roewe",
+    "Rolls-Royce",
+    "Skoda",
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": [
+    "4A",
+    "4D",
+    "MQB",
+    "ELV",
+    "24C64"
+   ]
+  },
+  {
+   "name": "Lonsdor LKE Smart Key Emulator 5 in 1 for Lonsdor K518ISE K518S Key Programmer Supports Offline Calculation",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 5,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BYD",
+    "Geely",
+    "Great Wall",
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Mitsubishi",
+    "Porsche",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D"
+   ]
+  },
+  {
+   "name": "[Used with K518] Lonsdor Super ADP 8A/4A  Adapter plus LKE Smart Key Emulator 5 in 1 for Toyota Lexus 2017-2021 Proximit",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 379.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BYD",
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Mitsubishi",
+    "Porsche",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "Blue Lonsdor KH100+ Remote Maker Key Programmer Update Online Supports Indian TATA Mahindra Maruti",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Indian",
+    "Mahindra",
+    "Smart",
+    "TATA",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "LONSDOR KH100+ Remote Smart Key Programmer KH100 Update Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 165.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "LONSDOR L-JCD Cable for K518ISE K518S Key Programmer Supports Chrysler Jeep Dodge Fiat 2018+ Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Maserati",
+    "RAM",
+    "Smart"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "Global Version 2 Years Update EU UK US SHIP Lonsdor K518 Pro Full Key Programmer Built-in GM CAN FD and Toyota Emulator ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 995.0,
+   "url": "",
+   "vehicle_makes_count": 67,
+   "function_count": 10,
+   "chip_count": 21,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "remote_generation",
+    "chip_generation",
+    "eeprom_read",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Dongfeng",
+    "Ferrari",
+    "Fiat"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID48",
+    "PCF7935",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4"
+   ]
+  },
+  {
+   "name": "Lonsdor K518 PRO FCV Full Version Key Programmer with ADP15 Adapter + FP30 Pin Cable + LT20 / FT02 PH0440B Smart Key PCB",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 67,
+   "function_count": 6,
+   "chip_count": 11,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "chip_generation",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Ferrari"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "KVM"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update Lonsdor K518 Pro (FCV) Key Programmer 5+5 Car Series Multi-language Lifetime Free Update",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 799.0,
+   "url": "",
+   "vehicle_makes_count": 68,
+   "function_count": 4,
+   "chip_count": 9,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "chip_generation",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Ferrari"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "2024 Lonsdor K518 PRO All-in-One Key Programmer Basic Version Full Functions IMMO Matching Support Multi-language",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 8,
+   "chip_count": 11,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "chip_generation",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Lonsdor K518S Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in 1 Supports VW 4th&5th IMMO and BMW FEM/BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 559.0,
+   "url": "",
+   "vehicle_makes_count": 49,
+   "function_count": 6,
+   "chip_count": 14,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Lonsdor K518ISE Key Programmer Plus ADP 8A/4A Adapter and LKE Emulator for Toyota Proximity without PIN",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1129.0,
+   "url": "",
+   "vehicle_makes_count": 48,
+   "function_count": 6,
+   "chip_count": 13,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "LONSDOR K518ISE Key Programmer Supports VW 4th & 5th IMMO, BMW FEM/BDC, Odometer Correction [Buy K518 Pro Instead]",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 779.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 4,
+   "chip_count": 22,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Buy Lonsdor K518ISE Key Programmer and SKE-LT Smart Key Emulator 5 in 1",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1449.0,
+   "url": "",
+   "vehicle_makes_count": 49,
+   "function_count": 4,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "[US SHIP] LONSDOR K518S Auto Key Programmer Basic Version No Tokens Limitation Supports All Makes, Odometer Adjustment [",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 629.0,
+   "url": "",
+   "vehicle_makes_count": 49,
+   "function_count": 4,
+   "chip_count": 9,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "93C86"
+   ]
+  },
+  {
+   "name": "Lonsdor K518ISE Key Programmer Plus SKE-LT Smart Key Emulator (UK Ship No Tax)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1299.0,
+   "url": "",
+   "vehicle_makes_count": 48,
+   "function_count": 4,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "LONSDOR K518S Auto Key Programmer Basic Version plus 18 Months Update Subscription with Odometer Adjustment  Function",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 4,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "LONSDOR K518ISE Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in1 Supports Toyota Lexus Smart Key All keys Lost b",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 888.0,
+   "url": "",
+   "vehicle_makes_count": 30,
+   "function_count": 6,
+   "chip_count": 8,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Citroen",
+    "DS",
+    "Ferrari",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "Peugeot"
+   ],
+   "chip_types": [
+    "4A",
+    "4D",
+    "CAS3",
+    "FEM",
+    "BDC",
+    "MQB",
+    "FBS4",
+    "KVM"
+   ]
+  },
+  {
+   "name": "[Full Set] Lonsdor K518ISE Key Programmer KH100+ LKE Emulator and Supprt ADP Adapter Bundle Kit Supports All Keys Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1319.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 7,
+   "chip_count": 13,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Citroen",
+    "DS",
+    "Ferrari",
+    "GMC",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Maserati",
+    "Mazda",
+    "Mitsubishi",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Rolls-Royce"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Lonsdor K518ISE/K518 Pro First Year Software Update Subscription After 6-Month Free Use",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 21,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Buick",
+    "Cadillac",
+    "Dacia",
+    "Fiat",
+    "Isuzu",
+    "Jaguar",
+    "Lancia",
+    "Land Rover",
+    "MG",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Opel",
+    "Renault",
+    "Roewe",
+    "Rolls-Royce",
+    "Skoda",
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": [
+    "4A",
+    "4D",
+    "MQB",
+    "ELV",
+    "24C64"
+   ]
+  },
+  {
+   "name": "24 Hours Activation Lonsdor K518S First Year Software Update Subscription After 6-Month Free Trail",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 600.0,
+   "url": "",
+   "vehicle_makes_count": 21,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Buick",
+    "Cadillac",
+    "Dacia",
+    "Fiat",
+    "Isuzu",
+    "Jaguar",
+    "Lancia",
+    "Land Rover",
+    "MG",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Opel",
+    "Renault",
+    "Roewe",
+    "Rolls-Royce",
+    "Skoda",
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": [
+    "4A",
+    "4D",
+    "MQB",
+    "ELV",
+    "24C64"
+   ]
+  },
+  {
+   "name": "Lonsdor LKE Smart Key Emulator 5 in 1 for Lonsdor K518ISE K518S Key Programmer Supports Offline Calculation",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 5,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "transponder_copy",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BYD",
+    "Geely",
+    "Great Wall",
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Mitsubishi",
+    "Porsche",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D"
+   ]
+  },
+  {
+   "name": "[Used with K518] Lonsdor Super ADP 8A/4A  Adapter plus LKE Smart Key Emulator 5 in 1 for Toyota Lexus 2017-2021 Proximit",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 379.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "chip_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BYD",
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Mitsubishi",
+    "Porsche",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "Blue Lonsdor KH100+ Remote Maker Key Programmer Update Online Supports Indian TATA Mahindra Maruti",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Indian",
+    "Mahindra",
+    "Smart",
+    "TATA",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "LONSDOR KH100+ Remote Smart Key Programmer KH100 Update Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 165.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "LONSDOR L-JCD Cable for K518ISE K518S Key Programmer Supports Chrysler Jeep Dodge Fiat 2018+ Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Maserati",
+    "RAM",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation [Online Activation] Lonsdor JLR License for 2015 to 2021 Jaguar Land Rover Add Key/ AKL via OBD",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 70.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": [
+    "RFA"
+   ]
+  },
+  {
+   "name": "Lonsdor Super ADP Adapter for Toyota Lexus 2017-2024 8A/4A Proximity Key Programming without PIN and AKL License Used wi",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 249.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "Lonsdor DoIP Cable for K518 Pro/ K518 Pro FCA to Program Geely Monjaro 2021-2022 Buick GL8 Century 2023- Smart Key",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 29.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Geely",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[PCB only] Lonsdor JLR Jaguar Land Rover 2018-2021 Smart Key PCB with Emergency Start 433MHZ 315MHZ for Lonsdor K518 Pro",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor JLR AKL License Plus Special Smart Key and JLR Connector for 2015 to 2022 Jaguar Land Rover OBD Programming",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 159.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor JLR License and Smart Key for 2018 - 2021 Land Rover & Jaguar 433MHZ/ 315MHZ with Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 129.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Lonsdor JLR Package] Lonsdor JLR AKL License and Special Smart Key for 2015 to 2018 Jaguar Land Rover OBD Programming F",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US UK Ship Lonsdor Smart Key for 2015 to 2018 Jaguar Land Rover 315MHz/ 433MHz Works with K518ISE K518S",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": [
+    "PCF7953"
+   ]
+  },
+  {
+   "name": "Lonsdor SUPER ADP-15 8A/4A Adapter for K518 PRO, K518 PRO (FCV) Support All Key Lost without PIN for Toyota Lexus 2017-2",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 249.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "93C66"
+   ]
+  },
+  {
+   "name": "Second Hand 95% New Original SKE-LT Smart Key Emulator for Lonsdor K518ISE Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "24 Hours Activation Lonsdor Nissan New Sylphy Sentra B18 X-trail T33 Chassis License Software Activation Online Activati",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 25.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor JLR Connector for 2015-2022 Jaguar Land Rover HPLA JPLA K8D2 Version All Keys Lost via OBD",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": [
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "Lonsdor K518 Pro FCV Optional License for Chinese Cars Changhe/ Brillance/CHANGAN/ Baic/Proton/ Yema/ Zotye /Dongfeng [1",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 15.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BAIC",
+    "Changan",
+    "Dongfeng",
+    "Foton",
+    "Hafei",
+    "Haima",
+    "Lifan",
+    "Mazda",
+    "Nissan",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor K518 Toyota Yaris 2021- 4A Blade Key Programming Software License Activation",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "Lonsdor KW100 Bluetooth Smart Key Generator with 1PC LT20 Remote Key",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "MG/ Chery/ BYD/ JAC/ Great Wall/ WULING IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BYD",
+    "Chery",
+    "Great Wall",
+    "JAC",
+    "MG",
+    "Wuling"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor Nissan 40 PIN BCM Cable for 2021- Nissan Rogue T33 Pathfinder Sylphy B18 Ariya Works with K518ISE K518S",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi",
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation Lonsdor 2018 2019 2020 2021 2022- Toyota Lexus AKL Online Calculation 1 Year Activation for K518S K5",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 350.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "Maserati Fiat Ferrari Alfa Romeo Lancia Abarth IMMO Software License for Lonsdor K518 FCV Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 26.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Ferrari",
+    "Fiat",
+    "Lancia",
+    "Maserati"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2024 KYDZ MLB Tool Key Programmer for VW Audi Porsche Lamborghini Bentley Calculate MLB Data Generate Dealer Key with 3 ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 379.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "Porsche",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Londsor BMW G Chassis BDC2 Adapter + BDC3 Adapter + G Function Activation",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 115.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lonsdor BMW G Series BDC2 Adapter + BDC3 Clip Adapter for K518 Pro/ K518ISE",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 85.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lonsdor BMW BDC2 BDC3 MQB49 5C 5D Encrypted Solder-Free Adapter Kit 15 Pieces",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 418.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Porsche",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lonsdor Orange SKE-LT-DSTAES 128 Bit Smart Key Emulator for K518S K518ISE Supports Toyota 39 Chip All Keys Lost Offline ",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "24 Hours Activation Lonsdor Volvo License for Latest XC40 XC60 XC90 S60 S90 V60 V90 Smart Key",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GM  Hummer / Buick / Cadillac / Chevrolet / GMC / Oldsmobile / Pontiac / Saturn IMMO Software License for Lonsdor K518 P",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Londsor BMW G Series BDC2 Adapter for K518 Pro/ Pro FCV/ K518ISE",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 68.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "[6-Button Key PCB] Lonsdor P0120 8A Smart Key PCB 6 Buttons 314MHz 315MHz 433MHz for Alphard, Vellfire, Alpha MVP",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 54.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "BMW MINI Rolls-Royce IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Rolls-Royce"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Citroen DS Peugeot IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "DS",
+    "Peugeot"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Dodge Chrysler Jeep IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Jeep"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Universal Ford All Key Lost Cable Bypass Active Alarm",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Lincoln",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "10pcs Lonsdor LT20 8A+4D Toyota & Lexus All-in-One Board for K518 Pro, K518 FCV, K518ISE KH100+ Frequency Switchable",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 265.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor FT08-PH0440B 312/314/433.58/434.42MHZ Lexus Smart Key Frequency Switchable Update Version of FT08-H0440C",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 70.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "Lonsdor FT11-0410B Toyota Lexus Smart Key PCB 312/314MHz (Can Copy most 8A) for KH100",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX [Update Version of FT11 H0410C] Lonsdor FT02 PH0440B V1.2 RAV4 Avalon Camry 2018-2021 Smart Key PCB 312 M",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "[Bundle Kit] Lonsdor JLR Jaguar Land Rover 2018-2021 Smart Key 315MHz 433 MHZ with Key Shell for K518 Pro K518ISE K518S",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor KW100 Bluetooth Toyota Smart Key Generator for LT20 Keys Generation When All Keys Lost & Adding Keys",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor KW100 Suite with 2 Pieces of LT20 Universal Keys Support All Keys Lost & Adding Keys",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 155.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-10 4 Buttons 8A-BA Smart Key PCB Board for 2023 Toyota Lexus \u00e2\u0080\u0093 Adjustable Frequency",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-10 5 Buttons 8A-BA Smart Key PCB Board for 2023 Toyota Lexus \u00e2\u0080\u0093 for K518 K518PRO KH100+ Adjustable Frequen",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-10 6-Button 8A-BA Smart Key PCB Board for 2023 Toyota Lexus Adjustable Frequency",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "[Pack of 5] Lonsdor LT20 8A+4D Toyota & Lexus Smart Key PCBs 5Pcs for K518ISE K518S K518 Pro KH100+ Frequency Switchable",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 145.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor FT02-PH0440B 312/ 314/ 433.58/ 434.42MHZ Toyota RAV4 Avalon Camry 2018-2021 Smart Key with Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 70.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "[Update Version of FT08-H0440C] New Lonsdor FT08 PH0440B V2.0 Lexus Smart Key PCB 312MHz 314MHz",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 65.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "TATA/ Mahindra/ Maruti/ Suzuki Software for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mahindra",
+    "Suzuki",
+    "TATA"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VW Audi Skoda Porsche Bentley Lamborghini IMMO Software for Lonsdor K518 Pro FCV",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "Porsche",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Benz Smart IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Ford Lincoln Mercury IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Lincoln"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor ADP40 Adapter for K518 Pro",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Porsche",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lonsdor BMW G Series BDC2 BDC3 BCP Function Activation for K518 Pro FCV",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lonsdor BMW G Series BDC3 Clip Adapter for K518 Pro/ K518ISE to Copy BMW BDC3 BCP Key",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 20.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Renault Dacia IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Dacia",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Smart Key Shell 3+ 1 Button for Lonsdor FT08 PH0440B FT11 H0440C Toyota Smart Key PCB",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 7.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "Mitsuoka/ Daewoo/ Daihatsu IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Daewoo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Isuzu IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LDV/ LADA IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Lada"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor LT20-04 04NJ 8A+4D Toyota & Lexus 40/ 80 Bit 4 Buttons Smart Key for K518ISE K518S K518 Pro KH100+",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-08 08NJ 8A+4D Toyota & Lexus Smart Key for K518ISE K518S KH100+",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-01 01J0 Smart Key PCB Toyota & Lexus 40 / 80 Bit for K518ISE K518S K518 Pro KH100+ 4 Buttons 315/ 433 MHz",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "[Pack of 4] Lonsdor LT20 Series Smart Keys 4 Pcs Get a Free BSKG Smart Key Generator",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor Toyota TY8A MK1 Kit Adapter for -2018 Toyota 8A Blade Key All Keys Lost Used with K518 Pro/K518ISE",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Mazda IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Mitsubishi IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Opel IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Perodua /Geely/ Proton IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "SAAB IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Subaru IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Volvo LYNK & CO  IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Holden IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor KPROG-2 Adapter for Lonsdor K518 Pro K518 FCV Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 9,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "93C46",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C02",
+    "24C04",
+    "24C16",
+    "24C32",
+    "24C64"
+   ]
+  },
+  {
+   "name": "2026 New Lonsdor 2010-2018 For Land Rover & Jaguar Universal JL30 Smart Key ID49 315MHz /433MHz 2-in-1 Replace SA2036",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": [
+    "ID49"
+   ]
+  },
+  {
+   "name": "Lonsdor FT01-2110B Toyota High Lander Lexus IS 2013-2018 Smart Key PCB for K518 KH100",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor FT01-2110E Toyota Lexus Smart Key PCB 312MHz for K518",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 62.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor Toyota Lexus Smart Key PCB FT02-0410B 312MHz for K518 KH100",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 65.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor Toyota Lexus IS 2014 Smart Key PCB FT04-0010D 433.92MHz for K518 KH100",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 68.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor Toyota Lexus ES GS 2014-2018 Smart Key PCB FT04-0101D 433.92MHz for K518 KH100",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 68.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor PS6000B XD Smart Remote Key PCB 4 Buttons 8A Transponder For Sonata Elantra IX25 IX35 / Kia K3",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.5,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Smart"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "LONSDOR JLR Jaguar Land rover 2018-2021 Key Shell 5 Buttons",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation Lonsdor K518ISE Key Programmer 3-Year Full Update Subscription",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1350.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation Lonsdor K518ISE Key Programmer 5-Year Full Update Subscription",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2250.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation Lonsdor K518S Key Programmer Lifetime Update Software License (Not Including Hardware)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1999.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor LT20-07 07NJ 8A Smart Key for Lexus 4 Buttons for K518ISE K518S KH100+",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20 Toyota Lexus Smart Key for P4 3939",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "OBD Test Cable for Lonsdor K518ISE Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "SSANGYONG IMMO Software License for Lonsdor K518 Pro (FCV) Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor BM3S-02 BM3S BMW U Chassis BCP Smart Key PCB",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor BM3S-01 BM3S Smart Key PCB for BMW G Chassis BDC2 BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lonsdor FT01-0020C Toyota Camry Corolla Aurion 2013-2018 GCC Smart Key PCB 433MHz",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 55.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor FT04-0010C Toyota Land Cruiser 2016-2017 Smart Key PCB 433MHz for K518 KH100",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 68.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor Honda Smart Keys for 2013-2025 Models Supports 313Mhz 314Mhz 434Mhz 433Mhz",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 22.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": [
+    "ID46",
+    "ID47"
+   ]
+  },
+  {
+   "name": "Londsor LT20-02 Universal Smart Key PCB for Subaru 8A 4D 2018-2021",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-03 Smart Key PCB for Toyota Previa Alphard Vellfire",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-06 8A+4D Smart Key for Toyota Previa Alphard Vellfire for K518ISE K518S K518 Pro KH100+",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor LT30-01 Toyota 4A Universal Smart Key with 3+1 Buttons Key Shell for K518 Pro, KH100+, K518 Series",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 31.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "Lonsdor LT30-01 Toyota 4A Universal Smart Key PCB for K518 Pro, KH100+, K518 Series",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "Lonsdor LT30-02 Toyota 4A 2022-2024 Universal Smart Key PCB 4-Buttons for K518 Pro, KH100+, K518 Series",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "Lonsdor LT20-05 Smart Key for Toyota Sienna 2010-2019 6 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "Lonsdor Nissan/Infinite Smart Key for 2008-2025 Models 315MHz 433Mhz Supports ID46 ID47 ID4A Types",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 22.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": [
+    "ID46",
+    "ID47"
+   ]
+  },
+  {
+   "name": "Universal NISSAN 40PIN-BCM Cable for Lonsdor OBDSTAR Xhorse",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mitsubishi",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor K518S/K518ISE Volvo Super Update software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor Cable 15-15 PIN For KPROG With K518 PRO ,K518 Pro (FCV)",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 12.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "NETA/ LEAP\u00c2\u00a0MOTOR/ Li\u00c2\u00a0Auto/ SERES/ SKYWORTH Software License for Lonsdor K518 Pro FCV",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 15.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor K518 Pro Replacement OBD Cable (for K518 Pro and K518 Pro FCV)",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor K518ISE/K518 Pro Second Time Subscription of 1 Year Fully Update",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor K518ISE/ K518 Pro 3rd Time Subscription of 1 Year Fully Update",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation Lonsdor K518RSA(ISE) 1ST Time Subscription of 1 Year Fully Update",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor K518S 3rd Year Software Update Software Subscription After 30 Months",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 259.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation Lonsdor K518S Second Year Update Software Subscription After 18 Months",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 450.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lonsdor MQB49 5C 5D Function License Activation",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 45.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

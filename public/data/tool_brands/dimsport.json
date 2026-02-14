@@ -1,0 +1,335 @@
+{
+ "display_name": "Dimsport",
+ "icon": "\ud83d\udcc8",
+ "product_count": 10,
+ "vehicle_makes_count": 1,
+ "vehicle_makes": [
+  "Mitsubishi"
+ ],
+ "functions": [
+  "bench_mode",
+  "boot_mode",
+  "checksum",
+  "ecu_programming",
+  "obd_mode"
+ ],
+ "function_labels": {
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "checksum": "Checksum Correction",
+  "ecu_programming": "ECU Programming",
+  "obd_mode": "OBD Mode"
+ },
+ "chip_types_count": 0,
+ "ecu_types_count": 1,
+ "product_types": {
+  "software_license": 5,
+  "ecu_tool": 2,
+  "other": 2,
+  "diagnostic_tool": 1
+ },
+ "price_range": [
+  950.0,
+  7999.0
+ ],
+ "top_products": [
+  {
+   "name": "Original Dimsport New Trasdata Hardware + e-GPT kit without License Bench & Open ECU TCU Cloning Reading Programming",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "checksum",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Ship from Spain] Dimsport New Genius and New Transdata Auto Master for Cars Only",
+   "type": "other",
+   "type_label": "Other",
+   "price": 3865.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Ship from Spain] Dimsport New Genius and New Transdata Full Master for All Vehicles Package",
+   "type": "other",
+   "type_label": "Other",
+   "price": 6600.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Combo] Original Dimsport New Trasdata with Full Software Activations All Vehicle Categories",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 4899.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original Dimsport New Genius Hardware Salve Version",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Original Dimsport New Genius MASTER Hardware +RaceEVO Standard Version (Free 300 Tokens)",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1280.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Original Dimsport New Genius MASTER Hardware +RaceEVO Full Version (Free 1000 Points)",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 2130.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "Original Dimsport New Trasdata Hardware + e-GPT kit without License Bench & Open ECU TCU Cloning Reading Programming",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "checksum",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Ship from Spain] Dimsport New Genius and New Transdata Auto Master for Cars Only",
+   "type": "other",
+   "type_label": "Other",
+   "price": 3865.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Ship from Spain] Dimsport New Genius and New Transdata Full Master for All Vehicles Package",
+   "type": "other",
+   "type_label": "Other",
+   "price": 6600.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Combo] Original Dimsport New Trasdata with Full Software Activations All Vehicle Categories",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 4899.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original Dimsport New Genius Hardware Salve Version",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Original Dimsport New Genius MASTER Hardware +RaceEVO Standard Version (Free 300 Tokens)",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1280.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Original Dimsport New Genius MASTER Hardware +RaceEVO Full Version (Free 1000 Points)",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 2130.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[Xmas Deals] Dimsport New Genius Master Version Full Software Activations All Vehicle Categories",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 5990.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[Combo] Dimsport New Genius Master + RaceEVO Standard Version (with 1000 Tokens) + Full Software Activations All Vehicle",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 7999.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Dimsport New Trasdata Master Version Full Software Activations All Vehicle Categories",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 3990.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

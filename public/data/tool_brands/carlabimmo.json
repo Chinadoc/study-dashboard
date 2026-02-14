@@ -1,0 +1,267 @@
+{
+ "display_name": "Carlabimmo",
+ "icon": "\ud83d\ude97",
+ "product_count": 4,
+ "vehicle_makes_count": 39,
+ "vehicle_makes": [
+  "Alfa Romeo",
+  "Audi",
+  "BMW",
+  "Bentley",
+  "Bugatti",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "Dacia",
+  "Daewoo",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Honda",
+  "Hyundai",
+  "Jeep",
+  "Kia",
+  "Lamborghini",
+  "Lancia",
+  "Maserati",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "ecu_programming",
+  "immo_off"
+ ],
+ "function_labels": {
+  "ecu_programming": "ECU Programming",
+  "immo_off": "IMMO OFF"
+ },
+ "chip_types_count": 2,
+ "ecu_types_count": 0,
+ "product_types": {
+  "key_programmer": 3,
+  "ecu_tool": 1
+ },
+ "price_range": [
+  79.0,
+  451.0
+ ],
+ "top_products": [
+  {
+   "name": "EU SHIP NO TAX CarLabImmo Julie PRO V123 IMMO OFF & ESL/ELV Emulator",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 37,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "immo_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lamborghini"
+   ],
+   "chip_types": [
+    "ELV",
+    "24C02"
+   ]
+  },
+  {
+   "name": "Carlabimmo Fiat Bypass - Emergency Start Tool (+ SGW Adapter FREE)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 451.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Citroen",
+    "Fiat",
+    "Ford",
+    "Jeep",
+    "Lancia",
+    "Peugeot",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CARLABIMMO IMMO BYPASS Software 1-year Subscription",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 451.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "immo_off",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Carlabimmo Ferrari Maserati Key Replacement",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 113.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ferrari",
+    "Maserati"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "EU SHIP NO TAX CarLabImmo Julie PRO V123 IMMO OFF & ESL/ELV Emulator",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 37,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "immo_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lamborghini"
+   ],
+   "chip_types": [
+    "ELV",
+    "24C02"
+   ]
+  },
+  {
+   "name": "Carlabimmo Fiat Bypass - Emergency Start Tool (+ SGW Adapter FREE)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 451.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Citroen",
+    "Fiat",
+    "Ford",
+    "Jeep",
+    "Lancia",
+    "Peugeot",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CARLABIMMO IMMO BYPASS Software 1-year Subscription",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 451.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "immo_off",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Carlabimmo Ferrari Maserati Key Replacement",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 113.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ferrari",
+    "Maserati"
+   ],
+   "chip_types": []
+  }
+ ]
+}

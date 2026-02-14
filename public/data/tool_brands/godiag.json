@@ -1,0 +1,1887 @@
+{
+ "display_name": "GODIAG",
+ "icon": "\ud83d\udd0c",
+ "product_count": 63,
+ "vehicle_makes_count": 44,
+ "vehicle_makes": [
+  "Acura",
+  "Aston Martin",
+  "Audi",
+  "BMW",
+  "Bentley",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "Daewoo",
+  "Fiat",
+  "Ford",
+  "Geely",
+  "Gmc",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Jaguar",
+  "KTM",
+  "Kia",
+  "Lamborghini",
+  "Land Rover",
+  "Lexus",
+  "Lincoln",
+  "MAN",
+  "Mazda",
+  "Mclaren",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Peugeot",
+  "Porsche",
+  "Renault",
+  "SAIC",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "bench_mode",
+  "boot_mode",
+  "can_fd",
+  "checksum",
+  "doip",
+  "ecu_cloning",
+  "ecu_programming",
+  "key_programming",
+  "obd_mode",
+  "odometer"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "can_fd": "Can Fd",
+  "checksum": "Checksum Correction",
+  "doip": "Doip",
+  "ecu_cloning": "ECU Cloning",
+  "ecu_programming": "ECU Programming",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction"
+ },
+ "chip_types_count": 15,
+ "ecu_types_count": 9,
+ "product_types": {
+  "key_cutting": 18,
+  "diagnostic_tool": 16,
+  "key_programmer": 9,
+  "accessory": 8,
+  "other": 5,
+  "ecu_tool": 3,
+  "remote_shell": 2,
+  "tester": 1,
+  "software_license": 1
+ },
+ "price_range": [
+  4.0,
+  480.0
+ ],
+ "top_products": [
+  {
+   "name": "Newest Breakout Tricore Cable GODIAG Full Protocol OBD2 Jumper Cable for ECU IMMO Airbag ABS Cluster Bench Work with Xho",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Citro\u00ebn",
+    "Daewoo",
+    "Fiat",
+    "MAN",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "Peugeot",
+    "Renault",
+    "Subaru",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "GODIAG GT105 II ECU IMMO Prog AD Breakout Box ECU Connector + Full Protocol OBD2 Universal Jumper",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "ecu_programming",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update EU UK US SHIP GODIAG GD101 J2534 Passthru for Ford Mazda Honda Toyota JLR Renault & ELM327 Diagnose",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 22,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Lexus",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT105 II ECU IMMO Prog AD OBD2 Break Out Box ECU Connector Display Vehicle Voltage Car Battery Lower Than 11V Ala",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Lamborghini",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "US SHIP GODIAG EV Charger Level 2 (32Amp, 220V-240V, NEMA 14-50 Plug, 21ft Cable) 10/16/24/32A Adjustable for Home J1772",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 155.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "McLaren",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP GODIAG EV Charger Portable Fast US Standard 220V dual Voltage Modes 16 Amps with 16.4ft Extension Cord Compatibl",
+   "type": "other",
+   "type_label": "Other",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "McLaren",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP 2026 New GODIAG GT100 PLUS GPT ENET DOIP 24V-12V AUTO TOOLS OBD II Break Out Box ECU Connector Get a Free ",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 4,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Geely",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "Smart",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Newest GODIAG GT105 OBD II Break Out Box OBD Assistant ECU IMMO Prog AD ECU Connector",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX 2026 GODIAG GT109 DOIP ENET Programming Cable for Benz VW JLR Volvo DoIP with Voltage Display",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Geely",
+    "Jaguar",
+    "Lamborghini",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Mini",
+    "SAIC",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP GODIAG GT107 + GT105 II DSG Plus Gearbox Data Read/Write Adapter for DQ250, DQ200, VL381, VL300, DQ500, DL",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 7,
+   "functions": [
+    "checksum"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "GMC",
+    "Honda",
+    "KTM",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "GODIAG GT327 Super DOIP ENET OBD2 ELM327 v1.5 FULL Bluetooth 4.0 Adapter with 3M Copper ENET Ethernet Cable for Android ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Geely",
+    "Jaguar",
+    "Lamborghini",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT107+ DSG Plus Gearbox Data Adapter DQ250, DQ200, VL381, VL300, DQ500, DL501, Benz, BMW for FLEX Multi Prog KESS",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Honda",
+    "Mercedes-Benz",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP GODIAG CAS4 CAS4+ Test Platform for BMW Supports Off-Site Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX Godiag GT112 K-Line IMMO2/3 + GT111 CAN BUS IMMO3/IMMO3.5 + GT110 CAN BUS UDS Test Platform with Pogo ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Vapon VP100 BMW G Series BDC2 Key Programmer with Godiag BDC2 BCP Test Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 430.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Vapon VP100 BMW G Series BDC2 Key Programmer with Godiag BDC2+ BDC3 BCP Test Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 480.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP GODIAG ECU GPT Boot AD Programming Adapter for FC200 OBDSTAR DC706 Godiag GT100",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP GODIAG BMW CAS4 CAS4+ Test Platform Plus GT100 AUTO TOOLS OBD II Break Out Box ECU Connector",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chrysler",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "GODIAG BMW BDC3/BCP Programming Test Platform for BDC3 Diagnostics, Programming, Key Synchronization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 65.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "GODIAG Communication Test Cable for Jaguar Land Rover Pre-2017 and JLR 2018-2025 KVM RFA 2-in-1",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "KVM",
+    "RFA"
+   ]
+  }
+ ],
+ "all_products": [
+  {
+   "name": "Newest Breakout Tricore Cable GODIAG Full Protocol OBD2 Jumper Cable for ECU IMMO Airbag ABS Cluster Bench Work with Xho",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Citro\u00ebn",
+    "Daewoo",
+    "Fiat",
+    "MAN",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "Peugeot",
+    "Renault",
+    "Subaru",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "GODIAG GT105 II ECU IMMO Prog AD Breakout Box ECU Connector + Full Protocol OBD2 Universal Jumper",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "ecu_programming",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update EU UK US SHIP GODIAG GD101 J2534 Passthru for Ford Mazda Honda Toyota JLR Renault & ELM327 Diagnose",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 22,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Lexus",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT105 II ECU IMMO Prog AD OBD2 Break Out Box ECU Connector Display Vehicle Voltage Car Battery Lower Than 11V Ala",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Lamborghini",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "US SHIP GODIAG EV Charger Level 2 (32Amp, 220V-240V, NEMA 14-50 Plug, 21ft Cable) 10/16/24/32A Adjustable for Home J1772",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 155.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "McLaren",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP GODIAG EV Charger Portable Fast US Standard 220V dual Voltage Modes 16 Amps with 16.4ft Extension Cord Compatibl",
+   "type": "other",
+   "type_label": "Other",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "McLaren",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP 2026 New GODIAG GT100 PLUS GPT ENET DOIP 24V-12V AUTO TOOLS OBD II Break Out Box ECU Connector Get a Free ",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 4,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Geely",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "Smart",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Newest GODIAG GT105 OBD II Break Out Box OBD Assistant ECU IMMO Prog AD ECU Connector",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX 2026 GODIAG GT109 DOIP ENET Programming Cable for Benz VW JLR Volvo DoIP with Voltage Display",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Geely",
+    "Jaguar",
+    "Lamborghini",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Mini",
+    "SAIC",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP GODIAG GT107 + GT105 II DSG Plus Gearbox Data Read/Write Adapter for DQ250, DQ200, VL381, VL300, DQ500, DL",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 7,
+   "functions": [
+    "checksum"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "GMC",
+    "Honda",
+    "KTM",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "GODIAG GT327 Super DOIP ENET OBD2 ELM327 v1.5 FULL Bluetooth 4.0 Adapter with 3M Copper ENET Ethernet Cable for Android ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Geely",
+    "Jaguar",
+    "Lamborghini",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT107+ DSG Plus Gearbox Data Adapter DQ250, DQ200, VL381, VL300, DQ500, DL501, Benz, BMW for FLEX Multi Prog KESS",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Honda",
+    "Mercedes-Benz",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP GODIAG CAS4 CAS4+ Test Platform for BMW Supports Off-Site Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX Godiag GT112 K-Line IMMO2/3 + GT111 CAN BUS IMMO3/IMMO3.5 + GT110 CAN BUS UDS Test Platform with Pogo ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Vapon VP100 BMW G Series BDC2 Key Programmer with Godiag BDC2 BCP Test Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 430.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Vapon VP100 BMW G Series BDC2 Key Programmer with Godiag BDC2+ BDC3 BCP Test Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 480.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP GODIAG ECU GPT Boot AD Programming Adapter for FC200 OBDSTAR DC706 Godiag GT100",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP GODIAG BMW CAS4 CAS4+ Test Platform Plus GT100 AUTO TOOLS OBD II Break Out Box ECU Connector",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chrysler",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "GODIAG BMW BDC3/BCP Programming Test Platform for BDC3 Diagnostics, Programming, Key Synchronization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 65.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "GODIAG Communication Test Cable for Jaguar Land Rover Pre-2017 and JLR 2018-2025 KVM RFA 2-in-1",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX GODIAG BMW BDC2/BCP Programming Test Platform for Key Programming, Diagnostics, Coding, Module Replace",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 56.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP GODIAG GT100 OBDII 16PIN Protocol Detector Breakout  ECU Connector OBDII BreakOut Box",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 73.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4"
+   ]
+  },
+  {
+   "name": "GODIAG GT115 Test Platform for V-A-G MQB and IMMO4 CAN-Bus UDS System 2 in 1 with POGO PIN to Read & Write Data Replaces",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 73.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update [US UK EU Ship] GODIAG GD203 OBDII ABS SRS Code Reader Scanner with Special Function Free Update  L",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Fiat",
+    "Mitsubishi",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT100 DB25 Colorful Jumper Cable for All ECU Connection Free Shipping",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 17.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "VW Audi Software Service V23 Engineer V17",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 4.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT103 Mini Pirt Electric Circuit Tester Vehicles Electrical System Diagnosis/ Fuel Injector Cleaning & Testing/ R",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[10Pcs/Set] GODIAG Universal ECU Bracket for Easy ECU Wiring",
+   "type": "other",
+   "type_label": "Other",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5 Sets] GODIAG Universal ECU Bracket for Easy ECU Wiring (ECU Bench Stand/Holder)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 43.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG 01DM 90\u00c2\u00b0 Dimple Cutter \u00cf\u00866x30Lx90\u00c2\u00b0x2F for SILCA Futura Pro, Futura Pro Engraving, Futura Pro Aut",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG 01TM 0.94MM Tracer \u00cf\u00860.94x90\u00c2\u00b0xD4x6.5x21L for SILCA Futura Pro, Futura Pro Engraving, Futura Pro A",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG 02LM 2MM End Milling Cutter \u00cf\u00862.0x3.0xD6x30x3F for SILCA Futura Pro, Futura Pro Engraving, Futura ",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag A6 Automobile Smoke Leak Detector with Pressure Gauge Test Leak in Vehicle Pipe Systems for Cars, Motorcycles, Sn",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 101.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG C4 Smoke Leak Detector Test Leak in Vehicle Pipe Systems for Cars, Motorcycles, Snowmobiles, ATV, Light Trucks, B",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG DB25 Cable Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "OBD2 Extension Cable for GODIAG AUTO Tools Free Shipping",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG EW5550B-6F 5MM End Milling Cutter \u00cf\u00865.0x10xD6x32x6F for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, ",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG F1W 90\u00c2\u00b0 Dimple Cutter \u00cf\u00866.0x90\u00c2\u00b0x48-0.7x2T for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG F21W 85\u00c2\u00b0 Dimple Cutter \u00cf\u00863.2x5xD6x85\u00c2\u00b0x40x1T-P-0.8 for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, ",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 12.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG F22W 2.5MM End Milling Cutter \u00cf\u00862.5xD6x45Lx3F For SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG F3W 1.5MM End Milling Cutter \u00cf\u00861.5xD6x45Lx3F for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG F44W 2.0MM End Milling Cutter \u00cf\u00862.0xD6x45Lx3F For SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GB101 Battery Assistant Blue Tooth 4.0 Wireless 6~20V Automotive Battery Load Tester Diagnositic Analyzer Monitor",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GC001 Handheld Thermal Imaging Camera, 256 x 192 IR High Resolution, Infrared Camera Support PC Analysis & Video ",
+   "type": "other",
+   "type_label": "Other",
+   "price": 285.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP GODIAG GT101 4 in 1 DC 6-40V Circuit Tester Power Circuit Probe Relay Tester and Fuel Injector Cleaner wit",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 56.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT102 PIRT Power Probe Circuit Tester Power Probe Relay Tester with LED Display",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT108 Config B OBDI-OBDII Universal Conversion Adapter BUS, Tractors, Excavator, Mining Vehicles, Generators, Boa",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT108 Super OBDI-OBDII Universal Converter Adapter For Cars, SUVs, Pickup Trucks, Motorcycles",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT108 Config C Super OBDI-OBDII Universal Conversion Adapter For Cars, Trucks, Tractors, Mining Vehicles, Generat",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 47.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG GT113 Universal Fuel Injector Tester Fuel Injector Cleaner Kit with 6 Sizes of Adapters 8 Pulse Modes for Cars, M",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG MQB ELV Data Collector /TCM DSG Gearbox Adapter",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 9.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "MQB",
+    "ELV"
+   ]
+  },
+  {
+   "name": "[Online Activation] One Year Update Service for GODIAG GD801 ODOMASTER",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG P01 Angle Milling cutter \u00cf\u008680x5x\u00cf\u008616x84\u00c2\u00b0 for Keyline Carat; JMA BERNA; VIENNA; SARATOGA Block A; ",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG P01W Angle Milling Cutter \u00cf\u008680x5x\u00cf\u008616x84\u00c2\u00b0 for Keyline Carat; JMA BERNA; VIENNA; SARATOGA Block A;",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG T1 90\u00c2\u00b0 Tracer \u00cf\u00866x90\u00c2\u00b0x48L-0.7 For SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 7.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG T21 85\u00c2\u00b0 Tracer D6x85\u00c2\u00b0x40x1T-P-0.8 for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRI",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 8.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG T22 2.5MM Tracer \u00cf\u00862.5xD6x45L For SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG T27 Tracer \u00cf\u00862.35x60\u00c2\u00b0xD6x40 for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG T3 1.5MM Tracer \u00cf\u00861.5xD6x45L For SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX S",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 7.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG T44 2.0mm Tracer \u00cf\u00862.0xD6x45L for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 7.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag Cutters GODIAG TH7050 5MM Tracer \u00cf\u00865.0x10xD6x32L for SILCA MATRIX PRO, MATRIX EVO, MATRIX SLX, MATRIX SX, MATRIX ",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 8.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG Two-Way Articulating Borescope with Light, Endoscope 360 Degree Rotating 2 Million Pixels 1 Meter Long Cable with",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG Universal ECU Bracket for Easy ECU Wiring (ECU Bench Stand/Holder)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

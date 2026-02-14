@@ -1,0 +1,1791 @@
+{
+ "display_name": "VXDiag",
+ "icon": "\ud83d\udcbb",
+ "product_count": 52,
+ "vehicle_makes_count": 37,
+ "vehicle_makes": [
+  "Acura",
+  "Audi",
+  "BMW",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "DS",
+  "Ford",
+  "Gmc",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Jaguar",
+  "Jeep",
+  "Kia",
+  "Lamborghini",
+  "Land Rover",
+  "Lexus",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Toyota",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "can_fd",
+  "doip",
+  "ecu_programming",
+  "key_programming"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "can_fd": "Can Fd",
+  "doip": "Doip",
+  "ecu_programming": "ECU Programming",
+  "key_programming": "Key Programming"
+ },
+ "chip_types_count": 1,
+ "ecu_types_count": 0,
+ "product_types": {
+  "diagnostic_tool": 35,
+  "software_license": 10,
+  "accessory": 2,
+  "ecu_tool": 2,
+  "other": 1,
+  "key_programmer": 1,
+  "remote_shell": 1
+ },
+ "price_range": [
+  0.1,
+  979.0
+ ],
+ "top_products": [
+  {
+   "name": "EU SHIP NO TAX WIFI VXDIAG VCX SE Diagnostic Tool for Benz DOIP Supports Benz Cars till 2023 with Free DONET Authorizati",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Porsche",
+    "SEAT",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG Full Brands Authorization License Pack for VCX SE 6154 DoIP with SN V94SE*****",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 310.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Citro\u00ebn",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Peugeot",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 VXDIAG VCX FD for Ford Mazda Scanner Supports CAN FD Protocol with Ford V130 Mazda V131",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 193.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE DOIP 11 Brands in 1 for JLR HONDA GM VW FORD MAZDA TOYOTA SUBARU VOLVO BENZ",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE BENZ Serial #V94SE Upgrade to Full Version",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Citro\u00ebn",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Any License Can Be Added] VXDIAG VCX SE Multiplexer J2534 Passthru Device Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 159.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 VXDIAG VCX FD for GM Ford Mazda 2 in 1 OBD2 Diagnostic Tool Supports CAN FD Protocol",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 238.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX FD Main Unit J2534 Passthru Hardware without Software License Supports DoIP CAN FD Protocol",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Full Brands Authorization License Pack Offer for VCX SE PRO V94SE**** Upgrade Version",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Porsche",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[16 Brands] VXDIAG VCX SE DoIP Hardware Support 16 Car Brands in 1",
+   "type": "other",
+   "type_label": "Other",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 VXDIAG VCX FD Diagnostic Scanner for GM till 2026 Supports CAN FD Protocol",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 193.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG Full Brands Authorization License Pack for VCX SE BMW with SN V94SE****",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 289.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX VXDIAG VCX SE Pro OBD2 Diagnostic Tool with 3 Free Car Authorization for USB WIFI for GM FORD MAZDA VW",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 188.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Lexus",
+    "Mazda",
+    "Opel",
+    "Skoda",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG Full Brands Authorization License Pack for VCX SE JLR with SN V94SE****",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX WIFI VXDIAG VCX SE 6154 OBD2 Diagnostic Tool with Free DONET Compatible with VW S",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Lamborghini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX Plus DoIP without Software Authorization",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 209.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX [USB Version] VXDIAG VCX NANO GM Opel Diagnostic Tool J2534 Device Supports GM Ti",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Citro\u00ebn",
+    "GMC",
+    "Opel",
+    "Peugeot",
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX VXDIAG VCX SE OBD2 Diagnostic Tool for Subaru with 2022.01 Software Supports WIFI",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 188.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Smart",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ALLSCANNER VXDIAG C6 Diagnosis Multi Diagnostic Tool for BENZ VCI DOIP &AUDIO  Pass Thru Without Software HDD",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 369.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "RAM",
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update EU SHIP NO TAX VXDIAG VCX NANO for Renault with V237 Software Multi Languages",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 107.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "GMC",
+    "Renault",
+    "SEAT"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "EU SHIP NO TAX WIFI VXDIAG VCX SE Diagnostic Tool for Benz DOIP Supports Benz Cars till 2023 with Free DONET Authorizati",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Porsche",
+    "SEAT",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG Full Brands Authorization License Pack for VCX SE 6154 DoIP with SN V94SE*****",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 310.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Citro\u00ebn",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Peugeot",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 VXDIAG VCX FD for Ford Mazda Scanner Supports CAN FD Protocol with Ford V130 Mazda V131",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 193.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE DOIP 11 Brands in 1 for JLR HONDA GM VW FORD MAZDA TOYOTA SUBARU VOLVO BENZ",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE BENZ Serial #V94SE Upgrade to Full Version",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Citro\u00ebn",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Any License Can Be Added] VXDIAG VCX SE Multiplexer J2534 Passthru Device Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 159.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 VXDIAG VCX FD for GM Ford Mazda 2 in 1 OBD2 Diagnostic Tool Supports CAN FD Protocol",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 238.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX FD Main Unit J2534 Passthru Hardware without Software License Supports DoIP CAN FD Protocol",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Full Brands Authorization License Pack Offer for VCX SE PRO V94SE**** Upgrade Version",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Porsche",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[16 Brands] VXDIAG VCX SE DoIP Hardware Support 16 Car Brands in 1",
+   "type": "other",
+   "type_label": "Other",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Renault",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 VXDIAG VCX FD Diagnostic Scanner for GM till 2026 Supports CAN FD Protocol",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 193.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG Full Brands Authorization License Pack for VCX SE BMW with SN V94SE****",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 289.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX VXDIAG VCX SE Pro OBD2 Diagnostic Tool with 3 Free Car Authorization for USB WIFI for GM FORD MAZDA VW",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 188.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Lexus",
+    "Mazda",
+    "Opel",
+    "Skoda",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG Full Brands Authorization License Pack for VCX SE JLR with SN V94SE****",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX WIFI VXDIAG VCX SE 6154 OBD2 Diagnostic Tool with Free DONET Compatible with VW S",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Lamborghini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX Plus DoIP without Software Authorization",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 209.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX [USB Version] VXDIAG VCX NANO GM Opel Diagnostic Tool J2534 Device Supports GM Ti",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Citro\u00ebn",
+    "GMC",
+    "Opel",
+    "Peugeot",
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX VXDIAG VCX SE OBD2 Diagnostic Tool for Subaru with 2022.01 Software Supports WIFI",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 188.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mazda",
+    "Smart",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ALLSCANNER VXDIAG C6 Diagnosis Multi Diagnostic Tool for BENZ VCI DOIP &AUDIO  Pass Thru Without Software HDD",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 369.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "RAM",
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update EU SHIP NO TAX VXDIAG VCX NANO for Renault with V237 Software Multi Languages",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 107.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "GMC",
+    "Renault",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE/ VCX DoIP P-S-A Peugeot Citroen DS Opel D-iagb-ox Authorization License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 35.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "DS",
+    "Opel",
+    "Peugeot"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[WIFI Version] VXDIAG Multi Diagnostic Tool for SUBARU",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 259.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Porsche",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX New VXDIAG VCX SE OBD2 Diagnostic Tool for Renault & P-S-A 2 in 1",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "DS",
+    "Opel",
+    "Peugeot",
+    "Renault",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE for Renault OBD2 Diagnostic Tool with V237 Software Supports WIFI",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "GMC",
+    "Renault",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX WIFI VXDIAG VCX NANO Diagnostic Tool for TOYOTA LEXUS Working for SAE J2534 Suppo",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 98.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG JLR DOIP Software License for Above SN V71XN******",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 183.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US SHIP VXDIAG VCX NANO for JLR Land Rover and Jaguar V168",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 115.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "WIFI VXDIAG VCX NANO for NISSAN Infiniti GTR V241 Consult 3 Plus Diagnostic Tool Supports Programming",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Infiniti",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US SHIP VXDIAG VCX NANO for TOYOTA Lexus Sicon Compatible with SAE J2534",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 88.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE DoIP OBDII Car Diagnostic Tool for Jaguar, Land Rover",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 188.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP WIFI VXDIAG VCX SE for NISSAN OBD2 Diagnostic Tool with V241 Software Supports Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Infiniti",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update WIFI version VXDIAG VCX NANO Diagnostic Tool for Land Rover and Jaguar V168",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 125.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE/VCX DoIP Multi Diagnostic Tool Authorization License for BENZ CV Trucks",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 0.1,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG VCX SE for Peugeot Citroen DS Opel OBD2 Diagnostic Tool with Software Supports WIFI",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "DS",
+    "Opel",
+    "Peugeot"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP VXDIAG VCX SE DoIP for PW2 PW3 Hardware Supports Diagnosis and Programming for Porsche Vehicle from 2005 to 2022",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 365.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software License for PW3",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 320.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software License for JLR Online Activation",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 57.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software License for Ford/Mazda",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 57.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update EU UK US SHIP VXDIAG VCX NANO for Ford Mazda Supports Win7 Win8 Win10",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 81.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update VXDIAG VCX SE for Honda Diagnostic Tool with Software 3.105.012 and J2534 Rewrite",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 185.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update [Wifi Version] VXDIAG VCX NANO 2 in 1 Diagnostic Tool for Ford Mazda Free Update Online",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 91.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software License for Honda",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 73.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software license for Subaru",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 145.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software license for VW",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software license for BENZ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 180.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software License for BMW",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 95.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation [Promotion] VXDIAG Multi Diagnostic Tool Software License for Toyota",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG Authorization License for Nissan Used with VCX SE & VCX Multi Series",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 90.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation [Online Activation] VXDIAG Multi Diagnostic Tool Software License for GM",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 73.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "GMC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Online Activation] VXDIAG Multi Diagnostic Tool Software License for Renault",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 57.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation VXDIAG Multi Diagnostic Tool Software License for VOLVO",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXDIAG USB Cable Type C Extension Cable for VCX SE Series Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

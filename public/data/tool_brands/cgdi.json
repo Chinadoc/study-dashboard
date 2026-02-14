@@ -1,0 +1,3477 @@
+{
+ "display_name": "CGDI",
+ "icon": "\ud83c\udfed",
+ "product_count": 109,
+ "vehicle_makes_count": 89,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Aston Martin",
+  "Audi",
+  "BAIC",
+  "BMW",
+  "BYD",
+  "Bentley",
+  "Bugatti",
+  "Buick",
+  "Cadillac",
+  "Can-Am",
+  "Caterpillar",
+  "Changan",
+  "Chery",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "DS",
+  "Dacia",
+  "Daewoo",
+  "Dodge",
+  "Dongfeng",
+  "Ducati",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Foton",
+  "GAC",
+  "Geely",
+  "Genesis",
+  "Gmc",
+  "Great Wall",
+  "Hafei",
+  "Haima",
+  "Honda",
+  "Hyundai",
+  "Indian",
+  "Infiniti",
+  "Isuzu",
+  "JAC",
+  "Jaguar",
+  "Jcb",
+  "Jeep",
+  "Jinbei",
+  "KTM",
+  "Kia",
+  "Kubota",
+  "Lada",
+  "Lamborghini",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Lifan",
+  "Lincoln",
+  "MAN",
+  "MG",
+  "Mahindra",
+  "Maserati",
+  "Mazda",
+  "Mclaren",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Mitsubishi Fuso",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Polaris",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Roewe",
+  "SAIC",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Tata",
+  "Toyota",
+  "Uaz",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo",
+  "Volvo Penta",
+  "Wuling"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "bench_mode",
+  "boot_mode",
+  "can_fd",
+  "checksum",
+  "chip_generation",
+  "dtc_off",
+  "ecu_cloning",
+  "ecu_programming",
+  "eeprom_read",
+  "immo_off",
+  "isn_read",
+  "key_programming",
+  "obd_mode",
+  "odometer",
+  "remote_generation",
+  "tprot_off",
+  "transponder_copy",
+  "vin_modify"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "can_fd": "Can Fd",
+  "checksum": "Checksum Correction",
+  "chip_generation": "Chip Generation",
+  "dtc_off": "DTC OFF",
+  "ecu_cloning": "ECU Cloning",
+  "ecu_programming": "ECU Programming",
+  "eeprom_read": "Eeprom Read",
+  "immo_off": "IMMO OFF",
+  "isn_read": "ISN Read/Write",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction",
+  "remote_generation": "Remote Generation",
+  "tprot_off": "Tuning Protection OFF",
+  "transponder_copy": "Transponder Copy",
+  "vin_modify": "VIN Modify"
+ },
+ "chip_types_count": 37,
+ "ecu_types_count": 129,
+ "product_types": {
+  "key_programmer": 41,
+  "software_license": 17,
+  "accessory": 16,
+  "ecu_tool": 11,
+  "remote_shell": 10,
+  "other": 9,
+  "key_blank": 2,
+  "key_cutting": 1,
+  "emulator": 1,
+  "diagnostic_tool": 1
+ },
+ "price_range": [
+  0.01,
+  1659.0
+ ],
+ "top_products": [
+  {
+   "name": "US EU SHIP NO TAX CGDI FC200 ECU Programmer ISN OBD Reader V1.3.4.2 With New DB15 Harness Supports Checksum VIN Modify S",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 88,
+   "function_count": 13,
+   "chip_count": 0,
+   "ecu_count": 151,
+   "functions": [
+    "all_keys_lost",
+    "immo_off",
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "odometer",
+    "dtc_off",
+    "vin_modify",
+    "checksum",
+    "tprot_off"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Can-Am",
+    "Caterpillar",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Godzilla CG007 CG-007 Automatic Key Cutting Machine with T5 Clamp and Battery Built-in Database 3 Years Warranty",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1659.0,
+   "url": "",
+   "vehicle_makes_count": 69,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG100 PROG III Full Advanced Version Airbag Reset Tool with All Function of Renesas SRS and Infineon XC236x FLASH Suppor",
+   "type": "other",
+   "type_label": "Other",
+   "price": 455.0,
+   "url": "",
+   "vehicle_makes_count": 61,
+   "function_count": 2,
+   "chip_count": 19,
+   "ecu_count": 7,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "MQB",
+    "KVM",
+    "RFA",
+    "93C46"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX [Covers BMW Instrument Cluster from 2016] CG Pro 9s12 Full Version with All Adapters Multi-Function Pr",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 435.0,
+   "url": "",
+   "vehicle_makes_count": 35,
+   "function_count": 4,
+   "chip_count": 22,
+   "ecu_count": 5,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "odometer",
+    "vin_modify"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "MG",
+    "Mazda"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "EWS",
+    "BCM2",
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CGDI CG FC200 ECU Programmer Full Version with New Adapters Set 6HP & 8HP MSV90 N55 N20 B48 B58 and MPC5XX Adapter for E",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 809.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 10,
+   "chip_count": 0,
+   "ecu_count": 22,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "vin_modify",
+    "tprot_off",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "GMC",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI CG100X V2.0.3.0 Smart Programmer for Airbag Reset Mileage Adjustment and Chip Reading with Free D",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 649.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 3,
+   "chip_count": 10,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_cloning",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Cadillac",
+    "Chery",
+    "Dodge",
+    "Dongfeng",
+    "Ford",
+    "Foton",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Isuzu",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mercedes-Benz",
+    "Nissan",
+    "SEAT"
+   ],
+   "chip_types": [
+    "4A",
+    "CAS1",
+    "MQB",
+    "NEC",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C02",
+    "24C04",
+    "24C16"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW Key Programmer and CG FC200 FC-200 ECU Programmer ISN Code Reader",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1179.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 8,
+   "chip_count": 9,
+   "ecu_count": 18,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "odometer",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Can-Am",
+    "KTM",
+    "Lincoln",
+    "Maserati",
+    "Mini",
+    "Piaggio",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "CGDI FC200 ECU Programmer with MPC5XX Adapter for EDC16 ME9.0",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 739.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 8,
+   "chip_count": 0,
+   "ecu_count": 25,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "vin_modify",
+    "tprot_off",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Hyundai",
+    "Kia",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Full Version CG FC200 ECU Programmer with Solder Free Adapters Set 6HP & 8HP MSV90 N55 N20 B48 B58",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 755.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 7,
+   "chip_count": 0,
+   "ecu_count": 10,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "vin_modify",
+    "tprot_off",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI A2 Key Programmer Premium Edition IMMO Programming Frequency Detection Supports BMW G Series BDC2 with Free BMW BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 659.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 5,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "bench_mode",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chery",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "BDC",
+    "MQB",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP V3.4.1.0 CGDI Prog BMW MSV80 Car Key Programmer for BMW EWS CAS1 CAS2 CAS3 CAS3+ CAS4 CAS4+ FEM BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 579.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 8,
+   "chip_count": 11,
+   "ecu_count": 54,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "vin_modify",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CG Pro 9S12 Standard Version Freescale Programmer Next Generation of CG100 Support CAS4/CAS4+ All Key Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 450.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 4,
+   "chip_count": 21,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "Roewe",
+    "Suzuki"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "EWS",
+    "BCM2",
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP CGDI Prog BMW Key Programmer Full Configuration Total 24 Authorizations with Free BMW ECU Reading Cable",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 7,
+   "chip_count": 9,
+   "ecu_count": 11,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "vin_modify",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "FEM",
+    "BDC",
+    "EWS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI CG70 Airbag Reset Tool Clear Fault Codes One Key No Welding No Disassembly Supports Toyota SAS Re",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 429.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Buick",
+    "Chevrolet",
+    "Ford",
+    "Great Wall",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Opel",
+    "Renault",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI A2 Key Programmer Full Version with Benz Authorization Software for EIS/ Password Calculation/ Read and Write Key/ ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 3,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "BDC",
+    "MQB",
+    "EIS",
+    "ELV",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW Car Key Programmer for BMW MSV80 CAS1 CAS2 CAS3 CAS3 FEM BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 585.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 6,
+   "chip_count": 9,
+   "ecu_count": 5,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CG FC200 DENSO ECU Read and Write Data Platform License A1000010",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 0.01,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 22,
+   "functions": [
+    "ecu_cloning",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Fiat",
+    "GMC",
+    "Hyundai",
+    "Isuzu",
+    "Kia",
+    "Mazda",
+    "Mitsubishi",
+    "Nissan",
+    "Opel",
+    "Subaru",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Prog BMW MSV80 Car Key Programmer with BMW FEM CAS4 CAS 4+ Test Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 6,
+   "chip_count": 9,
+   "ecu_count": 6,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI Prog MB Key Programmer and CGDI BMW Car Key Programmer Work on both BE Key and Original Key",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1099.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 5,
+   "chip_count": 11,
+   "ecu_count": 13,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Mercedes-Benz",
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "FLASH SALE DAP Adapter for CG FC200 ECU Programmer",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 232.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 6,
+   "functions": [
+    "ecu_programming",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "BAIC",
+    "Dongfeng",
+    "Great Wall",
+    "Hyundai",
+    "Isuzu",
+    "JAC",
+    "JCB",
+    "Kia",
+    "Lexus",
+    "Mahindra",
+    "TATA",
+    "Toyota"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "US EU SHIP NO TAX CGDI FC200 ECU Programmer ISN OBD Reader V1.3.4.2 With New DB15 Harness Supports Checksum VIN Modify S",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 88,
+   "function_count": 13,
+   "chip_count": 0,
+   "ecu_count": 151,
+   "functions": [
+    "all_keys_lost",
+    "immo_off",
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "odometer",
+    "dtc_off",
+    "vin_modify",
+    "checksum",
+    "tprot_off"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Can-Am",
+    "Caterpillar",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Godzilla CG007 CG-007 Automatic Key Cutting Machine with T5 Clamp and Battery Built-in Database 3 Years Warranty",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1659.0,
+   "url": "",
+   "vehicle_makes_count": 69,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG100 PROG III Full Advanced Version Airbag Reset Tool with All Function of Renesas SRS and Infineon XC236x FLASH Suppor",
+   "type": "other",
+   "type_label": "Other",
+   "price": 455.0,
+   "url": "",
+   "vehicle_makes_count": 61,
+   "function_count": 2,
+   "chip_count": 19,
+   "ecu_count": 7,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "MQB",
+    "KVM",
+    "RFA",
+    "93C46"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX [Covers BMW Instrument Cluster from 2016] CG Pro 9s12 Full Version with All Adapters Multi-Function Pr",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 435.0,
+   "url": "",
+   "vehicle_makes_count": 35,
+   "function_count": 4,
+   "chip_count": 22,
+   "ecu_count": 5,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "odometer",
+    "vin_modify"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "MG",
+    "Mazda"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "EWS",
+    "BCM2",
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CGDI CG FC200 ECU Programmer Full Version with New Adapters Set 6HP & 8HP MSV90 N55 N20 B48 B58 and MPC5XX Adapter for E",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 809.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 10,
+   "chip_count": 0,
+   "ecu_count": 22,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "vin_modify",
+    "tprot_off",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "GMC",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI CG100X V2.0.3.0 Smart Programmer for Airbag Reset Mileage Adjustment and Chip Reading with Free D",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 649.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 3,
+   "chip_count": 10,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_cloning",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Cadillac",
+    "Chery",
+    "Dodge",
+    "Dongfeng",
+    "Ford",
+    "Foton",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Isuzu",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mercedes-Benz",
+    "Nissan",
+    "SEAT"
+   ],
+   "chip_types": [
+    "4A",
+    "CAS1",
+    "MQB",
+    "NEC",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C02",
+    "24C04",
+    "24C16"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW Key Programmer and CG FC200 FC-200 ECU Programmer ISN Code Reader",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1179.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 8,
+   "chip_count": 9,
+   "ecu_count": 18,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "odometer",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Can-Am",
+    "KTM",
+    "Lincoln",
+    "Maserati",
+    "Mini",
+    "Piaggio",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "CGDI FC200 ECU Programmer with MPC5XX Adapter for EDC16 ME9.0",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 739.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 8,
+   "chip_count": 0,
+   "ecu_count": 25,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "vin_modify",
+    "tprot_off",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Hyundai",
+    "Kia",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Full Version CG FC200 ECU Programmer with Solder Free Adapters Set 6HP & 8HP MSV90 N55 N20 B48 B58",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 755.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 7,
+   "chip_count": 0,
+   "ecu_count": 10,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "ecu_programming",
+    "vin_modify",
+    "tprot_off",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI A2 Key Programmer Premium Edition IMMO Programming Frequency Detection Supports BMW G Series BDC2 with Free BMW BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 659.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 5,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "bench_mode",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chery",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "BDC",
+    "MQB",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP V3.4.1.0 CGDI Prog BMW MSV80 Car Key Programmer for BMW EWS CAS1 CAS2 CAS3 CAS3+ CAS4 CAS4+ FEM BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 579.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 8,
+   "chip_count": 11,
+   "ecu_count": 54,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "vin_modify",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CG Pro 9S12 Standard Version Freescale Programmer Next Generation of CG100 Support CAS4/CAS4+ All Key Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 450.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 4,
+   "chip_count": 21,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "Roewe",
+    "Suzuki"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "EWS",
+    "BCM2",
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP CGDI Prog BMW Key Programmer Full Configuration Total 24 Authorizations with Free BMW ECU Reading Cable",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 7,
+   "chip_count": 9,
+   "ecu_count": 11,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "vin_modify",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "FEM",
+    "BDC",
+    "EWS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI CG70 Airbag Reset Tool Clear Fault Codes One Key No Welding No Disassembly Supports Toyota SAS Re",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 429.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Buick",
+    "Chevrolet",
+    "Ford",
+    "Great Wall",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Opel",
+    "Renault",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI A2 Key Programmer Full Version with Benz Authorization Software for EIS/ Password Calculation/ Read and Write Key/ ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 3,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "BDC",
+    "MQB",
+    "EIS",
+    "ELV",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW Car Key Programmer for BMW MSV80 CAS1 CAS2 CAS3 CAS3 FEM BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 585.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 6,
+   "chip_count": 9,
+   "ecu_count": 5,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CG FC200 DENSO ECU Read and Write Data Platform License A1000010",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 0.01,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 22,
+   "functions": [
+    "ecu_cloning",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Fiat",
+    "GMC",
+    "Hyundai",
+    "Isuzu",
+    "Kia",
+    "Mazda",
+    "Mitsubishi",
+    "Nissan",
+    "Opel",
+    "Subaru",
+    "Suzuki",
+    "Toyota",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Prog BMW MSV80 Car Key Programmer with BMW FEM CAS4 CAS 4+ Test Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 6,
+   "chip_count": 9,
+   "ecu_count": 6,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Porsche"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI Prog MB Key Programmer and CGDI BMW Car Key Programmer Work on both BE Key and Original Key",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1099.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 5,
+   "chip_count": 11,
+   "ecu_count": 13,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati",
+    "Mercedes-Benz",
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "FLASH SALE DAP Adapter for CG FC200 ECU Programmer",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 232.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 6,
+   "functions": [
+    "ecu_programming",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "BAIC",
+    "Dongfeng",
+    "Great Wall",
+    "Hyundai",
+    "Isuzu",
+    "JAC",
+    "JCB",
+    "Kia",
+    "Lexus",
+    "Mahindra",
+    "TATA",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(UK,US Ship No Tax) CGDI Prog BMW MSV80 Auto key programmer + Diagnosis tool+ IMMO Security+FEM/BDC 4 in 1",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 629.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 5,
+   "chip_count": 8,
+   "ecu_count": 6,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update EU UK US SHIP 2026 WIFI CG CGDI K2 V5.5.0 Multifunction Remote Generator Smart Locksmith Key Tool S",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 128.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chrysler",
+    "Porsche",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "ID46",
+    "ID48",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Newest CGDI Prog MB Benz Car Key Programmer with 1 Free Token Life Time Supports All Mercedes to FBS3",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 569.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "FBS3",
+    "FBS4"
+   ]
+  },
+  {
+   "name": "24 Hours Activation 1 Year Software Update Subscription for CG FC200 ECU Programmer with Free Denso and Delphi License",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 200.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 4,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "GMC",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP CGDI MB with Full Adapters including EIS Test Line + ELV Adapter + ELV Simulator + AC Adapter + New NEC Ad",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 799.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 4,
+   "chip_count": 4,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "ELV",
+    "FBS4"
+   ]
+  },
+  {
+   "name": "2025 CGDI SC530 Pro OBD2 Scanner Bi-directional Scan Tool with Full System Diagnosis for Brand Benz",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Chrysler",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "SEAT",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG100 CG100X D1 Adapter for VAG MQB D70F34xx D70F35xx R7F7014xx RH850, Benz HU6 Mileage Repair without Soldering, No Lif",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Changan",
+    "Ford",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI Prog MB Benz Car Key Programmer CGMB Prog Monster plus CGDI MB CG BE Key for All Benz FBS3 Immo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 594.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "CGDI Prog MB Benz Key Programmer Support All Key Lost with Full Adapters for ELV Repair",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 619.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CGDI Prog MB Benz Key Programmer For All Keys Lost with ELV Repair Adapter with Free BMW FEM-BDC 8-PIN Adapter",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 619.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC",
+    "EIS",
+    "EZS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Adapters for CG AT200 FC200 No Need Disassembly Operation for 6HP 8HP MSV90 N55 N20 B48 B58 B38 etc",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 94.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 8,
+   "functions": [
+    "isn_read",
+    "ecu_programming",
+    "vin_modify"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Prog BMW CAS1 CAS2 CAS3 CAS3+ CAS3++ OBD Odometer Reset Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 40.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP CGDI Prog MB Benz Car Key Programmer plus AC Adapter for Quick Data Acquisition",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 619.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "Maserati Meter Mileage Adjustment for CGDI Prog BMW MSV80 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 100.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Maserati"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Prog MB Key Programmer Simulate Key Emulator",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW MSV80 Key Programmer FEM/BDC Authorization",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS3",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "AT200 V1.8.4 Upgrade for DQ200 Read/Write Data",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "ecu_cloning",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation A0000010 BMW Data Modification and Verification for CGDI Prog BMW MSV80 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "key_programming",
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation CGDI BMW Update for MSD80/81/85/87/MSV90 Read ISN No Need Opening A0000017",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 131.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "key_programming",
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP CGDI Prog MB ELV Repair Adapter W204 W207 W212 W209 W906",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 85.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "CGDI MB FBS4 Mileage Repair Authorization Version3 Get Free W205 Extend Adapter",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "8A",
+    "FBS4"
+   ]
+  },
+  {
+   "name": "CGDI MB W205 Extend Adapter for FBS4 Dashboard for CGDI MB Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "8A",
+    "FBS4"
+   ]
+  },
+  {
+   "name": "CG ECU Reading Cable for CGDI Prog BMW MSV80 Auto Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 26.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(UK Ship No Tax) Reading 8 Foot Chip Free Clip Adapter with CGDI Prog BMW and XPROG 5.60 /5.74/5.84 and UPA USB ECU Prog",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 54.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG CG100 PROG III Full Advanced Version Airbag Reset Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 379.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 5,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Bentley",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "35080"
+   ]
+  },
+  {
+   "name": "AT200 Upgrade for Volkswagen Bosch MED17 Series ECU Clone Get Free DQ200 Read/Write Data and BOSCH ST01(Boot) Read/Write",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 209.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 8,
+   "functions": [
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Indian Car License Activation for CG100X Programmer Lifetime Validity",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 249.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Indian",
+    "Kia",
+    "Mahindra",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI MB FBS4 Mileage Repair Authorization Version2 Get Free W205 Extend Adapter Bind to CGDI BMW CG Pro or Get 2000 Poin",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "8A",
+    "FBS4"
+   ]
+  },
+  {
+   "name": "CGDI MB FBS4 Mileage Repair Authorization Version1 for Customers who have CGDI BMW,CGPro,CG100",
+   "type": "other",
+   "type_label": "Other",
+   "price": 0.01,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "8A",
+    "FBS4"
+   ]
+  },
+  {
+   "name": "New NEC Adapter for CGDI MB Key Programmer No Need Soldering",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Mileage Correction and Gateway Authorization for CGDI MB",
+   "type": "other",
+   "type_label": "Other",
+   "price": 45.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation [Online activation] Tokens for CGDI Prog MB Benz Car Key Programmer 180 Days Period Up to 4 Tokens E",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 60.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation 1 Month Token Service for CGDI Prog MB Benz Car Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 10.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation 1 Year Token Service for CGDI Prog MB Benz Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "BMW AT-200 ECU Programmer A1000001-4 CONTINENTAL TC17 Read/Write Data",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 300.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Benz Authorization Software for CGDI A2 Key Programmer For Benz EIS/ Password Calculation/ Read and Write Key/ Generate ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 400.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "[5pcd/Set] CG C13-000011 A09-3+1 Hyundai Style(Separate-3+1BTN)) 4 Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 27.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Hyundai"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] CG C13-000004 A10-3+1 Honda Style(Flip-3+1BTN) 4 Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] CG C13-000008 A12-3+1 FORD Style(Flip-4BTN-Unmovable Key Ring) 4 Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set]  CG C13-000005 A22-3+1 Buick New Style (Flip-4BTN) 4 Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Buick"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "CG BMW BDC2 Adapter for CGDI A2 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX CG FC200 MPC5XX Adapter for BOSCH MPC5xx Read/Write on Bench Supports EDC16/ ME9.0/ MED9.1/ MED9.5",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 89.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 29,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG100 VW MQB D70F34XX DF0F35XX Instrument Repair Adapter No Lift PIN",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW ICOM Function License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 66.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Prog BMW Read ISN without Opening Shell Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 309.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 12,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation CGDI BMW Update for B48 B58 Read ISN No Need Opening A0000015",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation CGDI BMW Update for N13/N20/N55/B38 Read ISN No Need Opening A0000018",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI BMW Upgrade B48 /B58 /MSD80 /MSD81 /MSD85 /MSD87 /MSV80 /MSV90 /N13 /N20 /N55 /B38 Read ISN No Need Opening The She",
+   "type": "other",
+   "type_label": "Other",
+   "price": 319.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 12,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI EGS & FCU Testing Cable for Benz/BMW//VW/Audi",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mercedes-Benz",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG ELV ESL Renew Emulator for Benz W204 W207 W212 Works with CGDI Prog MB Benz Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "CGDI MB INFRARED DIODE Chip 3pcs for CGDI MB Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Prog MB USB Connection Cable",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "D2 Adapter for CG100X Programmer on VW D70F343XX Cluster, R7F701064 R7F7010643 R7F701A033 R7F701684 Airbags",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation One Token for CGDI Prog MB Benz Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 5.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] CG C13-000003 A10-2+1HON.D Style(Flip-2+1BTN) 3 Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "Authorization for CG FC200 A100000F CHINA DELPHI MTxx Engine Read & Write Data (OBD/Platform) Function",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 0.01,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "CG FC200 New DB15 Harness with GPT2 and GPT3",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Remote Renew Cable for CGDI A2 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[Pack of 5] CG BENZ 08 Version KeylessGo 315MHz/433MHz 2-in-1 Key + Shell 5 Pieces/Lot",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 176.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation [ONLINE ACTIVATION] CGDI Language License for CGPro CGDI BMW, CGDI MB, AT200 and CG FC200",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 130.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] CG C15-000003 ZA02-4 BMW DF Blade (4BTN) Smart Remote 5Pcs/Lot",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG100 CG100X C04-000526 Solder Free Adapter for BMW FRM and Porsche 12V Battery Module",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI BE Key with Smart Key Proximity Shell 3 Button for Mercedes Benz 1997-2014 Complete Key Package without Panic",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 18.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG BMW FRM Footwell Module 3M25J and 0L15Y Solder Free Adapter for CG100 CG100X",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "[PCB Only] CG BENZ 08 Version Keyless Go Key 2-in-1 315MHz/433MHz for 2006-2010 W164 W221 W216",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Porsche Lamborghini BMS 12V Battery Module 0N32E Solder Free Adapter for CG100 CG100X",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 55.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lamborghini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG AT200 Update Activation for BMW MSD80 MSD81 MSD85 MSD87 MSV80 MSV90 Write ISN, Backup and Restore Data",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Indian Car License Activation for CG FC200 Programmer",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 219.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Indian"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI MB CG BE Key for All Benz FBS3 Immo Reusable with 200 Points Bonus",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "FBS3"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW EGS ISN Clear and Synchronize Authorization",
+   "type": "other",
+   "type_label": "Other",
+   "price": 60.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI BMW F Series CAS4+/FEM Blade Key 315 MHZ Board without Shell",
+   "type": "other",
+   "type_label": "Other",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4+",
+    "FEM"
+   ]
+  },
+  {
+   "name": "CGDI Prog BMW F-Series Coding Authorization Online Activation",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 60.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX CGDI MB Benz EIS ELV Testing Platform Cluster Emulator Supports EIS Testing without ELV",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "New CG Pro 9S12 CAS4 Adapter New DB25 Adapter without Demoulding",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4"
+   ]
+  },
+  {
+   "name": "CG MB FBS3 BGA Keyless Go Key PCB with 3 Button Key Shell for W204 W207 W212 W164 W166 W216 W221 W251 After Year 2010 Ge",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 39.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "1 Token for CGDI K2 ID48 96bit Transponder Cloning",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 7.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "CG FC200 DB15 Cable Set",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "CG CG100 ATMEGA Adapter for CG100 PROG III Airbag Restore Devices with 35080 EEPROM and 8pin Chip",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 125.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 10,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "93C46",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C02",
+    "24C04",
+    "24C16",
+    "24C32",
+    "24C64",
+    "35080"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX CG100X Pro V2 Adapter",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[10pcs/set] CGDI CG8X Super Chip 10pcs for CGDI K2",
+   "type": "other",
+   "type_label": "Other",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID47",
+    "ID48"
+   ]
+  },
+  {
+   "name": "CGDI C4648 Super Chip Supports ID11, ID12, ID13, ID46, ID47, ID48, ID49, ID4A",
+   "type": "other",
+   "type_label": "Other",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID46",
+    "ID47",
+    "ID48",
+    "ID49",
+    "PCF7936"
+   ]
+  },
+  {
+   "name": "CGDI CG200 35X-CAN Adapter for CG100X Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 69.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2025 CGDI MHZ Frequency Tester for Key Fob and Remote Controls 300-320Mhz 433Mhz 868Mhz 902Mhz",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EEPROM&V850 Adapter for CGDI PRO 9S12 Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 41.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EEPROM & V850 Adapter for CG Pro 9S12",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 41.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "[3 Tokens/Day] One Year Token Pack for ID48 96bit Copy for CGDI K2",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "One Year Online Update Service for CG70 Airbag Reset Tool",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Remote Renew/Unlock Cable for CGDI K2",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation 1Year Software Subscription for CG CG100 CG100X PROG III Full Version Airbag Reset Tool",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 118.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

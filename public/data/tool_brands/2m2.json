@@ -1,0 +1,813 @@
+{
+ "display_name": "2M2",
+ "icon": "\u2702\ufe0f",
+ "product_count": 25,
+ "vehicle_makes_count": 47,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Audi",
+  "BMW",
+  "BYD",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "Dodge",
+  "Ducati",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Jaguar",
+  "Jeep",
+  "Kia",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Lincoln",
+  "MAN",
+  "Maserati",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Porsche",
+  "Renault",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "key_programming",
+  "transponder_copy"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "key_programming": "Key Programming",
+  "transponder_copy": "Transponder Copy"
+ },
+ "chip_types_count": 6,
+ "ecu_types_count": 2,
+ "product_types": {
+  "key_cutting": 19,
+  "key_blank": 3,
+  "other": 2,
+  "key_programmer": 1
+ },
+ "price_range": [
+  8.0,
+  1349.0
+ ],
+ "top_products": [
+  {
+   "name": "EU SHIP NO TAX 2026 Bluetooth 2M2 TANK 2 Pro CNC Key Cutting Machine Without Battery Adds Household Key Cutting Protecti",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1159.0,
+   "url": "",
+   "vehicle_makes_count": 44,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Lancia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 Magic Tank Automatic Key Cutting Machine with Database V809 without Battery",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1199.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Lancia",
+    "Land Rover",
+    "Lexus"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Bluetooth 2M2 Magic Tank X6 PLUS Automatic Car Key Cutting Machine Controlled by Android with Battery inside",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 1349.0,
+   "url": "",
+   "vehicle_makes_count": 39,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Lancia",
+    "Land Rover",
+    "Lexus",
+    "Lincoln"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 TANK Easy Clone Chip Machine Used with Magic Tank APP for Online Decoding Copying Supports ID48 96bit Cloning",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 85.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 3,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "BYD",
+    "Chrysler",
+    "Dodge",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Nissan",
+    "Smart",
+    "Suzuki",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "2026 [Value Bundle] 2M2 TANK 2 PRO TANK II PRO CNC Key Cutting Machine with Built-in Battery and FO21 Clamp",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1299.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Jaguar"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand 95% New [Only 1 Set] 2M2 TANK 2 PRO TANK II PRO CNC Key Cutting Machine with Built-in Battery and FO21 Clamp",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1084.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Jaguar"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[With Battery] 2M2 TANK 2 Pro CNC Key Cutting Machine Add House Keys Mul-T-lock, Dimple, Multi-point Keys with Protectiv",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1199.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 TANK 2 Pro CNC Key Cutting Machine With 8000mAh Battery & FO21 TBEI Clamp",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Benz HU64 Clamp for 2M2 Magic Tank Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Ford FO21 Clamp for 2M2 Magic Tank and 2M2 Tank 2 Pro Automatic Car Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP VXSCAN V3 Automotive Smoke Leak Detector EVAP Fuel Pipe Leakage Detector for All 12V Car, Motorcycles, Sno",
+   "type": "other",
+   "type_label": "Other",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "EU SHIP NO TAX 2026 Bluetooth 2M2 TANK 2 Pro CNC Key Cutting Machine Without Battery Adds Household Key Cutting Protecti",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1159.0,
+   "url": "",
+   "vehicle_makes_count": 44,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Lancia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 Magic Tank Automatic Key Cutting Machine with Database V809 without Battery",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1199.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Lancia",
+    "Land Rover",
+    "Lexus"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Bluetooth 2M2 Magic Tank X6 PLUS Automatic Car Key Cutting Machine Controlled by Android with Battery inside",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 1349.0,
+   "url": "",
+   "vehicle_makes_count": 39,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Kia",
+    "Lancia",
+    "Land Rover",
+    "Lexus",
+    "Lincoln"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 TANK Easy Clone Chip Machine Used with Magic Tank APP for Online Decoding Copying Supports ID48 96bit Cloning",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 85.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 3,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "BYD",
+    "Chrysler",
+    "Dodge",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Nissan",
+    "Smart",
+    "Suzuki",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "2026 [Value Bundle] 2M2 TANK 2 PRO TANK II PRO CNC Key Cutting Machine with Built-in Battery and FO21 Clamp",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1299.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Jaguar"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand 95% New [Only 1 Set] 2M2 TANK 2 PRO TANK II PRO CNC Key Cutting Machine with Built-in Battery and FO21 Clamp",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1084.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Jaguar"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[With Battery] 2M2 TANK 2 Pro CNC Key Cutting Machine Add House Keys Mul-T-lock, Dimple, Multi-point Keys with Protectiv",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1199.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 TANK 2 Pro CNC Key Cutting Machine With 8000mAh Battery & FO21 TBEI Clamp",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Benz HU64 Clamp for 2M2 Magic Tank Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Ford FO21 Clamp for 2M2 Magic Tank and 2M2 Tank 2 Pro Automatic Car Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP VXSCAN V3 Automotive Smoke Leak Detector EVAP Fuel Pipe Leakage Detector for All 12V Car, Motorcycles, Sno",
+   "type": "other",
+   "type_label": "Other",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "1.5mm Milling Cutter (Diameter 4mm) for 2M2 Tank 2 Pro Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "1.5mm Milling Cutter (Diameter 6mm) for 2M2 Tank 2 Pro Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "1.5MM Milling Cutter for 2M2 Tank 2 Pro Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "1.0MM Guide Pin Milling Cutter for 2M2 Tank 2 Pro Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 8.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "1.0mm Milling Cutter (Diameter 6mm) for 2M2 Tank 2 Pro Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2.0MM Milling Cutter for 2M2 2 Pro Tank Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[10pcs/Set] 2M2 Easy Magic Chip for 2M2 Easy Clone Supports 11, 12, 13, 33, 46, 47, 48, 49, 4A, 4C, 4D, 8A , 8C MQB48 an",
+   "type": "other",
+   "type_label": "Other",
+   "price": 22.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D"
+   ]
+  },
+  {
+   "name": "2M2 L Series Key Blade 20pcs/lot Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 S Series Key Blade 20pcs/lot Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 T Series Key Blade 20pcs/lot Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2M2 TANK Key Shell Tools Green Color for 2M2 Tank Key Cutting Machine",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "(UK Ship No Tax) 2M2 Transpoder Box Chip Storage Container 10pcs/lot Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 55.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "2.0mm Milling Cutter (Diameter 4mm) for 2M2 Tank 2 Pro Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Battery for 2M2 Tank 2 Pro Auto Key Cutting Machine Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 125.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

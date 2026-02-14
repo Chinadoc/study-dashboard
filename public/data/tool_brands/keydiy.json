@@ -1,0 +1,3891 @@
+{
+ "display_name": "KEYDIY",
+ "icon": "\ud83d\udddd\ufe0f",
+ "product_count": 181,
+ "vehicle_makes_count": 44,
+ "vehicle_makes": [
+  "Alfa Romeo",
+  "Audi",
+  "BMW",
+  "BYD",
+  "Bentley",
+  "Buick",
+  "Cadillac",
+  "Chery",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "Dodge",
+  "Ford",
+  "Geely",
+  "Gmc",
+  "Great Wall",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Jaguar",
+  "Jeep",
+  "Kia",
+  "Lamborghini",
+  "Land Rover",
+  "Lexus",
+  "MG",
+  "Maserati",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Nissan",
+  "Peugeot",
+  "Porsche",
+  "Ram",
+  "Roewe",
+  "Rolls-Royce",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "can_fd",
+  "chip_generation",
+  "doip",
+  "key_programming",
+  "remote_generation",
+  "transponder_copy"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "can_fd": "Can Fd",
+  "chip_generation": "Chip Generation",
+  "doip": "Doip",
+  "key_programming": "Key Programming",
+  "remote_generation": "Remote Generation",
+  "transponder_copy": "Transponder Copy"
+ },
+ "chip_types_count": 19,
+ "ecu_types_count": 4,
+ "product_types": {
+  "remote_shell": 135,
+  "key_programmer": 20,
+  "key_blank": 11,
+  "other": 7,
+  "accessory": 4,
+  "software_license": 2,
+  "key_cutting": 2
+ },
+ "price_range": [
+  2.0,
+  680.0
+ ],
+ "top_products": [
+  {
+   "name": "KEYDIY KD-MATE Toyota 4A 4D 8A, BYD and VAG IMMO4 Key Programmer Compatible with KD-X2 and KD-MAX",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 2,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "MG",
+    "Mazda",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "MQB"
+   ]
+  },
+  {
+   "name": "KEYDIY KD-X4 5-in-1 Key Programmer Combines KD Max, KD Mate and KD Mini Prog Supports MQB48 MQB49 5C 5D MLB BMW BDC2 BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 680.0,
+   "url": "",
+   "vehicle_makes_count": 18,
+   "function_count": 5,
+   "chip_count": 5,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "chip_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mini",
+    "Porsche",
+    "Rolls-Royce",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID47",
+    "ID49",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU UK SHIP NO TAX KEYDIY KD-MAX Android Remote Generator with WiFi Bluetooth Frequency Test, Remote Generation, Remote C",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "4D",
+    "ID46",
+    "ID48",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Purchase KD Car Remotes worth $1,500 and Contact us to get a KEYDIY KD-X4 Locksmith's Universal Tool for free",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "chip_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "FLASH SALE Keydiy KD-MP Program Kit with KD-MATE, KD-MP MLB/MQB Tool, MLB26 MLB09 MLB08 MLB Keys",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 359.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "FLASH SALE KeyDIY KD-MP Tool Add Keys MLB MQB48 systems For Audi, Porsche, Lamborghini, Bentley, and VW Touareg MLB and ",
+   "type": "other",
+   "type_label": "Other",
+   "price": 280.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "2026 KEYDIY DB25 Key Programming Cable Exclusive for KD-X4 to Read VAG 5C 5D BMW Encrypted BDC2 BDC3 Key Data",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 7.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "KeyDiy Toyota 30 Pin Cable Supports 4A and 8A-BA All Key Lost for KD-Mate and KD-X4 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 15.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "KEYDIY KD-X2 Remote Maker Unlocker with Free ID48 96bit Transponder Copy Function English Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A",
+    "ID48"
+   ]
+  },
+  {
+   "name": "1 Token for KEYDIY VAG MLB Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Keydiy VAG MQB (MQB48/ MQB49 5C 5D) + Audi BCM2 Key Programming License",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "KEYDIY Toyota 8A Non-Smart Mechanical Key All Keys Lost Adapter for KD MATE and KD-X4",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "KEYDIY DZ-754J Audi IMMO5 Smart Key Board 4 Buttons Supports 315 MHz, 433 MHz and 868MHz",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": [
+    "BCM2"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD FGB57 Remote PCB Board 434mhz for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Keydiy Jaguar Land Rover KVM/RFA Module SPC560B60L3 Chip Programming Socket Works with KD-X4",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "[Full Key 5Pcs] KEYDIY KD FGB23 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[Full Key] KEYDIY KD FGB23 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 27.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP [5Pcs/Set] KEYDIY KD FGB23 Remote PCB board 434mhz for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[Full Key 5Pcs] KEYDIY KD FGB57 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 145.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[Full Key] KEYDIY KD FGB57 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  }
+ ],
+ "all_products": [
+  {
+   "name": "KEYDIY KD-MATE Toyota 4A 4D 8A, BYD and VAG IMMO4 Key Programmer Compatible with KD-X2 and KD-MAX",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 2,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "MG",
+    "Mazda",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "MQB"
+   ]
+  },
+  {
+   "name": "KEYDIY KD-X4 5-in-1 Key Programmer Combines KD Max, KD Mate and KD Mini Prog Supports MQB48 MQB49 5C 5D MLB BMW BDC2 BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 680.0,
+   "url": "",
+   "vehicle_makes_count": 18,
+   "function_count": 5,
+   "chip_count": 5,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "chip_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mini",
+    "Porsche",
+    "Rolls-Royce",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID47",
+    "ID49",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU UK SHIP NO TAX KEYDIY KD-MAX Android Remote Generator with WiFi Bluetooth Frequency Test, Remote Generation, Remote C",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 3,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "4D",
+    "ID46",
+    "ID48",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Purchase KD Car Remotes worth $1,500 and Contact us to get a KEYDIY KD-X4 Locksmith's Universal Tool for free",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "chip_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "FLASH SALE Keydiy KD-MP Program Kit with KD-MATE, KD-MP MLB/MQB Tool, MLB26 MLB09 MLB08 MLB Keys",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 359.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "FLASH SALE KeyDIY KD-MP Tool Add Keys MLB MQB48 systems For Audi, Porsche, Lamborghini, Bentley, and VW Touareg MLB and ",
+   "type": "other",
+   "type_label": "Other",
+   "price": 280.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "2026 KEYDIY DB25 Key Programming Cable Exclusive for KD-X4 to Read VAG 5C 5D BMW Encrypted BDC2 BDC3 Key Data",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 7.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "KeyDiy Toyota 30 Pin Cable Supports 4A and 8A-BA All Key Lost for KD-Mate and KD-X4 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 15.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "KEYDIY KD-X2 Remote Maker Unlocker with Free ID48 96bit Transponder Copy Function English Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A",
+    "ID48"
+   ]
+  },
+  {
+   "name": "1 Token for KEYDIY VAG MLB Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Keydiy VAG MQB (MQB48/ MQB49 5C 5D) + Audi BCM2 Key Programming License",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "KEYDIY Toyota 8A Non-Smart Mechanical Key All Keys Lost Adapter for KD MATE and KD-X4",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "KEYDIY DZ-754J Audi IMMO5 Smart Key Board 4 Buttons Supports 315 MHz, 433 MHz and 868MHz",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": [
+    "BCM2"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD FGB57 Remote PCB Board 434mhz for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Keydiy Jaguar Land Rover KVM/RFA Module SPC560B60L3 Chip Programming Socket Works with KD-X4",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "[Full Key 5Pcs] KEYDIY KD FGB23 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[Full Key] KEYDIY KD FGB23 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 27.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP [5Pcs/Set] KEYDIY KD FGB23 Remote PCB board 434mhz for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[Full Key 5Pcs] KEYDIY KD FGB57 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 145.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[Full Key] KEYDIY KD FGB57 Remote PCB Board 434mhz + Key Shell for BMW CAS4/CAS4+, FEM/BDC, BDC2, BDC3",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5pcs/set] KEYDIY KD ZB19 (NEW) Universal Smart Remote Key 4 Buttons for Porsche Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Keydiy BMW BDC2 BDC3 BCP VAG MQB49 5C 5D Clamp Adapter Solder Free Circuit Board 11 Pieces work with KD-X4 and KD-MAX",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 232.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "KEYDIY Volvo Semi-Smart key/ 8A Smart Key Programming License for KD-X4 Dismantle and Read the CEM data",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Keydiy Volvo CEM SPC5747G Solder Free Adapter KDADP2502 for 2022- Volvo Works with KD-X4",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "1 KD Token for KEYDIY Toyota Second Hand Key Programming without Unlocking",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 5.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY BMW G/U BDC2 BDC3 BCP Key Clone Funtion+ FEM/BDC Programming Software License",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Keydiy DoIP Adapter Used with KD-X4 for Vehicles with DoIP Protocol",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Buick"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB34-5 Universal Smart Remote Key 5 Buttons for Jeep Chrysler Dodge Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Jeep",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY PAK01-FG-B Phone As Key for BMW FEM BDC CAS4/CAS4+ and G Chassis\u00c2\u00a0Vehicles",
+   "type": "other",
+   "type_label": "Other",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "KEYDIY PAK09 Phone As Key Charging Type Adapter Box for VW Audi Porsche Benz etc",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 54.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Mercedes-Benz",
+    "Porsche",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[With Key Shell] Keydiy FGB08 MQB49 5D Smart Key PCB with Key Shell for VW Audi",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Keydiy FGB08 MQB49 5D Smart Key PCB for VW Audi ZB and FGB Programs",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 26.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD NB04-3 PCF Universal Flip Remote Key 3 Buttons for Hyundai KIA Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/set] KEYDIY KD NB11-2 PCF Universal Flip Remote Key 2 Buttons for PSA Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citro\u00ebn",
+    "Peugeot",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/set] KEYDIY KD TB01-6 (NEW) for Toyota for Lexus Universal Smart Remote Key 6 Buttons With 8A Transponder",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD TB36-2 for Toyota for Lexus Universal Smart Remote Key 2 Buttons With 8A Transponder",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB18-5 Universal Smart Remote Key 4+1 Buttons for Dodge Ram Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Dodge",
+    "RAM",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY PAK06-MLB Phone As Key for MLB Type",
+   "type": "other",
+   "type_label": "Other",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Porsche",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[10Pcs/Set] KEYDIY D26 Super Chip Supports Generating 8A 8C PCF7935 PCF7936 ID46 ID47 ID48 ID49 ID4D For KD-X2 KD-X4 KD-",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 8,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID47",
+    "ID48",
+    "ID49",
+    "PCF7935",
+    "PCF7936"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B01-2 Universal Flip Remote Key 2 Buttons for Volkswagen Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B01-3 Universal Flip Remote Key 3 Buttons for Volkswagen Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B02-3 (Metal Button) Universal Flip Remote Key 3 Buttons for Audi Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B08-3 Universal Flip Remote 3 Buttons for Volkswagen Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B11-2+1 Universal Flip Remote Key 2+1 Buttons for Peugeot Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/set] KEYDIY KD B12-3 Universal Flip Remote Key 3 Buttons for Ford Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B13-2 Universal Flip Remote Key 2 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B13-3  Universal Flip Remote Key 3 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B13-4 Universal Flip Remote Key 3+1 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Lot] KEYDIY KD B14-3 Universal Flip Remote Key 3 Buttons for Mazda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B24-3 Universal Flip Remote Key 3 Buttons for Lexus Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY KD B24-4 Universal Flip Remote Key 4 Buttons for Lexus Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B34-3 Universal Flip Remote Key 3 Buttons for VW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B35-2 Universal Remote Key B Series 2 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B35-3 Universal Remote Key B Series 3 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B35-4 Universal Remote Key B Series 4 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B36-3 Universal Remote Key B Series 3 Buttons for Nissan Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B36-4 Universal Remote Key B Series 3+1 Buttons for Nissan Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B47-3 Universal Flip Remote Key 3 Buttons for Peugeot Type\u00c2",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[1Pc/Set] Keydiy KD FGB58 Smart Key with Key Shell for BMW CAS4 CAS4+ FEM BDC",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 27.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] Keydiy KD FGB58 Smart Key with Key Shell for BMW CAS4 CAS4+ FEM BDC",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 115.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5pcs/Lot] KEYDIY KD NB08-3 Volkswagen Type Universal Flip Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Lot] KEYDIY KD NB08-4 Volkswagen Type PCF Universal Flip Remote Key 3+1 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB18-3 Universal Flip Remote Key 3 Buttons for Chevrolet Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chevrolet",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set]KEYDIY KD NB22-3 Buick Type PCF Universal Flip Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/set] KEYDIY KD NB24-4 Universal Flip Remote Key 4 Buttons for Lexus Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD NB25-3 PCF Universal Flip Remote Key 3 Buttons for Hyundai Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB27-3 Audi Type Universal Flip Remote 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB34-3 Universal Flip Remote Key 3 Buttons for VW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB47-3 Universal Flip Remote Key 3 Buttons for Peugeot Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot",
+    "Smart"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD TB06-3 Universal Smart Remote Key 3 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD TDB03-3 (Black) for Toyota Universal Smart Remote Key 3 Buttons With Black Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 126.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD TDB03-3(Silver Gray) for Toyota Universal Smart Remote Key 3 Buttons With Silver Grey Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY KD TDB42-4 Universal Smart Remote Key 3+1 Buttons for Lexus Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY KD ZB01-4 Smart Remote Key for Audi Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/set] KEYDIY KD ZB02-3 Universal Smart Remote Key 3 Buttons for BMW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB03-3 Universal Smart Remote Key 2+1 Buttons for Nissan Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY KD ZB03-4 Universal Smart Remote Key 3+1 Buttons for Nissan Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB03-5 Universal Smart Remote Key 4+1 Buttons for Nissan Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY KD ZB04-3 Universal Smart Remote Key (Middle Slot) 3 Buttons for Hyundai Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB04-4 KD Universal Smart Remote Key (Right Slot) 3+1 Buttons for Hyundai Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB08-3 Universal Smart Remote Key 3 Buttons for Audi Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB08-4 Universal Smart Remote Key 3+1 Buttons for Audi Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB09 Universal Smart Key PCB 3 Buttons (AD) (Only PCB) for Audi Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB10-4 Universal Smart Remote Key 3+1 Buttons (Slide Door) for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB10-5 Universal Smart Remote Key 4+1 Buttons for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB12-3 Universal Smart Remote Key 3 Buttons for Ford Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB12-4 Universal Smart Remote Key 3+1 Button for Ford Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB13 Universal Smart Key PCB 5 Buttons (Only PCB) for Maserati Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Maserati",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB14-3 Universal Smart Remote Key 3 Buttons for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB15-3 Universal MQB Style Smart Flip Remote Key 3 Buttons for VW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB16-5 Universal Smart Remote Key 4+1 Buttons for Alfa Romeo Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB17-3 Universal Smart Remote Key 3 Buttons for VW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB19-3 Universal Smart Remote Key 3 Buttons for Porsche Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB21-4 Universal Smart Remote Key 4 Buttons for Ford Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD ZB21-5 Universal Smart Remote Key 4+1 Buttons for Ford Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB24-5 Universal Smart Remote Key 4+1 Buttons for Land Rover Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB25-3 Universal Smart Remote Key 3 Buttons for VW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY KD ZB26-3 Universal Smart Remote Key 3 Buttons for Audi Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/St] KEYDIY KD ZB27-4 Universal Smart Remote Key 4 Buttons for Chrysler Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB29-3 Universal Smart Remote Key 3 Buttons for MB Maybach Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB29-4 Universal Smart Remote Key 3+1 Buttons for MB Maybach Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB30 Universal Smart Key Remote PCB 3 Buttons (Only PCB) for Mercedes Benz Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB31 Universal Smart Remote Key 3+1 Buttons for Benz Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB32-4 Universal Smart Remote Key 4 Buttons for Chevrolet Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chevrolet",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB33-3 Universal Smart Remote Key 3 Buttons for Hyundai Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB33-4 Universal Smart Remote Key PCB 3+1 Buttons (Only PCB) for Hyundai Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB35-2 Universal Smart Remote Key 2 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB35-4 Universal Smart Remote Key 3+1 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB35-5 Universal Smart Remote Key 5 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB36-2 Universal Smart Remote Key 2 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB36-3 Universal Smart Remote Key 3 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB36-4 Universal Smart Remote Key 3+1 Buttons for Toyota Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB37-3 Universal Smart Remote Key 3 Buttons for VW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB39-3 Universal Smart Remote Key 3 Buttons for Hyundai Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB39-4 Universal Smart Remote Key 3+1 Buttons for Hyundai Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB40-4 Universal Smart Remote Key 4 Buttons for Chrysler Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB41-4 Universal Smart Remote Key 3+1 Buttons for Subaru Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB42-3 Universal Smart Remote Key 3 Buttons for Lexus Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB42-4 Universal Smart Remote Key 3+1 Buttons for Lexus Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB45-3 Universal Smart Remote Key 3 Buttons for Geely Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Geely",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB45-4 Universal Smart Remote Key 3+1 Buttons for Geely Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Geely",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB46-2 Universal Smart Remote Key 2 Buttons for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB46-3 (Start) Universal Smart Remote Key 3 Buttons for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB46-4 Universal Smart Remote Key (Side Doors) 4 Buttons for Honda Type ZB46-4",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB46-4 (Start) Universal Smart Remote Key 4 Buttons for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB46-6 Universal Smart Remote Key 6 Buttons for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD NB10-2 Universal Flip Remote Key 2 Buttons for Honda Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY PAK01-TIB Phone As Key Exclusive for Toyota Lexus 4D, 8A (BA, A9) Chip Types",
+   "type": "other",
+   "type_label": "Other",
+   "price": 61.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Keydiy TIB67 Subaru 8A and 4D Smart Remote 4-Button",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 24.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY KD ZB02-4 Universal Smart Remote Key 3+1 Buttons for BMW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB25-4 Universal Smart Remote Key 4 Buttons for VW Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Keydiy Audi BCM2 Solder Free Adapter for KD-X4",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi"
+   ],
+   "chip_types": [
+    "BCM2"
+   ]
+  },
+  {
+   "name": "KEYDIY BMW G Series BDC2 Adapter for KD-X4 Used with KD-X4 Only",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "KEYDIY BMW BDC03 Specific Dismantling-free Clip Adapter for KD-X4, KD-MAX and Other BDC3 Devices",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B21-3 Universal Flip Remote Key Knife for Cadillac Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Cadillac"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B29-3 (Metal Button) Universal Flip Remote Key",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B30-3 (Metal Button) Universal Flip Remote Key 3 Buttons for Cadillac Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Cadillac"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B33-3 Universal Remote Key 3 Buttons for Volkswagen Golf 8 Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set]  KEYDIY KD B59-4 Universal Flip Remote Key 4 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 42.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD FGB58 PCB Board for BMW FEM, BDC, CAS4, CAS4+",
+   "type": "other",
+   "type_label": "Other",
+   "price": 84.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB15-3 Universal Flip Remote Key 3 Buttons for VW MQB Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB21-3 Universal Flip Remote Key 3 Buttons Knife Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set]  KEYDIY KD NB27-4 Universal Remote Key 4 Buttons Audi Style",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB29-3 Universal Flip Remote Key 3 Buttons (Metal Buttons)",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD NB59-4 Universal Flip Remote Key 4 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 55.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original KEYDIY KD Smart Watch KD-SW01 Quartz Waterproof KD-X2 Key Generate as Smart Key Fob",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 155.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY KD-VW01 Adapter for VW IMMO4 NEC24C32 NEC24C64 Cluster",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 21.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "24C32",
+    "24C64"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB07-5 Universal Smart Remote Key 5 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB10-2 Universal Smart Remote Key 2 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set ] KEYDIY KD ZB202-3 Universal Smart Remote Key 3 Buttons for UDS Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB202-4 Universal Smart Remote Key 3+1 Buttons for UDS Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB46-5 Universal Smart Remote Key 5 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB50-2 Universal Smart Remote Key 2 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB51-3 Universal Smart Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB61-4 Universal Smart Remote Key 4 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD ZB63-3 Universal Smart Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Lot] KEYDIY NB12-3 KD Universal Flip Remote Key 3 Buttons for Ford Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB59-3 Universal Flip Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY PAK01-754J Phone As Key for Audi IMMO5 754J Type",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY Specific BMW BDC03 Clip Cable for KD-MAX",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5pcs/set] KEYDIY ZB44-3 Universal Smart Key PCB Board Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 82.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY ZB44-4 Universal Smart Key PCB Board Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 82.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY ZB44-5 Universal Smart Key PCB Board Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 82.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Keydiy ID48 96bit Online Calculation Token",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 10.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD B11-3 (NEW) Universal Flip Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs /Set] KEYDIY KD B21-4 Universal Flip Remote Key 3+1 Buttons Knife Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "1 Token for KEYDIY KD-MP MQB Read Data from Key (for KD-MP)",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 3.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Keydiy KD-MP MLB MQB48 Tool Dedicated Solder-free Wire Adapter Clip",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB10-4 Universal Remote Key 4 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] KEYDIY KD NB11-3 Universal Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD NB22-4 Universal Remote Key 4 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY KD NB28-3 Universal Remote Key 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Lot] KEYDIY KD NB30-3 Universal Flip Remote Key 3 Buttons Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 51.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY PAK01-TB Phone As Key for 8A Chip Type",
+   "type": "other",
+   "type_label": "Other",
+   "price": 61.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "KEYDIY PAK01-ZB Phone As Key for 46, 47, 48, 49, 4A Chip Types",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 61.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "KEYDIY Phone as Key PAK06-TB for 8A Chip Type",
+   "type": "other",
+   "type_label": "Other",
+   "price": 61.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "KEYDIY Remote Renew Cable for KEYDIY Machines",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 8.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY TDB02 Universal Remote Key PCB Board Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] KEYDIY TDB04-4 Universal Remote Key PCB Board Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] KEYDIY TDB05 Universal Remote Key PCB Board Only",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "1 Token for KEYDIY to Read the PIN Code from Yamaha Motorcycle",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 2.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

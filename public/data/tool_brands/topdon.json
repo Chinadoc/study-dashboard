@@ -1,0 +1,2066 @@
+{
+ "display_name": "TOPDON",
+ "icon": "\ud83d\udcca",
+ "product_count": 58,
+ "vehicle_makes_count": 59,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Audi",
+  "BMW",
+  "Bentley",
+  "Bugatti",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "DS",
+  "Dacia",
+  "Daewoo",
+  "Dodge",
+  "Ducati",
+  "Fiat",
+  "Ford",
+  "Gmc",
+  "Honda",
+  "Hyundai",
+  "Indian",
+  "Infiniti",
+  "Isuzu",
+  "Jaguar",
+  "Jeep",
+  "KTM",
+  "Kia",
+  "Lamborghini",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Lincoln",
+  "Mahindra",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Polaris",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Rolls-Royce",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Tata",
+  "Toyota",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo",
+  "Wuling"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "bench_mode",
+  "can_fd",
+  "doip",
+  "ecu_cloning",
+  "ecu_programming",
+  "key_programming",
+  "obd_mode",
+  "odometer",
+  "vin_modify"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "bench_mode": "Bench Mode",
+  "can_fd": "Can Fd",
+  "doip": "Doip",
+  "ecu_cloning": "ECU Cloning",
+  "ecu_programming": "ECU Programming",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction",
+  "vin_modify": "VIN Modify"
+ },
+ "chip_types_count": 4,
+ "ecu_types_count": 1,
+ "product_types": {
+  "diagnostic_tool": 32,
+  "software_license": 13,
+  "tester": 3,
+  "other": 3,
+  "key_programmer": 3,
+  "ecu_tool": 2,
+  "key_cutting": 2
+ },
+ "price_range": [
+  30.0,
+  3795.0
+ ],
+ "top_products": [
+  {
+   "name": "WIFI TOPDON T-Ninja Pro OBD Key Programmer Key Learning Remote Control Learning PIN Reading All Keys Lost Supports CAN F",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 490.0,
+   "url": "",
+   "vehicle_makes_count": 36,
+   "function_count": 6,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "bench_mode",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": [
+    "ID48",
+    "MQB",
+    "EZS"
+   ]
+  },
+  {
+   "name": "Topdon ArtiDiag 500 AD500 Four System OBD2 Diagnostic Scanner with Auto VIN, 6 Service Functions Battery Test, Lifetime ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 44,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "BMW",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Phoenix Max 13.3 inch Diagnostic Scanner Supports Cloud-Based Programming, ECU Coding, Topology, ADAS, Heavy-Duty",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 3795.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dacia",
+    "Dodge",
+    "Fiat",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "RAM",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Phoenix Smart Advanced Diagnostic Tool with MDCI Pro Supports Online Programming fro 13+ Car Brands ECU Coding To",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 2199.0,
+   "url": "",
+   "vehicle_makes_count": 22,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "RAM",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 TOPDON Phoenix XLink Bi-Directional Diagnostic Scanner Supports ECU Programming, ECU Coding, Topology Mapping, 41 S",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1399.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jeep",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Nissan",
+    "Opel",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Vauxhall",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 TOPDON Phoenix Plus 2 Integrated Bidirectional Full System Diagnostic Tool Supports Topology Map, ECU Coding, 42+ S",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 929.0,
+   "url": "",
+   "vehicle_makes_count": 21,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Hyundai",
+    "Jeep",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "RAM",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Phoenix Nano Bidirectional Diagnostic Tool with ECU Coding, 32+ Services, Support FCA AutoAuth, CAN FD & DoIP 2 Y",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 559.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_cloning",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "GMC",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Phoenix Lite 3 Bi-Directional Diagnostic Scanner Supports CAN FD, Topology, Online Coding, FCA SGW, 35 Service Fu",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 18,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink J2534 Pass-Thru VCI, OEM Reprogramming and Diagnostic Tool Supports J2534 D-PDU CAN-FD DoIP, Compatible wit",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 224.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo",
+    "Wuling"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP TOPDON ArtiDiag 900 BT AD900BT Bidirectional Diagnostic Tool Supports ECU Coding 28 Service Functions HDMI",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 495.0,
+   "url": "",
+   "vehicle_makes_count": 17,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand 95 New TOPDON Phoenix Plus Bi-Directional Scan Tool 2 Years Free Update Supports Topology, ECU Coding, 40+ S",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 799.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "Porsche",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX 2026 TOPDON Rlink X7 for Volkswagen Support CAN FD DoIP VW Software Online ECU Programming ECU Coding Key",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP TOPDON ArtiDiag Pro V2.0 Bidirectional Diagnostic Scan Tool with ECU Coding 35 Special Functions 2-Year Up",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 379.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX TOPDON TopScan Pro Mid-level Diagnostic Tool with 13 Reset Functions for 70+ Brands Supports iOS & And",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Nissan",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Artidiag MOTO 5 inch Diagnostic Scanner Supports 15 Motorcycle Brands",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 469.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "vin_modify"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ducati",
+    "Honda",
+    "Indian",
+    "KTM",
+    "Piaggio",
+    "Polaris",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 J2534 for GM 2000-2024 Supports CAN FD DoIP Compatible with Original GM Techline Connect Software",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON UltraDiag Advanced Diagnostic Scanner with 30 Special Functions and Key Programming Features",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 679.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Mahindra",
+    "RAM",
+    "SEAT",
+    "TATA"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 TOPDON ArtiDiag900 Lite Full System Bi-Directional Diagnostic Scanner Supports Active Test, FCA AutoAuth",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Nissan",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON TopScan Lite Bidirectional Diagnostic Scanner Bluetooth 5.0 Supports 8 Reset Functions, CAN FD, FCA AutoAuth, VW ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "SEAT",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON RLink X7 for Benz 2005 to 2024 Supports Diagnostic, Offline Coding/Programming, Unlock Hidden Functions & DoIP",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jeep",
+    "Mercedes-Benz",
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  }
+ ],
+ "all_products": [
+  {
+   "name": "WIFI TOPDON T-Ninja Pro OBD Key Programmer Key Learning Remote Control Learning PIN Reading All Keys Lost Supports CAN F",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 490.0,
+   "url": "",
+   "vehicle_makes_count": 36,
+   "function_count": 6,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "bench_mode",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": [
+    "ID48",
+    "MQB",
+    "EZS"
+   ]
+  },
+  {
+   "name": "Topdon ArtiDiag 500 AD500 Four System OBD2 Diagnostic Scanner with Auto VIN, 6 Service Functions Battery Test, Lifetime ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 44,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "BMW",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Phoenix Max 13.3 inch Diagnostic Scanner Supports Cloud-Based Programming, ECU Coding, Topology, ADAS, Heavy-Duty",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 3795.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dacia",
+    "Dodge",
+    "Fiat",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "RAM",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Phoenix Smart Advanced Diagnostic Tool with MDCI Pro Supports Online Programming fro 13+ Car Brands ECU Coding To",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 2199.0,
+   "url": "",
+   "vehicle_makes_count": 22,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "RAM",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 TOPDON Phoenix XLink Bi-Directional Diagnostic Scanner Supports ECU Programming, ECU Coding, Topology Mapping, 41 S",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1399.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jeep",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Nissan",
+    "Opel",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Vauxhall",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 TOPDON Phoenix Plus 2 Integrated Bidirectional Full System Diagnostic Tool Supports Topology Map, ECU Coding, 42+ S",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 929.0,
+   "url": "",
+   "vehicle_makes_count": 21,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Hyundai",
+    "Jeep",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "RAM",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Phoenix Nano Bidirectional Diagnostic Tool with ECU Coding, 32+ Services, Support FCA AutoAuth, CAN FD & DoIP 2 Y",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 559.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_cloning",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "GMC",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Phoenix Lite 3 Bi-Directional Diagnostic Scanner Supports CAN FD, Topology, Online Coding, FCA SGW, 35 Service Fu",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 979.0,
+   "url": "",
+   "vehicle_makes_count": 18,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink J2534 Pass-Thru VCI, OEM Reprogramming and Diagnostic Tool Supports J2534 D-PDU CAN-FD DoIP, Compatible wit",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 224.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo",
+    "Wuling"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP TOPDON ArtiDiag 900 BT AD900BT Bidirectional Diagnostic Tool Supports ECU Coding 28 Service Functions HDMI",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 495.0,
+   "url": "",
+   "vehicle_makes_count": 17,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand 95 New TOPDON Phoenix Plus Bi-Directional Scan Tool 2 Years Free Update Supports Topology, ECU Coding, 40+ S",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 799.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "Porsche",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX 2026 TOPDON Rlink X7 for Volkswagen Support CAN FD DoIP VW Software Online ECU Programming ECU Coding Key",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP TOPDON ArtiDiag Pro V2.0 Bidirectional Diagnostic Scan Tool with ECU Coding 35 Special Functions 2-Year Up",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 379.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX TOPDON TopScan Pro Mid-level Diagnostic Tool with 13 Reset Functions for 70+ Brands Supports iOS & And",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Nissan",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Artidiag MOTO 5 inch Diagnostic Scanner Supports 15 Motorcycle Brands",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 469.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "vin_modify"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ducati",
+    "Honda",
+    "Indian",
+    "KTM",
+    "Piaggio",
+    "Polaris",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 J2534 for GM 2000-2024 Supports CAN FD DoIP Compatible with Original GM Techline Connect Software",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON UltraDiag Advanced Diagnostic Scanner with 30 Special Functions and Key Programming Features",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 679.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Mahindra",
+    "RAM",
+    "SEAT",
+    "TATA"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 TOPDON ArtiDiag900 Lite Full System Bi-Directional Diagnostic Scanner Supports Active Test, FCA AutoAuth",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Nissan",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON TopScan Lite Bidirectional Diagnostic Scanner Bluetooth 5.0 Supports 8 Reset Functions, CAN FD, FCA AutoAuth, VW ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "SEAT",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON RLink X7 for Benz 2005 to 2024 Supports Diagnostic, Offline Coding/Programming, Unlock Hidden Functions & DoIP",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jeep",
+    "Mercedes-Benz",
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "TOPDON TopScan Master Supports 30 Service Functions, Adds DoIP Protocol, Offline IMMO Function, 1 Year of Free Update",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP TOPDON Artidiag 800 BT Mid-level All System Diagnostic Tool with 28 Service Functions with 2 Years Upgrade",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 279.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mini",
+    "Porsche",
+    "RAM",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X3 for US Vehicle Brands (for Ford, for GM, and for Chrysler)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Ford",
+    "GMC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Ultradiag MOTO Bluetooth Motorcycle Scan Tool for 80+ Motorcycle Makers Supports 40 Special Functions 1 Year Free",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 779.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "vin_modify"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Polaris"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON RLink X7 for JLR Support CAN-FD/DoIP, Coding/Programming, Fit for Land Rover, Jaguar",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP Topdon Rlink X7 with Nissan License Compatible with Original Software (Officially Certified by Nissan)",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Infiniti",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "AlfaOBD Software License for Topdon Rlink X7/ Rlink J2534",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 45.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Lancia",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Artidiag700 AD700 5 inch Full System Diagnostic Scanner with 15 Special Functions AutoVIN Supports CAN FD FCA SGW",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 259.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "RAM",
+    "Renault",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 VW Audi Skoda Seat Bentley Lamborghini Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP [2.2m Clamp] Topdon T120A Tornado120000 12V Battery Charger and 120A Power Supply",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5m Clamp] Topdon T120A Tornado120000 with 5M (16 Ft) Clamp-T120A (T1200005) 20A Stable Power Supply & 12V Battery Charg",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 859.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Hyundai Software License for Topdon Rlink X7",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Kia Software License for Topdon Rlink X7",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 GM Chevrolet Buick Cadillac Opel Holden Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Mitsubishi Software License for Topdon Rlink X7 Compatible with OEM Software",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP Topdon RLink X7 for PW3 Porsche Maintenance, Repair, Control Unit Replacement, Programming and Coding till Year ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE TOPDON TopScan Moto Bluetooth Full System Motorcycle Scanner for 7 Brands Harley, Ducati, etc with Reset Func",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ducati",
+    "Honda",
+    "Smart",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Tornado90000 - 90A Stable Power Supply & Smart Charger 12V/24V",
+   "type": "other",
+   "type_label": "Other",
+   "price": 679.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update WIFI TOPDON Artidiag 600S AD600S Mid-level 4 System Diagnostic Scanner, 9 Reset Services Supports A",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 166.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "RAM",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 BMW Mini Rolls-Royce Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Rolls-Royce"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 Benz Smart Maybach Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 Ford Software License",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 Honda Acura Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 Jaguar Land rover JLR SDD Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 Mazda Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 Toyota Lexus Scion Software License",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Software Subscription Passenger Car Renew Card for TOPDON Phoenix Smart/ Phoenix Max",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 722.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 Chrysler Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 40.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 Nissan Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 Porsche PW3 Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Topdon Rlink X7 Subaru SSM4 Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON Rlink X7 Volvo Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Software Subscription Renew Card for Topdon Phoenix Plus/ Phoenix Plus 2",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 499.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Software Subscription for TOPDON TopScan Pro Scanner",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 65.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON BT300P Battery Tester for 12V Lead-acid Vehicle Battery Compatible with Flooded, AGM, GEL, EFB Batteries; Accredi",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON BT600 Battery Tester for 12V Vehicles Batteries, With 3.5 inch Screen & Thermal Printer",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON BTMobile Pros Battery Tester for 12V Vehicle Batteries within 100-2000 CCA",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 187.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDON TC001 Max Dual-Lens Thermal Imaging Camera for iOS Android & Windows Supports TopFix AI",
+   "type": "other",
+   "type_label": "Other",
+   "price": 259.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

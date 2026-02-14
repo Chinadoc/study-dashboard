@@ -12,6 +12,7 @@ node_modules/
 
 # ─── Large data directories (165MB+) ────────────────────────────────────────
 data/
+!public/data/
 gdrive_exports/
 scrapers/
 research/

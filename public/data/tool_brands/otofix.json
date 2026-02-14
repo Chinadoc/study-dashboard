@@ -1,0 +1,1387 @@
+{
+ "display_name": "OTOFIX",
+ "icon": "\ud83d\udd29",
+ "product_count": 30,
+ "vehicle_makes_count": 56,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Aston Martin",
+  "Audi",
+  "BMW",
+  "BYD",
+  "Bentley",
+  "Bugatti",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "DS",
+  "Dacia",
+  "Daewoo",
+  "Dodge",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Gmc",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Isuzu",
+  "Jaguar",
+  "Jeep",
+  "Kia",
+  "Lamborghini",
+  "Land Rover",
+  "Lexus",
+  "Lincoln",
+  "MAN",
+  "Maserati",
+  "Mazda",
+  "Mclaren",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Rolls-Royce",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "bench_mode",
+  "can_fd",
+  "checksum",
+  "doip",
+  "ecu_programming",
+  "eeprom_read",
+  "immo_off",
+  "isn_read",
+  "key_programming",
+  "obd_mode",
+  "odometer"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "bench_mode": "Bench Mode",
+  "can_fd": "Can Fd",
+  "checksum": "Checksum Correction",
+  "doip": "Doip",
+  "ecu_programming": "ECU Programming",
+  "eeprom_read": "Eeprom Read",
+  "immo_off": "IMMO OFF",
+  "isn_read": "ISN Read/Write",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction"
+ },
+ "chip_types_count": 12,
+ "ecu_types_count": 16,
+ "product_types": {
+  "diagnostic_tool": 13,
+  "software_license": 5,
+  "ecu_tool": 3,
+  "remote_shell": 3,
+  "key_programmer": 3,
+  "accessory": 2,
+  "other": 1
+ },
+ "price_range": [
+  22.0,
+  1699.0
+ ],
+ "top_products": [
+  {
+   "name": "2 Years Update OTOFIX EvoScan Ultra Professional Scan Tool Supports J2534 ECU Programming Topology, DoIP CAN FD Multi-La",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1699.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2 Years Update EU UK US SHIP OTOFIX D1 Lite OBD2 Car Diagnostic Scan Tool Supports All System Diagnosis 38+ Reset Servic",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 319.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX D1 ProS Bi-Directional Diagnostic Tool Supports ECU Coding, 40+ Service, FCA AutoAuth, 2-Year Update",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 700.0,
+   "url": "",
+   "vehicle_makes_count": 45,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Bugatti",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2 Years Update EU UK US SHIP OTOFIX D1 MAX2 Professional Bi-directional Diagnostic Tool Supports CAN FD DoIP 40+ Service",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 35,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chevrolet",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE 2 Years Update OTOFIX D1 ProS2 Bi-Directional Diagnostic Tool Supports CAN FD ECU Coding, 40+ Services FCA Au",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 700.0,
+   "url": "",
+   "vehicle_makes_count": 39,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE OTOFIX D1 ProS2 10.1 inch Diagnostic Tool with 11600mAh Battery Supports ECU Coding, 40+ Service, FCA AutoAut",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 700.0,
+   "url": "",
+   "vehicle_makes_count": 28,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mazda",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP OTOFIX IM1 Automotive Key Programming & Diagnostic Tool Multi-Language with 23 Special Functions 2 Years F",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 709.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 4,
+   "chip_count": 9,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "RAM",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "ID46",
+    "ID47",
+    "CAS1",
+    "CAS4",
+    "FEM",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "OTOFIX XP1 Pro Key Programmer Works With OTOFIX IM1 IM2",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 529.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 4,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Smart",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS4",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX OTOFIX D1 Bi-directional Diagnostic Scanner Supports ECU Coding, Key Coding and 40+ Service Functions 2 Y",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 500.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Jaguar",
+    "Land Rover",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Only 1 Set] Secondhand 90% New Xhorse Multi-Prog Multi Prog ECU TCU Programmer Update of VVDI Prog with Free MQB48 Lice",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 600.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 9,
+   "functions": [
+    "immo_off",
+    "checksum"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "4A",
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "OTOFIX Watch Smart Key Watch 3-in-1 Wearable Device Smart Key+Smart Watch+Smart Phone Voice Control Lock/Unlock Doors Tr",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Honda",
+    "Mazda",
+    "Nissan",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX Watch Smart Key Watch With VCI 3-in-1 Wearable Device Smart Key+Smart Watch+Smart Phone Voice Control Lock/Unlock",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 249.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Honda",
+    "Mazda",
+    "Nissan",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 KEYDIY ZB66 Smart Remote for Peugeot/Citroen Style",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 22.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Opel",
+    "Peugeot",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "ID46",
+    "ID49"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Benz MB 12 in 1 Interface Board for Module 18 DME Reflash Bench Mode",
+   "type": "other",
+   "type_label": "Other",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 18 Benz DME ISM Reflash with License A102",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Benz ECU Connecting Board DME Cable Supports 14 DME-DDE models",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 79.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 6,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ECU Test Adapter for Benz  Used with VVDI MB CGDI MB Free Shipping",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX D1 Plus Professional Diagnostic Tool 36+ Service Functions Read/Erase Codes View Live Data Active Test",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 609.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Jaguar",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX IM1 Key Programmer 1 Year Upgrade Software Subscription",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP 2 Second Generation Module 18 with License A102 (Mercedes-Benz DME/ISM Module Refresh)",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "2 Years Update OTOFIX EvoScan Ultra Professional Scan Tool Supports J2534 ECU Programming Topology, DoIP CAN FD Multi-La",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1699.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2 Years Update EU UK US SHIP OTOFIX D1 Lite OBD2 Car Diagnostic Scan Tool Supports All System Diagnosis 38+ Reset Servic",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 319.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX D1 ProS Bi-Directional Diagnostic Tool Supports ECU Coding, 40+ Service, FCA AutoAuth, 2-Year Update",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 700.0,
+   "url": "",
+   "vehicle_makes_count": 45,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Bugatti",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2 Years Update EU UK US SHIP OTOFIX D1 MAX2 Professional Bi-directional Diagnostic Tool Supports CAN FD DoIP 40+ Service",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 35,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chevrolet",
+    "Chrysler",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE 2 Years Update OTOFIX D1 ProS2 Bi-Directional Diagnostic Tool Supports CAN FD ECU Coding, 40+ Services FCA Au",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 700.0,
+   "url": "",
+   "vehicle_makes_count": 39,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE OTOFIX D1 ProS2 10.1 inch Diagnostic Tool with 11600mAh Battery Supports ECU Coding, 40+ Service, FCA AutoAut",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 700.0,
+   "url": "",
+   "vehicle_makes_count": 28,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Mazda",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP OTOFIX IM1 Automotive Key Programming & Diagnostic Tool Multi-Language with 23 Special Functions 2 Years F",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 709.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 4,
+   "chip_count": 9,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ford",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Mitsubishi",
+    "RAM",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "ID46",
+    "ID47",
+    "CAS1",
+    "CAS4",
+    "FEM",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "OTOFIX XP1 Pro Key Programmer Works With OTOFIX IM1 IM2",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 529.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 4,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Smart",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS4",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX OTOFIX D1 Bi-directional Diagnostic Scanner Supports ECU Coding, Key Coding and 40+ Service Functions 2 Y",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 500.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Jaguar",
+    "Land Rover",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Only 1 Set] Secondhand 90% New Xhorse Multi-Prog Multi Prog ECU TCU Programmer Update of VVDI Prog with Free MQB48 Lice",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 600.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 9,
+   "functions": [
+    "immo_off",
+    "checksum"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "4A",
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "OTOFIX Watch Smart Key Watch 3-in-1 Wearable Device Smart Key+Smart Watch+Smart Phone Voice Control Lock/Unlock Doors Tr",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Honda",
+    "Mazda",
+    "Nissan",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX Watch Smart Key Watch With VCI 3-in-1 Wearable Device Smart Key+Smart Watch+Smart Phone Voice Control Lock/Unlock",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 249.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Honda",
+    "Mazda",
+    "Nissan",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 KEYDIY ZB66 Smart Remote for Peugeot/Citroen Style",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 22.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Opel",
+    "Peugeot",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "ID46",
+    "ID49"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Benz MB 12 in 1 Interface Board for Module 18 DME Reflash Bench Mode",
+   "type": "other",
+   "type_label": "Other",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 18 Benz DME ISM Reflash with License A102",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CGDI Benz ECU Connecting Board DME Cable Supports 14 DME-DDE models",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 79.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 6,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ECU Test Adapter for Benz  Used with VVDI MB CGDI MB Free Shipping",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX D1 Plus Professional Diagnostic Tool 36+ Service Functions Read/Erase Codes View Live Data Active Test",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 609.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Jaguar",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX IM1 Key Programmer 1 Year Upgrade Software Subscription",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP 2 Second Generation Module 18 with License A102 (Mercedes-Benz DME/ISM Module Refresh)",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG AT200 Update Authorization for Mercedes SIM271 Read/Write Data",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 329.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Online Update Service for OTOFIX D1 Max Diagnostic Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 287.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Online Update Service for OTOFIX D1 Plus Diagnostic Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 255.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Online Update Service for OTOFIX D1 Pro Diagnostic Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 181.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Update Service for OTOFIX D1",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "One Year Software Update for OTOFIX EvoScan Ultra (D1 ULTRA)",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 669.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update OTOFIX BT1 Lite Car Battery Analyser OBDII Battery Tester Lifetime Free Update Supports  iOS & Andr",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[Latin American Version] OTOFIX D1 Diagnostic Tool with 3 Years Free Update",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 459.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[Latin American Version] OTOFIX D1 Lite Diagnostic Tool with 3 Years Free Update",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 319.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "OTOFIX VCI V1 Bluetooth Connector for OTOFIX D1 LITE, D1 PRO,  D1 MAX, IM1, BT1",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

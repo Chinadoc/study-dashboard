@@ -1,0 +1,5289 @@
+{
+ "display_name": "Yanhua",
+ "icon": "\ud83d\udee1\ufe0f",
+ "product_count": 184,
+ "vehicle_makes_count": 55,
+ "vehicle_makes": [
+  "Aston Martin",
+  "Audi",
+  "BAIC",
+  "BMW",
+  "Bentley",
+  "Buick",
+  "Cadillac",
+  "Chery",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "Dodge",
+  "Dongfeng",
+  "Ducati",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Geely",
+  "Gmc",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Isuzu",
+  "JAC",
+  "Jaguar",
+  "Jeep",
+  "Kia",
+  "Lamborghini",
+  "Land Rover",
+  "Lexus",
+  "Lifan",
+  "Lincoln",
+  "MAN",
+  "Maserati",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Rolls-Royce",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "bench_mode",
+  "boot_mode",
+  "doip",
+  "ecu_cloning",
+  "ecu_programming",
+  "eeprom_read",
+  "isn_read",
+  "key_programming",
+  "obd_mode",
+  "odometer"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "doip": "Doip",
+  "ecu_cloning": "ECU Cloning",
+  "ecu_programming": "ECU Programming",
+  "eeprom_read": "Eeprom Read",
+  "isn_read": "ISN Read/Write",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction"
+ },
+ "chip_types_count": 25,
+ "ecu_types_count": 111,
+ "product_types": {
+  "key_programmer": 59,
+  "software_license": 53,
+  "accessory": 34,
+  "other": 22,
+  "remote_shell": 8,
+  "emulator": 6,
+  "key_cutting": 1,
+  "tester": 1
+ },
+ "price_range": [
+  16.99,
+  8370.0
+ ],
+ "top_products": [
+  {
+   "name": "No Tokens Limit Yanhua Digimaster 3 Digimaster III Odometer Correction Master Version 1.8.2211.08 With 200 Free Tokens",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 888.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 4,
+   "chip_count": 11,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "Bentley",
+    "Cadillac",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dongfeng",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": [
+    "4A",
+    "CAS1",
+    "CAS2",
+    "EIS",
+    "93C46",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C04",
+    "24C16"
+   ]
+  },
+  {
+   "name": "2nd Generation New Yanhua Mini ACDP 2 Key Programming Master Basic Module Supports USB and Wireless Connection No Need S",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 380.0,
+   "url": "",
+   "vehicle_makes_count": 29,
+   "function_count": 8,
+   "chip_count": 15,
+   "ecu_count": 16,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "odometer",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS1",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP2 Complete Set from Module 1 to Module 41",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 8370.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 8,
+   "chip_count": 13,
+   "ecu_count": 13,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "odometer",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS1",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 11 Authorization with Adapters Clear EGS ISN Supports F Series 6HP 8HP with License A51A",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 8,
+   "functions": [
+    "key_programming",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "Yanhua ACDP MPS6 Gearbox Clone Module 14 for Volvo, Landrover, Ford, Chrysler, Dodge with License A301",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "eeprom_read",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 16 Benz 722.8 722.9 Gearbox Clone and Reflash/ Renew with License A101",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 185.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Key Programming Master Full Package with Total 12 Authorizations No need Soldering",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2299.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 6,
+   "chip_count": 11,
+   "ecu_count": 21,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mini",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB",
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 19 with A000 License for SH725XX Gearbox Clone No Soldering Supports Audi Jeep ZF 8HP DQ380 DQ38",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 325.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 7,
+   "functions": [
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "2nd Generation [BMW IMMO Package] Yanhua Mini ACDP2 with Module 1/2/3/7 for BMW CAS FEM/BDC Add Key All-key-lost FEM/BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1200.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 8,
+   "chip_count": 10,
+   "ecu_count": 12,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "odometer",
+    "eeprom_read",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "MAN",
+    "Mini",
+    "Porsche",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "35080"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 26 with License AA00 Ford Renault DPS6 Gearbox Clone for Focus Ecosport Fiesta Aspire Figo, etc",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 26,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Gearbox Clone Module 13 for VW Audi Seat Skoda DQ200 DQ250 DL382 DL501 VL381 with License A600",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[With License A703] Yanhua Mini ACDP Module 28 ZF-9HP Gearbox Clone in Boot Mode",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 235.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(Benz Gearbox Clone) Yanhua Mini ACDP Programmer with Module 16 for Benz Gearbox Clone and Renew",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 579.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 22 for GM 6T 6L Gearbox Clone without Soldering 6T30 6T35 6T40 6T45 6T50 6T70 6T75 6T80 6L45 6L5",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP-2 Locksmith Package with Module 1 2 3 7 9 10 12 20 24 29 31 33 34 for BMW Land Rover Porsche Volvo VW Audi A",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3000.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 6,
+   "chip_count": 12,
+   "ecu_count": 6,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Jaguar",
+    "Land Rover",
+    "Porsche",
+    "Smart",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "2026 Yanhua Mini ACDP Module 32 with License A502 for K-Line MPC56x Chip DME and TCU Module Clone Supports EDC16 MED9.x ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 219.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 29,
+   "functions": [
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Citro\u00ebn",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Nissan",
+    "Peugeot",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "NEW YEAR SALE YANHUA ACDP2 IMMO Locksmith Package (2025) Module 1/2/3/7/9/10/12/20/24/29/31/33/34/38/BDC AKL Platform fo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3500.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 6,
+   "chip_count": 9,
+   "ecu_count": 10,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Jaguar",
+    "Land Rover",
+    "Porsche",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS3",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB",
+    "BCM2",
+    "KVM"
+   ]
+  },
+  {
+   "name": "2nd Generation [BMW Full Package] Yanhua Mini ACDP 2 Programming Master with Module 1, 2, 3, 4, 7, 8, 11 with License fo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1440.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 6,
+   "chip_count": 10,
+   "ecu_count": 28,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "35080"
+   ]
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 Module 19 (SH725XX Gearbox Module Clone) with License A000 for ZF 8HP DQ380 DQ381 DQ50",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 325.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "ecu_cloning",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Chrysler",
+    "Dodge",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Renault",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "Yanhua DR-Key DR Key Adapter Work with Digimaster III CKM100 to Unlocking / Reset Key",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "GMC",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mitsubishi",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS4+"
+   ]
+  }
+ ],
+ "all_products": [
+  {
+   "name": "No Tokens Limit Yanhua Digimaster 3 Digimaster III Odometer Correction Master Version 1.8.2211.08 With 200 Free Tokens",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 888.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 4,
+   "chip_count": 11,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "Bentley",
+    "Cadillac",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dongfeng",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": [
+    "4A",
+    "CAS1",
+    "CAS2",
+    "EIS",
+    "93C46",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C04",
+    "24C16"
+   ]
+  },
+  {
+   "name": "2nd Generation New Yanhua Mini ACDP 2 Key Programming Master Basic Module Supports USB and Wireless Connection No Need S",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 380.0,
+   "url": "",
+   "vehicle_makes_count": 29,
+   "function_count": 8,
+   "chip_count": 15,
+   "ecu_count": 16,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "odometer",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS1",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP2 Complete Set from Module 1 to Module 41",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 8370.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 8,
+   "chip_count": 13,
+   "ecu_count": 13,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "odometer",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "CAS1",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 11 Authorization with Adapters Clear EGS ISN Supports F Series 6HP 8HP with License A51A",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 8,
+   "functions": [
+    "key_programming",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "Yanhua ACDP MPS6 Gearbox Clone Module 14 for Volvo, Landrover, Ford, Chrysler, Dodge with License A301",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "eeprom_read",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 16 Benz 722.8 722.9 Gearbox Clone and Reflash/ Renew with License A101",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 185.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Key Programming Master Full Package with Total 12 Authorizations No need Soldering",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2299.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 6,
+   "chip_count": 11,
+   "ecu_count": 21,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Mini",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB",
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 19 with A000 License for SH725XX Gearbox Clone No Soldering Supports Audi Jeep ZF 8HP DQ380 DQ38",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 325.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 7,
+   "functions": [
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "2nd Generation [BMW IMMO Package] Yanhua Mini ACDP2 with Module 1/2/3/7 for BMW CAS FEM/BDC Add Key All-key-lost FEM/BDC",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1200.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 8,
+   "chip_count": 10,
+   "ecu_count": 12,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "odometer",
+    "eeprom_read",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "MAN",
+    "Mini",
+    "Porsche",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "35080"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 26 with License AA00 Ford Renault DPS6 Gearbox Clone for Focus Ecosport Fiesta Aspire Figo, etc",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 26,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Gearbox Clone Module 13 for VW Audi Seat Skoda DQ200 DQ250 DL382 DL501 VL381 with License A600",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[With License A703] Yanhua Mini ACDP Module 28 ZF-9HP Gearbox Clone in Boot Mode",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 235.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(Benz Gearbox Clone) Yanhua Mini ACDP Programmer with Module 16 for Benz Gearbox Clone and Renew",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 579.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 22 for GM 6T 6L Gearbox Clone without Soldering 6T30 6T35 6T40 6T45 6T50 6T70 6T75 6T80 6L45 6L5",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 25,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP-2 Locksmith Package with Module 1 2 3 7 9 10 12 20 24 29 31 33 34 for BMW Land Rover Porsche Volvo VW Audi A",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3000.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 6,
+   "chip_count": 12,
+   "ecu_count": 6,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Jaguar",
+    "Land Rover",
+    "Porsche",
+    "Smart",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "2026 Yanhua Mini ACDP Module 32 with License A502 for K-Line MPC56x Chip DME and TCU Module Clone Supports EDC16 MED9.x ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 219.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 29,
+   "functions": [
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Citro\u00ebn",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Nissan",
+    "Peugeot",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "NEW YEAR SALE YANHUA ACDP2 IMMO Locksmith Package (2025) Module 1/2/3/7/9/10/12/20/24/29/31/33/34/38/BDC AKL Platform fo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3500.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 6,
+   "chip_count": 9,
+   "ecu_count": 10,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Jaguar",
+    "Land Rover",
+    "Porsche",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS3",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB",
+    "BCM2",
+    "KVM"
+   ]
+  },
+  {
+   "name": "2nd Generation [BMW Full Package] Yanhua Mini ACDP 2 Programming Master with Module 1, 2, 3, 4, 7, 8, 11 with License fo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1440.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 6,
+   "chip_count": 10,
+   "ecu_count": 28,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "35080"
+   ]
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 Module 19 (SH725XX Gearbox Module Clone) with License A000 for ZF 8HP DQ380 DQ381 DQ50",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 325.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "ecu_cloning",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Chrysler",
+    "Dodge",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Renault",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "Yanhua DR-Key DR Key Adapter Work with Digimaster III CKM100 to Unlocking / Reset Key",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "GMC",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Mitsubishi",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Key Programming Master Basic Module with BMW CAS1 CAS2 CAS3 CAS3+ CAS4 CAS4+ IMMO Key Programming & Odo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 669.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 5,
+   "chip_count": 6,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mercedes-Benz",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP 2 Key Programming Master Basic Module with BMW CAS1234 3+ 4+IMMO Odometer FRM Footwell Module 0L15Y 3M2",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 789.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 5,
+   "chip_count": 6,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mercedes-Benz",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP ACDP2 Module 31 with License A501 for BMW F series BDC IMMO and Mileage via OBD (Supports 085 Version)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 100.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 6,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 3 Read BMW DME ISN Code for All Keys Lost with License A50B A50D A50E",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 6,
+   "chip_count": 2,
+   "ecu_count": 41,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "ecu_cloning",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua ACDP 2 Mercedes Benz Package Including Module 15/16/18/19 for DME Gearbox Refresh Clone",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 1200.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 16,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Chrysler",
+    "Dodge",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "Rolls-Royce",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 IMMO Locksmith Package with Module 1/2/3/7/9/10/12/20 for BMW Land Rover Porsche Volvo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2700.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 4,
+   "chip_count": 9,
+   "ecu_count": 8,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Jaguar",
+    "Land Rover",
+    "Mini",
+    "Porsche",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua ACDP-2 Master with SH725XX Gearbox Clone Module 19 Supports ZF 8HP TCU Clone and Refresh",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Chrysler",
+    "Dodge",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Porsche",
+    "Rolls-Royce",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Gearbox Cloning Package] Yanhua ACDP 2 Gearbox Clone Pack with Module 11/13/14/16/19/22/26/28 for BMW/Benz/V W/MPS6 Vol",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 1850.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Mini",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP2 Module 3 for DME ISN with Software License A50B A50D A50E Without Soldering",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 5,
+   "chip_count": 2,
+   "ecu_count": 41,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "ecu_cloning",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua ACDP A000 License for SH725XX Gearbox Clone Working with Module 19/ Module 25",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 165.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Chrysler",
+    "Dodge",
+    "Jaguar",
+    "Jeep",
+    "Lamborghini",
+    "Land Rover",
+    "Maserati",
+    "Mercedes-Benz",
+    "Porsche",
+    "Rolls-Royce",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[FEM/BDC Package] Yanhua Mini ACDP 2 BMW FEM/BDC Package with Module 2/3/31 for BMW Add Keys and All Key Lost Module Clo",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 930.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 5,
+   "chip_count": 2,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_cloning",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "2nd Generation [JLR Package] Yanhua Mini ACDP 2 Key Programmer Master Basic Plus JLR KVM Key Programming Module 9",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 710.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mini",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW CAS1 CAS2 CAS3 CAS3+ CAS4 CAS4+ Key Programming and Odometer Reset Module 1 with License A500",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 5,
+   "chip_count": 6,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "2nd Generation [BMW CAS Package] Yanhua Mini ACDP2 CAS Package with Module 1/3 for BMW CAS1/2/3/3+/4/4+ Key and Mileage ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 850.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 5,
+   "chip_count": 5,
+   "ecu_count": 22,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP V-A-G MQB/MMC Odometer Correction and IMMO Key Programming Module 6 with New PCF Key Adapter and Licens",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "V-A-G MQB RH850 R7F701402-B Interface Board for Yanhua Mini ACDP Module 34",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 20 with License A302 for Newer 2018- Volvo CEM Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 130.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 Yanhua Mini ACDP/ ACDP2 Module 33 with License A608 and 13 Full Set Adapters for VAG MQB48 Add Key, All Keys Lost a",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 368.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "4A",
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "[DME Clone Package] Yanhua ACDP 2 DME ECU Clone Package with Module 3/8/15/18/27 and 12 Interface Boards for BMW Mercede",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 1650.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 33,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP 2 EGS ISN Clear Gearbox/Transmission Clone Package for BMW Benz VW MPS6 Volvo Land Rover TCU Programmer with",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 1850.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 5,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Mini",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation [Online Activation] Yanhua ACDP Module 31 A501 License for BMW F Chassis BDC IMMO No Need Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 80.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK SHIP NO TAX Yanhua ACDP VW MQB48 Module 33 A608 License Plus MQB RH850 Module 34 A609 License for VW Add Keys All ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 630.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "4A",
+    "MQB"
+   ]
+  },
+  {
+   "name": "OEM JLR Jaguar Land rover RFA Module CPU SPC560B Blank Chip with Data for Yanhua Mini ACDP Module 24 and Keydiy KD-X4",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "RFA"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 38+ BMW BDC2 AKL Test Platform (Send a Free BMW BDC3 BCP Interface Board)",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 579.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Yanhua Mini ACDP/ACDP2 Module 38 with License A503 for 2015-2021 BMW G Series BDC2 Add Key, Mileage Reset ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 349.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Rolls-Royce"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP 2 Jaguar Land Rover JLR 2010-2019 KVM Key Programming Module 9 with Authorization A700 Add Key, All Key",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mini"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 29 Audi Gen5 BCM2 Immo Module for ALL KEYS LOST",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": [
+    "BCM2"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 36 with License A001 for ZF-TC1782 TC275 TC277 VGS3-FDCT, 8HP, 9HP50, 8DT/PDK2-TC400(TC275), 9HP",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 3,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Chrysler",
+    "Honda",
+    "Jaguar",
+    "Jeep",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "YANHUA MINI ACDP BMW B48 B58 Bench Interface Board for ACDP-1",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "YANHUA ACDP MSV70-MSS70 BDM Interface Board Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "ecu_cloning",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "YANHUA MINI ACDP Bench Mode BMW B37 B47 N47 N57 DME Adapter X1 X2 X3 Interface Board Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "DME N13 N20 Bench Integrated Interface Board for Yanhua Mini ACDP 2",
+   "type": "other",
+   "type_label": "Other",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[BDC2 BDC3 Package] Yanhua ACDP2  BMW BDC2/BDC3/BCP IMMO Package 2026",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 3,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 BMW DME Adapter X1+X2+X3 Interface Board",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 4,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2nd Generation YANHUA MINI ACDP 2 BMW B48 B58 Bench Interface Board Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW FEM/BDC Module 2 Supports Key Programming, Odometer Reset, Module Recovery, Data Backup with Licens",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 339.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[JLR and Porsche Full Package] YANHUA  Mini ACDP Key Programmer for JLR KVM Porsche BCM Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1200.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mini",
+    "Porsche",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "[Online Acvation] Yanhua ACDP A50F License for BMW E Series 6HP(GS19D) Gearbox/Transmission TCM EGS ISN Refresh",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 255.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "isn_read",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[DHL Free Ship] Yanhua Mini ACDP Module 21 with License A605 for VW Audi Gearbox DQ200 DQ250 DL382 VL381 Mileage Correct",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 34 with License A609 for MQB 5A 5C RH850 Cluster IMMO Mileage on Bench (For Customer without Mod",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 360.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 34 with License A609 for VW MQB RH850 IMMO Add Keys & All Key Lost & Mileage Correction (For Cus",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 230.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "[BMW ECU Package] Yanhua Mini ACDP2 DME ECU Package for BMW Module 3/8/27 & B48 N20 N55 B38 X1 X2 X3 X4 X5 X7 X8 MSV70 M",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 1300.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 33,
+   "functions": [
+    "isn_read",
+    "ecu_cloning",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[VAG MQB Package] Yanhua ACDP-2 VW MQB IMMO KM Package with Module 33 Module 34 for VW MQB Key Programming Mileage Corre",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 949.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "A500 License for Yanhua ACDP BMW CAS1-CAS4+ Key Programming and Mileage Correction via OBD",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "[VW/Audi TCU Mileage Package] Yanhua MINI ACDP 2 VW/AUDI Gearbox Mileage Correction Module 21, Module 25 and Module 30",
+   "type": "other",
+   "type_label": "Other",
+   "price": 820.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Double CAN Adapter for Yanhua Mini ACDP Volvo Module 12 & JLR KVM Module 9",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 35 with License A002 + Module 41 with License A003 for Toyota R7F7014xx and S6J3001 Cluster Mile",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 278.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Lexus",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "2026 Yanhua Mini ACDP Module 24 with License A702 for Jaguar Land Rover JLR 2018-2022 JPLA K8D2 J9C3 M9R3 IMMO OBD Key P",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 295.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": [
+    "RFA"
+   ]
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 Second Generation Module 12 for Volvo",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 215.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 Second Generation Module 30: Mileage Calibration of VW Audi Continental OBH Transmissi",
+   "type": "other",
+   "type_label": "Other",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[JPLA] OEM Jaguar Land Rover Keyless Entry Control Module RFA Module JPLA with Comfort Access contains SPC560B Chip and ",
+   "type": "other",
+   "type_label": "Other",
+   "price": 339.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Mini"
+   ],
+   "chip_types": [
+    "RFA"
+   ]
+  },
+  {
+   "name": "[Online Activation] VW Audi DQ500 0BH Gearbox Mileage Correction License Authorization A607 for Yanhua Mini ACDP Module ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW BDC2 Bench Test Platform with License A504 Works with Module 38 for G Series BDC2 All Keys Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 250.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 41 with License A003 for Toyota R7F7014xx and S6J3xx Cluster Mileage Correction via OBD/CAN (for",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 185.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP2 Module 38 + BMW BDC2 AKL Test Platform + LF Smart Key Antenna Remote Control Receiver (with Free BMW B",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Host Basic Module and Volvo IMMO Key Programming Module 12 with License A300",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 599.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 30 VW Audi DQ500 0BH Gearbox Mileage Correction with Authorization A607",
+   "type": "other",
+   "type_label": "Other",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 35 with License A002 for Toyota 2021-2024 R7F7014xx Buick 2017-2022 BCM NEC3558 Mileage Correcti",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 41 with License A003 for Toyota R7F7014xx and S6J3xx Cluster Mileage Correction via OBD/CAN (for",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 98.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE Yanhua Mini ACDP Volvo 2009 to 2018 IMMO Key Programming Module 12 with License A300 Supports All Keys Lost",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 219.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "[Online Activation] Yanhua Mini ACDP VW Audi Gearbox Mileage Correction License for Module 13 and Module 21",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 81.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[BMW BDC2 Pack] Yanhua Mini ACDP2 Hardware + Module 38 BMW G Series BDC2 Add Key/ Mileage Reset License A503",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 719.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Rolls-Royce"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "YANHUA MINI ACDP MSV70 MSS60 MEV9+ Interface Board Set",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 84.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "key_programming",
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "BMW CAS4 Interface Board for Yanhua Mini ACDP Module 1 No Need Soldering",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 32.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "LF Smart Key Antenna + Remote Control Receiver (434MHZ) Second-hand Dismantled Car Parts",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 Second Generation Module 15 (Mercedes-Benz Engine Module Clone)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 295.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 7,
+   "functions": [
+    "ecu_cloning",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[JLR IMMO Package] Yanhua ACDP 2 JLR IMMO Package With Module 9/24 for Land Rover/Jaguar IMMO 2010 - 2020 KVM RFA IMMO K",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 980.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW B38 Bench Integrated Interface Board",
+   "type": "other",
+   "type_label": "Other",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 4,
+   "functions": [
+    "isn_read",
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW CAS1 Interface Board Read and Write CAS1 Data without Soldering",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 59.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS1"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP CAS2 Interface Board Read and Write CAS2 Data without Soldering!",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 35.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2"
+   ]
+  },
+  {
+   "name": "[BDC2 AKL Package] Yanhua ACDP2 Module 38 + BDC2 Bench Test Platform + Module 3 + B48 Interface Board for BMW G Series A",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 829.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC",
+    "EWS"
+   ]
+  },
+  {
+   "name": "YANHUA ACDP BMW MSS60-MSS65 BDM Interface Board",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "DME N55 Bench Integrated Interface Board for Yanhua Mini ACDP 2 Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 5,
+   "functions": [
+    "isn_read",
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP BMW BDC2 AKL Test Platform + LF Smart Key Antenna Remote Control Receiver",
+   "type": "other",
+   "type_label": "Other",
+   "price": 365.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 4 BMW 35080, 35160DO WT EEPROM Read & Write with License A802",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP2 Benz HU6 YH-OBD Platform for Module 37 Benz HU6 Cluster R7F701403 Mileage Correction",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Bench Mode BMW DME X7 N57 DME Adapter Interface Board",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "isn_read",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Bench Mode] Yanhua Mini ACDP Module 17 BMW E series 6HP (GS19D) Reflash with License A50F Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 319.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS3"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW DME Adapter X5 N47 DME Interface Board Bench Mode",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "isn_read",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "YANHUA Mini ACDP Bench Mode BMW DME X8 N45 N46 Interface Board",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "isn_read",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP BMW Bench Mode Adapters for N13, N20, N63, S63, N55, B38 DME Clone with A51C Software Li",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "ecu_cloning",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2nd Generation [Porsche Package] Yanhua Mini ACDP 2 Key Programmer Master Basic Plus Module 10 for Porsche 2010-2018 BCM",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 710.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP 2 Basic Module Plus BMW Clear EGS ISN Module 11 Authorization with License A51A",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 579.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "key_programming",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[With License A51E] Yanhua Mini ACDP Module 27 BMW MSV80 MSD8X MSV90 DME Read/Write ISN and Clone",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 9,
+   "functions": [
+    "isn_read",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 37 with License A103 for Benz MB HU6 Instrument Module (C177) Mileage Correction W247 W177 W167 ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 450.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Porsche BCM Key Programming Module 10 with Authorization A900 for Porsche 2010-2018 Add Key, All Keys L",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP/ACDP 2 License A303 for Module 20 Volvo 2022- Immo Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP PCF Key Adapter for VW MQB IMMO Key Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 144.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW DME Adapter X4 N12 N14 Interface Board Bench Mode",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [
+    "isn_read",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 Second Generation Module 25 (Volkswagen Audi 0DE Gearbox Mileage Calibration)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[MQB Full Package] 2025 Yanhua ACDP2 VW MQB Full Package with Module 33/ Module 34 Key Programming and Mileage Correctio",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Yanhua ACDP-2 VW MQB48/49 5A 5C Package with Module 34 for MQB RH850 5A IMMO Key Programming & 5C KM Cluster Correction",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 599.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Newest Yanhua Mini ACDP Module 25 for VW Audi 0DE Gearbox Mileage Correction",
+   "type": "other",
+   "type_label": "Other",
+   "price": 195.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Online Activation] Yanhua Mini ACDP VW Audi DQ380 DQ381 DQ500 ODE Gearbox Mileage Correction A606 License for Module 19",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP VW/Audi TCU/ODO Mileage Package with Module 21, 25, 30, 33 and 34",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 1200.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP CEM2 KVM V1 Interface Board for Volvo Smart Key Programming (Module 12)",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "A600 License for VW/Audi Gearbox Clone Working with ACDP Module 13/ Module 21",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "BMW E Chassis 8HP EGS ISN Clear A51D Authorization for YANHUA Mini ACDP Used with Module 11",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "YANHUA ACDP ME9+ BDM DME Clone Interface Boards for BMW",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP BMW MSD80/MSD81 ISN and PSW Read Interface Board Set [Buy Module 27 Instead]",
+   "type": "other",
+   "type_label": "Other",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 4,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW MSD85 ISN and PSW Read Interface Board Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP-2 VW/Audi BCM2/MQB Package with Module 29/33/34 for Audi Gen5 BCM2/VW 4th 5th/MQB48 5A/MQB RH850 5A 5C IMMO ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 990.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "PCAN Cable for Yanhua Mini ACDP Module 3 BMW DME ISN Code Module",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 35.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "A51C Software License for Yanhua Mini ACDP BMW N13/N20/N63/S63/N55/B38 DME Clone Software License",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 4,
+   "functions": [
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Benz HU6-B R7F701403 Interface Board Used with Module 37 for A247 W177 A-Class HU6 Cluster Mileage Corr",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 47.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP BMW BDC3 BCP Key Copy Interface Board Kit for BMW G Chassis BDC3, BMW U Chassic BCP Key Copying Work with Mo",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 39 with License A105 and 1 Emulator for Benz A206 A223 A177 MB HU7 Instrument R7F7015923/ R7F701",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW DME N13 N20 N55 B48 and FEM BDC Integrated Interface Boards with License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 125.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 4,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Toyota R7F701401 Mileage Correction TOYOTA-B Interface Board Used with Module 35",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Toyota R7F701401 Unencrypted Interface Board Works with Module 35",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP VW MQB 5D Cluster R7F701401/21-5D Interface Board for 5D Cluster Mileage Correction (Require Module 34 ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP VW MQB YH-OBD Platform used with Module 34",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "Original Yanhua MB CAN Filter 18 in 1 for Benz / BMW Universal CAN Filter Better than SE133-B",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "CAS4",
+    "FEM"
+   ]
+  },
+  {
+   "name": "Newest Universal Mercedes MB CAN Filter 18 in 1 for Both Benz and BMW",
+   "type": "other",
+   "type_label": "Other",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "CAS4",
+    "FEM"
+   ]
+  },
+  {
+   "name": "[Software License] Yanhua Mini ACDP B48 and MSV90 OBD ISN Reading License Authorization A51B",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 3,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Bench Mode Mercedes-Benz Module 15 DME Clone Module with License A100",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 300.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 12,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW Key Renew Module 7 for BMW E Series and F Series with License A521",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Yanhua BMW ID7 Full LCD Instrument CAN Filter for 2016-2021 Plug and Play No Black Instrument Problem",
+   "type": "other",
+   "type_label": "Other",
+   "price": 56.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua M35XX YH35XX Programmer and Simulator Chip for Support 35160WT/35128WT EEPROM F Chassis Odometer 35128WT G chassi",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "Yanhua YH35XX Programmer + Simulator Support 35160WT/35128WT EEPROM F Chassis Odometer 35128WT G chassis VDO Odometer",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 98.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "Yanhua 35XXX 35128WT Programming Emulator Supports BMW F/G Full Series Mileage Reset",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ADC 12V Adapter for ACDP Mini Key Programmer Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 62.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[VW Audi TCU Clone Package] Yanhua ACDP 2 VW/Audi TCU Gearbox Clone Package with Module 13/19",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 820.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 4,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mercedes-Benz",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP A505 License for BMW 8HP (E/F/G) Reset EWS Data via Bench Mode Working with ACDP Module 11/19/36",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 180.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "Yanhua ACDP A50B A50D A50E License for BMW ISN Module for BMW ISN Read and Write",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 150.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua ACDP BMW 8HP (E/F/G) Reset EWS Data Module 40 with License A505",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "2025 Yanhua ACDP2 BMW Gearbox Package with Module 11/19/32/36/40 Free A51D License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 1400.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 5,
+   "functions": [
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "2025 Yanhua BMW ID8 Special Filter for BMW G Series",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 54.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[1 Pack] Yanhua MB HU7 Emulator for ACDP Module 39 to Avoid Black Screen",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Key Programmer Bluetooth Adapter",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] Yanhua Mini ACDP Fujitsu CPU MB91F Read & Write Module 5 with License A803",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Single Probe Solderless Connector",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua YH35XX Programmer + 35160WT/35128WT Simulator + ID7 CAN Filter for BMW ID7 BMW F G Chassis Cluster Mileage Correc",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC",
+    "35080"
+   ]
+  },
+  {
+   "name": "Yanhua Digimaster 3 Digimaster III Upgrade from Basic Version to Unlimited Tokens Version",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 175.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[NEWEST VERSION] YANHUA Simulator Chip for 35160WT 35128 35128WT (incl. 5V NO.8 Pin)",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "2nd Generation Yanhua Mini ACDP 2 Module 8 for BMW FRM Footwell Module 0L15Y 3M25J Read/Write No Need Soldering",
+   "type": "other",
+   "type_label": "Other",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Volvo CEM V1 Adapter for Yanhua Mini ACDP Volvo Module 12",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Volvo CEM V2 Adapter for Yanhua Mini ACDP Volvo Module 12",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 22.5,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Volvo KVM V1 Board for Yanhua Mini ACDP Volvo Module 12",
+   "type": "other",
+   "type_label": "Other",
+   "price": 38.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW BDC3 BCP Encrypted Key Solder Free Interface Boards",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "BMW CAS3 Adapter for Yanhua Mini ACDP1/ ACDP2 Supports CAS3 CAS3+ CAS3++ 0L15Y\\0M23S\\0L01Y via ICP",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+"
+   ]
+  },
+  {
+   "name": "Newest YANHUA BMW FEM/BDC Clip Adapter No Soldering for Yanhua ACDP, CGDI, VVDI, Autel, X431",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 27.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 42 with License A106 for Benz DSM (FBS4) Virgin and Data Transfer",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 100.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "FBS4"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 43 Nissan 07A Transmission Gearbox Read/Write Data with License A004",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 100.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Volvo (2023-2024) CEM Interface Board Set 2 Interface Boards Need Work with A303 License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 45.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua JLR KVM Soldering Assisted Package Help Replace JLR 2018+ KVM RFA MCU",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 219.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "4A",
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "Yanhua JLR KVM Soldering Toolkit Full Package Solder New JLR KVM RFA MCU Easy Soldering Tool for JLR 2018+",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 389.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "4A",
+    "KVM",
+    "RFA"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW CAS3 CAS4 Tester Free Shipping",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS4"
+   ]
+  },
+  {
+   "name": "Yanhua Mini ACDP BMW EGS ISN Clearance Kit for 6HP E/F  8HP E/F/G Chassis with License A51A A51D A50F",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 8 with A51F License BMW FRM Footwell Module 0L15Y 3M25J Read/Write No Need Soldering",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP Module 23 for 2018-2020 Porsche 12V Lithium Battery Repair with LICENSE A901",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 130.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "YANHUA 35128 Simulator for MINI ACDP",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CAS2 Interface Board for YANHUA MINI ACDP Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 39.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS2"
+   ]
+  },
+  {
+   "name": "CAS3 Interface Board for Yanhua Mini ACDP Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS3"
+   ]
+  },
+  {
+   "name": "OBP+ICP ICP/OBP Adapter for Yanhua Mini ACDP/ ACDP-2 Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "New Yanhua Mini ACDP 8P Puncture Socket",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP1 License Transfer to ACDP2 [License Only]",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "YANHUA BMW FEM/BDC 95128/95256 Chip IMMO Data Reading Adapter 8Pin Adapter No Need Disassembling",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC",
+    "35080"
+   ]
+  },
+  {
+   "name": "YANHUA Digimaster 3 Correction Tool Software Subscription till 2017.5",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 220.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Pack of 5] Yanhua MB HU7 Emulators for Module 39",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Porsche BCM Key Tester Integrated Interface Board",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Porsche"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Mini ACDP RF Adapter Remote Frequency Tester",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Copper Pillar Replacement for Yanhua ACDP Module 1/3/5/6/7/8/9/10",
+   "type": "other",
+   "type_label": "Other",
+   "price": 2409.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Special Offer for Clients Who Needs 433MHz KEY",
+   "type": "other",
+   "type_label": "Other",
+   "price": 25.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

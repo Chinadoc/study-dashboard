@@ -1,0 +1,7582 @@
+{
+ "display_name": "Xhorse",
+ "icon": "\ud83d\udd11",
+ "product_count": 319,
+ "vehicle_makes_count": 73,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Aston Martin",
+  "Audi",
+  "BAIC",
+  "BMW",
+  "BYD",
+  "Bentley",
+  "Buick",
+  "Cadillac",
+  "Changan",
+  "Chery",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "DS",
+  "Dacia",
+  "Daewoo",
+  "Dodge",
+  "Dongfeng",
+  "Ducati",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Foton",
+  "Geely",
+  "Gmc",
+  "Great Wall",
+  "Hafei",
+  "Haima",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Isuzu",
+  "JAC",
+  "Jaguar",
+  "Jeep",
+  "Jinbei",
+  "Kia",
+  "Lamborghini",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Lincoln",
+  "MAN",
+  "MG",
+  "Maserati",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Roewe",
+  "Rolls-Royce",
+  "SAIC",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Tata",
+  "Toyota",
+  "Uaz",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "bench_mode",
+  "boot_mode",
+  "can_fd",
+  "checksum",
+  "chip_generation",
+  "doip",
+  "ecu_cloning",
+  "ecu_programming",
+  "eeprom_read",
+  "immo_off",
+  "isn_read",
+  "key_programming",
+  "obd_mode",
+  "odometer",
+  "remote_generation",
+  "transponder_copy"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "can_fd": "Can Fd",
+  "checksum": "Checksum Correction",
+  "chip_generation": "Chip Generation",
+  "doip": "Doip",
+  "ecu_cloning": "ECU Cloning",
+  "ecu_programming": "ECU Programming",
+  "eeprom_read": "Eeprom Read",
+  "immo_off": "IMMO OFF",
+  "isn_read": "ISN Read/Write",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction",
+  "remote_generation": "Remote Generation",
+  "transponder_copy": "Transponder Copy"
+ },
+ "chip_types_count": 42,
+ "ecu_types_count": 77,
+ "product_types": {
+  "key_programmer": 96,
+  "other": 73,
+  "accessory": 49,
+  "remote_shell": 34,
+  "key_cutting": 26,
+  "key_blank": 21,
+  "software_license": 12,
+  "diagnostic_tool": 4,
+  "emulator": 3,
+  "ecu_tool": 1
+ },
+ "price_range": [
+  3.0,
+  3599.0
+ ],
+ "top_products": [
+  {
+   "name": "EU UK US SHIP Xhorse VVDI Key Tool Max Key Programmer Working with Xhorse Key Cutting Machine",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 349.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "EU UK SHIP NO TAX [Free MB Tokens & ID48 License] XHORSE VVDI KEY TOOL PLUS Key Programmer Advanced Version Supports VAG",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2079.0,
+   "url": "",
+   "vehicle_makes_count": 36,
+   "function_count": 8,
+   "chip_count": 23,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "remote_generation",
+    "transponder_copy",
+    "eeprom_read",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citro\u00ebn",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID48",
+    "ID49",
+    "CAS1",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Xhorse XDKP00EN VVDI Key Tool Plus with One Year Unlimited Tokens for Benz + One Year Token for 48 Copy and ID48 96bit C",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 2079.0,
+   "url": "",
+   "vehicle_makes_count": 32,
+   "function_count": 9,
+   "chip_count": 18,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "remote_generation",
+    "transponder_copy",
+    "eeprom_read",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover",
+    "Mazda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "ID49",
+    "CAS1",
+    "CAS2",
+    "CAS3+",
+    "CAS4"
+   ]
+  },
+  {
+   "name": "NEW YEAR SALE Lifetime Free Update EU UK US SHIP Xhorse VVDI Prog Programmer V5.3.8 with Free BMW ISN Read Function and ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 2,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Hafei",
+    "Haima",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC",
+    "BCM2",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Xhorse iKeycutter CONDOR XC-MINI Master Series Automatic Key Cutting Machine Free Shipping by DHL",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 2699.0,
+   "url": "",
+   "vehicle_makes_count": 43,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Combo Kit]  KEYDIY KD-MAX + KD-MATE Toyota Key Programmer Bundle",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 429.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 5,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "MG",
+    "Mazda",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "MQB"
+   ]
+  },
+  {
+   "name": "US SHIP Xhorse VVDI2 V7.5.1 Full Version Key Programmer 13 Software Activated Free with CAS4 Platform + FEM/BDC Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1449.0,
+   "url": "",
+   "vehicle_makes_count": 18,
+   "function_count": 8,
+   "chip_count": 17,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "immo_off",
+    "isn_read",
+    "odometer",
+    "remote_generation",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Ducati",
+    "Honda",
+    "Jeep",
+    "Peugeot",
+    "Piaggio",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID48",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP $768 Xhorse Multi-Prog Multi Prog ECU TCU Programmer Global Version Update of VVDI Prog with F",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 800.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 4,
+   "chip_count": 14,
+   "ecu_count": 81,
+   "functions": [
+    "immo_off",
+    "checksum",
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Buick",
+    "Dodge",
+    "Dongfeng",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "Roewe",
+    "SAIC",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse XSKF01EN Universal Smart Proximity Key for VVDI Key Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "BAIC",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lincoln",
+    "Maserati",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse XSKF01EN Universal Smart Proximity Key Flip Type for VVDI2 VVDI Mini Key Tool 10 pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 209.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "BAIC",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lincoln",
+    "Maserati",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP [WIFI & Bluetooth Version] Xhorse VVDI Key Tool Max Pro with MINI OBD Tool Function Supports CAN FD, TPMS,",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 419.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 6,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "obd_mode",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Honda",
+    "Mazda",
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "CAS1",
+    "CAS3"
+   ]
+  },
+  {
+   "name": "US SHIP [Value Bundle] Xhorse VVDI2 Full 13 Software Activated + VVDI Multi Prog Global Version Get Free MQB48 Authoriza",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2049.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 5,
+   "chip_count": 9,
+   "ecu_count": 6,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "checksum",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Citro\u00ebn",
+    "Peugeot",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "ID48",
+    "CAS4",
+    "FEM",
+    "BDC",
+    "MQB",
+    "NEC",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI2 Full Key Programmer V7.5.1 Plus VVDI PROG Programmer V5.3.8 Lifetime Free Update Online",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1699.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 4,
+   "chip_count": 14,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "odometer",
+    "remote_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Mini",
+    "Peugeot",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID48",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update US SHIP V7.5.1 Xhorse VVDI2 Commander Key Programmer Full Version 5 in 1 Programmer with PSA Functi",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1399.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 3,
+   "chip_count": 14,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Citro\u00ebn",
+    "Ducati",
+    "Honda",
+    "Jeep",
+    "Peugeot",
+    "Piaggio",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Suzuki",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID48",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF 2026 New XHORSE MVCI PRO+ XDMVJP J2534 Passthru Cable Supports VAG Toyota Honda Volvo Mazda Ford Subaru GM P",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 19,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Citro\u00ebn",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Lexus",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Peugeot",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Original Xhorse Dolphin XP-005L XP005L High Sec Portable Key Cutting Machine & VVDI Key Tool MAX Pro",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 2279.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Mini",
+    "RAM",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(EU US UK Ship No Tax) Xhorse VVDI MINI OBD Tool Works with Mobile Phone or Key Tool Max Supports IMMO Programming by OB",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 5,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Global Version EU UK SHIP NO TAX Launch X431 Key Programmer with 4 Universal Remote and 1 Super Chip for X431 IMMO Elite",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "DS",
+    "Ford",
+    "Nissan",
+    "Peugeot",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID48",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP 2026 Xhorse VVDI MLB Tool Add Key VW Audi MLB MQB48 No Remove Chip Works with VVDI2 VVDI Key T",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 185.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Xhorse XSKF01EN Universal Smart Proximity Flip Type Key for VVDI2/VVDI Mini Key Tool 5pcs/lot",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BAIC",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Dongfeng",
+    "Ford",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Roewe",
+    "Smart"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "EU UK US SHIP Xhorse VVDI Key Tool Max Key Programmer Working with Xhorse Key Cutting Machine",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 349.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "EU UK SHIP NO TAX [Free MB Tokens & ID48 License] XHORSE VVDI KEY TOOL PLUS Key Programmer Advanced Version Supports VAG",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2079.0,
+   "url": "",
+   "vehicle_makes_count": 36,
+   "function_count": 8,
+   "chip_count": 23,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "remote_generation",
+    "transponder_copy",
+    "eeprom_read",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citro\u00ebn",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID48",
+    "ID49",
+    "CAS1",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Xhorse XDKP00EN VVDI Key Tool Plus with One Year Unlimited Tokens for Benz + One Year Token for 48 Copy and ID48 96bit C",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 2079.0,
+   "url": "",
+   "vehicle_makes_count": 32,
+   "function_count": 9,
+   "chip_count": 18,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "remote_generation",
+    "transponder_copy",
+    "eeprom_read",
+    "obd_mode",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini",
+    "Land Rover",
+    "Mazda"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "ID49",
+    "CAS1",
+    "CAS2",
+    "CAS3+",
+    "CAS4"
+   ]
+  },
+  {
+   "name": "NEW YEAR SALE Lifetime Free Update EU UK US SHIP Xhorse VVDI Prog Programmer V5.3.8 with Free BMW ISN Read Function and ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 2,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Hafei",
+    "Haima",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC",
+    "BCM2",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Xhorse iKeycutter CONDOR XC-MINI Master Series Automatic Key Cutting Machine Free Shipping by DHL",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 2699.0,
+   "url": "",
+   "vehicle_makes_count": 43,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Combo Kit]  KEYDIY KD-MAX + KD-MATE Toyota Key Programmer Bundle",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 429.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 5,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "MG",
+    "Mazda",
+    "Mini"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID48",
+    "MQB"
+   ]
+  },
+  {
+   "name": "US SHIP Xhorse VVDI2 V7.5.1 Full Version Key Programmer 13 Software Activated Free with CAS4 Platform + FEM/BDC Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1449.0,
+   "url": "",
+   "vehicle_makes_count": 18,
+   "function_count": 8,
+   "chip_count": 17,
+   "ecu_count": 4,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "immo_off",
+    "isn_read",
+    "odometer",
+    "remote_generation",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Ducati",
+    "Honda",
+    "Jeep",
+    "Peugeot",
+    "Piaggio",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Suzuki",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID48",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP $768 Xhorse Multi-Prog Multi Prog ECU TCU Programmer Global Version Update of VVDI Prog with F",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 800.0,
+   "url": "",
+   "vehicle_makes_count": 20,
+   "function_count": 4,
+   "chip_count": 14,
+   "ecu_count": 81,
+   "functions": [
+    "immo_off",
+    "checksum",
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Buick",
+    "Dodge",
+    "Dongfeng",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Nissan",
+    "Porsche",
+    "Roewe",
+    "SAIC",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse XSKF01EN Universal Smart Proximity Key for VVDI Key Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "BAIC",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lincoln",
+    "Maserati",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse XSKF01EN Universal Smart Proximity Key Flip Type for VVDI2 VVDI Mini Key Tool 10 pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 209.0,
+   "url": "",
+   "vehicle_makes_count": 27,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "BAIC",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lincoln",
+    "Maserati",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP [WIFI & Bluetooth Version] Xhorse VVDI Key Tool Max Pro with MINI OBD Tool Function Supports CAN FD, TPMS,",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 419.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 6,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "obd_mode",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Honda",
+    "Mazda",
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "CAS1",
+    "CAS3"
+   ]
+  },
+  {
+   "name": "US SHIP [Value Bundle] Xhorse VVDI2 Full 13 Software Activated + VVDI Multi Prog Global Version Get Free MQB48 Authoriza",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2049.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 5,
+   "chip_count": 9,
+   "ecu_count": 6,
+   "functions": [
+    "key_programming",
+    "isn_read",
+    "checksum",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Citro\u00ebn",
+    "Peugeot",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "ID48",
+    "CAS4",
+    "FEM",
+    "BDC",
+    "MQB",
+    "NEC",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI2 Full Key Programmer V7.5.1 Plus VVDI PROG Programmer V5.3.8 Lifetime Free Update Online",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1699.0,
+   "url": "",
+   "vehicle_makes_count": 13,
+   "function_count": 4,
+   "chip_count": 14,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "odometer",
+    "remote_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Citroen",
+    "Citro\u00ebn",
+    "DS",
+    "Mini",
+    "Peugeot",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID48",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update US SHIP V7.5.1 Xhorse VVDI2 Commander Key Programmer Full Version 5 in 1 Programmer with PSA Functi",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1399.0,
+   "url": "",
+   "vehicle_makes_count": 15,
+   "function_count": 3,
+   "chip_count": 14,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Citro\u00ebn",
+    "Ducati",
+    "Honda",
+    "Jeep",
+    "Peugeot",
+    "Piaggio",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Suzuki",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID48",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF 2026 New XHORSE MVCI PRO+ XDMVJP J2534 Passthru Cable Supports VAG Toyota Honda Volvo Mazda Ford Subaru GM P",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 19,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Citro\u00ebn",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Lexus",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Peugeot",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Subaru",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Original Xhorse Dolphin XP-005L XP005L High Sec Portable Key Cutting Machine & VVDI Key Tool MAX Pro",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 2279.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy",
+    "chip_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Mini",
+    "RAM",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(EU US UK Ship No Tax) Xhorse VVDI MINI OBD Tool Works with Mobile Phone or Key Tool Max Supports IMMO Programming by OB",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 5,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer",
+    "remote_generation",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Global Version EU UK SHIP NO TAX Launch X431 Key Programmer with 4 Universal Remote and 1 Super Chip for X431 IMMO Elite",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "DS",
+    "Ford",
+    "Nissan",
+    "Peugeot",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID48",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP 2026 Xhorse VVDI MLB Tool Add Key VW Audi MLB MQB48 No Remove Chip Works with VVDI2 VVDI Key T",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 185.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Xhorse XSKF01EN Universal Smart Proximity Flip Type Key for VVDI2/VVDI Mini Key Tool 5pcs/lot",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BAIC",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Dongfeng",
+    "Ford",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mini",
+    "Mitsubishi",
+    "Nissan",
+    "Roewe",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Keydiy KD MINI Prog With C2 Adapter Read Data Support VW MQB Audi BCM2 Work with KD-MATE to Add Key and  All Keys Lost",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "BCM2"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse VVDI Key Tool Max with MINI OBD Tool V2 plus Toyota 8A All Keys Lost Adapter with Renew Soldering C",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 639.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "[IN STOCK] Xhorse FCA 12+8 Adapter for Chrysler Jeep Dodge Used with VVDI Key Tool Plus",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[US UK EU Ship No Tax] Bluetooth Xhorse VVDI Key Tool Max Device with VVDI MINI OBD Tool V2 Get Free Renew Cable",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 579.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "English Version Xhorse VVDI Key Tool Plus Key Programmer Plus Solder-free Adapters Full Set",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2499.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 2,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Mini",
+    "Porsche",
+    "RAM",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "EWS",
+    "KVM",
+    "35080"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI MINI KEY TOOL Remote Maker for iOS & Android with Free Xhorse Remotes",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 150.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Hyundai",
+    "Mini",
+    "Nissan",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D",
+    "ID46",
+    "ID48"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI2 and VVDI Key Tool Copy ID48 Transponder (96 Bit) Function Authorization Service",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 250.0,
+   "url": "",
+   "vehicle_makes_count": 12,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Buick",
+    "Cadillac",
+    "Fiat",
+    "Great Wall",
+    "Honda",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "ID48",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP 200pcs Xhorse VVDI Super Chips for VVDI Mini Key Tool Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 519.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 1,
+   "chip_count": 8,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Buick",
+    "Ford",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID47",
+    "ID48",
+    "ID49",
+    "PCF7935",
+    "PCF7936"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP GODIAG BMW CAS2 CAS3 SER Semi Smart Test Platform Detect CAS & Key Synchronization Solder-free Matching CA",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 4,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "EWS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse VVDI Super Chip Transponder XT27A01 XT27A66 For ID46 40 43 4D 8C 8A T3 47",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 0,
+   "chip_count": 6,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Buick",
+    "Chevrolet",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Mini",
+    "Renault",
+    "Roewe",
+    "SAIC",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "PCF7935",
+    "PCF7936",
+    "93C66"
+   ]
+  },
+  {
+   "name": "24 Hours Activation Xhorse VAG MQB48 NEC35XX Add Key and All Keys Lost License for VVDI Key Tool Plus, VVDI2 & VVDI Prog",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 200.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF 2026 Xhorse VVDI Multi-Prog Programmer with VH24 SOP44 & TSOP48+VH29 EEPROM & FLASH+VH30 SOP44+VH31 TSOP48 A",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 899.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 0,
+   "chip_count": 10,
+   "ecu_count": 10,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Dodge",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS4+",
+    "FEM",
+    "BDC",
+    "EWS",
+    "MQB",
+    "BCM2",
+    "EZS"
+   ]
+  },
+  {
+   "name": "Global Version EU UK US SHIP Original Xhorse VVDI MINI KEY TOOL Remote Maker Supports ID48 96bit Clone",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation",
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Honda",
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D",
+    "ID46",
+    "ID48"
+   ]
+  },
+  {
+   "name": "XHORSE VVDI2 48 Chip Copy Data Collector with Key Blade (No Need to Register Condor)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "transponder_copy",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": [
+    "24C32",
+    "24C64"
+   ]
+  },
+  {
+   "name": "Benz IMMO Programming Software License for Xhorse VVDI Key Tool Plus VAG Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 799.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "ELV",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse Dolphin XP005 Key Cutting Machine and VVDI Key Tool Max Supports WIFI & Bluetooth Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1899.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI Key Tool Plus Full Version with All License Includes MQB48 Authorization BMW Bench Read ISN Authorization BM",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 2499.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 2,
+   "functions": [
+    "isn_read",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Honda",
+    "Kia",
+    "Mercedes-Benz",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "XHORSE XSCH01EN Chrysler Style XM38 Universal Smart Key 5Pcs/Lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Hyundai",
+    "Kia",
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "BMW CAS4 FEM BDC IMMO Programming Software License for Xhorse VVDI Key Tool Plus VAG Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 2,
+   "chip_count": 8,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP CGDI Prog MB Benz Car Key Programmer  Plus Xhorse EIS/ELV Test Line",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 639.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "GODIAG CAS1 CAS2 BMW Mechanical Key Test Platform",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "eeprom_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "EWS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP XHORSE XDNPBGGL BMW G Series BDC2 Adapter with Free License Activation for Key Tool Plus, VVDI2 and Key To",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Rolls-Royce"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF Xhorse VVDI BMW Motorcycle OBD Key Learning License for Key Tool MIDI, VVDI2 and VVDI Key Tool Plus",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "Original Xhorse VVDI Prog Programmer with Bosch ECU Adapter Read BMW ISN from ECU DME N20 N55 B38",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 509.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 45,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mitsubishi",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Smart",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "Second Hand 95% New [Ship from EU to EU] Original Xhorse VVDI MINI KEY TOOL Remote Maker",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Honda",
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D",
+    "ID46",
+    "ID48"
+   ]
+  },
+  {
+   "name": "VVDI2 Authorization - Prepare Dealer Key by Ecu Data/V-A-G Copy 48 Transponder by OBDII",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 150.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "ID48",
+    "24C32",
+    "24C64"
+   ]
+  },
+  {
+   "name": "Xhorse VAG MQB48 NEC35XX License with MQB48 XDNPM3GL No Soldering 13 Full Set Adapters Supports  Key Adding All Keys Los",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 429.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF $959 Xhorse Multi-Prog with Exclusive Adapters+XDNPM3GL MQB48 Solder-Free Adapter 13pcs",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 999.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 3,
+   "functions": [
+    "isn_read",
+    "ecu_programming",
+    "checksum"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "NEC"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF Xhorse VVDI MB BGA Tool Benz Key Programmer Free Shipping Frequently Online Update",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Lifetime Free Update [1 Year Tokens] Xhorse V5.1.6 VVDI Benz VVDI MB BGA TOOL Benz Key Programmer Frequently Online Upda",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 849.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Original Xhorse VVDI MB BGA TooL Benz Key Programmer Plus VVDI MB Tool Power Adapter for Data Acquisition",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1199.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP [100 pcs/lot] Xhorse VVDI Super Chip Transponder for VVDI2 VVDI Mini Key Tool DHL Free Shippin",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 289.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 1,
+   "chip_count": 8,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID47",
+    "ID48",
+    "ID49",
+    "PCF7935",
+    "PCF7936"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP 50pcs/lot Xhorse VVDI Super Chip Transponder Used with VVDI2 VVDI Mini Key Tool Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 159.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 1,
+   "chip_count": 8,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID47",
+    "ID48",
+    "ID49",
+    "PCF7935",
+    "PCF7936"
+   ]
+  },
+  {
+   "name": "Xhorse XEKF21EN Super Remote Knife Type 3 Buttons with Super Chip 5pcs Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Hyundai",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "PCF7935",
+    "PCF7936"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF [4A 8A AKL] Xhorse XD8ASKGL Toyota 8A AKL Adapter for VVDI Key Tool Plus/ Key Tool MIDI Bypass 2017-2022 Toy",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 189.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "Xhorse XEDS01EN Super Remote Comes within Super Chip 10 Pcs Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP XHORSE Toyota 8A Non-smart Key Adapter for All Key Lost via OBD No Disassembly",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 159.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "XHORSE XD8ABAGL Toyota BA All Keys Lost Adapter for  VVDI Key Tool Plus, Key Tool Max Pro, Key Tool MIDI and FT-Mini OBD",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Lexus",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Xhorse XDMOT0GL FT-OBD MINI-OBD Tool for Toyota Add Key and All Keys Lost till 2023",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP [5PCS/Set] XHORSE XSTO01EN Toyota XM38 Smart Key Type B (Chromed Button) Support 4D 8A 4A All in One",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 189.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse XSTO01EN Toyota XM38 Smart Key 4D 8A 4A All in One with Key Shell 1 Piece",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 39.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI2 BMW FEM/BDC Authorization (With Condor)",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 600.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX Intelligent Folding Remote Control Key for Audi A6L Q7 Working with VVDI2 Mini Remote Programmer 10pcs/se",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 69.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Update Xhorse Key Tool MIDI Basic to Advanced Version (BMW CAS4 FEM BDC License Activation)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 250.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Jaguar",
+    "Land Rover",
+    "Mercedes-Benz",
+    "Porsche",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS4",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5Pcs/Lot] Xhorse XELEX0EN VVDI Super Remote with XT27A01 XT27A66 Chip Lexus Style",
+   "type": "other",
+   "type_label": "Other",
+   "price": 64.99,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Lexus",
+    "Mini",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "BMW FEM/BDC Authorization for VVDI2 (Without Condor)",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 250.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse XDNPABGL Audi BCM2 Solder Free Adapter for VVDI Key Tool Plus, Multi Prog and VVDI2 + VVDI Prog",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 144.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "BCM2"
+   ]
+  },
+  {
+   "name": "Xhorse BMW Bench Read ISN License for VVDI Key Tool Plus Pad",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 150.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 5,
+   "ecu_count": 10,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS3",
+    "CAS4",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Xhorse XDKP91GL Nissan Mitsubishi Special 40-pin Cable for VVDI Key Tool Plus, Key Tool MIDI and Key Tool Max Pro",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 41.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mitsubishi",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse VVDI BEE Key Tool Lite with 6 XKB501EN Wire Remotes Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Honda",
+    "Mazda",
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D",
+    "ID48"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP [1000 pcs/lot ] Xhorse VVDI Super Chip Transponder for VVDI2 VVDI Mini Key Tool DHL Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 2199.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Honda",
+    "Hyundai",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XKA600EN VVDI2 Audi A6L Q7 Type Universal Remote Key 3 Buttons 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 69.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XKA600EN VVDI2 Audi A6L Q7 Type Universal Remote Key 3 Buttons 5pcs / lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 37.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse VVDI2 Basic Version Update to Full Version Authorization Service",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 859.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 0,
+   "chip_count": 6,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Citro\u00ebn",
+    "Peugeot",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "ID48",
+    "CAS4",
+    "FEM",
+    "BDC",
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XKA600EN VVDI2 Audi A6L Q7 Type Universal Remote Key 3 Buttons",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 5.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation",
+    "transponder_copy"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "D-80 4D 4C Copy Chip for Tango, Keydiy KD-X4, 2M2, VVDI Mini Key Tool, VVDI Key Tool 10pcs/set",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 27.99,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "Ford",
+    "Hyundai",
+    "Mazda",
+    "Mini",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI Adapters & Cables Solder-free Full Set for Xhorse MINI PROG and KEY TOOL PLUS",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 459.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 7,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mini",
+    "Porsche",
+    "Volvo"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "CAS4+",
+    "EWS",
+    "KVM",
+    "35080"
+   ]
+  },
+  {
+   "name": "[EU UK Ship No Tax] Xhorse Condor XC-Mini Plus Automatic Key Cutting Machine 3 Years Warranty",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 2799.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "Ford",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XDNPP3CH MB91F Adapters Solder-free Honda Hyundai Kia 6Pcs Set for VVDI MINI PROG and KEY TOOL PLUS",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse Iscancar V-A-G MM-007 Diagnostic and Maintenance Tool Powerful than Super V-A-G 3.0",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 279.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse VVDI Super Chip Transponder for VVDI2 VVDI Mini Key Tool 10 pcs/lot",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 8,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "ID46",
+    "ID47",
+    "ID48",
+    "ID49",
+    "PCF7935",
+    "PCF7936"
+   ]
+  },
+  {
+   "name": "Original Xhorse VVDI MB BGA TooL Benz Key Programmer Including BGA Calculator Function Plus EIS/ELV Test Line",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1099.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Xhorse XDMO20EN VVDI MINI OBD TOOL V2 Supports CAN FD",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 254.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost",
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "XHORSE XEFO01EN Super Remote Key Ford Style Flip 4 Buttons Built-in Super Chip English Version 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "XHORSE XEFO01EN Super Remote Key Ford Style Flip 4 Buttons Built-in Super Chip English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 8.95,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "5Pcs Xhorse XEKF20EN Super Remote 4 Buttons for VVDI Mini Key Tool, VVDI2, Key Tool Plus",
+   "type": "other",
+   "type_label": "Other",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Mini",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "2.5mm Milling Cutter for Xhorse CONDOR XC-Mini, Condor XC-002, Condor II and Dolphin XP005 XP005L Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 11.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "5pcs/lot 2.5mm Milling Cutters for CONDOR XC-Mini, Condor XC-002, Condor II and Dolphin XP005 XP005L Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Update VVDI to VVDI2 Prgrammer",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 569.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Porsche",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS4"
+   ]
+  },
+  {
+   "name": "US UK Ship XHORSE All Keys Lost Cable for Ford 2016- Smart Key AKL with Active Alarm Used with VVDI KEY TOOL PLUS KEY TO",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Lincoln",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Secondhand 99% New [ONLY FROM EU TO EU] XHORSE DOLPHIN XP-005 Key Cutting Machine with M5 Clamp",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1518.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "Ford",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE DOLPHIN XP-005 Key Cutting Machine with M5 Clamp Supports Sided/Track/Tibbe Keys",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1645.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Citroen",
+    "Ford",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Auto 4% OFF $1055 Xhorse Multi-Prog Programmer with VH24 VH29 VH30 VH31 Adapters + XDNPM3GL MQB48 Solder-Free Adapter 13",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 1099.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 8,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XEMQB1EN Super Remote Key MQB Style 3 Buttons Built-in Super Chip English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 10.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935",
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5pcs/lot] XHORSE XEMQB1EN Super Remote Key MQB Style 3 Buttons Built-in Super Chip English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Haima",
+    "Honda",
+    "Hyundai",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "PCF7935",
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] Xhorse XKNI00EN Wire Remote Key Nissan Separate 4 Buttons English Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE VVDI XM38 Series XSSBR0EN Subaru Style 4 Buttons Universal Smart Key Remote Free Shipping",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 99.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX (OEM Solution) KEYDIY MLB08 MLB For Audi Style 3 Buttons Universal Smart Remote PCB Board \u00e2\u0080\u0093 434 Mhz Wor",
+   "type": "other",
+   "type_label": "Other",
+   "price": 43.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK SHIP NO TAX Xhorse XEDS01EN Super Remote Comes within Super Chip DS Style 3 Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 8.95,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "DS",
+    "Honda",
+    "Hyundai",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID47"
+   ]
+  },
+  {
+   "name": "Universal BMW BDC3 BCP VAG MQB49 5C 5D 8 in 1 Clip Adapters for Original Key Data Reading",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "[5pcs/lot] Xhorse VVDI BE Key Pro V4.2T Yellow Board with Benz Key Shell 3 Buttons Free Shipping",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 69.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "Xhorse XDNP30 BOSCH ECU Adapter and Cable Used with VVDI Key Tool Plus, MINI Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 12,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Value Bundle Xhorse VVDI PROG Programmer plus PCF79XX Adapter",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 455.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 4,
+   "ecu_count": 1,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Smart"
+   ],
+   "chip_types": [
+    "PCF7941",
+    "PCF7945",
+    "PCF7952",
+    "PCF7953"
+   ]
+  },
+  {
+   "name": "[5pcs/lot] XHORSE XKB501EN Wired Universal Remote Key Volkswagen B5 Type 3 Buttons for VVDI Key Tool English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 35.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse BMW G Series BDC2 and BDC3/BCP IMMO Software License Activation for VVDI2, Key Tool MIDI and Key Tool Plus",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Rolls-Royce"
+   ],
+   "chip_types": [
+    "CAS4",
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse Condor XC-MINI PLUS II (Condor II) Key Cutting Machine with M3 and M5 Clamps Supports Manual Cuttin",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 2759.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE SW-007 SW007 Smart Watch Keyless Go Wearable Super Car Key Blue Color",
+   "type": "other",
+   "type_label": "Other",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XDNPP2 Adapters Solder-free Volvo 3Pcs Set for VVDI MINI PROG and KEY TOOL PLUS",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volvo"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "Wifi Xhorse VVDI MINI Prog Programmer Work on Xhorse APP Supports iOS, Android",
+   "type": "other",
+   "type_label": "Other",
+   "price": 449.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Porsche",
+    "Smart",
+    "Volvo"
+   ],
+   "chip_types": [
+    "4A",
+    "CAS4",
+    "KVM"
+   ]
+  },
+  {
+   "name": "Original Xhorse VVDI2 Commander Key Programmer Basic Function",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 545.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "[5Pcs/set] XHORSE XKHY20EN Hyundai Type 3 Buttons Second Generation Universal Remote Key",
+   "type": "other",
+   "type_label": "Other",
+   "price": 37.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XDNPP1CH Xhorse MINI PROG Solder-Free BMW Adapters 5Pcs Set for KEY TOOL PLUS and VVDI MINI PROG",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 170.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS4",
+    "35080"
+   ]
+  },
+  {
+   "name": "Xhorse XDSKE0EN Smart Key Box Bluetooth Adapter Used with VVDI2 Key Tool Plus MINI Key Tool Key Tool Max",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 69.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKB501EN Wired Universal Remote Key Volkswagen B5 Type 3 Buttons for VVDI Key Tool English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 6.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "chip_generation"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] XHORSE XKTO00EN VVDI2 Toyota Type Wired Universal Remote Key 3 Buttons",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 5.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "BMW FEM BDC Bench Integrated Interface Board for Yanhua Mini ACDP and Any FEM Key Programming Devices Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 70.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC"
+   ]
+  },
+  {
+   "name": "Xhorse BMW DME Cloning Cable with Multiple Adapters B38 N13 N20 N52 N55 MSV90 for Xhorse VVDI PROG AT-200",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 259.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 6,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP CGDI Prog MB AC Adapter for W164 W204 W221 W209 W246 W251 W166 Quick Data Acquisition",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 89.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX EIS/ELV Test Line for Mercedes (without having to get on the car) Works Together with VVDI BGA Tool",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Auto 4% OFF Xhorse M3 Fixture M3 Clamp for Ford FO21 TIBBE and Citroen SX9 Key Blade Free Shipping Works with Condor Dol",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Ford",
+    "Jaguar",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "GODIAG Gearbox ISM Cable 5-in-1 Set for Mercedes Benz VGS-FDCT 724/ VGS2-722.8/ VGS-7G-TRONIC-722.9/ VGS-9GT-725/ ISM",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_cloning"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Godiag GPT Bench Boot Adapter + GT107+ DSG Gearbox Adapter and G-V ECU Cable Bundle Kit for Xhorse Multi Prog",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 6,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "GODIAG G-V ECU Cable for Connecting Xhorse MULTI PROG with GT107/ GT107+ or GPT BENCH BOOT Adapter to Read & Write VAG G",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 14.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 6,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "OEM MB ELV Simulator for Benz 204 207 212 for CGDI MB VVDI MB Benz Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 27.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "CGDI MB FBS3 BGA KeylessGo Key One-key Start 315Mhz, 433Mhz Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 35.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "FBS3"
+   ]
+  },
+  {
+   "name": "Mercedes A164 W164 W211 W209 Gateway Adapter for VVDI MB BGA TOOL and NEC PRO57",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 25.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "[EU UK Ship No Tax] Xhorse VVDI Prog Bosch ECU Adapter Supports Reading ISN From BMW ECU N20 N55 B38",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 23,
+   "functions": [
+    "isn_read"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "NEW YEAR SALE EU UK US SHIP [Reusable] Xhorse Bluetooth Digital Smart Key XSBTK0EN XM38 Smart Remote Reusable Supports i",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 80.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP V2.1.3 Xhorse DOLPHIN XP005 with M5 Clamp Automatic Key Cutting Machine with Battery inside Portable",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1645.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Ford",
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 New Xhorse XCMT01GL CONDOR XC-TWINS Key Cutting Machine with M3, M5L and M6 Clamps 3 Years Warranty",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 3499.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Ship from US/UK] 5pcs XHORSE ESL Emulator/ELV Emulator for Benz 204 207 212 with VVDI MB tool Free Shipping",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP [In Stock] Xhorse XDMQBAGL MQB48 Adapter for VVDI MLB Tool Collects NEC35XX IMMO Data No Tokens Required",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 3,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "ID48",
+    "MQB",
+    "NEC"
+   ]
+  },
+  {
+   "name": "Free Shipping XHORSE VVDI MB NEC ELV Adapter Used with VVDI MB BGA tool",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "VVDI MB Tool Power adapter work with VVDI MB for Quick Data Acquisition Add W164 Direct cable",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "FBS3"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI MQB48 XT1M VW Audi Fiat MQB 48 Transponder Chip 10pcs/lot",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 39.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Fiat",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "ID48",
+    "MQB"
+   ]
+  },
+  {
+   "name": "Prepare Toyota H Chip Authorization for Xhorse VVDI2",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 75.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI2 VAG VW Audi 4th IMMO Authorization Service",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 859.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse X013 XKFO01EN Series Universal Remote Key Fob 4 Button Ford Type",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 5.95,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK SHIP NO TAX [5Pcs/Set] Xhorse XEDS01EN Super Remote Comes within Super Chip",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 64.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Hyundai",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "8A",
+    "4A",
+    "4D",
+    "ID46",
+    "ID47"
+   ]
+  },
+  {
+   "name": "[5PCS/SET] XHORSE XKTO01EN Second Generation Universal Remote Key for Toyota 2 Buttons for VVDI Key Tool,VVDI2",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XSCS00EN Smart Remote Colorful Crystal Style(Smartkey)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 17.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XSTO20EN VVDI Toyota XM38 Smart Key V3 5 Buttons (5 Buttons)",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Mini",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "Xhorse XDKP30 Multi Function Adapter for VVDI Key Tool Plus, Mini Prog and Multi Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "EWS",
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "EU UK SHIP NO TAX [10pcs/lot] ID48 chip for XHORSE VVDI2 48 Transponder Copier",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 26.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "transponder_copy"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "Perfect Version LED BDM Frame With 4 Probes Mesh with Open Cover/Shell Dismantling Assist Tool",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XSKF21EN VVDI Memoeial Knife Style-4BTN Used with Xhorse VVDI2 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX [5Pcs/Set] XHORSE XNDS00EN VVDI2 Volkswagen DS Type Wireless Remote Key 3 Buttons",
+   "type": "other",
+   "type_label": "Other",
+   "price": 64.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "DS",
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VVDI2 Main Test Cable for XHORSE VVDI 2 Commander Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XKKF02EN Universal Remote Car Key with 3 Buttons for VVDI Key Tool (English Version)",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 6.95,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] Xhorse XSFO02EN XM38 Series Universal Smart Key Free Shipping",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "XHORSE XSLR01EN JLR Style XM38 Universal Smart Key 5pcs/Lot",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "Smart"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "XHORSE XSNIS2EN Nissan Style 4 Buttons Universal Smart Remote Key 5pcs/Lot",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Nissan",
+    "Smart"
+   ],
+   "chip_types": [
+    "4A",
+    "4D",
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] Xhorse XZKA82EN Special PCB Board Exclusively for Hyundai & kia Models with 4 Side Buttons",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XZKA83EN Special PCB Board 3 Buttons Exclusively for Hyundai & Kia Models",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Benz Smart Key Shell 3-Button Supports VVDI CGDI MB Keys",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "New Benz Smart Key Shell 3 Buttons Single Battery without Logo for VVDI BE Key Pro 5pcs",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY MLB08 Audi Style MLB Smart Key PCB 434MHz OEM Solution + Key Shell Full Key Works with Keydiy KD-MP, VVDI MLB Too",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(Non-OEM Solution) KEYDIY MLB08 MLB For Audi Style 3 Buttons Universal Smart Remote PCB Board 434 Mhz Works with Keydiy ",
+   "type": "other",
+   "type_label": "Other",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX (OEM Solution) KEYDIY MLB19 MLB for Porsche Universal Smart Key PCB Board Works with Keydiy KD-MP, VVDI M",
+   "type": "other",
+   "type_label": "Other",
+   "price": 43.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY MLB19 Porsche Style MLB Smart Key PCB 434MHz OEM Solution + Key Shell Full Key Works with Keydiy KD-MP, VVDI MLB ",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Porsche",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(OEM Solution) KEYDIY MLB26 MLB Audi Style 3 Buttons Universal Smart Remote PCB Board 434 Mhz Works with Keydiy KD-MP, V",
+   "type": "other",
+   "type_label": "Other",
+   "price": 40.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "KEYDIY MLB26 MLB Audi Style 3 Buttons Universal Smart Remote PCB Board \u00e2\u0080\u0093 434 Mhz OEM Solution+ Key Shell Full Key",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Auto 4% OFF 24 Hours Activation One Year Unlimited Tokens for Xhorse VVDI MB BGA Tool and VVDI Key Tool Plus Online Pass",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 279.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI BE Key Pro V4.2 Plus Best Quality Benz Smart Key Shell 3 Button Single Battery",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "2026 Xhorse XDNPR8GL MQB-RH850/V850 Adapter Used with Xhorse Multi Prog for IMMO and Mileage",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 59.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XKMQB1EN for VW Remote Key MQB Style 3 Buttons for VVDI Key Tool 1pc",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 5.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "VVDI2 AUDI VW 4th & 5th IMMO Functions Authorization Service",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1100.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Original Xhorse Dolphin II XP005L XP-005L Key Cutting Machine with Adjustable Touch Screen",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1899.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original Xhorse iKeycutter CONDOR XC-MINI Master Key Cutting Machine Plus VVDI MB BGA Tool Get One Free BGA Token Everyd",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 3599.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "Xhorse XDNP16 XDNP16 Solder-free Adapter V1.4 Landrover KVM Set for MINI PROG, VVDI Prog, Multi Prog and KEY TOOL PLUS",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Land Rover",
+    "Mini"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse XDKP00GL Key Reader Blade Skimmer Used with Condor XC-Mini Plus II Dolphin XP-005 XP-005L",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 329.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse VVDI BE Key Pro Improved Version with Smart Key Shell 3 Button for Mercedes Benz Complete Key Package",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE VVDI MB Mini ELV Simulator for Benz 204 207 212 5pcs/set Free Shipping",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse Benz EZS/EIS Adapters Full Set 10 Pcs for VVDI Prog, Multi Prog, VVDI MB, Key Tool Plus, Mini Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 309.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "Xhorse XDNP11 CAS3/CAS3+ Solder-Free Adapter for BMW Used with MINI PROG, KeyTool Plus, VVDI Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 54.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+"
+   ]
+  },
+  {
+   "name": "V1.3 XHORSE XDNP12GL BMW CAS4/CAS4+ Solderless Adapter for Mini PROG, Multi Prog, VVDI Prog and VVDI KEY TOOL PLUS",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 54.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS4",
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "Xhorse XDNP13 DB9 Adapter for Mini Prog Programmer Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "EIS",
+    "EZS"
+   ]
+  },
+  {
+   "name": "Xhorse XDNP14 DB15-DB25 EWS4 Solder-Free Adapter for BMW Used with VVDI Key Tool Plus, MINI Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "Xhorse XDNP17 Solder Free Adapter for Porsche BCM Used with VVDI Mini Prog, VVDI Prog, Multi Prog & VVDI Key Tool Plus",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Porsche"
+   ],
+   "chip_types": [
+    "BCM2"
+   ]
+  },
+  {
+   "name": "XHORSE XDNP45  AUDI J518 Solder Free Adapter for VVDI Mini Prog and Key Tool Plus",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 45.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse XDPGSOGL DB25 DB15 Connector Cable Used with VVDI Prog VVDI KEY TOOL PLUS",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS4"
+   ]
+  },
+  {
+   "name": "XHORSE XKAU01EN for Audi Style Wired VVDI Universal Flip Remote Key with 3/4 Button",
+   "type": "other",
+   "type_label": "Other",
+   "price": 6.5,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKAU01EN for Audi Style Wired VVDI Universal Flip Remote Key with 3/4 Button 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 42.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKBU01EN 2nd Generation Universal Remote Key Fob for Buick working with Xhorse VVDI Key tool English Version 5pcs",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 41.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKBU03EN Wired Universal Remote Key Flip 3 Buttons Buick Style for VVDI VVDI2 Key Tool English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKHY00EN VVDI2 Hyundai Type Wired Universal Remote Key 3 Buttons English Version 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKHY00EN VVDI2 Hyundai Type Wired Universal Remote Key 3 Buttons English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKHY01EN Universal Remote Key Fob 4 Button for Hyundai Used with VVDI Key Tool English Version 5pcs/set",
+   "type": "other",
+   "type_label": "Other",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX [5Pcs/Set] Xhorse XKHY02EN Wire Remote Key Hyundai Flip 3 Buttons English",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKHY05EN HYU.D style Wired Universal Remote Key Fob 3 Button for VVDI Key Tool 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKHY05EN HYU.D Style Wired Universal Remote Key Fob 3 Button for VVDI Key Tool (English Version) 2017",
+   "type": "other",
+   "type_label": "Other",
+   "price": 6.59,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot ] Xhorse XKLEX0EN Wire Remote Key for Lexus Used with VVDI2/VVDI MINI Max Key Tool Max/Plus",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 45.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] XHORSE XKMA00EN Universal Remote Key Fob 3 Buttons for Mazda Type for VVDI Key Tool (English Version) 5",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] XHORSE XKMQB1EN for VW Remote Key MQB Style 3 Buttons for VVDI Key Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 43.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XKMQB1EN for VW Remote Key MQB Style 3 Buttons for VVDI Key Tool 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 89.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "XHORSE XKTO05EN Wired Universal Remote Key Toyota Style Flat 2 Buttons for VVDI VVDI2 Key Tool English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XNAU01EN Audi Style Wireless VVDI Universal Flip Remote Key with 3/4 Button",
+   "type": "other",
+   "type_label": "Other",
+   "price": 67.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XNBU01EN VVDI GM FLIP KEY TYPE UNIVERSAL REMOTE KEY 4 BUTTONS - WIRELESS PN 5pcs/lot",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 67.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "GMC",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XNDS00CH VVDI2 DS Type Wireless Universal Remote Key 3 Buttons",
+   "type": "other",
+   "type_label": "Other",
+   "price": 8.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "DS",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU SHIP] XHORSE XNFO01EN Universal Remote Key 4 Buttons Wireless For Ford English Version 1pc",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 8.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XNFO01EN Universal Remote Key 4 Buttons Wireless For Ford English Version 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 64.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] XHORSE XNHO00EN Wireless Universal Remote Key Fob 3 Buttons for Honda English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 8.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(EU Ship No Tax) XHORSE XNHO00EN Wireless Universal Remote Key Fob 3 Buttons for Honda VVDI Key Tool English Version 5pc",
+   "type": "other",
+   "type_label": "Other",
+   "price": 64.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] XHORSE XNHO00EN Wireless Universal Remote Key Fob 3 Buttons for Honda VVDI Key Tool English Version 10p",
+   "type": "other",
+   "type_label": "Other",
+   "price": 101.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XNHY02EN Wireless Universal Remote Key for HYUNDAI Flip 3 Buttons Remotes for VVDI Key Tool 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] XHORSE XNHY02EN Wireless Universal Remote Key for HYUNDAI Flip 3 Buttons Remotes for VVDI Key Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 8.95,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XNTO00EN Wireless Universal Remote Key Toyota Style 3 Buttons Remotes for VVDI Key Tool English Ve",
+   "type": "other",
+   "type_label": "Other",
+   "price": 64.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XSCD01EN Cadillac Style Universal XM38 Smart Key 5-Button Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Cadillac",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XSCD01EN Cadillac Style Universal XM38 Smart Key 5-Button Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Cadillac",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Lot] Xhorse XSCL01EN  Universal Remote Key 4 Buttons Chevrolet Style",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chevrolet",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XSJP01EN Jeep Type 2 Style Universal XM38 Smart Key 5 Buttons Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jeep",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XSJP01EN Jeep Type 2 Style Universal XM38 Smart Key 5 Buttons Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jeep",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XSKF30EN Smart Key Knife Style 4 Buttons 5pcs/lot",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XSKFF0EN Universal Smart Remote Blade Shape Key 5pcs/Lot",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 115.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Smart"
+   ],
+   "chip_types": [
+    "4A",
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XSTO03EN Version 3 Toyota Style Universal XM38 Smart key 4-Button Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XZADM1EN MQB48 Special PCB Board 3 Buttons Exclusively for Audi Models 5pcs/Lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XZBT51EN Special PCB Board 4 Buttons Exclusively for HONDA Models Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XZHY84EN Special PCB Board for Hyundai Models 3 Buttons 5pcs/Lot",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XZMZD8EN Special PCB Board 4 Buttons Exclusively for Mazda Models",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX 1.0mm Tracer Probe for Xhorse Condor XC-MINI, Condor Mini Plus, Condor II, Dolphin XP005 XP005L Series Ke",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 10.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "1 Token for Xhorse 96 Bit ID48 Copy Suitable for VVDI2,VVDI Mini Key Tool, VVDI Key Tool Max and Key Tool Plus Pad",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 8.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP [10Pcs/Set] XHORSE XEB510EN B5 Super Remote with XT27B Super Chip Free Shipping",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 85.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] 2.0mm Milling Cutter for IKEYCUTTER CONDOR XC-MINI PLUS II XP005L Master Series Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] 1.5mm/2.5mm Tracer Probe for CONDOR XC-MINI PLUS II XP005L Key Cutting Machine 5pcs/lot",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "5pcs Xhorse XKHO02EN Universal Remote Key Fob 2+1 Button for Honda Type for VVDI Key Tool English Version",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] XHORSE XKKF03EN 2nd Generation Smart Remote Knife Style Flip-3BTN-Chrome Plating",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US SHIP AUDI C6 Q7 A6 Steering Column Module J518 ELV Emulator with VVDI Dedicated Programming Cable Fit for R270 CGDI C",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "Mercedes Benz Gearbox DSM 7-G Renew Cable for VVDI MB BGA Tool",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "BMW FRM Reading Adapter for VVDI Prog without Soldering",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "New Xhorse CAS Plug for VVDI2 Full, VVDI2 BMW or VVDI BIMTool Pro for EWS CAS2 CAS3",
+   "type": "other",
+   "type_label": "Other",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 5,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "EWS"
+   ]
+  },
+  {
+   "name": "(Non-OEM Solution) KEYDIY MLB26 MLB 3 Buttons Universal Smart Remote PCB Board \u00e2\u0080\u0093 434 Mhz for Keydiy KD-MP Tool Only",
+   "type": "other",
+   "type_label": "Other",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[OEM Solution] KEYDIY KD MLB65 VW Touareg Style OEM Solution MLB Key PCB Compatible with Keydiy KD-MP and VVDI MLB Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[OEM Solution MLB65 Full Key] KEYDIY KD MLB65 VW Touareg Style OEM Solution MLB Key with Shell for Keydiy KD-MP and VVDI",
+   "type": "other",
+   "type_label": "Other",
+   "price": 47.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU US Ship No Tax] Mercedes All EZS Bench Test Cable for W209/W211/W906/W169/W208/W202/W210/W639 EZS Cable works with V",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 45.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EZS"
+   ]
+  },
+  {
+   "name": "[EU Ship No Tax] [Edge-Cut Keys] 1.5mm Milling Cutter for Xhorse Condor XC-MINI, Condor MINI Plus, Condor II, Condor XC-",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] 5pcs/lot 1.5mm Milling Cutter for Xhorse Condor Dolphin Series Key Cutting Machine",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "BMW FEM-BDC 95128/95256 Chip IMMO Data Reading 8-PIN Adapter for UPA, Orange5, VVDI Prog, CG Pro",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 3,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "FEM",
+    "BDC",
+    "35080"
+   ]
+  },
+  {
+   "name": "Original Xhorse VVDI MB NEC Key Adapter No Need Soldering",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 95.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "[5Pcs/lot] XHORSE VVDI XKKF20EN VVDI Wired Remote Key Memoeial KNIFE 3 Buttons",
+   "type": "other",
+   "type_label": "Other",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKKF21EN VVDI KNIFE 2 Style(Flip-3BTN)  Wired Remote 5pcs/lot Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] Xhorse VVDI XSDFX2EN MQB48 MQB49 XS Series Universal Smart Key SMALL KNIFE STYLE 4 Buttons Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "5 Tokens for Password Calculation Supports VVDI BGA MBTOOL BENZ and VVDI Key Tool Plus",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 70.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "Password Calculation Token for VVDI BGA MB TOOL BENZ and VVDI Key Tool Plus",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "VVDI2 BMW and OBD Functions Authorization Service",
+   "type": "other",
+   "type_label": "Other",
+   "price": 599.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VVDI2 BMW CAS4+ Function Authorization Service",
+   "type": "other",
+   "type_label": "Other",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS4+"
+   ]
+  },
+  {
+   "name": "VVDI2 Mini Remote Programmer",
+   "type": "other",
+   "type_label": "Other",
+   "price": 10.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "24 Hours Activation [3 Tokens Per Day] Xhorse 96 Bit ID48 Copy 1 Year Tokens Used with VVDI Mini Key Tool, VVDI Key Tool",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "[5Pcs/lot] Xhorse XSCS00EN Smarty Remote Colorful Crystal Style(Smartkey)",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 Xhorse Condor XC-002 PRO Ikeycutter Mechanical Key Cutting Machine with 3 Years Warranty Update Online",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1199.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP XHORSE ELV Emulator for Benz W204 W207 W212 with VVDI MB Tool Free Shipping",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 49.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS",
+    "ELV"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] Xhorse King Card Key Slimmest Universal Smart Remote 4 Buttons XSKC04EN XSKC05EN Sky Blue/ Diamond Blue",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP Xhorse M5 Clamp for Xhorse Condor Mini Plus, Condor II, Dolphin XP005, Dolphin XP005L Key Cutt",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Auto 4% OFF EU UK US SHIP Xhorse MQB48 No Disassembly No Soldering 13 Full Set Adapters XDNPM3GL for VVDI Key Tool Plus,",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 259.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "XHORSE Renew Cable for Mini Key Tool Free Shipping [EU Ship No Tax]",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 9.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX [10 Pcs/lot ] Xhorse VVDI 7935 Chip XT15 Copy 7935 Transponder for VVDI2, VVDI Mini Key Tool, Key Tool Ma",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 25.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": [
+    "PCF7935"
+   ]
+  },
+  {
+   "name": "Xhorse VVDI BE Key Pro V4.2 Improved Version for VVDI MB Tool 5pcs",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 70.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "EIS"
+   ]
+  },
+  {
+   "name": "[Online Activation] 1 Token for Xhorse VVDI2/VVDI MINI/Key Tool MAX/Key Tool Plus 96bit ID48 Clone",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 8.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "(EU US Ship No Tax) Xhorse VVDI MB BGA TOOL BENZ Infrared Adapter",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 25.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse VVDI Prog TMS370 (PLCC28\\PLCC44\\PLCC68) Adapter",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "X004 XHORSE XKHO00EN Honda Type Wire Universal Remote Key 3 Buttons (Individually Packaged) for VVDI Key Tool 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[EU Ship No Tax] X008 XHORSE Toyota Universal Remote Key 3 Buttons for VVDI Key Tool 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX XN008 XHORSE Toyota Type Wireless Universal Remote Key 3 Buttons (Individually Packaged) for VVDI Key Too",
+   "type": "other",
+   "type_label": "Other",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse VW MQB XKMQB1EN 3 Buttons Flip Regular Key 10 Pcs",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 89.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "XHORSE VVDI XDNP50 Adapter Used with VVDI Mini Prog & Key Tool Plus",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 37.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] Xhorse XKB506EN Wire Remote Key 3 Buttons for VVDI VVDI2  Key Tool(English Version)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 37.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP [5pcs/lot] Xhorse XKB508EN Wire Remote Key B5 Style 2 Buttons work with MINI Key Tool/VVDI2",
+   "type": "other",
+   "type_label": "Other",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XKB510EN Universal Remote Key B5 Type 3 Buttons for VVDI VVDI2 Key Tool(English Version)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5.95,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XKB510EN Universal Remote Key B5 Type 3 Buttons for VVDI VVDI2 Key Tool(English Version) 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 41.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/set] XHORSE XKFO22EN for Ford Models 4 Buttons Split Square Second Generation Wired Remote",
+   "type": "other",
+   "type_label": "Other",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX XHORSE XKGHG1EN Masker Garage Remote 5pcs/set",
+   "type": "other",
+   "type_label": "Other",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XKHO01EN 2nd Generation Wire Remote Key Fob 3+1 Button for Honda Type 5pcs/lot",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 41.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKKF21EN VVDI KNIFE 2 Style(Flip-3BTN) Wired Remote",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] Xhorse XKTO10EN 2nd Generation Wire Remote Key Toyota Flip 4 Buttons English",
+   "type": "other",
+   "type_label": "Other",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": [
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5pcs/set] XHORSE XKTO20EN for Toyota 2nd Generation Wired Remote Key 3 Buttons Universal Remote Key",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] XHORSE XKXH00EN Wired Universal Remote Key Shell 4 Buttons for VVDI Key Tool English Version",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XNSZ01EN Wireless Remote for Suzuki Type 5Pcs/Lot",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 48.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/lot] XHORSE XSDFX1EN 3 Buttons Small Knife Style Universal Smart Key",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": [
+    "4A",
+    "MQB"
+   ]
+  },
+  {
+   "name": "[5pcs/lot] XHORSE XSKF20EN Knife Style Universal XS Series Smarty Remote With 4 Buttons for VVDI Key Tool VVDI2",
+   "type": "other",
+   "type_label": "Other",
+   "price": 119.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] XHORSE XZBTM1EN Special PCB Board 3 Buttons Exclusively for HONDA Motorcycles Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XZVGM1EN MQB48 Special PCB Board 3 Buttons Exclusively for VW 5pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[2550mAh 64.26Wh] Xhorse Replacement Battery for Dolphin XP-005 XP005L",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 229.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "OEM Folding Key Split Pin Car Key Blade Pin Removal Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse PCF79XX Adapter for Xhorse VVDI-Prog VVDI Prog Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "PCF7941",
+    "PCF7945",
+    "PCF7952",
+    "PCF7953"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP GODIAG Key Tool Plus Practical Instruction 1&2 Two Books for Locksmith, Vehicle Maintenance Engineer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "VVDI PROG Programmer MC9S12 Reflash Cable Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKLKS2EN LEI.KSS Style(ENrome-plating) Second Generation Universal Wired Remote Key",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] Xhorse XKXH03EN 2nd Generation Wire Remote Key Garage Door 4 Buttons Black English Version",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse 35160DW Chip for VVDI Prog Programmer 5pcs/lot",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 89.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "Xhorse 35160DW Chip for VVDI Prog Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP Xhorse Dolphin XP-007 XP007 Manual Key Cutting Machine Supports Laser Dimple Flat Keys",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 699.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX Xhorse Condor XC-009 Key Cutting Machine for Single-Sided and Double-sided Keys",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 659.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse Digital Multimeter Large Screen with High Definition High-accuracy Leakage Current Test",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 60.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand 95% New XHORSE DOLPHIN XP-007 Manually Key Cutting Machine For Laser, Dimple and Flat Keys",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 499.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "(US Ship No Tax) Xhorse EWS3 Adapter for VVDI Prog Programmer Best Offer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 40.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "(US Ship, No Tax) Xhorse EWS4 Adapter for VVDI Prog, VVDI Key Tool Plus and Multi Prog",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "EWS"
+   ]
+  },
+  {
+   "name": "PRE-ORDER Xhorse Fourth-generation IMMO NEC35xx Solderless Adapter XDNP87GL",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 26.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "NEC"
+   ]
+  },
+  {
+   "name": "Xhorse MQB48 Non-BGA Seven Solderless Adapters XDNPM2GL",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse MQB48 (Gen 4.5) Passat Soldering-free Adapter XDNP74GL",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 26.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE MQB48-BGA 4 Solder Free Adapters XDNPM1GL",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse VVDI Prog M35080/D80 Adapter V1.0 Best Price",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 40.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "35080"
+   ]
+  },
+  {
+   "name": "XHORSE VVDI PROG Programmer ECU Reflash Cable",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse VVDI PROG Programmer EEPROM Clip Adapter Best Offer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 9,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "93C46",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C02",
+    "24C04",
+    "24C16",
+    "24C32",
+    "24C64"
+   ]
+  },
+  {
+   "name": "XHORSE VVDI PROG Programmer MCU Reflash Cable",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XDPG13CH AM29FxxxB Adapter for VVDI Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 50.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "(EU Ship No Tax) Xhorse XDPG14CH MC68HC05X32(QFP64) Adapter for VVDI Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XDPG15CH MC68HC05BX(PLCC52) Adapter for VVDI Prog",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 40.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK SHIP NO TAX Xhorse XDRT20 Remote Tester V2 Support 315Mhz, 433Mhz, 868Mhz, 902Mhz Frequency",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKFEF1EN FA.LL Folding 3 Buttons Bright Red 5pcs/lot Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 46.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKFEF2EN FA.LL Type Wired Folding Key 4 Buttons Bright Red 5pcs/lot Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 52.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XKFEF5EN Universal Remote Key FA.LL Type Wired Folding Key 3 Buttons Bright Black 5pcs/lot Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 45.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XKFEF6EN Universal Remote Key FA.LL Type Wired Folding Key 4 Buttons Bright Black 5pcs/lot Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/lot] XHORSE XKGA81EN All Black Buttons Universal Wired Remote",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] Xhorse XKGA82EN Electroplated Matte GA08 Style 3 Buttons Wire Remote Key",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] Xhorse XKGD12EN Wire Remote Key Garage Door English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 33.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKGMJ1EN Remote for Garage Door 5pcs/lot Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/lot] XHORSE XKKF02EN Universal Remote Car Key with 3 Buttons for VVDI Key Tool English Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 43.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XKLKS0EN LEI KSS Style(Chrome-Plating)",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5.59,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xhorse XKXH03EN Wire Remote Key Garage Door 4 Buttons Black English Version",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 4.95,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "XHORSE XSKFF1EN Blade Folding Key 5pcs/lot Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

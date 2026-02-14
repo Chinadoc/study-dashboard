@@ -1,0 +1,972 @@
+{
+ "display_name": "MagicMotorsport",
+ "icon": "\u2728",
+ "product_count": 34,
+ "vehicle_makes_count": 18,
+ "vehicle_makes": [
+  "Audi",
+  "Buick",
+  "Cadillac",
+  "Chevrolet",
+  "Ducati",
+  "Ford",
+  "Gmc",
+  "Honda",
+  "KTM",
+  "Kubota",
+  "Mini",
+  "Opel",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Suzuki",
+  "Toyota",
+  "Volkswagen"
+ ],
+ "functions": [
+  "bench_mode",
+  "boot_mode",
+  "can_fd",
+  "ecu_programming",
+  "obd_mode"
+ ],
+ "function_labels": {
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "can_fd": "Can Fd",
+  "ecu_programming": "ECU Programming",
+  "obd_mode": "OBD Mode"
+ },
+ "chip_types_count": 0,
+ "ecu_types_count": 8,
+ "product_types": {
+  "other": 19,
+  "software_license": 7,
+  "accessory": 5,
+  "ecu_tool": 2,
+  "diagnostic_tool": 1
+ },
+ "price_range": [
+  57.99,
+  6769.0
+ ],
+ "top_products": [
+  {
+   "name": "EU SHIP NO TAX MagicMotorsport Magic FLK02 FLEX Full HW Kit TCU & ECU Programmer for New Users Basic Device Hardware Onl",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1232.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "ecu_programming",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX MagicMotorsport Magic FLK02 FLEX Full HW Kit + Full Flex Software Package Master Version",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 6769.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Cadillac",
+    "Ford",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX [WIFI Version] VXDIAG VCX NANO Diagnostic Tool for GM OPEL",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC",
+    "Opel",
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.2M - SW Flex TCU OBD - Bench- Boot Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 1980.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.6M - SW Flex Renesas SH7xxxx - Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 550.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Kubota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.6S - SW Flex Renesas SH7xxxx - Slave",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Kubota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLK06 - Kit VAF FlexBox for DQ200 DQ250 DQ500 DL501 TCUs works with MagicMotorsport Flex",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 285.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLX01.005 - Flex Bike Complete Kit for Magic Motorsport Flex Master Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 1836.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ducati",
+    "Honda",
+    "KTM",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX MagicMotorsport FLK02 FLEX Full HW Kit + Car, Van, Bike OBD Bench ECU Master Version Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 4057.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.1M - SW Flex ECU (Cars, Vans, Bikes) OBD Bench Activation for Master Version",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 2825.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.4M - SW Flex Nexus MPC5xxx Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 550.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.7M - SW Flex Siemens C165/166/167 Master",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.8M - SW Flex ST10F2xx Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.4S - SW Flex Nexus MPC5xxx - Slave Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.7S - SW Flex Siemens C165/166/167 Slave",
+   "type": "other",
+   "type_label": "Other",
+   "price": 165.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport  FLS0.1S Software Flex ECU (Cars, Vans, Bikes) OBD + Bench Slave Bundle",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 1130.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.8S - SW Flex ST10F2xx Slave",
+   "type": "other",
+   "type_label": "Other",
+   "price": 165.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.2S - SW Flex TCU OBD - Bench Slave Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 880.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLS0.\u00e2\u0080\u008b13M - SW Flex Bike ECU OBD + Bench + BL for Flex Master",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 440.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLS0.\u00e2\u0080\u008b13S - SW Flex Bike ECU OBD + Bench + BL for Flex Slave",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 220.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "EU SHIP NO TAX MagicMotorsport Magic FLK02 FLEX Full HW Kit TCU & ECU Programmer for New Users Basic Device Hardware Onl",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1232.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "ecu_programming",
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Ford",
+    "Mini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX MagicMotorsport Magic FLK02 FLEX Full HW Kit + Full Flex Software Package Master Version",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 6769.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "boot_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Cadillac",
+    "Ford",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update US EU SHIP NO TAX [WIFI Version] VXDIAG VCX NANO Diagnostic Tool for GM OPEL",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC",
+    "Opel",
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.2M - SW Flex TCU OBD - Bench- Boot Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 1980.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode",
+    "boot_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.6M - SW Flex Renesas SH7xxxx - Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 550.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Kubota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.6S - SW Flex Renesas SH7xxxx - Slave",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Kubota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLK06 - Kit VAF FlexBox for DQ200 DQ250 DQ500 DL501 TCUs works with MagicMotorsport Flex",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 285.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLX01.005 - Flex Bike Complete Kit for Magic Motorsport Flex Master Programmer",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 1836.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ducati",
+    "Honda",
+    "KTM",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU SHIP NO TAX MagicMotorsport FLK02 FLEX Full HW Kit + Car, Van, Bike OBD Bench ECU Master Version Software License",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 4057.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.1M - SW Flex ECU (Cars, Vans, Bikes) OBD Bench Activation for Master Version",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 2825.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.4M - SW Flex Nexus MPC5xxx Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 550.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.7M - SW Flex Siemens C165/166/167 Master",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.8M - SW Flex ST10F2xx Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.4S - SW Flex Nexus MPC5xxx - Slave Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 275.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.7S - SW Flex Siemens C165/166/167 Slave",
+   "type": "other",
+   "type_label": "Other",
+   "price": 165.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport  FLS0.1S Software Flex ECU (Cars, Vans, Bikes) OBD + Bench Slave Bundle",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 1130.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.8S - SW Flex ST10F2xx Slave",
+   "type": "other",
+   "type_label": "Other",
+   "price": 165.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.2S - SW Flex TCU OBD - Bench Slave Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 880.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLS0.\u00e2\u0080\u008b13M - SW Flex Bike ECU OBD + Bench + BL for Flex Master",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 440.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLS0.\u00e2\u0080\u008b13S - SW Flex Bike ECU OBD + Bench + BL for Flex Slave",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 220.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "bench_mode"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLX01.006 - MAGBench Mini - Portable Jig Tool Full Kit BDM Frame for Boot, BDM, Jtag Programming (Fits Flex and Any Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 549.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.9M - SW Flex NEC 76F00xx - Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 550.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.9S - SW Flex NEC 76F00xx - Slave",
+   "type": "other",
+   "type_label": "Other",
+   "price": 220.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OEM 20837967 Rear Liftgate Control Module Compatible with Cadillac SRX 2010 2011 2012 2013 2014 2015",
+   "type": "other",
+   "type_label": "Other",
+   "price": 57.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Cadillac"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "1 Year Software Subscription for MagicMotorsport Magic FLK02 FLEX Full HW Kit + Full Flex Software Package Master Versio",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 959.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLS0.15M SW Flex Heavy Duty OBD/Bench/Boot - Master",
+   "type": "other",
+   "type_label": "Other",
+   "price": 1980.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport FLS0.3M - Software Flex Motorola MPC5xx \u00e2\u0080\u0093 MASTER Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 715.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.3S - SW Flex Motorola MPC5xx - Slave Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 330.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLK04 Universal MAGBench BDM adapter kit for MagicMotorsport FLEX",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 209.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport FLS0.10M Flex Infineon TC17xx Master Software Authorization Activation",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 1980.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport FLS0.10S Flex Bench/Boot Infineon TC17xx/TC2xx/TC3xx  TC17xx Slave Software Authorization Activation",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 660.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLS0.15S SW Flex Heavy Duty OBD/Bench/Boot - Slave",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 880.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.5M - Full Flex Software Package - Master Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5610.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "MagicMotorsport - FLS0.5S - Full Flex Software Package - Slave Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 2147.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

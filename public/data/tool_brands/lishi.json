@@ -1,0 +1,3518 @@
+{
+ "display_name": "Lishi",
+ "icon": "\ud83d\udd13",
+ "product_count": 185,
+ "vehicle_makes_count": 64,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Audi",
+  "BAIC",
+  "BMW",
+  "BYD",
+  "Bentley",
+  "Bugatti",
+  "Buick",
+  "Cadillac",
+  "Changan",
+  "Chery",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "Daewoo",
+  "Dodge",
+  "Ducati",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "GAC",
+  "Geely",
+  "Genesis",
+  "Gmc",
+  "Great Wall",
+  "Haima",
+  "Honda",
+  "Hyundai",
+  "Infiniti",
+  "Isuzu",
+  "JAC",
+  "Jaguar",
+  "Jeep",
+  "KTM",
+  "Kia",
+  "Lamborghini",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Lincoln",
+  "MG",
+  "Mahindra",
+  "Maserati",
+  "Mazda",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Toyota",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo"
+ ],
+ "functions": [],
+ "function_labels": {},
+ "chip_types_count": 0,
+ "ecu_types_count": 0,
+ "product_types": {
+  "locksmith_tool": 150,
+  "key_cutting": 30,
+  "accessory": 4,
+  "software_license": 1
+ },
+ "price_range": [
+  5.99,
+  1499.0
+ ],
+ "top_products": [
+  {
+   "name": "EU UK SHIP NO TAX Original Lishi 32 Pieces Full Set - 100% Genuine Lishi Lock Pick Set with FREE Storage Case Lishi Auto",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 739.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GAC",
+    "Great Wall",
+    "Haima",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2 in 1 Auto Pick and Decoder Locksmith Kit Including 77Pcs with Free Storage Case Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 1499.0,
+   "url": "",
+   "vehicle_makes_count": 37,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Lincoln"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT8 (GM15 19) Auto Pick and Decoder 2-in-1",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 30,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Buick",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NE38 2-in-1 Auto Pick and Decoder for Honda Ford",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Honda",
+    "Land Rover",
+    "MG",
+    "Mini",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HYN11 2-in-1 Auto Pick and Decoder for Hyundai",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Daewoo",
+    "Dodge",
+    "Hyundai",
+    "Kia",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU100 2-in-1 Auto Pick and Decoder for Opel/Buick/Chevy",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Opel",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CY24 2-in-1 Auto Pick and Decoder for CHRYSLER",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Jeep",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Unlock Tool For VW Audi (ES-HU66-2)",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Porsche",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI VW HU-66(1) Lock Pick",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jeep",
+    "Porsche",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI VW V-A-G(2015) 2-in-1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Decoder Picks for OPEL HU100 2 IN 1 Buy LSA48 Instead",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Daewoo",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YM28 2-in-1 Auto Pick and Decoder for Buick",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "GMC",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SIP22 2-in-1 Auto Pick and Decoder For Fiat Ferrari Maserati",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ferrari",
+    "Fiat",
+    "Maserati"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Genuine HU87 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Subaru",
+    "Suzuki",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU-100 Lock Pick for New OPEL/Regal",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Daewoo",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KY14 2-in-1 Auto Pick and Decoder for HYUNDAI/KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 27.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Genesis",
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2-in-1 Auto Pick and Decoder for MINI MG Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 37.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "MG",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT11 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Dodge",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT11 Version 3 (IGN) 2 in 1 Auto Pick and Decoder for Mitsubishi",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Dodge",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NSN14 2-in-1 Auto Pick and Decoder For Nissan Subaru",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Infiniti",
+    "Nissan",
+    "Subaru"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "EU UK SHIP NO TAX Original Lishi 32 Pieces Full Set - 100% Genuine Lishi Lock Pick Set with FREE Storage Case Lishi Auto",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 739.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GAC",
+    "Great Wall",
+    "Haima",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2 in 1 Auto Pick and Decoder Locksmith Kit Including 77Pcs with Free Storage Case Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 1499.0,
+   "url": "",
+   "vehicle_makes_count": 37,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Buick",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "Jaguar",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Lincoln"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT8 (GM15 19) Auto Pick and Decoder 2-in-1",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 30,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Buick",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Hyundai",
+    "Infiniti",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NE38 2-in-1 Auto Pick and Decoder for Honda Ford",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Honda",
+    "Land Rover",
+    "MG",
+    "Mini",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HYN11 2-in-1 Auto Pick and Decoder for Hyundai",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Daewoo",
+    "Dodge",
+    "Hyundai",
+    "Kia",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU100 2-in-1 Auto Pick and Decoder for Opel/Buick/Chevy",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Opel",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CY24 2-in-1 Auto Pick and Decoder for CHRYSLER",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Jeep",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Unlock Tool For VW Audi (ES-HU66-2)",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Porsche",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI VW HU-66(1) Lock Pick",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jeep",
+    "Porsche",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI VW V-A-G(2015) 2-in-1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Decoder Picks for OPEL HU100 2 IN 1 Buy LSA48 Instead",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Daewoo",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YM28 2-in-1 Auto Pick and Decoder for Buick",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "GMC",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SIP22 2-in-1 Auto Pick and Decoder For Fiat Ferrari Maserati",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ferrari",
+    "Fiat",
+    "Maserati"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Genuine HU87 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Subaru",
+    "Suzuki",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU-100 Lock Pick for New OPEL/Regal",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Daewoo",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KY14 2-in-1 Auto Pick and Decoder for HYUNDAI/KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 27.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Genesis",
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2-in-1 Auto Pick and Decoder for MINI MG Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 37.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "MG",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT11 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Dodge",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT11 Version 3 (IGN) 2 in 1 Auto Pick and Decoder for Mitsubishi",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Dodge",
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NSN14 2-in-1 Auto Pick and Decoder For Nissan Subaru",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Infiniti",
+    "Nissan",
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY40 2-in-1 Auto Pick and Decoder for Old Lexus",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Kia",
+    "Lexus",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2020 LISHI TOY43R Ignition Dedicated Flat Milling Subaru XV, Great Wall Gorgeous, Imported Old Toyota",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Great Wall",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY51 Vertical Milling 8-bitting 4-track Renault Citroen Smart 4-bitting Deep 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Renault",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI ZD24R Flat Milling Apulia Motorcycle, BMW Motorcycle, Honda Motorcycle, Suzuki Motorcycle 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NSN11 2-in-1 Auto Pick and Decoder for Nissan",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Infiniti",
+    "Nissan",
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY17 Decoder Picks (Direct Read) for HYUNDAI KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY15 2-in-1 Auto Pick and Decoder for HYUNDAI KIA Plus LISHI HY15 Engraved Line Key",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU92 2-in-1 Auto Pick and Decoder for BMW",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BQ SB 2 in 1 Auto Pick and Decoder for Baic Saab",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BAIC",
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU83 2-in-1 Auto Pick and Decoder for Citroen and Peugeot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Peugeot"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU101 2-in-1 Auto Pick and Decoder for Ford and Rover Volvo",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI FO38 2-in-1 Auto Pick and Decoder for Ford/Lincoln",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Lincoln"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI GMC Buick HUMMER GM37 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "GMC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI GM37 39 40 41 2 in 1 Auto Pick and Decoder for GMC, Buick and HUMMER",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "GMC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HD74 Flat Milling Honda, Suzuki, KYMCO, Kawasaki and Other Motorcycle Left Groove 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HD75 Flat Milling Honda, Suzuki, KYMCO, Kawasaki and Other Motorcycle Right Groove 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original LISHI Honda 2021 Vertical Milling 2020+ Honda Thin Key 2-in-1 Auto Pick & Decoder",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original LISHI HU162T(10) 10 Cuts Auto Pick & Decoder 2 in 1 for VW Audi",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original Lishi HU162T (9) 9 Cuts Auto Pick & Decoder 2 in 1 for VW Audi 2015-2021",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY15 Engraved Line Key 5pcs Per lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY16 Engraved Line Key 5pcs Per lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY17 2 in 1 Auto Pick and Decoder for HYUNDAI/KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HYN7R 2-in-1 Auto Pick and Decoder for Hyundai and KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY15 2-in-1 Auto Pick and Decoder for HYUNDAI and KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY16 2-in-1 Auto Pick and Decoder for HYUNDAI and KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY20 2-in-1 Auto Pick and Decoder for HYUNDAI and KIA Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 35.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY20R 2-in-1 Auto Pick and Decoder for HYUNDAI and KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY22 2-in-1 Auto Pick and Decoder for Hyundai and Kia Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY22 Lock Pick for Hyundai /KIA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 12.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU56 2-in-1 Auto Pick and Decoder for Mitsubishi/VOLVO Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mitsubishi",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NE72 Engraved Line Key 5pcs Per lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NSN14 Engraved Line Key 5pcs Per lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan",
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU46 2-in-1 Auto Pick and Decoder for Opel/Buick",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NE72 2-in-1Auto Pick and Decoder For Peugeot 206 & Renault",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI VA2T 2-in-1 Auto Pick and Decoder For Peugeot Citroen",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Peugeot"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY38R 2-in-1 Auto Pick and Decoder for Lexus/Toyota",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY43R 2 in 1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 25.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chevrolet",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY2 2-in-1 Auto Pick and Decoder for Toyota",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY48 Lock Pick for TOYOTA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 12.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI VA6 2-in-1 V3.0 Auto Pick and Decoder for Renault/Citroen",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen",
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YM23 2 in 1 Auto Pick and Decoder for Benz Smart",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BW9MH 2 in1 Auto Pick and Decoder for BMW Motorcycle Tool",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HAIMA 2 in 1 Auto Pick and Decoder for HAIMA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Haima"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT9/MIT6 2 in 1 Auto Pick and Decoder for Old Mitsubishi",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mitsubishi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2 in 1 Auto Pick and Decoder for GEELY",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2010 HU-100R Lock Pick for BMW",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 17.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU92 Lock Pick for BMW",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU58 2-in-1 Auto Pick and Decoder for BMW",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI New HU100R V2 Lock Pick for BMW",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 35.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI DWO4R 2-in-1 Auto Pick and Decoder for Buick (LOVA/Excelle/GL8) and Chevy",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 26.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Sandblasting BW9MH 2 in1 Auto Pick and Decoder for BMW Motorcycle Tool",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BYDO1 2 in 1 Auto Pick and Decoder(left) for BYD",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BYD"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BYDO1R 2 in 1 Auto Pick and Decoder( right ) for BYD",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BYD"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CHANGAN 2 in 1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Changan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CH1 2-in-1 Auto Pick and Decoder For Chevrolet/Chevy Epica",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chevrolet"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI DWO4R Engraved Line Key (right) 5pcs/ lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 5.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI WT47T 2-in-1 Auto Pick and Decoder for SAAB 900 (1994-1998)",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU-101 Lock Pick for Ford Focus",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI GT15 2 in 1 Auto Pick and Decoder for Fiat",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Fiat"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HAVAL2 End Milling HAVAL Lockpick 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HON58R 2 in 1 Auto Pick and Decoder for Honda Motorcycle",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HON63 Flat Milling Honda Motorcycle 2-in-1 Tool Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HON70 2 in 1 Auto Pick and Decoder for Honda Motorcycle",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 30.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HONDA-2020 HONDA 2022 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HON66 2-in-1 Auto Pick and Decoder for Honda",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU100(10) End Milling Buick 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2020 LISHI HU134 End Milling Kia Venga 2-in-1 Tool After 2010",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original Lishi  HU198-AG FORD 2017 2-in-1 Pick Decoder Tool",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU71 2 in 1 Auto Pick and Decoder for Land rover and Scania Heavy Truck",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HYN11(Ign) 2 in 1 Auto Pick and Decoder for Hyundai",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI ICF03 2-in-1 Auto Pick and Decoder for Ford",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI ISU5 2 in 1 Auto Pick and Decoder for Isuzu Truck",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Free Shipping LISHI JAC01 Vertical Milling JAC Heavy Truck-Gerfa 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "JAC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Genuine LISHI K9 for KIA K9 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KIA2018 End Milling South Korea's new Kia (Original SRT2018) 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KIA3R 2 in 1 Auto Pick and Decoder for Korea's Kia",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KTM1 End Milling Tool 2-in-1 Pick & Decoder for KTM & Yamaha Motorcycle",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "KTM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KY14 Flat Milling Korea Kia 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original LISHI Lock Pick for Geely",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 12.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Lock Pick HU58 for Old BMW",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 17.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MAD2014 Flat Milling New Mazda 2-in-1 Tool Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MAHINDRA/YAMAHA Vertical Milling India Mahindra Yamaha Motorcycle 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mahindra"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original Lishi Mazda2024-SM for Mazda 2024+ 2-In-1 Pick Decoder 10 Cut Door",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MAZ24 2-in-1 Auto Pick and Decoder for Mazda",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MAZDA(2014) 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU64 2-in-1 Auto Pick and Decoder for Benz",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NSN14 Lock Pick for NISSAN",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NSN11 Engraved Line Key 5pcs Per lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU43 2-in-1 Auto Pick and Decoder for Opel Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NE78 2-in-1 Auto Pick and Decoder For Peugeot Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NE78 Lock Pick for Peugeot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2-in-1 Auto Pick and Decoder for Renault Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Lock Pick for Renault",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI 2-in-1 Auto Pick and Decoder for RENAULT and LAGUNA Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 36.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Renault(A) 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 37.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI WT47T 2-in-1 Auto Pick and Decoder for New SAAB (2)",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YM30 2-in-1 Auto Pick and Decoder for SAAB Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Saab"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SIP22 Lock Pick",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 16.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Fiat"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI DAT17 Lock Pick for SUBARU",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 12.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI DAT17 2-in-1 Auto Pick and Decoder for Subaru",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Suzuki-2020 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SZ14 2 in 1 Auto Pick and Decoder for Suzuki Motorcycle",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY(2014) 2 in 1 Auto Pick and Decoder for TOYOTA Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY2018 Vertical Milling 2018 Toyota Vertical Milling Thin Key 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY43 Engraved Line Key 5pcs Per lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lishi TOY43AT (IGN) 2-in-1 Auto Pick and Decoder for Toyota Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY43R Engraved Line Key 5pcs/lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.59,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY43AT 2-in-1 Auto Pick and Decoder for Toyota",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI VAC102(Ign) 2 in 1 Auto Pick and Decoder for Renault",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Renault"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NE66 2-in-2 Auto Pick and Decoder for VOLVO",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI S80 NE66 Lock Pick for VOLVO",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 13.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YM15 2 in 1 Auto Pick and Decoder for BENZ Truck",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI ZD30 2 in 1 Auto Pick and Decoder for Ducati Vertical milling Motorcycle",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ducati"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original Lishi Ford 2021 2-in-1 Decoder and Pick for Ford Transit 2021+",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI AM5 Civil 2-in-1 Tool Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI B111 (GM37W) Hummer 2 in 1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BAOJUN 2 in 1 Auto Pick and Decoder for BAOJUN 560 330 730",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BE2-6 Civil 2-in-1 Tool Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BE2-7 Civil 2-in-1 Tool Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI BI06/BI07 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CHERY101(8) 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CY24 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CY24 Engraved line Key Blade 5pcs/lot",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 6.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI CY24-TRUCK 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI DAT12R 2 in 1 Auto Pick and Decoder for Hino",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI FO38 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI FORD2017 HU198 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI GO2R 2 in 1 Auto Pick Tool and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HI1 Flat Milling Hino 2-in-1 Tool Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI GM45 2-in-1 Auto Pick and Decoder for Holden Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU100R 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU87 Direct Reading Flat Milling without Opening Directly Reading Door Lock Tail Box and Ignition Lock 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HY65 2 in 1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI GT10 2-in-1 Auto Pick and Decoder for IVECO",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI HU49 2-in-1 Auto Pick and Decoder for Jetta santana",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI K5 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 31.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KM14 2 in 1 Auto Pick and Decoder for Kawasaki Motorcycle",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KW1 Civilian Kwikset (Kate Ann) 5 Bitting 2-in-1 Tool",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lishi KW1-L (Reverse Handing) 2-in-1 Pick & Decoder for 5-Pin Kwikset Keyway",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KW16 Flat Milling Kawasaki Motorcycle 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KW18 Flat Milling Kawasaki Motorcycle 2-in-1 Tool Free Shipping",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KW5 Civilian Kwikset (Kate Ann) 6 Bitting 2-in-1 Tool",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KYM2 Flat Milling KYMCO Motorcycle Left Groove 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI KYM2R Flat Milling KYMCO Motorcycle Right Groove 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lishi M1/MS2 2-in-1 Pick & Decoder for Master Lock Padlocks Keyway",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MAZ24R-2020 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI MIT11R Flat Milling Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "NEW LISHI NSN14 (Ign) 2-in-1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI NSN14R Flat Milling Kaichen R30 T70 T90 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI QIRUI 2 in 1 Auto Pick and Decoder for QIRUI E3 and Huai River",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI R52 Civil PHILLIPS Lock, AF Padlock 2-in-1 Tool",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SC1 Civil Schlage 5 Bitting 2-in-1 Tool",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Lishi SC20 2-in-1 Pick & Decoder for Schlage L Keyway",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SC4 Civil Schlage 6 Bitting 2-in-1 Tool",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 39.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Shaanxi Auto Delong Vertical Milling Shanxi Auto Delong Heavy Truck 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 32.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI Special Carry Case for Auto Pick and Decoder (only case)",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 34.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SSY3 2 in 1 Auto Pick and Decoder for South Korea ssangyong",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI SX9 2 in 1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY43 2 in 1 auto pick and decoder (8pin)",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY47 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI TOY43AT Lock Pick for T-OYOTA",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 11.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YH35R 2 in 1 Auto Pick and Decoder for Yamaha",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 21.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YH35R Direct Reading Flat Milling Yamaha Motorcycle Direct Reading 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YH35R-EXT Direct Reading Flat Milling Yamaha Motorcycle Direct Reading Extended Upgrade Tool 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "LISHI YH35R-MAG Flat milling Yamaha Motorcycle Right Slot 2-in-1 Tool",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}

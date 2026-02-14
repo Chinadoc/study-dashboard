@@ -1,0 +1,6099 @@
+{
+ "display_name": "Other",
+ "icon": "\ud83d\udce6",
+ "product_count": 238,
+ "vehicle_makes_count": 86,
+ "vehicle_makes": [
+  "Acura",
+  "Alfa Romeo",
+  "Aston Martin",
+  "Audi",
+  "BAIC",
+  "BMW",
+  "BYD",
+  "Bentley",
+  "Bugatti",
+  "Buick",
+  "Cadillac",
+  "Caterpillar",
+  "Changan",
+  "Chery",
+  "Chevrolet",
+  "Chrysler",
+  "Citroen",
+  "DS",
+  "Dacia",
+  "Daewoo",
+  "Dodge",
+  "Dongfeng",
+  "Ducati",
+  "Ferrari",
+  "Fiat",
+  "Ford",
+  "Foton",
+  "GAC",
+  "Geely",
+  "Genesis",
+  "Gmc",
+  "Great Wall",
+  "Haima",
+  "Honda",
+  "Hyundai",
+  "Indian",
+  "Infiniti",
+  "Isuzu",
+  "JAC",
+  "Jaguar",
+  "Jcb",
+  "Jeep",
+  "Jinbei",
+  "KTM",
+  "Kia",
+  "Kubota",
+  "Lada",
+  "Lamborghini",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Lifan",
+  "Lincoln",
+  "MAN",
+  "MG",
+  "Mahindra",
+  "Maserati",
+  "Mazda",
+  "Mclaren",
+  "Mercedes-Benz",
+  "Mini",
+  "Mitsubishi",
+  "Mitsubishi Fuso",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Porsche",
+  "Ram",
+  "Renault",
+  "Roewe",
+  "Rolls-Royce",
+  "SAIC",
+  "Saab",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Subaru",
+  "Suzuki",
+  "Tata",
+  "Toyota",
+  "Uaz",
+  "Vauxhall",
+  "Volkswagen",
+  "Volvo",
+  "Wuling"
+ ],
+ "functions": [
+  "all_keys_lost",
+  "bench_mode",
+  "boot_mode",
+  "can_fd",
+  "checksum",
+  "doip",
+  "dtc_off",
+  "ecu_cloning",
+  "ecu_programming",
+  "eeprom_read",
+  "immo_off",
+  "isn_read",
+  "key_programming",
+  "obd_mode",
+  "odometer",
+  "remote_generation"
+ ],
+ "function_labels": {
+  "all_keys_lost": "All Keys Lost (AKL)",
+  "bench_mode": "Bench Mode",
+  "boot_mode": "Boot Mode",
+  "can_fd": "Can Fd",
+  "checksum": "Checksum Correction",
+  "doip": "Doip",
+  "dtc_off": "DTC OFF",
+  "ecu_cloning": "ECU Cloning",
+  "ecu_programming": "ECU Programming",
+  "eeprom_read": "Eeprom Read",
+  "immo_off": "IMMO OFF",
+  "isn_read": "ISN Read/Write",
+  "key_programming": "Key Programming",
+  "obd_mode": "OBD Mode",
+  "odometer": "Odometer Correction",
+  "remote_generation": "Remote Generation"
+ },
+ "chip_types_count": 29,
+ "ecu_types_count": 149,
+ "product_types": {
+  "diagnostic_tool": 73,
+  "other": 34,
+  "key_programmer": 30,
+  "remote_shell": 27,
+  "ecu_tool": 13,
+  "key_cutting": 12,
+  "software_license": 12,
+  "accessory": 11,
+  "tester": 8,
+  "locksmith_tool": 8,
+  "key_blank": 7,
+  "emulator": 3
+ },
+ "price_range": [
+  0.5,
+  10961.0
+ ],
+ "top_products": [
+  {
+   "name": "Humzor NexzDAS Pro Bluetooth Full System Auto Diagnostic Tool with 9 Special Functions",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 62,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ferrari"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iSmart807 Pro OBD2 All System All Make Diagnostic Scanner with 25 Special Functions",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 355.0,
+   "url": "",
+   "vehicle_makes_count": 59,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto702 iAuto 702 Pro Multi-Application Service Tool 39 Special Functions 3 Years Update Online",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Haima"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT G5 Pro Scan Tool Supports 13 Special Functions, CAN FD, DoIP Protocols, Automatic VIN Identification, Bluettooth ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 51,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT G5 Scan Tool Supports 7 Special Functions, Oil Service, EPB, ABS Bleeding, DPF, AF, ADBlue, Battery Configuration",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 51,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(US,UK Ship No Tax) VIDENT iLink450 ABS &SRS reset /DPF/Battery Configuration Full Service Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 56,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Digimaster 3 Digimaster III Original Odometer Correction Master with 980 Tokens",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 839.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 3,
+   "chip_count": 10,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "Bentley",
+    "Cadillac",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dongfeng",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS4",
+    "CAS4+",
+    "EIS",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C04",
+    "24C16",
+    "35080"
+   ]
+  },
+  {
+   "name": "(US Ship No Tax) Vident iAuto700 Professional All System Scan Tool Supports Special Function",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 166.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(US Ship No Tax) VIDENT iLink440 Four System Scan Tool Supports Engine ABS Air Bag SRS EPB Reset Battery Configuration",
+   "type": "other",
+   "type_label": "Other",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 Full System Single Make Scan tool Supports ABS SRS EPB DPF Regeneration Oil Reset Update Online",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 48,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Genesis",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto708 Full System All Makes Scan Tool OBDII Scanner Supports Special Function",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 101.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto708 Lite Professional 4 System Scan Tool OBDII Scanner Car Diagnostic Tool DHL Free Shipping",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto708 Pro Professional All System Scan Tool OBDII Scanner Car Diagnostic Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 New ECUDesk Multi Function Software Standard Version 1.8.3.0 for EGR DPF SCR (AdBlue) NOx CAT SAP EVAP Flaps DTC OF",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 143,
+   "functions": [
+    "immo_off",
+    "dtc_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Changan",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EUCLEIA TabScan S8 Pro Dual-mode Diagnostic System Supports DoIP Vehicles 18-Month Free Update",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 2495.0,
+   "url": "",
+   "vehicle_makes_count": 45,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ECUDesk Premium Version V1.8.3.0 ECU Remap Software Supports Immo OFF/ Speed Limit OFF with Unlimited Files Per Day",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1250.0,
+   "url": "",
+   "vehicle_makes_count": 43,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 146,
+   "functions": [
+    "immo_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Changan",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 for HOLDEN Full System OBD2 Diagnostic Scan Tool Supports Holden till 2019",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 for SSANGYONG Full System OBD2 Diagnostic Scanner Code Reader",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ECUDesk HP+ Version Stage1 EGR DPF SCR (AdBlue) NOx CAT SAP EVAP Flaps DTC IMMO Speed Limit OFF",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1450.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 142,
+   "functions": [
+    "dtc_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Changan",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(UK Ship No Tax) Vident iEasy310 OBDII Scanner OBD2 Code Reader with Battery Test Function Multi-Language Update Online",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 47.99,
+   "url": "",
+   "vehicle_makes_count": 45,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu"
+   ],
+   "chip_types": []
+  }
+ ],
+ "all_products": [
+  {
+   "name": "Humzor NexzDAS Pro Bluetooth Full System Auto Diagnostic Tool with 9 Special Functions",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 239.0,
+   "url": "",
+   "vehicle_makes_count": 62,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Changan",
+    "Chery",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ferrari"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iSmart807 Pro OBD2 All System All Make Diagnostic Scanner with 25 Special Functions",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 355.0,
+   "url": "",
+   "vehicle_makes_count": 59,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto702 iAuto 702 Pro Multi-Application Service Tool 39 Special Functions 3 Years Update Online",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BAIC",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Haima"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT G5 Pro Scan Tool Supports 13 Special Functions, CAN FD, DoIP Protocols, Automatic VIN Identification, Bluettooth ",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 51,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT G5 Scan Tool Supports 7 Special Functions, Oil Service, EPB, ABS Bleeding, DPF, AF, ADBlue, Battery Configuration",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 120.0,
+   "url": "",
+   "vehicle_makes_count": 51,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(US,UK Ship No Tax) VIDENT iLink450 ABS &SRS reset /DPF/Battery Configuration Full Service Tool",
+   "type": "other",
+   "type_label": "Other",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 56,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Yanhua Digimaster 3 Digimaster III Original Odometer Correction Master with 980 Tokens",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 839.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 3,
+   "chip_count": 10,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BAIC",
+    "BMW",
+    "Bentley",
+    "Cadillac",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dongfeng",
+    "Ducati",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": [
+    "CAS1",
+    "CAS4",
+    "CAS4+",
+    "EIS",
+    "93C56",
+    "93C66",
+    "93C86",
+    "24C04",
+    "24C16",
+    "35080"
+   ]
+  },
+  {
+   "name": "(US Ship No Tax) Vident iAuto700 Professional All System Scan Tool Supports Special Function",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 166.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(US Ship No Tax) VIDENT iLink440 Four System Scan Tool Supports Engine ABS Air Bag SRS EPB Reset Battery Configuration",
+   "type": "other",
+   "type_label": "Other",
+   "price": 109.0,
+   "url": "",
+   "vehicle_makes_count": 55,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 Full System Single Make Scan tool Supports ABS SRS EPB DPF Regeneration Oil Reset Update Online",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 48,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Genesis",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto708 Full System All Makes Scan Tool OBDII Scanner Supports Special Function",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 101.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto708 Lite Professional 4 System Scan Tool OBDII Scanner Car Diagnostic Tool DHL Free Shipping",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 50,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Bugatti",
+    "Changan",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Geely",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iAuto708 Pro Professional All System Scan Tool OBDII Scanner Car Diagnostic Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 47,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 New ECUDesk Multi Function Software Standard Version 1.8.3.0 for EGR DPF SCR (AdBlue) NOx CAT SAP EVAP Flaps DTC OF",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 950.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 143,
+   "functions": [
+    "immo_off",
+    "dtc_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Changan",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EUCLEIA TabScan S8 Pro Dual-mode Diagnostic System Supports DoIP Vehicles 18-Month Free Update",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 2495.0,
+   "url": "",
+   "vehicle_makes_count": 45,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Jeep",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ECUDesk Premium Version V1.8.3.0 ECU Remap Software Supports Immo OFF/ Speed Limit OFF with Unlimited Files Per Day",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1250.0,
+   "url": "",
+   "vehicle_makes_count": 43,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 146,
+   "functions": [
+    "immo_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Changan",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 for HOLDEN Full System OBD2 Diagnostic Scan Tool Supports Holden till 2019",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 for SSANGYONG Full System OBD2 Diagnostic Scanner Code Reader",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 46,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Dodge",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ECUDesk HP+ Version Stage1 EGR DPF SCR (AdBlue) NOx CAT SAP EVAP Flaps DTC IMMO Speed Limit OFF",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1450.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 142,
+   "functions": [
+    "dtc_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Changan",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Foton",
+    "GAC",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "JAC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(UK Ship No Tax) Vident iEasy310 OBDII Scanner OBD2 Code Reader with Battery Test Function Multi-Language Update Online",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 47.99,
+   "url": "",
+   "vehicle_makes_count": 45,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Blue Gray Red] Vident Ieasy310 Pro OBDII Scan Tool Code Reader Multi-Language Lifetime Free Update",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 44,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update [Supports All Keys Lost] Vapon VP996 Key Programmer No Token Limitation, Read PIN Code Offline, Sup",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 349.0,
+   "url": "",
+   "vehicle_makes_count": 35,
+   "function_count": 3,
+   "chip_count": 9,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Jeep"
+   ],
+   "chip_types": [
+    "8A",
+    "4D",
+    "CAS1",
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "NEC",
+    "24C32",
+    "24C64"
+   ]
+  },
+  {
+   "name": "VIDENT iODO Master520 Pro Professional Odometer Adjustment Tool With Chip Programming Packages, OBD2 + Odometer Adjustme",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 241.0,
+   "url": "",
+   "vehicle_makes_count": 32,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "eeprom_read",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chrysler",
+    "Citroen",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "MG",
+    "Maserati",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "Vident iEasy 310Pro OBD2 Scanner with 12V Battery Voltage Test Function OBD2 Scan Tool with Full OBDII Functions",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 42,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Bentley",
+    "Buick",
+    "Chery",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Daewoo",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Great Wall",
+    "Honda",
+    "Hyundai",
+    "Isuzu"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(30 Files Per Day) XirDecoder DTC - Chip Tuning - All Solutions Software Ultimate\u00c2\u00a0Version Supports Stage 1-2 Tuning",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 2033.0,
+   "url": "",
+   "vehicle_makes_count": 36,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 147,
+   "functions": [
+    "dtc_off",
+    "checksum"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "Dacia",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lancia",
+    "Land Rover",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iODO Master520 Odometer Calibration Scan Tool Supports iOS & Android Devices, OBD2 + Odometer + Oil Reset 18-Mont",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 185.0,
+   "url": "",
+   "vehicle_makes_count": 31,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chrysler",
+    "Citroen",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Geely",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "MG",
+    "Maserati",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EngineDance X5 2-in-1 ECU Programming & Truck Diagnostics Tool",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 2650.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 36,
+   "functions": [
+    "ecu_programming",
+    "checksum",
+    "eeprom_read",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Caterpillar",
+    "Changan",
+    "Chevrolet",
+    "Dongfeng",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Great Wall",
+    "Hyundai",
+    "Isuzu",
+    "JAC",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "MAN",
+    "Mercedes-Benz",
+    "Opel",
+    "Renault",
+    "SAIC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 EngineDance X5 2-in-1 ECU Programming &Truck Diagnostics with X5 Box Full Configuration",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 2899.0,
+   "url": "",
+   "vehicle_makes_count": 23,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 36,
+   "functions": [
+    "ecu_programming",
+    "checksum",
+    "eeprom_read",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Caterpillar",
+    "Changan",
+    "Chevrolet",
+    "Dongfeng",
+    "Ford",
+    "Foton",
+    "GMC",
+    "Great Wall",
+    "Hyundai",
+    "Isuzu",
+    "JAC",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "MAN",
+    "Mercedes-Benz",
+    "Opel",
+    "Renault",
+    "SAIC"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "(10 Files Per Day) XirDecoder DTC - Chip Tuning - All Solutions Software Standard Version Supports Stage 1-2 Tuning",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 1355.0,
+   "url": "",
+   "vehicle_makes_count": 35,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 146,
+   "functions": [
+    "checksum"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Isuzu",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lancia",
+    "Land Rover",
+    "Mazda",
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vapon VP996 OBD Automotive Key Programmer with FREE Katana Decoder HU66 & HU92",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 569.0,
+   "url": "",
+   "vehicle_makes_count": 31,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Acura",
+    "Audi",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Isuzu",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Julie Pro V121 IMMO OFF & ESL/ELV Emulator",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 68.0,
+   "url": "",
+   "vehicle_makes_count": 33,
+   "function_count": 1,
+   "chip_count": 5,
+   "ecu_count": 64,
+   "functions": [
+    "immo_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Chrysler",
+    "Citroen",
+    "Citro\u00ebn",
+    "Daewoo",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lancia",
+    "Maserati",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini"
+   ],
+   "chip_types": [
+    "EWS",
+    "MQB",
+    "ELV",
+    "93C56",
+    "24C02"
+   ]
+  },
+  {
+   "name": "VIDENT iLink400 Citroen Full System Scan Tool Supports ABS/SRS/SAS",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 36,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chrysler",
+    "Citroen",
+    "DS",
+    "Dacia",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Lamborghini",
+    "Lancia",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 TOYOTA LEXUS SCION Full System OE-Level OBD2 Scan Tool ABS SRS",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 36,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chrysler",
+    "Citroen",
+    "Daewoo",
+    "Dodge",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Lamborghini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vident iLINK400 Renault OBDII Diagnostic Scanner Full System OE-Level SRS Scan Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 34,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Bugatti",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Lamborghini",
+    "Lancia",
+    "Land Rover",
+    "Lexus",
+    "Maserati"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vident iLink400 VW AUDI SKODA SEAT Diagnostic and Coding Scan Tool Full System",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 34,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Acura",
+    "Alfa Romeo",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "Chrysler",
+    "Citroen",
+    "Dacia",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Jaguar",
+    "Kia",
+    "Lancia",
+    "Land Rover",
+    "Lexus",
+    "Maserati"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XRemover AI Chip Tuning 6 Months Software License (Get 1 Month License for FREE) Supports Stage 1",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 316.0,
+   "url": "",
+   "vehicle_makes_count": 22,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 85,
+   "functions": [
+    "ecu_programming",
+    "dtc_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Citro\u00ebn",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "MAN",
+    "Mercedes-Benz",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XRemover AI Chip Tuning Annual 12 Months Software License (Get 3 Months License for FREE) Up to 20 Tuning Files Per Day ",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 631.0,
+   "url": "",
+   "vehicle_makes_count": 22,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 85,
+   "functions": [
+    "ecu_programming",
+    "dtc_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Citro\u00ebn",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "MAN",
+    "Mercedes-Benz",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "XRemover AI Chip Tuning 1 Month Software License 5 Files Per Day Supports Stage1",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 53.0,
+   "url": "",
+   "vehicle_makes_count": 22,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 85,
+   "functions": [
+    "ecu_programming",
+    "dtc_off"
+   ],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Audi",
+    "BMW",
+    "Citro\u00ebn",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "MAN",
+    "Mercedes-Benz",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ECUDesk Standard Version Update to Premium Version No file Limitation Per Day Supports IMMO OFF, Speed Limit OFF",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 300.0,
+   "url": "",
+   "vehicle_makes_count": 18,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 33,
+   "functions": [
+    "immo_off"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Citroen",
+    "Dodge",
+    "Dongfeng",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Lexus",
+    "McLaren",
+    "Peugeot",
+    "Renault",
+    "SEAT",
+    "Skoda",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EngineDance X5 Box Adapter for Reading, Writing, and Programming Overseas International Brand Vehicles",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 500.0,
+   "url": "",
+   "vehicle_makes_count": 11,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 19,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Foton",
+    "Hyundai",
+    "Isuzu",
+    "JCB",
+    "Kia",
+    "MAN",
+    "Mitsubishi",
+    "Mitsubishi Fuso",
+    "Renault",
+    "Volvo"
+   ],
+   "chip_types": [
+    "93C86"
+   ]
+  },
+  {
+   "name": "EngineDance X5 Diag Truck Diagnostic Tool for Light Trucks, Heavy Trucks, Buses, Agricultural Machinery, Construction Ma",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 1549.0,
+   "url": "",
+   "vehicle_makes_count": 17,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "BAIC",
+    "Daewoo",
+    "Dongfeng",
+    "Foton",
+    "Hyundai",
+    "Isuzu",
+    "JAC",
+    "Jeep",
+    "Jinbei",
+    "Kia",
+    "Lifan",
+    "MAN",
+    "Mercedes-Benz",
+    "Nissan",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update Vident iSmartDiag510 All System Bluetooth Car Diagnostic Scanner for iOS Android with 13 Special Fu",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 69.0,
+   "url": "",
+   "vehicle_makes_count": 14,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "BYD",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mercedes-Benz",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "AutoVEI Truck Explorer Device Kit Revolution with 100 Tokens TRUCKS PROGRAMMING & DIAGNOSTIC TOOLS",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 2938.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "immo_off",
+    "checksum",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OBDEMOTO 900PRO BMW Ducat Harley Honda Motorcycle Key Programmer Diagnosis Tool and Odometer Correction 3 in 1 with Free",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 880.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "ecu_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ducati",
+    "Honda",
+    "Smart",
+    "Suzuki"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "bFlash ECU Programming Tool Master Version",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 5799.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "bFlash ECU Programming Tool Slave Version",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 3479.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 5,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "bench_mode",
+    "boot_mode",
+    "obd_mode",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iSmart920 Automotive Diagnostic & Analysis System Supports OE Level Diagnosis, 40+ Maintenance Functions 3 Years ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 557.0,
+   "url": "",
+   "vehicle_makes_count": 16,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Citro\u00ebn",
+    "Daewoo",
+    "Fiat",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mitsubishi",
+    "Nissan",
+    "Peugeot",
+    "RAM",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vident iSmartDiag510 Pro Bluetooth All System Car Diagnostic Tool Supports CAN FD, DoIP, 28 Special Functions, Lifetime ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 73.0,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Kia",
+    "Renault",
+    "Toyota",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Lifetime Free Update EU UK US SHIP VNCI 6154A for VW Audi Skoda Seat OBD2 Scanner Supports DoIP/CAN FD till 2023",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 111.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Lamborghini",
+    "MAN",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "AutoVei Truck Explorer America V8 Trucks Programming & Diagnostic Tools",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3955.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "immo_off",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE 2026 AutoVEI Truck Explorer V8 MB FULL with 700 Tokens TRUCKS PROGRAMMING & DIAGNOSTIC TOOLS",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 10961.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "immo_off",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": [
+    "EIS",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "AutoVEI Truck Explorer V8 Standard 2025 Updated with 700 Tokens TRUCKS PROGRAMMING & DIAGNOSTIC TOOLS",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 5763.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "immo_off",
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": [
+    "EIS",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "V15 Software License for OBDEMOTO 900PRO Motorcycle Key Programmer Supports Motorcycle till 2023/2024",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 4,
+   "chip_count": 1,
+   "ecu_count": 1,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "isn_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Smart"
+   ],
+   "chip_types": [
+    "4D"
+   ]
+  },
+  {
+   "name": "EU UK US SHIP VNCI 6154A VW Audi Skoda Seat Scanner with Software U Disk",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 129.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Bugatti",
+    "Lamborghini",
+    "MAN",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP VXSCAN OBD ENET WIFI/USB Adapter For BMW/VW/VOLVO",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 10,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Bentley",
+    "DS",
+    "Lamborghini",
+    "Mercedes-Benz",
+    "SEAT",
+    "Skoda",
+    "Volkswagen",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "AutoVEI Truck Explorer Locksmith 2025 Updated with 700 Tokens TRUCKS PROGRAMMING & DIAGNOSTIC TOOLS",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 5198.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 2,
+   "ecu_count": 2,
+   "functions": [
+    "key_programming",
+    "immo_off",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": [
+    "EIS",
+    "FBS3"
+   ]
+  },
+  {
+   "name": "AutoVEI Truck Explorer Scantic V8 with 100 Tokens Trucks Programming & Diagnostic Tools",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 5263.54,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "immo_off",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT G5 Max Auto Diagnostic Scanner with 28 Special Functions, Supports CAN FD & DoIP, Supports 2023/2024 Vehicle Mode",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 194.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer",
+    "can_fd",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "RAM",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 GM Chevrolet Cadillac Buick 1996-2021 Vident Scan Tool iLink400 Diagnostic Scanner Code Reader",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "GMC",
+    "Isuzu",
+    "Opel",
+    "SEAT",
+    "Saab",
+    "Vauxhall"
+   ],
+   "chip_types": [
+    "RFA"
+   ]
+  },
+  {
+   "name": "VIDENT iSmart810 Smart Key Programming Tool with High Configuration, Supports OE Level Diagnostics, 40+ Maintenance Func",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 455.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Honda",
+    "Kia",
+    "Mazda",
+    "RAM",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX Genuine DIATRONIC JLR PLUTO Full Package for Land Rover Jaguar 2017-2025 Coding and Programming No IP ",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 4500.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 3,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": [
+    "KVM"
+   ]
+  },
+  {
+   "name": "OBDEMOTO T4Pro Motorcycle Scanner with T51 Oscilloscope Lifetime Free Update Maintenance Light Reset Throttle Reset",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 799.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ducati",
+    "Indian",
+    "KTM",
+    "Piaggio"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Universal 7-in-1 Transmission Gearbox Cable (OBD Female) for VAG",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 54.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 2,
+   "functions": [
+    "bench_mode",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Vapon VP100 BMW Key Programmer Supports BMW G Series BDC2 Add Key/Module Cloning Lifetime Free Update With",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 380.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "ecu_cloning",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "CAS3",
+    "CAS3+",
+    "CAS4",
+    "BDC"
+   ]
+  },
+  {
+   "name": "VIDENT iSmart800Pro IM Supports Advanced IMMO & Key Programming, All Systems Diagnosis, 38+ Maintenance Service 18-Month",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 299.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 3,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost",
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "AutoVEI Truck Explorer V8 Chipallino 2025 Updated TRUCKS PROGRAMMING & DIAGNOSTIC TOOLS",
+   "type": "ecu_tool",
+   "type_label": "ECU Tool",
+   "price": 7119.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "AutoVEI Truck Explorer CPC V8 Kit Trucks Programming & Diagnostic Tools with 100 Tokens",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 5028.5,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [
+    "eeprom_read",
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "MAN",
+    "Mercedes-Benz",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Carlabimmo Bypass Gold IMMO OFF Emulator for AUDI, SEAT, SKODA, VOLKSWAGEN",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 169.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 12,
+   "functions": [
+    "immo_off"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "DS",
+    "Ford",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Super BDM Programmer BVA/KEY Programmer For BMW CAS 4 and VW 5th Generation",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "BMW",
+    "Volkswagen"
+   ],
+   "chip_types": [
+    "CAS4"
+   ]
+  },
+  {
+   "name": "JDIAG M400 Intelligent Motorcycle Diagnostic Scanner 8-inch Large Screen ABS Diagnostic Analog Signal Output Battery Tes",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 521.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "ecu_programming"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Ducati",
+    "Honda",
+    "KTM",
+    "Piaggio",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXSCAN 3 in 1 Tire Pressure TPMS Activation Tool for TOYOTA GM FORD",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 18.99,
+   "url": "",
+   "vehicle_makes_count": 9,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Ford",
+    "GMC",
+    "Lincoln",
+    "Opel",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "DIATRONIC COMET JLR for Jaguar Land rover 2010-2018 Coding, Programming and Key Learning Replaces SDD and Pathfinder",
+   "type": "other",
+   "type_label": "Other",
+   "price": 3500.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand 95% New Genuine DIATRONIC JLR PLUTO Full Package for Land Rover Jaguar 2017-2025 Coding and Programming",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 3500.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2026 New SUPER MB PRO M6+ PRO Diagnosis Tool Full Package Compatible with Original Benz Software",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 464.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Mercedes-Benz",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "SUPER MB PRO M6+ PRO Diagnosis Tool Standard Version",
+   "type": "other",
+   "type_label": "Other",
+   "price": 427.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Mercedes-Benz",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "SUPER MB PRO M6+ PRO Diagnosis Tool Truck Version Benz Wireless Diagnosis Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 436.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "doip"
+   ],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Mercedes-Benz",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vapon Katana Decoder HU66 Gen2 Auto pick and decoder for VW Porsche Bentley Lamborghini etc from 2004 - 2017",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Bugatti",
+    "Lamborghini",
+    "Porsche",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vident iLink400 Chrysler Dodge Jeep Vident Scan Tool Full System Diagnostic Scanner Update Online",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 8,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "DS",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "Mini",
+    "RAM",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iSmart920 EV Supports Battery Pack Detection, Professional Level IMMO & ODO Functions 3 Years Free Update",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 604.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "Chrysler",
+    "Honda",
+    "Kia",
+    "Mazda",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2025 JDiag M200 Handheld Motorcycle Diagnostic Tool, Dual System Motorcycle Tester + Professional Battery Tester Full Ve",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 216.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Indian",
+    "KTM",
+    "Peugeot",
+    "Piaggio",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "JDiag M200 Pro Universal Motorcycle Diagnostic Scanner Multi-Language Update via WiFi",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 278.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Honda",
+    "Indian",
+    "KTM",
+    "Peugeot",
+    "Piaggio",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE TDB1000 Advanced Security Systems Electronic Tester ASSET Key Programmer Hardware No Tokens Power PIN Code Ca",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1800.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Genesis",
+    "Hyundai",
+    "Kia",
+    "Nissan"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VAPON BDC2 Adapter for Vapon VP100 Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 55.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "bench_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "[US Ship No Tax] VIDENT iMax4301 VAWS OBD Diagnostic Service Tool Free Shipping",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Bugatti",
+    "Lamborghini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vident V301 Car Diagnostic Scanner OBD2 Diagnostic Tool for VW Audi Skoda Seat OBD2 Automotive Scanner OBD Code Reader",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 42.99,
+   "url": "",
+   "vehicle_makes_count": 7,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Bentley",
+    "Bugatti",
+    "Lamborghini",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5pcs/Set] CG A01-3 B5 (3 buttons) Wire Remote Used with CGDl K2 Remote Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 2,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming",
+    "remote_generation"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "ECUDesk Standard Version Update to HP+ Version No file Limitation Per Day Supports IMMO OFF, Speed Limit OFF",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 500.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 2,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "immo_off",
+    "dtc_off"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "El-50448 Auto Tire Pressure Monitor Sensor VXSCAN TPMS Activation Tool OEC-T5 for GM Series Vehicle",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Buick",
+    "Chevrolet",
+    "Daewoo",
+    "GMC",
+    "Opel",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Carlabimmo Fiat Key Replacement",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 113.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 3,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Chrysler",
+    "Ferrari",
+    "Fiat",
+    "Ford",
+    "Lancia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK SHIP NO TAX JDiag M300 Hand-held Motorcycle Diagnostic Scanner Multi-Language Supports Harley, BMW, Ducati etc All",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 213.0,
+   "url": "",
+   "vehicle_makes_count": 6,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Ducati",
+    "Honda",
+    "KTM",
+    "Piaggio",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "BMW DME Bench Unlock Software for GEN1 GEN2 S55 S58 B46 B48 B58 F & G Series and Toyota Supra.",
+   "type": "other",
+   "type_label": "Other",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 5,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CAN Filter 18 in 1 for Benz/BMW Universal CAN Filter for W447 W212 W207 W176 W463 W166 R231 X166 W246 W218 R172 W197 W11",
+   "type": "other",
+   "type_label": "Other",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "BMW",
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "CAS4",
+    "FEM"
+   ]
+  },
+  {
+   "name": "[ONLINE ACTIVATION] CCF Doctor Editor 3.2.1 for 2017-2024 JLR Jaguar via OBD2 No Need Shipping",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 1500.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] CG C15-000031 ZA21-4 FU.T(17.4-BTN) FORD 4 Buttons Smart Remote Used with CGDl K2 Remote Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Ford",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/set] CG C15-000019 ZA11 BEN.Z(3BTN) 3 Buttons Smart Remote Used with CGDl K2 Remote Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Chrysler Continental GPEC Unlock Patch Software for GPEC2/2A/3/4LM ECU's - OBD Unlock Patch(2A) and Other Functions",
+   "type": "other",
+   "type_label": "Other",
+   "price": 105.0,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chrysler",
+    "Dodge",
+    "Fiat",
+    "Jeep",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Ship from USA UK] Moe JLR Pathfinder and SDD Book (TRICKS & SECRETS) Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 400.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OEM 940007403 Ford Cooling Fan Control Module 940007403 Apply for 2005-2011 Year Ford Focus",
+   "type": "other",
+   "type_label": "Other",
+   "price": 26.99,
+   "url": "",
+   "vehicle_makes_count": 5,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Alfa Romeo",
+    "Ford",
+    "Lincoln",
+    "Mazda",
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "1 Year Software Subscription for DIATRONIC COMET JLR for Jaguar Land rover 2010-2018",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 490.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink400 Max Full System Diagnostic Scanner 3 Years Free Update Supports Vehicles till 2024",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 157.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [
+    "Mini",
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iSmart810 Automotive Diagnostic & Analysis System Supports Full System Diagnosis, 3 Years Free Software Updates",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 399.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "odometer"
+   ],
+   "vehicle_makes": [
+    "RAM",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HU127-HU100R Inner Mill Two-Track Auto Pick and Decoder, Tooth Depth (8-cut) IC CARD: 1360",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini",
+    "Rolls-Royce",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HU162T (9) V.2 Internal Milling with Six Tracks for Volkswagen for Skoda Post-2015 Models",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HU66 Ignition Universal Door Lock Inner Milling Double Track Opening and Reading Two-in-One Tool, Depth of Cut (8-",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "Porsche",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EoneBoss ET-06 Subaru Special Key PCB for Subaru Supports 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-12 (2 Buttons) Toyota/Lexus/Subaru Smart Key Near-OEM Smart Key Support: 4A (4A-AA, 4A-BA)",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-12 (3 Buttons) Toyota/Lexus/Subaru Smart Key Near-OEM Smart Key Support: 4A (4A-AA, 4A-BA)",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-12 (5 Buttons) Toyota/Lexus/Subaru Smart Key Near-OEM Smart Key Support: 4A (4A-AA, 4A-BA)",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-13 (3 Buttons) Toyota/Lexus/Subaru Smart Key Near-OEM Smart Key Support: 4A (4A-AA, 4A-BA)",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "JDiag M100 Hand-held Motorcycle Diagnostic Scan Tool Multi-Language",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 166.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "KTM",
+    "Piaggio",
+    "Suzuki"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Jdiag M100 Pro Hand-held Universal Motorcycle Diagnostic Scan Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 193.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda",
+    "KTM",
+    "Piaggio",
+    "Suzuki"
+   ],
+   "chip_types": [
+    "4A"
+   ]
+  },
+  {
+   "name": "New Released VA CAN Scanner Works for Audi/VW/Skoda/Seat",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 1,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "WOYO CTB008PRO For BMW R1200 R1250 S100 R nine T All Motorcycle Diagnostic Scanner, For Bluetooth 5.0 IOS/Android 64-bit",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "WOYO CTB008 For BMW R1200 R1250 S100 R nine T All Motorcycle Diagnostic Scanner, For Bluetooth 5.0 Android 64-bit Cellph",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "obd_mode"
+   ],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "WOYO PL118 For VW & For AUDI EPS Tester On Bench, Electrical Steering Wheel Motor Detector Off-line",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 4,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi",
+    "SEAT",
+    "Skoda",
+    "Volkswagen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HU101 Ignition Universal Door Lock Side-Milled Dual Track Pick and Decoder Tool, 10-Cut Depth",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU TOY48 Ignition and Universal Door Lock Internal Mill 4-Track Pick and Decode 2-in-1 Tool, Tooth Depth (5-cut) IC C",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Subaru",
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/ Set] CG C13-000012 A29DF(3BTN) 3 Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "CG C13-000010 A05-3+1 TOYO.TA(3+1) 4 Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "[5Pcs/Set] CG C13-000002 A11DS 3 Buttons Wire Remote Used with CGDl K2 Remote Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 30.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] CG C13-000009 A20-3+1 KI.Y(Separate.3+1) Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 27.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "[5pcs/lot] CG C13-000006 A21-4 CAD.LAC(4 BTN) 4 Buttons Wire Remote Used with CGDl K2 Remote Key Programmer",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs/Set] CG C13-000038 A29 DF(3BTN) 3 Metal Buttons Wire Remote",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [
+    "remote_generation"
+   ],
+   "vehicle_makes": [],
+   "chip_types": [
+    "ID48"
+   ]
+  },
+  {
+   "name": "WiFi CG CG007 Automotive Key Cutting Machine without Battery 3 Years Warranty",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 1999.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "all_keys_lost"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EoneBoss ET-01 Toyota Universal Smart Remote Key PCB Supports 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-02 Toyota Lexus Smart Remote Key PCB Supports 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-03 Toyota Universal Smart Remote Key PCB Supports 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-04 Lexus Universal Smart Remote Key PCB Special for Lexus Supports 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-05 Toyota Lexus Universal Smart Remote Key PCB Supports 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-07 Toyota Universal Smart Remote Key PCB for Sienna 2010-2019",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-08 (5 Buttons) Toyota/Lexus Universal Smart Remote Key PCB Supports 8A and 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-08 (4 Buttons) Toyota/Lexus Universal Smart Remote Key PCB Supports 8A and 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-08 (6 Buttons) Toyota/Lexus Universal Smart Remote Key PCB Supports 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-09 (3 Buttons) Toyota Universal Smart Remote Key PCB for Yaris and Yaris L 8A 4D",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-09 (4 Buttons) Toyota Universal Smart Remote Key PCB for Yaris and Yaris L",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-10 (5 Buttons) Toyota 4D 8A Universal Smart Remote Key PCB",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-10\u00ef\u00bc\u00886B) Toyota 4D&8A Universal Smart Remote Key PCB",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "EoneBoss ET-11 Toyota Universal Smart Remote Key PCB",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4D"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX EONEBOSS TLK1 TLK 1 Key Unlocking Device for Toyota/Lexus 8A-AA BA B9 B8 Keys",
+   "type": "other",
+   "type_label": "Other",
+   "price": 59.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "EONEBOSS TLK2 Unlock Toyota/Lexus 4A Smart Key Supports 4A-AA BA Type",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 55.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 2,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus",
+    "Smart",
+    "Toyota"
+   ],
+   "chip_types": [
+    "8A",
+    "4A"
+   ]
+  },
+  {
+   "name": "KYDZ MLB Tool Key Programmer Solder Free Adapter Standalone Accessory Suitable For Matching Instruments Chip Identificat",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 100.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TDB1000 Full ASSET Software Package with 1 Year Subscription",
+   "type": "key_programmer",
+   "type_label": "Key Programmer",
+   "price": 1244.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 1,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [
+    "key_programming"
+   ],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "FLASH SALE EU UK SHIP NO TAX Vgate vLinker FS ELM327 OBDII Diagnostic Tool FORScan USB Interface for Ford Mazda HS/MS-CA",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford",
+    "Lincoln",
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vident iLink400 Opel Vauxhall Full System Diagnostic Scanner ABS SRS Scan Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Opel",
+    "SEAT",
+    "Vauxhall"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iMax4303 JLR Full System Car\u00c2\u00a0OBD Diagnostic Tool for Jaguar Land Rover Reset OBDII Diagnostic Service",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 139.0,
+   "url": "",
+   "vehicle_makes_count": 3,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover",
+    "SEAT"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs Full Key] EONEBOSS JLR 2018-2021 Key PCB Board Frequency: 315MHz/433MHz with Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 148.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HU100-10 (10 Cuts) Internal Milling Double Track Auto Pick and Decoder 2 in 1",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Cadillac",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HU64 AIAC011D Ignition Universal Door Lock Side Milling Two-Track Pick and Decoder, Depth (10-cut) IC CARD:1019",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HY15/HYN14R Flat Milling Dual Track Auto Pick and Decoder 2-in-1 Tool, Tooth Depth (10-cut) IC CARD: 1098",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai",
+    "Kia"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Benz Smart Key Shell 3 Buttons 10pcs/lot",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 62.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP ELV Hunter CAS2 CAS3 CAS3+ E Series Emulator for Both BMW, Mini",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 4,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW",
+    "Mini"
+   ],
+   "chip_types": [
+    "CAS2",
+    "CAS3",
+    "CAS3+",
+    "ELV"
+   ]
+  },
+  {
+   "name": "[Full Key] CG MB 08 Version Keyless Go Key 2-in1 315MHz 433MHz with Shell for Benz W164 W221 W216 from Year 2005-2010",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 39.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EoneBoss EJLR-02 JLR Key PCB Board Only Support Year 2018-2021 Frequency: 433MHz/315MHz",
+   "type": "other",
+   "type_label": "Other",
+   "price": 19.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Full Key] EONEBOSS JLR 2018-2021 Key PCB Board Frequency: 315MHz/433MHz with Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 31.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[5Pcs Full Key] EONEBOSS JLR 2015-2018 Key PCB Board Frequency: 315MHZ/433MHz + Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 135.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[PCB Only] EONEBOSS for JLR Key PCB Board Only Support Year 2015-2018 Frequency: 315MHZ/433MHz",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 23.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Full Key] EONEBOSS JLR 2015-2018 Key PCB Board Frequency: 315MHZ/433MHz + Key Shell",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[PCB Only] EONEBOSS for JLR Key PCB Board Only Support Year 2018-2021 Frequency: 315MHz/433MHz",
+   "type": "key_blank",
+   "type_label": "Key Blank",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "1 Year Software Subscription for DIATRONIC JLR PLUTO Full Package LAND ROVER and Jaguar",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 500.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[Online Activation] Premium Database JLR 2023-2025 for JLR Pluto",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 350.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Smart K9 2 in 1 Auto Pick and Decoder For Kia",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Kia",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Smart NE78 2 in 1 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Peugeot",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vgate iCar Pro 2S Bluetooth 5.2 OBD-II Adapter Free Firmware Update for iOS Android Windows [Upgraded Version of iCar Pr",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 28.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "SEAT",
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "WOYO PL078 EPS Tester For Land Rover & For Jaguar Steering Wheel Motor Detector On Bench",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 2,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Jaguar",
+    "Land Rover"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OEM OBD to 3 PIN + 4 PIN + 6 PIN 3 in 1 Adapter Cable 3-IN-1 OBD Cable for Honda YAMAHA Motorcycles",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU HU162T-10 Internal Milling Six-Track Unlocking and Decoding 2-in-1 Tool, Depth (10-cut) IC CARD: 1421",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "433MHz Benz FBS3 MB BGA KeylessGo Key for W221 W216 W164 W251 works with VVDI MB",
+   "type": "other",
+   "type_label": "Other",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "FBS3"
+   ]
+  },
+  {
+   "name": "VXSCAN Brake Fluid VXSCAN Brake Fluid Tester Pen 5 LED Mini Indicator for Car Repairs Tools Automotive Diagnostic Testin",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 7.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Original CG MB 08 Version Keyless Go Key 2-in-1 315MHz/433MHz with 3 Button 4 Button Shell with Panic for Mercedes W164 ",
+   "type": "other",
+   "type_label": "Other",
+   "price": 44.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "CG MONSTER G08 Key Cutting Machine with T5 Clamp Built-in Battery, Bluetooth & WiFi, Vehicle Key Database Supports Fast ",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 2099.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Key Blade for Chevrolet 10pcs/lot Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 7.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Chevrolet"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OEM Emulator for VOLVO S60 V60 S80 XC60 XC70 Steering Lock with Lock Sound(LIN System)",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 24.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Key Blade for Ford 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "New Key Blade for FORD 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 10.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Ford"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Key Blad for Honda 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 8.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Key Blade for Hyundai 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 9.9,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Remote Key Blade For Hyundai 10pcs/lot",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 10.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Hyundai"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP TOPDIAG P200 Automotive Electrical Circuit System Tester for Car Truck Motorcycle Boat",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 111.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand Laptop LENOVO T440P I7 CPU WIFI With 8GB Memory",
+   "type": "other",
+   "type_label": "Other",
+   "price": 325.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "RAM"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Key Blade for Lexus 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Lexus"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "2 in 1 Auto Pick and Decoder for Mazda",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 53.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mazda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "New Key Blade for Citroen 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 14.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Citroen"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "New Key Blade For Toyota 10pcs/lot Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 10.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "NP Tools Smart 5 In 1 Tool HU66 V3 for Code Reading and Unlocking",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 99.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OBDEMOTO T001 Motorcycle Tester for Honda Battery Monitoring Fault Location Coolant Temperature Alarm",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 65.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Honda"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OEM AUDI AJD301-000 Fuel Pump Control Module Apply for AUDI A6 2005-2011",
+   "type": "other",
+   "type_label": "Other",
+   "price": 22.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "OEM 66209252639 Parking Control PDC Module for 2005-2014 BMW 3 Series, 2008-2014 1 Series, 2013-2015 X1, 2008-2014 M3",
+   "type": "other",
+   "type_label": "Other",
+   "price": 54.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Remote Key Blade For Opel 10pcs/lot Free Shipping",
+   "type": "remote_shell",
+   "type_label": "Remote / Shell",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Opel"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "[10pcs/lot] OEM New ESL/ELV Motor Steering Lock Wheel Motor for Mercedes-Benz W204 W207 W212",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "[5pcs/lot ] OEM New ESL/ELV Motor Steering Lock Wheel Motor for Mercedes-Benz W204 W207 W212",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 59.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "OEM New ESL/ELV Motor Steering Lock Wheel Motor for Mercedes-Benz W204 W207 W212",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 12.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": [
+    "ELV"
+   ]
+  },
+  {
+   "name": "Universal Steering Lock Emulator for Mercedes-Benz W169 W245 W202 W208 W210 W203 W209 W211 W639 W906 Plug and Play",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 24.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mercedes-Benz"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "TopDiag P50 Pro Mini Oscilloscope Automotive Circuit Tester Detect Sensor Signals AC/DC Detection LED Test Light",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Key Blade for Toyota 10pcs/lot Free Shipping",
+   "type": "other",
+   "type_label": "Other",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Toyota"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vapon VP-B03 BMW BDC3 Clip Adapter for Vapon VP100 to Copy BMW BDC3 Key",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 55.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": [
+    "BDC"
+   ]
+  },
+  {
+   "name": "VAPON Katana Decoder Fiat SIP22 Auto Pick and Decoder",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 179.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Fiat"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vapon Katana Decoder HU92 Auto Pick and Decoder for BMW E Series Till 2013",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 149.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "EU UK US SHIP Vgate iCar Pro Bluetooth 4.0 OBDII Code Scanner Fault Code Reader for Android & iOS Firmware V2.3",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 25.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iEasy200 OBDII,EOBD,CAN Code Reader Free Shipping",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 18.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Mini"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Vident iEasy320 Enhanced OBDII,EOBD,CAN Code Reader Multi-Language",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 42.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Subaru"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iLink410 ABS, SRS, SAS Reset Tool OBDII Diagnostic Tool Scan Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 119.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Audi"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Key Blade for Volvo 10pcs/lot",
+   "type": "other",
+   "type_label": "Other",
+   "price": 8.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXSCAN 180 PSI Tire Inflator Portable Air Compressor, 22 Cylinders 6000mAh Battery Air Pump Suitable for Car Bike Motorc",
+   "type": "other",
+   "type_label": "Other",
+   "price": 49.99,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "VXSCAN V4 Automotive Smoke Leak Detector EVAP Fuel Pipe Leakage Detector for All 12V Car, Motorcycles, Snowmobiles, ATV,",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 189.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Smart"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "WOYO MOTO002 KOMBI Tester For BMW Motorcycle ECU Module Emulator Tester BMW Motorcycle TFT Display Screen Tester Off-lin",
+   "type": "emulator",
+   "type_label": "Emulator",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "WOYO WOYOR3 for BMW Aroma System Activator to Reset the Fragrance Chip",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 0.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "BMW"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "ZDOBD EPS001 Heavy Duty Truck Scanner for Android & IOS Portable Disel Truck OBD Diagnostic Adapter Supports DPF Regen",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 1,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [
+    "Volvo"
+   ],
+   "chip_types": []
+  },
+  {
+   "name": "Newest 180W AC 110V Car Ignition Inverter Outdoor Power Supply USB Portable Power Station Emergency Start 3 in 1",
+   "type": "other",
+   "type_label": "Other",
+   "price": 199.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "A8 Automative Leak Tester with Flow Meter & the Pressure Gauge Test Leak in Vehicle Pipe Systems for Cars, Motorcycles, ",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 109.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU KW1 Flat Milling Single Track Unlocking and Decoding 2-in-1 Tool, Tooth Depth (5-cut) IC CARD: 312",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 36.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU KW5 Civilian Kwikset Flat Milling Single Track Opening and Reading Teeth 2-in-1 Tool, Tooth Depth (6-cut) IC CARD:",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 23.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "ABUDU SC1 (Schlage) Flat Milling Single Track 2-in-1 Auto Pick and Decoder, Tooth Depth (5-cut) IC CARD: 871",
+   "type": "key_cutting",
+   "type_label": "Key Cutting",
+   "price": 24.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "AutoVEI Truck Explorer DirectConnect 2U kit",
+   "type": "other",
+   "type_label": "Other",
+   "price": 1079.15,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "US EU SHIP NO TAX [4Pcs/Set] Car Remote Control Key Prying Device, Remote Control Shell Opening Tool Tool Kit, Disassemb",
+   "type": "other",
+   "type_label": "Other",
+   "price": 5.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "CR2032 Button Battery 3.0V 210mAh",
+   "type": "other",
+   "type_label": "Other",
+   "price": 0.5,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "DIAGXT T80 Universal Oscilloscope & Automotive Oscilloscope, Parse, Modify, Send CAN Bus Data, Beginner-friendly with 4G",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 818.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EngineDance EBS-ABS-ECAS-ADAS-AMT Specialized Diagnostic Scanner",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 1395.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "EngineDance Fuel Pump Plunger Leakage Tester Fits All Diesel Engines for Plunger Testing",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 79.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Newest KINGBOLEN EDIAG Full System OBD2 Diagnostic Tool with All Brands License Free Update for One Year",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 92.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Second Hand Laptop Lenovo X220 I5 CPU 1.8GHz WIFI With 4GB Memory",
+   "type": "other",
+   "type_label": "Other",
+   "price": 189.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "NSN14 2 in 1 Auto Pick and Decoder Free Shipping",
+   "type": "locksmith_tool",
+   "type_label": "Locksmith Tool",
+   "price": 29.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "OEM OBD to 3-PIN Adapter Cable for Yamaha Motorcycle",
+   "type": "accessory",
+   "type_label": "Accessory",
+   "price": 9.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "1 Year Software Subscription for ECUDesk ECU Tuning Software",
+   "type": "software_license",
+   "type_label": "Software / License",
+   "price": 200.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDIAG P150 Electrical Tester 6 - 30 Volt Vehicle Electrical System Diagnostics",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 60.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TopDiag P180 for 9-30 Volts Vehicle Electrical System Daignostics Injectors Tester Support Cars, Pickups, SUVs, Motorcyc",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 111.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDIAG P200Pro New Generation of Intelligent Circuit Detector",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 157.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDIAG P50 Multi-function Car Tester, Voltage/Bulb Load Voltage Measurement, Electrical Load Test, Power Polarity Displ",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 14.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "TOPDIAG P60 Automotive Electrical Wiring Tester 6-30V Vehicle Electrical System Testing for Cars, Trucks, SUVs, Excavato",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 24.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 1,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": [
+    "8A"
+   ]
+  },
+  {
+   "name": "US EU SHIP NO TAX Vgate Battery Assistant BlueTooth 4.0 Wireless 6~20V Automotive Battery Load Tester Diagnositic Analyz",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 15.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "(US Ship No Tax) Vident iBT100 12V Battery Analyzer for Flooded, AGM,GEL 100-1100CCA Automotive Tester Diagnostic Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 37.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iBT200 9V-36V Battery Tester for 12V Passenger Vehicles and 24V Heavy Duty Trucks 100 to 2000CCA Car Battery Anal",
+   "type": "tester",
+   "type_label": "Other",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Vident iEasy320HD Diesel Truck Diagnostic Tool OBD2 Scanner Automotive Code Reader Trucks Cars OBD2 Diagnostic Tool",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 70.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "(US Ship No Tax) VIDENT iEasy300 CAN OBDII/EOBD Code Reader Free Shipping",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 33.99,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "VIDENT iEasy300 Pro CAN OBDII/EOBD Code Reader",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 33.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Discount Payment for Best Clients from MHHAUTO/OBDII365",
+   "type": "other",
+   "type_label": "Other",
+   "price": 600.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "[From China] DISCOUNT PRICE FOR Mr. Zakaria boutich Whatsapp +213 797 31 34 03",
+   "type": "other",
+   "type_label": "Other",
+   "price": 32.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "VXSCAN PT1000 Vehicle Super Electrical Diagnostics Tester DC/ AC/ Waveform/ Resistance/ Diode / Current Diagnostics",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 83.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  },
+  {
+   "name": "Xtruck Y006 Nitrogen and Oxygen Sensor Auto Repair Urea Nozzle Pump Diagnostic Tool Upgraded version of Y005",
+   "type": "diagnostic_tool",
+   "type_label": "Diagnostic Tool",
+   "price": 253.0,
+   "url": "",
+   "vehicle_makes_count": 0,
+   "function_count": 0,
+   "chip_count": 0,
+   "ecu_count": 0,
+   "functions": [],
+   "vehicle_makes": [],
+   "chip_types": []
+  }
+ ]
+}
