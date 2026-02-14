@@ -199,9 +199,10 @@ export default function ToolCoverageHeatmap() {
         const map: Record<string, Record<string, CellData>> = {};
         const yearMap: Record<string, Record<string, CellData>> = {};
 
-        // Helper: create a blank cell
-        const mkCell = (source: CellData['source'], confidence: CellData['confidence']): CellData => ({
-            source, confidence, functions: [], ecu: [], expansionNames: [],
+        // Helper: create a cell, optionally seeded with functions
+        const baseFuncs = family.base_functions || [];
+        const mkCell = (source: CellData['source'], confidence: CellData['confidence'], seedFuncs?: string[]): CellData => ({
+            source, confidence, functions: seedFuncs ? [...seedFuncs] : [], ecu: [], expansionNames: [],
         });
 
         // Helper: get year range for a make/model from reality mask
@@ -240,11 +241,11 @@ export default function ToolCoverageHeatmap() {
                 for (let y = bucket.start; y <= bucket.end; y++) {
                     if (isYearValid(make, y)) {
                         bucketHasValidYear = true;
-                        yearMap[make][String(y)] = mkCell('base', 'claimed');
+                        yearMap[make][String(y)] = mkCell('base', 'claimed', baseFuncs);
                     }
                 }
                 if (bucketHasValidYear) {
-                    map[make][bucket.label] = mkCell('base', 'claimed');
+                    map[make][bucket.label] = mkCell('base', 'claimed', baseFuncs);
                 }
             }
         }
@@ -279,7 +280,7 @@ export default function ToolCoverageHeatmap() {
                                 if (!isYearValid(make, y, modelName)) continue;
                                 const ys = String(y);
                                 if (!yearMap[make][ys]) {
-                                    yearMap[make][ys] = mkCell('base', 'inferred');
+                                    yearMap[make][ys] = mkCell('base', 'inferred', baseFuncs);
                                 } else if (yearMap[make][ys].confidence === 'claimed') {
                                     yearMap[make][ys].confidence = 'inferred';
                                 }
@@ -288,7 +289,7 @@ export default function ToolCoverageHeatmap() {
                             }
                             if (bucketTouched) {
                                 if (!map[make][bucket.label]) {
-                                    map[make][bucket.label] = mkCell('base', 'inferred');
+                                    map[make][bucket.label] = mkCell('base', 'inferred', baseFuncs);
                                 } else if (map[make][bucket.label].confidence === 'claimed') {
                                     map[make][bucket.label].confidence = 'inferred';
                                 }
@@ -304,13 +305,13 @@ export default function ToolCoverageHeatmap() {
                     const bucket = YEAR_BUCKETS.find(b => year >= b.start && year <= b.end);
                     if (!bucket) continue;
                     if (!map[make][bucket.label]) {
-                        map[make][bucket.label] = mkCell('base', 'explicit');
+                        map[make][bucket.label] = mkCell('base', 'explicit', baseFuncs);
                     } else {
                         map[make][bucket.label].confidence = 'explicit'; // Upgrade to explicit
                     }
                     mergeIntoCell(map[make][bucket.label]);
                     if (!yearMap[make][yearStr]) {
-                        yearMap[make][yearStr] = mkCell('base', 'explicit');
+                        yearMap[make][yearStr] = mkCell('base', 'explicit', baseFuncs);
                     } else {
                         yearMap[make][yearStr].confidence = 'explicit';
                     }
