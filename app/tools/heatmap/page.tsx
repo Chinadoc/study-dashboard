@@ -66,6 +66,19 @@ const normalizeMake = (m: string): string | null => {
     return MAKE_NORMALIZE[m] || m;
 };
 
+// Function display labels & icons for locksmith capabilities
+const FUNC_DISPLAY: Record<string, { label: string; icon: string; color: string }> = {
+    key_programming: { label: 'Key Prog', icon: '🔑', color: 'text-green-400' },
+    all_keys_lost: { label: 'AKL', icon: '🚨', color: 'text-red-400' },
+    isn_read: { label: 'ISN Read', icon: '📟', color: 'text-cyan-400' },
+    obd_mode: { label: 'OBD', icon: '🔌', color: 'text-yellow-400' },
+    bench_mode: { label: 'Bench', icon: '🧪', color: 'text-orange-400' },
+    boot_mode: { label: 'Boot', icon: '⚡', color: 'text-purple-400' },
+    ecu_cloning: { label: 'Clone', icon: '🧬', color: 'text-blue-400' },
+    odometer: { label: 'Odo', icon: '📊', color: 'text-pink-400' },
+    eeprom_read: { label: 'EEPROM', icon: '💾', color: 'text-amber-400' },
+};
+
 /* ───────── main component ───────── */
 export default function ToolCoverageHeatmap() {
     const [families, setFamilies] = useState<Record<string, ToolFamily>>({});
@@ -293,6 +306,7 @@ export default function ToolCoverageHeatmap() {
         maxPrice: number | null;
         types: Set<string>;
         newMakes: string[];    // makes not in base coverage
+        allFunctions: string[];  // unique functions across all expansions in group
     }
 
     const expansionGroups = useMemo((): ExpGroup[] => {
@@ -317,12 +331,16 @@ export default function ToolCoverageHeatmap() {
                     maxPrice: null,
                     types: new Set(),
                     newMakes: uniqueMakes.filter(m => !baseMakeSet.has(m)),
+                    allFunctions: [],
                 });
             }
             const group = groupMap.get(key)!;
             group.indices.push(idx);
             group.names.push(exp.name);
             group.types.add(exp.type);
+            for (const f of exp.functions) {
+                if (!group.allFunctions.includes(f)) group.allFunctions.push(f);
+            }
             if (exp.price != null) {
                 if (group.minPrice === null || exp.price < group.minPrice) group.minPrice = exp.price;
                 if (group.maxPrice === null || exp.price > group.maxPrice) group.maxPrice = exp.price;
@@ -543,6 +561,21 @@ export default function ToolCoverageHeatmap() {
                                                                     <span className="text-[9px] text-emerald-400/80">🆕 +{group.newMakes.length} new</span>
                                                                 )}
                                                             </div>
+                                                            {group.allFunctions.length > 0 && (
+                                                                <div className="flex flex-wrap gap-1 mt-1 ml-[18px]">
+                                                                    {group.allFunctions.slice(0, 4).map(f => {
+                                                                        const fd = FUNC_DISPLAY[f];
+                                                                        return fd ? (
+                                                                            <span key={f} className={`text-[8px] px-1 py-0.5 rounded bg-zinc-800/80 ${fd.color}`}>
+                                                                                {fd.icon} {fd.label}
+                                                                            </span>
+                                                                        ) : null;
+                                                                    })}
+                                                                    {group.allFunctions.length > 4 && (
+                                                                        <span className="text-[8px] text-zinc-500">+{group.allFunctions.length - 4}</span>
+                                                                    )}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <div className="flex-shrink-0 text-right">
                                                             {group.minPrice != null && (
@@ -742,19 +775,35 @@ export default function ToolCoverageHeatmap() {
                             {hoveredCell.make} · {isYear ? hoveredCell.bucket : hoveredCell.bucket}
                         </div>
                         <div className="text-amber-400/70 text-[9px] mb-1 italic">Manufacturer-claimed</div>
-                        {cellData.source !== 'base' && (
-                            <div className="text-blue-300 text-[10px] mb-1">
-                                🔌 Via: {cellData.expansionNames.slice(0, 2).join(', ')}
-                            </div>
-                        )}
-                        {cellData.ecu.length > 0 && (
-                            <div className="text-zinc-400 text-[10px]">
-                                ECU: {cellData.ecu.slice(0, 3).join(', ')}
+                        <div className="flex items-center gap-1 mb-1">
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded ${cellData.source === 'base' ? 'bg-purple-500/20 text-purple-300' : cellData.source === 'expansion' ? 'bg-blue-500/20 text-blue-300' : 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-zinc-200'}`}>
+                                {cellData.source === 'base' ? '⬣ Base' : cellData.source === 'expansion' ? '🔌 Add-on' : '⬣ Base + 🔌 Add-on'}
+                            </span>
+                        </div>
+                        {cellData.source !== 'base' && cellData.expansionNames.length > 0 && (
+                            <div className="text-blue-300/70 text-[9px] mb-1 truncate max-w-[250px]">
+                                Via: {cellData.expansionNames.slice(0, 2).join(', ')}
                             </div>
                         )}
                         {cellData.functions.length > 0 && (
-                            <div className="text-zinc-400 text-[10px]">
-                                Func: {cellData.functions.slice(0, 3).join(', ')}
+                            <div className="flex flex-wrap gap-1 mt-1">
+                                {cellData.functions.slice(0, 5).map(f => {
+                                    const fd = FUNC_DISPLAY[f];
+                                    return fd ? (
+                                        <span key={f} className={`text-[8px] px-1 py-0.5 rounded bg-zinc-700/80 ${fd.color}`}>
+                                            {fd.icon} {fd.label}
+                                        </span>
+                                    ) : (
+                                        <span key={f} className="text-[8px] px-1 py-0.5 rounded bg-zinc-700/80 text-zinc-400">
+                                            {f}
+                                        </span>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        {cellData.ecu.length > 0 && (
+                            <div className="text-zinc-500 text-[9px] mt-1">
+                                ECU: {cellData.ecu.slice(0, 3).join(', ')}
                             </div>
                         )}
                     </div>
