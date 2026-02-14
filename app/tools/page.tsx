@@ -721,7 +721,7 @@ export default function ToolCoverageHeatmap() {
                         <div className="flex items-center gap-3">
                             <span className="text-3xl">🛠️</span>
                             <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                                Tool Intelligence
+                                Heatmap
                             </h1>
                         </div>
                         <Link
